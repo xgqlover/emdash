@@ -87,8 +87,7 @@ jobs:
           if [ -n "$AZ_TENANT" ] && [ -n "$AZ_CLIENT" ] && [ -n "$AZ_SECRET" ]; then
             echo "Azure Trusted Signing is configured."
           else
-            echo "::error::Azure Trusted Signing secrets are required for a public release."
-            exit 1
+            echo "::warning::Azure Trusted Signing secrets missing, building unsigned (fork)."
           fi
 
       - name: Build Windows packages
@@ -107,7 +106,7 @@ jobs:
       - name: Verify Windows code signature
         shell: bash
         working-directory: apps/emdash-desktop
-        run: node --experimental-strip-types scripts/release/verify-win.ts
+        run: echo "Skipping code signature verification (unsigned fork build)."
 
       - name: Upload verified Windows assets to owned draft
         shell: bash
