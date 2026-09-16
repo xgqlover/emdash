@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import {
   PageLayout,
   type PageNavItem,
@@ -23,8 +24,8 @@ import {
 } from '@core/primitives/keybindings/browser';
 import { resolveDetailLevels, type ResolvedDetailLevel } from './settings-detail-path';
 
-const LOCAL_SECTION: PageNavSection = { kind: 'section', id: 'local', label: 'Local' };
-const REMOTE_SECTION: PageNavSection = { kind: 'section', id: 'remote', label: 'Remote' };
+const LOCAL_SECTION: PageNavSection = { kind: 'section', id: 'local', label: t('local') };
+const REMOTE_SECTION: PageNavSection = { kind: 'section', id: 'remote', label: t('remote') };
 const SETTINGS_SEARCH_HOTKEY = chord('Mod+F');
 
 const SIDEBAR_ITEMS: PageSidebarMenuItem[] = [
@@ -161,8 +162,8 @@ export const SettingsPage = observer(function SettingsPage({
             header={
               <SearchInput
                 ref={searchInputRef}
-                placeholder="Search settings"
-                aria-label="Search settings"
+                placeholder={t('search_settings')}
+                aria-label={t('search_settings')}
                 aria-keyshortcuts="Meta+F Control+F /"
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
@@ -170,7 +171,7 @@ export const SettingsPage = observer(function SettingsPage({
                 shortcut={<SettingsSearchShortcut />}
               />
             }
-            emptyMessage={isSearching ? 'No settings found' : undefined}
+            emptyMessage={isSearching ? t('no_settings_found') : undefined}
             footer={
               <button
                 type="button"
@@ -178,7 +179,7 @@ export const SettingsPage = observer(function SettingsPage({
                 onClick={() => void openExternal('https://docs.emdash.sh')}
               >
                 <Icon name="external-link" size="sm" />
-                <span>View Docs</span>
+                <span>{t('view_docs')}</span>
               </button>
             }
             onSelect={(item) => {

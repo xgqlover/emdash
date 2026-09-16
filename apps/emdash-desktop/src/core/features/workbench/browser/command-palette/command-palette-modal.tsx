@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { Command } from 'cmdk';
 import { X } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
@@ -165,7 +166,7 @@ export function CommandPaletteView({
               clearMode();
             }
           }}
-          placeholder="Search tasks, projects, actions…"
+          placeholder={t('search_all')}
           className="min-w-0 flex-1 bg-transparent px-2 py-3 text-sm outline-none placeholder:text-foreground/40"
           autoFocus
         />

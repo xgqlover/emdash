@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 import { Button, Resizable, toast, useCollapsiblePanelBinding } from '@emdash/ui/react/primitives';
 import { Loader2 } from 'lucide-react';
 import { observer } from 'mobx-react-lite';

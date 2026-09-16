@@ -32,4 +32,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   reportBootUsable: () => {
     ipcRenderer.send('emdash:boot-usable-workspace');
   },
+  // [XG-CUSTOM] CDP 桥接：截图当前浏览器标签页 / 拿当前标签页 URL（浮窗 📷 用）。
+  captureCurrentTab: () => ipcRenderer.invoke('xiangwo:capture-current-tab'),
+  getCurrentTabUrl: () => ipcRenderer.invoke('xiangwo:get-current-tab-url'),
+  // [XG-CUSTOM] 浮窗标志：主进程 additionalArguments 传入（不依赖 URL）。
+  isXiangwoFloating: process.argv.includes('--xiangwo-floating'),
+  // [XG-CUSTOM] 交接台桥接：list / handoff / takeover / complete（调 task-spaces.mjs）。
+  taskSpaceList: () => ipcRenderer.invoke('xiangwo:task-space-list'),
+  taskSpaceHandoff: (id: string) => ipcRenderer.invoke('xiangwo:task-space-handoff', id),
+  taskSpaceTakeover: (id: string) => ipcRenderer.invoke('xiangwo:task-space-takeover', id),
+  taskSpaceComplete: (id: string, keep: boolean) => ipcRenderer.invoke('xiangwo:task-space-complete', id, keep),
 });

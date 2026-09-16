@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { PageLayout } from '@emdash/ui/react/patterns';
 import { BrowserSettingsCard } from '../components/BrowserSettingsCard';
 
@@ -6,8 +7,8 @@ export function BrowserSettingsPage() {
     <div className="space-y-8">
       <PageLayout.Header
         sticky
-        title="Browser"
-        description="Manage browser profiles and their stored logins."
+        title={t('browser')}
+        description={t('browser_desc')}
       />
       <BrowserSettingsCard />
     </div>

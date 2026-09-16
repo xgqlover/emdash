@@ -13,6 +13,14 @@ export async function openExternal(url: string) {
   return (await getHostClient()).openExternal({ url });
 }
 
+export async function openXiangwoFloating() {
+  return (await getHostClient()).openXiangwoFloating();
+}
+
+export async function openWeKnora() {
+  return (await getHostClient()).openWeKnora();
+}
+
 export async function copyTextToClipboard(text: string) {
   return (await getHostClient()).clipboardWriteText({ text });
 }

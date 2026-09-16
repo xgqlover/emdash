@@ -1,3 +1,6 @@
+import { getTaskManagerStore } from '@core/features/tasks/api/browser/task-state/task-selectors';
+import { taskViewDef } from '@core/features/tasks/contributions/views';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 import { Clock, FolderInput, MessageSquareShare, Settings } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
@@ -31,6 +34,42 @@ import { useSidebarDrop } from './use-sidebar-drop';
 
 export const LeftSidebar: React.FC = observer(function LeftSidebar() {
   const { navigate } = useNavigate();
+
+  // [XG-CUSTOM] 「🧠 项我」→ 原生 task + conversation（ACP），用 emdash 原生聊天窗
+  const openXiangwoMain = async () => {
+    const projectId = 'xiangwo';
+    const taskId = 'xiangwo-main';
+    const manager = getTaskManagerStore(projectId);
+    if (!manager) {
+      navigate(taskViewDef({ projectId, taskId }));
+      return;
+    }
+    if (!manager.tasks.has(taskId)) {
+      await manager.createTask({
+        id: taskId,
+        projectId,
+        taskConfig: {
+          version: '1',
+          name: '项我',
+          initialConversation: {
+            id: 'xiangwo-main-conv',
+            provider: 'xiangwo',
+            title: '项我主对话',
+            type: 'acp',
+          },
+        },
+        workspaceConfig: {
+          version: '2',
+          git: { kind: 'none' },
+          workspace: {
+            kind: 'repository-instance',
+            workspaceId: 'repository:/persistent/home/xgqlover/天天项上/五层四维记忆系统/xiangwo-workspace',
+          },
+        },
+      });
+    }
+    navigate(taskViewDef({ projectId, taskId }));
+  };
   const { currentView } = useWorkspaceSlots();
 
   const openFeedbackModal = useOpenModal('feedbackModal');
@@ -52,7 +91,7 @@ export const LeftSidebar: React.FC = observer(function LeftSidebar() {
       {isDragOver && (
         <div className="pointer-events-none absolute inset-0 z-50 flex flex-col items-center justify-center gap-2 bg-background-tertiary/80 backdrop-blur-sm">
           <FolderInput className="size-8 text-foreground" />
-          <span className="text-xs font-medium text-foreground">Drop to add project</span>
+          <span className="text-xs font-medium text-foreground">{t('drop_to_add_project')}</span>
         </div>
       )}
       <SidebarSpace />
@@ -60,6 +99,14 @@ export const LeftSidebar: React.FC = observer(function LeftSidebar() {
         <SidebarContent className="flex flex-col">
           <SidebarPinnedTaskList />
           <SidebarGroup className="mb-0 flex min-h-0 flex-1 flex-col">
+            <button
+              type="button"
+              onClick={() => void openXiangwoMain()}
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium text-foreground hover:bg-background-secondary"
+            >
+              <span aria-hidden="true">🧠</span>
+              <span className="truncate">项我</span>
+            </button>
             <ProjectsGroupLabel />
             <SidebarGroupContent className="flex min-h-0 flex-1 flex-col">
               <SidebarMenu className="flex min-h-0 flex-1 flex-col">
@@ -74,23 +121,23 @@ export const LeftSidebar: React.FC = observer(function LeftSidebar() {
             <SidebarMenuButton
               isActive={isCurrentView(currentView, 'automations')}
               onClick={() => navigate(automationsViewDef())}
-              aria-label="Automations"
+              aria-label={t('automations')}
               className="w-full justify-between"
             >
               <span className="flex min-w-0 items-center gap-2">
                 <Clock className="h-5 w-5 shrink-0 sm:h-4 sm:w-4" />
-                <span className="truncate">Automations</span>
+                <span className="truncate">{t('automations')}</span>
               </span>
             </SidebarMenuButton>
             <SidebarMenuButton
               isActive={isCurrentView(currentView, 'settings')}
               onClick={() => navigate(settingsViewDef())}
-              aria-label="Settings"
+              aria-label={t('settings')}
               className="w-full justify-between"
             >
               <span className="flex items-center gap-2">
                 <Settings className="h-5 w-5 sm:h-4 sm:w-4" />
-                Settings
+                {t('settings')}
               </span>
               <BoundShortcut command="app.settings" variant="keycaps" />
             </SidebarMenuButton>
@@ -106,7 +153,7 @@ export const LeftSidebar: React.FC = observer(function LeftSidebar() {
             onClick={() => void openFeedbackModal({})}
           >
             <MessageSquareShare className="size-4 shrink-0" />
-            <span className="truncate">Give feedback</span>
+            <span className="truncate">{t('give_feedback')}</span>
           </button>
           <UpdateSection />
         </div>

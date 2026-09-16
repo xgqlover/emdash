@@ -15,8 +15,8 @@ interface RunStatusBadgeProps {
 const BASE = 'flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-xs';
 
 const PROGRESS_LABELS: Partial<Record<AutomationRunStatus, string>> = {
-  provisioning_workspace: 'Preparing workspace',
-  starting_session: 'Starting agent',
+  provisioning_workspace: '准备工作中',
+  starting_session: '正在启动代理',
 };
 
 export function RunStatusBadge({ status, error }: RunStatusBadgeProps) {

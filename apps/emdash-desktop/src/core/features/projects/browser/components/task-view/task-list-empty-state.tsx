@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { menuItemBase } from '@emdash/ui/styles/recipes/menu-item';
 import { CircleDot, GitBranch, GitPullRequest, type LucideIcon } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
@@ -47,15 +48,15 @@ export const TaskListEmptyState = observer(function TaskListEmptyState({
 
   const actions: TaskAction[] = [
     {
-      label: 'Create a Task from a Branch',
-      description: 'Create a task from an existing branch',
+      label: t('create_from_branch'),
+      description: t('create_from_existing_branch'),
       icon: GitBranch,
       disabled: !!createDisabledReason,
       disabledReason: createDisabledReason,
       onActivate: () => void openTaskModal({ projectId, strategy: 'from-branch' }),
     },
     {
-      label: 'Create from Issue',
+      label: t('create_from_issue'),
       description: hasAnyIntegration
         ? 'Link and create a task from an issue'
         : 'Configure issue integrations',
@@ -68,7 +69,7 @@ export const TaskListEmptyState = observer(function TaskListEmptyState({
           : navigate(settingsViewDef({ tab: 'integrations' })),
     },
     {
-      label: 'Create from Pull Request',
+      label: t('create_from_pr'),
       description: 'Create a task from a pull request',
       icon: GitPullRequest,
       disabled: !!createDisabledReason || !supportsPullRequests,

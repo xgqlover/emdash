@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { SettingsCard } from '@emdash/ui/react/patterns';
 import { SeparatedList, Switch } from '@emdash/ui/react/primitives';
 import React from 'react';
@@ -24,13 +25,13 @@ const SidebarMetadataSettingsCard: React.FC = () => {
     <SettingsCard>
       <SeparatedList gap="1rem" direction="column">
         <SettingRow
-          title="Left sidebar line changes"
-          description="Show added and removed line counts for tasks in the left sidebar."
+          title={t('left_sidebar_line_changes')}
+          description={t('left_sidebar_line_changes_desc')}
           control={
             <>
               <ResetToDefaultButton
                 visible={isFieldOverridden('showLeftSidebarLineChanges')}
-                defaultLabel="on"
+                defaultLabel={t('on')}
                 onReset={() => resetField('showLeftSidebarLineChanges')}
                 disabled={busy}
               />
@@ -44,13 +45,13 @@ const SidebarMetadataSettingsCard: React.FC = () => {
           }
         />
         <SettingRow
-          title="Left sidebar PR status"
-          description="Show GitHub PR merge and status icons for tasks in the left sidebar."
+          title={t('left_sidebar_pr_status')}
+          description={t('left_sidebar_pr_status_desc')}
           control={
             <>
               <ResetToDefaultButton
                 visible={isFieldOverridden('showLeftSidebarPrStatus')}
-                defaultLabel="on"
+                defaultLabel={t('on')}
                 onReset={() => resetField('showLeftSidebarPrStatus')}
                 disabled={busy}
               />
@@ -64,13 +65,13 @@ const SidebarMetadataSettingsCard: React.FC = () => {
           }
         />
         <SettingRow
-          title="Left sidebar timestamps"
-          description="Show the relative task timestamp in the left sidebar."
+          title={t('left_sidebar_timestamps')}
+          description={t('left_sidebar_timestamps_desc')}
           control={
             <>
               <ResetToDefaultButton
                 visible={isFieldOverridden('showLeftSidebarTimestamps')}
-                defaultLabel="on"
+                defaultLabel={t('on')}
                 onReset={() => resetField('showLeftSidebarTimestamps')}
                 disabled={busy}
               />

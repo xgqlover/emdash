@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { SettingsCard } from '@emdash/ui/react/patterns';
 import { Switch, Tooltip } from '@emdash/ui/react/primitives';
 import { useMemo } from 'react';
@@ -37,7 +38,7 @@ export default function HiddenToolsSettingsCard() {
           const label = labels[app.id] ?? app.label;
           const icon = icons[app.id];
           const indicatorClass = isDetected ? 'bg-foreground-success' : 'bg-foreground-passive/50';
-          const statusLabel = isDetected ? 'Detected' : 'Not detected';
+          const statusLabel = isDetected ? t('detected') : t('not_detected');
 
           return (
             <IntegrationRow
@@ -67,10 +68,10 @@ export default function HiddenToolsSettingsCard() {
                     </Tooltip.Trigger>
                     <Tooltip.Content side="top" className="text-xs">
                       {!isDetected
-                        ? 'Install this tool to show it in menu'
+                        ? t('install_to_show')
                         : isVisible
-                          ? 'Hide from menu'
-                          : 'Show in menu'}
+                          ? t('hide_from_menu')
+                          : t('show_in_menu')}
                     </Tooltip.Content>
                   </Tooltip.Root>
                 </Tooltip.Provider>

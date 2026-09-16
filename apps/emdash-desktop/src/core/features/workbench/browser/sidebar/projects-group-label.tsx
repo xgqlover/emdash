@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 import { Button, DropdownMenu, MicroLabel, Tooltip } from '@emdash/ui/react/primitives';
 import { FolderPlus, ListFilter } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
@@ -10,7 +11,7 @@ export const ProjectsGroupLabel = observer(function ProjectsGroupLabel() {
 
   return (
     <div className="flex h-[40px] items-center justify-between pr-2.5 pl-5">
-      <MicroLabel className="font-medium text-foreground-tertiary-passive">Projects</MicroLabel>
+      <MicroLabel className="font-medium text-foreground-tertiary-passive">{t('projects')}</MicroLabel>
       <div className="flex items-center gap-1">
         <DropdownMenu.Root>
           <Tooltip.Root>
@@ -18,7 +19,7 @@ export const ProjectsGroupLabel = observer(function ProjectsGroupLabel() {
               render={
                 <Tooltip.Trigger
                   render={
-                    <Button type="button" variant="ghost" size="xs" icon aria-label="Sort projects">
+                    <Button type="button" variant="ghost" size="xs" icon aria-label={t('sort_projects')}>
                       <ListFilter />
                     </Button>
                   }
@@ -56,14 +57,14 @@ export const ProjectsGroupLabel = observer(function ProjectsGroupLabel() {
                 size="xs"
                 icon
                 onClick={() => void openAddProjectModal({})}
-                aria-label="Add Project"
+                aria-label={t('add_project')}
               >
                 <FolderPlus />
               </Button>
             }
           />
           <Tooltip.Content>
-            Add Project
+            {t('add_project')}
             <BoundShortcut command="app.newProject" variant="keycaps" />
           </Tooltip.Content>
         </Tooltip.Root>

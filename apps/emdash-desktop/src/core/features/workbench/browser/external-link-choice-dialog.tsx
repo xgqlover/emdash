@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { Button, Dialog, Tooltip } from '@emdash/ui/react/primitives';
 import { Check, Copy, ExternalLink, Globe } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -59,7 +60,7 @@ export function ExternalLinkChoiceDialog({
                     size="sm"
                     icon
                     className="absolute top-1.5 right-1.5"
-                    aria-label={copied ? 'Link copied' : 'Copy link'}
+                    aria-label={copied ? 'Link copied' : t('copy_link')}
                     onClick={() => void handleCopy()}
                   />
                 }
@@ -70,7 +71,7 @@ export function ExternalLinkChoiceDialog({
                   <Copy className="size-4" />
                 )}
               </Tooltip.Trigger>
-              <Tooltip.Content>{copied ? 'Copied' : 'Copy link'}</Tooltip.Content>
+              <Tooltip.Content>{copied ? t('copied') : t('copy_link')}</Tooltip.Content>
             </Tooltip.Root>
           </Tooltip.Provider>
         </div>

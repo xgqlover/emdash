@@ -1,4 +1,4 @@
-import type { AttachmentRef } from '@emdash/core/runtimes/acp/api/client';
+import type { AttachmentMimeType, AttachmentRef } from '@emdash/core/runtimes/acp/api/client';
 import { ChatComposer, ImageViewerDialog, MermaidViewerDialog } from '@emdash/ui/react/components';
 import type {
   CommandItem,
@@ -13,6 +13,11 @@ import { Button, toast } from '@emdash/ui/react/primitives';
 import { ArrowDown } from 'lucide-react';
 import { observer, useObserver } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+// [XG-CUSTOM] 项我 @ 专家补全清单（从 suagent_registry.py 生成）
+import { XIANGWO_BOTS, XIANGWO_ROLES, XIANGWO_SUBAGENTS } from './xiangwo-experts';
+// [XG-CUSTOM] 方案 B：@bot 后左侧切到对应 bot 大仓
+import { projectViewDef } from '@core/features/projects/contributions/views';
+import { useNavigate } from '@core/primitives/navigation/browser/navigation-hooks';
 import { createPortal } from 'react-dom';
 import { hostRefFromConnectionId } from '@core/features/agents/api/browser/client';
 import { useAgentMetadata } from '@core/features/agents/api/browser/use-agent-metadata';
@@ -24,6 +29,11 @@ import type {
   ChatView,
 } from '@core/features/conversations/api/browser/chat/chat-transcript';
 import { conversationRegistry } from '@core/features/conversations/api/browser/stores/conversation-registry';
+// TODO(conversations-extraction): Inject task editor/file-opening behavior into ACP chat.
+import {
+  openFileInAdjacentPane,
+  openFileInTaskEditor,
+} from '@core/features/editor/api/browser/open-file-in-file-editor';
 import { useConnectedIssueProviders } from '@core/features/integrations/api/browser/use-connected-issue-providers';
 import { IntegrationIcon } from '@core/features/integrations/contributions/browser/integration-icon';
 import { getIssuesClient } from '@core/features/issues/api/browser/client';
@@ -42,9 +52,13 @@ import {
   getRegisteredTaskData,
   getTaskStore,
 } from '@core/features/tasks/api/browser/task-state/task-selectors';
+import {
+  isHeicLikeFile,
+  isUnstableDropPath,
+} from '@core/features/terminals/api/browser/pty/terminal-image-paths';
 import { openModal } from '@core/manifests/browser/modal-api';
 import { projectAvailabilityUi } from '@core/manifests/browser/project-availability-ui';
-import { openExternal } from '@core/primitives/desktop-host/browser/host-client';
+import { openExternal, openXiangwoFloating } from '@core/primitives/desktop-host/browser/host-client';
 import { issueMentionToken, parseIssueMentionToken } from '@core/primitives/issues/api';
 import { linkedIssueMentionName, type LinkedIssue } from '@core/primitives/linked-issues/api';
 import { log } from '@core/primitives/logging/browser/logger';
@@ -52,21 +66,25 @@ import { usePaneContext } from '@core/primitives/workbench-shell/browser/tabs/pa
 import type { AcpChatStore, AcpPromptAttachment } from './acp-chat-store';
 import type { AcpChatTabResource } from './acp-chat-tab-resource';
 import { chatViewCommandForShortcut, executeChatViewCommand } from './acp-chat-view-commands';
-import {
-  shouldUseAcpImageAttachment,
-  toAcpImageAttachmentMimeType,
-  uploadDroppedFile,
-} from './acp-dropped-file';
 import { buildIssueMentionHiddenContext } from './issue-mention-context';
-import { createTranscriptFileCommands } from './transcript-file-commands';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const attachmentDataUrlCache = new Map<string, string>();
+const attachmentDataUrlCache = new Map<string, Promise<string | null>>();
 const ISSUE_SEARCH_MIN_LENGTH = 2;
 const ISSUE_SEARCH_LIMIT = 20;
-const SLASH_COMMANDS_SECTION = 'Commands';
-const SLASH_PROMPTS_SECTION = 'Prompts';
+const SLASH_COMMANDS_SECTION = '命令';
+const SLASH_PROMPTS_SECTION = '提示';
+
+// [XG-CUSTOM] 方案 B：@bot/@专家 → projectId 映射（@sxsj / @尚享设计主理人 → sxsj）
+// 只映射主 bot + 子代理（父 bot 就是大仓 projectId）；通用角色 bot='' 不映射（不切项我）
+const XIANGWO_PROJECT_BY_KEY: Record<string, string> = {};
+for (const item of [...XIANGWO_BOTS, ...XIANGWO_SUBAGENTS]) {
+  if (item.bot) {
+    XIANGWO_PROJECT_BY_KEY[item.id] = item.bot;
+    XIANGWO_PROJECT_BY_KEY[item.name] = item.bot;
+  }
+}
 
 function promptPreview(text: string): string {
   return text.split(/\r?\n/, 1)[0] ?? '';
@@ -116,6 +134,34 @@ function toComposerPermission(
   };
 }
 
+const supportedAttachmentMimeTypes = new Set<AttachmentMimeType>([
+  'image/png',
+  'image/jpeg',
+  'image/gif',
+  'image/webp',
+]);
+const attachmentMimeTypeByExtension: Record<string, AttachmentMimeType> = {
+  gif: 'image/gif',
+  jpeg: 'image/jpeg',
+  jpg: 'image/jpeg',
+  png: 'image/png',
+  webp: 'image/webp',
+};
+
+function toAttachmentMimeTypeValue(value: string): AttachmentMimeType | null {
+  const mimeType = value.toLowerCase();
+  return supportedAttachmentMimeTypes.has(mimeType as AttachmentMimeType)
+    ? (mimeType as AttachmentMimeType)
+    : null;
+}
+
+function toAttachmentMimeType(file: File): AttachmentMimeType | null {
+  const declaredMimeType = toAttachmentMimeTypeValue(file.type);
+  if (declaredMimeType) return declaredMimeType;
+  const extension = file.name.split('.').pop()?.toLowerCase();
+  return extension ? (attachmentMimeTypeByExtension[extension] ?? null) : null;
+}
+
 function readFileAsDataUrl(file: File): Promise<string | undefined> {
   return new Promise((resolve) => {
     const reader = new FileReader();
@@ -128,8 +174,8 @@ function readFileAsDataUrl(file: File): Promise<string | undefined> {
 async function uploadImageFile(
   store: AcpChatStore,
   file: File
-): Promise<AcpPromptAttachment | null> {
-  const mimeType = toAcpImageAttachmentMimeType(file);
+): Promise<ComposerAttachment | null> {
+  const mimeType = toAttachmentMimeType(file);
   if (!mimeType) {
     log.warn('Dropped image type is not supported for ACP attachments', {
       name: file.name,
@@ -138,10 +184,20 @@ async function uploadImageFile(
     return null;
   }
 
+  const originalPath = window.electronAPI.getPathForFile(file).trim();
+  const canReference =
+    originalPath.length > 0 && !isUnstableDropPath(originalPath) && !isHeicLikeFile(file);
   const previewUrl = await readFileAsDataUrl(file);
   let ref: AttachmentRef | null;
   try {
-    ref = await uploadDroppedFile(store, file, mimeType);
+    ref = canReference
+      ? await store.uploadAttachment({ originalPath, mimeType, name: file.name })
+      : await store.uploadAttachment({
+          source: file.stream(),
+          size: file.size,
+          mimeType,
+          name: file.name,
+        });
   } catch (error) {
     log.warn('Failed to prepare ACP attachment upload', { name: file.name, error });
     return null;
@@ -149,35 +205,30 @@ async function uploadImageFile(
 
   if (!ref) return null;
   return {
-    ref: { type: 'attachment', id: ref.id, name: ref.name, mimeType },
-    previewUrl,
-  };
-}
-
-function toComposerAttachment(attachment: AcpPromptAttachment): ComposerAttachment {
-  return {
-    id: attachment.ref.id,
-    name: attachment.ref.name ?? 'image',
+    id: ref.id,
+    name: ref.name,
     kind: 'image',
-    previewUrl: attachment.previewUrl,
-    mimeType: attachment.ref.mimeType,
+    previewUrl,
+    mimeType: ref.mimeType,
   };
 }
 
-async function resolveAttachmentDataUrl(store: AcpChatStore, id: string): Promise<string | null> {
-  const cacheKey = `${store.conversationId}:${id}`;
-  const cached = attachmentDataUrlCache.get(cacheKey);
+function resolveAttachmentDataUrl(store: AcpChatStore, id: string): Promise<string | null> {
+  if (!store.session) return Promise.resolve(null);
+  const cached = attachmentDataUrlCache.get(id);
   if (cached) return cached;
-  try {
-    const result = await store.downloadAttachment(id);
-    if (!result.success) return null;
-    const dataUrl = `data:${result.data.ref.mimeType};base64,${bytesToBase64(result.data.data)}`;
-    attachmentDataUrlCache.set(cacheKey, dataUrl);
-    return dataUrl;
-  } catch (error) {
-    log.warn('Failed to resolve ACP attachment', { id, error });
-    return null;
-  }
+  const promise = store.session
+    .downloadAttachment(id)
+    .then((result) => {
+      if (!result.success) return null;
+      return `data:${result.data.ref.mimeType};base64,${bytesToBase64(result.data.data)}`;
+    })
+    .catch((error: unknown) => {
+      log.warn('Failed to resolve ACP attachment', { id, error });
+      return null;
+    });
+  attachmentDataUrlCache.set(id, promise);
+  return promise;
 }
 
 function bytesToBase64(bytes: Uint8Array): string {
@@ -205,7 +256,9 @@ const ComposerForStore = observer(function ComposerForStore({
 }) {
   const editorApiRef = useRef<PromptEditorRef | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const attachments = store.draftAttachments.map(toComposerAttachment);
+  // [XG-CUSTOM] 方案 B：@bot/专家 后切左侧到对应 bot 大仓
+  const { navigate } = useNavigate();
+  const [attachments, setAttachments] = useState<ComposerAttachment[]>([]);
   const { value: promptLibrary } = usePromptLibrary();
   const disabledReason = projectAvailabilityUi.getLiveActionDisabledReason(store.projectId);
 
@@ -213,6 +266,31 @@ const ComposerForStore = observer(function ComposerForStore({
   useEffect(() => {
     editorApiRef.current?.focus();
   }, []);
+
+  useEffect(() => {
+    const editor = editorApiRef.current;
+    if (!editor || editor.getText() === store.draftText) return;
+    editor.setText(store.draftText);
+  }, [store, store.draftText]);
+
+  const buildPromptAttachments = useCallback(
+    (): AcpPromptAttachment[] =>
+      attachments
+        .filter((att) => att.kind === 'image' && toAttachmentMimeTypeValue(att.mimeType ?? ''))
+        .map((att) => {
+          const mimeType = toAttachmentMimeTypeValue(att.mimeType ?? '') ?? 'image/png';
+          return {
+            ref: {
+              type: 'attachment' as const,
+              id: att.id,
+              mimeType,
+              name: att.name,
+            },
+            previewUrl: att.previewUrl,
+          };
+        }),
+    [attachments]
+  );
 
   const buildHiddenIssueContext = useCallback(
     (value: string) =>
@@ -237,13 +315,38 @@ const ComposerForStore = observer(function ComposerForStore({
 
   const handleSubmit = useCallback(
     (value: string) => {
-      const promptAttachments = store.draftAttachments;
+      const promptAttachments = buildPromptAttachments();
       if (!value.trim() && promptAttachments.length === 0) return;
+      setAttachments([]);
+      editorApiRef.current?.clear();
+      // [XG-CUSTOM] 方案 B：@bot/@专家 后左侧切到对应 bot 大仓
+      // （@sxsj / @尚享设计主理人 → 切 sxsj 项目；@通用角色 不切；已在该仓则不重复切）
+      const mentionMatch = value.match(/@([a-zA-Z0-9_-]+|[\u4e00-\u9fff]+)/);
+      if (mentionMatch) {
+        const token = mentionMatch.group(1)!;
+        // [XG-CUSTOM] 只 @主 bot（XIANGWO_BOTS）切仓；@子代理/@通用专家 不切仓——
+        // 用户要的是「同一个 sxsj session 里 @专家 = 同一 session 的 tool_call」，切仓反而打断对话
+        const isBigBot = XIANGWO_BOTS.some((b) => b.id === token || b.name === token);
+        if (isBigBot) {
+          let targetProjectId = XIANGWO_PROJECT_BY_KEY[token];
+          // 前缀/缩写匹配：@尚享设计 → 尚享设计主理人；@sxs → sxsj
+          if (!targetProjectId) {
+            for (const [key, pid] of Object.entries(XIANGWO_PROJECT_BY_KEY)) {
+              if (key.startsWith(token)) {
+                targetProjectId = pid;
+                break;
+              }
+            }
+          }
+          if (targetProjectId && targetProjectId !== store.projectId) {
+            navigate(projectViewDef({ projectId: targetProjectId }));
+          }
+        }
+      }
       const hiddenContext = buildHiddenIssueContext(value);
       store.submitPrompt(value, promptAttachments, hiddenContext);
-      editorApiRef.current?.clear();
     },
-    [store, buildHiddenIssueContext]
+    [store, buildPromptAttachments, buildHiddenIssueContext, navigate]
   );
 
   const handleStop = useCallback(() => {
@@ -265,7 +368,7 @@ const ComposerForStore = observer(function ComposerForStore({
         return;
       }
       void openModal('confirmActionModal', {
-        title: 'Turn in progress',
+        title: '进行中',
         description: 'Send this queued prompt now and cancel the active turn?',
         confirmLabel: 'Cancel & Send',
         variant: 'destructive',
@@ -292,13 +395,6 @@ const ComposerForStore = observer(function ComposerForStore({
     [store]
   );
 
-  const handleCollaborationModeChange = useCallback(
-    (modeId: string) => {
-      store.setCollaborationMode(modeId);
-    },
-    [store]
-  );
-
   const handleEffortChange = useCallback(
     (effortId: string) => {
       store.setEffort(effortId);
@@ -310,47 +406,22 @@ const ComposerForStore = observer(function ComposerForStore({
     fileInputRef.current?.click();
   }, []);
 
-  const addFileMentions = useCallback(
-    async (files: File[]) => {
-      const regularFiles = files.filter((file) => !shouldUseAcpImageAttachment(file));
-      const refs = await Promise.all(
-        regularFiles.map(async (file) => {
-          try {
-            return await uploadDroppedFile(store, file);
-          } catch (error) {
-            log.warn('Failed to upload dropped ACP file', { name: file.name, error });
-            return null;
-          }
-        })
-      );
-
-      for (const [index, ref] of refs.entries()) {
-        if (!ref) continue;
-        if (!ref.targetPath) {
-          void store.deleteAttachment(ref.id);
-          toast.error('Failed to attach file', {
-            description: `${regularFiles[index]?.name ?? ref.name} has no target Host path.`,
-          });
-          continue;
-        }
-        const targetPath = ref.targetPath.replace(/\\/g, '/');
-        editorApiRef.current?.insertMention({
-          id: targetPath,
-          label: targetPath,
-          name: ref.name,
-          kind: 'file',
-        });
-      }
-    },
-    [store]
-  );
+  const insertFileMentions = useCallback((files: File[]) => {
+    for (const file of files) {
+      if (file.type.startsWith('image/')) continue;
+      const abs = window.electronAPI.getPathForFile(file).trim().replace(/\\/g, '/');
+      if (!abs) continue;
+      const name = abs.split('/').pop() ?? abs;
+      editorApiRef.current?.insertMention({ id: abs, label: abs, name, kind: 'file' });
+    }
+  }, []);
 
   const addImageFiles = useCallback(
     async (files: File[]) => {
-      const supportedFiles = files.filter((file) => toAcpImageAttachmentMimeType(file) !== null);
+      const supportedFiles = files.filter((file) => toAttachmentMimeType(file) !== null);
       if (supportedFiles.length < files.length) {
         const unsupportedNames = files
-          .filter((file) => toAcpImageAttachmentMimeType(file) === null)
+          .filter((file) => toAttachmentMimeType(file) === null)
           .map((file) => file.name || 'unnamed image')
           .join(', ');
         toast.error('Unsupported image format', {
@@ -359,22 +430,12 @@ const ComposerForStore = observer(function ComposerForStore({
       }
 
       const next = await Promise.all(supportedFiles.map((file) => uploadImageFile(store, file)));
-      const uploaded = next.filter((att): att is AcpPromptAttachment => att !== null);
+      const uploaded = next.filter((att): att is ComposerAttachment => att !== null);
       if (uploaded.length > 0) {
-        store.addDraftAttachments(uploaded);
+        setAttachments((prev) => [...prev, ...uploaded]);
       }
     },
     [store]
-  );
-
-  const handleFilesDropped = useCallback(
-    async (files: File[]) => {
-      const imagesMissingBrowserMime = files.filter(
-        (file) => !file.type.toLowerCase().startsWith('image/') && shouldUseAcpImageAttachment(file)
-      );
-      await Promise.all([addImageFiles(imagesMissingBrowserMime), addFileMentions(files)]);
-    },
-    [addFileMentions, addImageFiles]
   );
 
   const handleAttachmentsChange = useCallback(
@@ -382,9 +443,10 @@ const ComposerForStore = observer(function ComposerForStore({
       const nextIds = new Set(next.map((attachment) => attachment.id));
       for (const attachment of attachments) {
         if (attachment.kind === 'image' && !nextIds.has(attachment.id)) {
-          store.removeDraftAttachment(attachment.id);
+          void store.deleteAttachment(attachment.id);
         }
       }
+      setAttachments(next);
     },
     [attachments, store]
   );
@@ -395,10 +457,14 @@ const ComposerForStore = observer(function ComposerForStore({
       e.target.value = '';
       if (files.length === 0) return;
 
-      const images = files.filter(shouldUseAcpImageAttachment);
-      await Promise.all([addImageFiles(images), addFileMentions(files)]);
+      const images = files.filter((f) => f.type.startsWith('image/'));
+      if (images.length > 0) {
+        await addImageFiles(images);
+      }
+
+      insertFileMentions(files);
     },
-    [addFileMentions, addImageFiles]
+    [addImageFiles, insertFileMentions]
   );
 
   const workspaceId = useObserver(
@@ -426,10 +492,33 @@ const ComposerForStore = observer(function ComposerForStore({
   }, [connectedProviders, isProviderUsable, issueProviderContext.selectedIssueProvider]);
 
   const mentionProvider = useMemo<ContextMentionProvider | undefined>(() => {
-    if (!workspaceId && !linkedIssue && !issueProvider) return undefined;
+    // [XG-CUSTOM] 项我对话即使无 workspace/issue，也提供 @ 专家补全
+    const curProvId =
+      conversationRegistry.get(store.taskId)?.conversations.get(store.conversationId)?.data
+        .providerId ?? '';
+    const isXiangwo = curProvId.startsWith('xiangwo');
+    if (!workspaceId && !linkedIssue && !issueProvider && !isXiangwo) return undefined;
     const wsId = workspaceId;
     return {
       async search(query: string): Promise<MentionItem[]> {
+        // [XG-CUSTOM] @ 补全只保留主 bot（项我窗 @ 切仓用）；专家改用 / 候选，@ 不再列专家
+        const q = query.trim();
+        const expertPool = XIANGWO_BOTS;
+        const expertItems: MentionItem[] = expertPool
+          .filter(
+            (e) =>
+              !q ||
+              e.id.toLowerCase().includes(q.toLowerCase()) ||
+              e.name.includes(q)
+          )
+          .map((e) => ({
+            id: e.id,
+            label: e.name,
+            name: e.name,
+            kind: 'custom' as const,
+            description: '主 bot',
+          }));
+
         const pinnedIssue =
           linkedIssue && issueMatchesQuery(linkedIssue, query)
             ? toIssueMentionItem(linkedIssue)
@@ -485,15 +574,15 @@ const ComposerForStore = observer(function ComposerForStore({
           });
         }
 
-        const fileItems: MentionItem[] = files.map((file) => ({
-          id: file.relativePath,
-          label: file.relativePath,
-          name: file.filename,
-          kind: 'file',
-          description: file.relativePath,
+        const fileItems = files.map((f) => ({
+          id: f.path,
+          label: f.path,
+          name: f.filename,
+          kind: 'file' as const,
+          description: f.path,
         }));
 
-        return [...pinnedIssueItems, ...fileItems, ...searchedIssueItems];
+        return [...expertItems, ...pinnedIssueItems, ...fileItems, ...searchedIssueItems];
       },
     };
   }, [
@@ -501,6 +590,8 @@ const ComposerForStore = observer(function ComposerForStore({
     linkedIssue,
     issueProvider,
     store.projectId,
+    store.taskId,
+    store.conversationId,
     issueProviderContext.projectPath,
     issueProviderContext.repositoryUrl,
   ]);
@@ -552,7 +643,31 @@ const ComposerForStore = observer(function ComposerForStore({
           insertText: prompt.prompt,
           section: SLASH_PROMPTS_SECTION,
         }));
-      return [...commands, ...prompts];
+      // [XG-CUSTOM] 专家候选：打 / 列出专家（选中插入 /use <专家名>，agent.py 切换该 session 的专家）。
+      // bot 窗列本 bot 子代理，项我窗列主 bot + 通用角色
+      const curProviderId =
+        conversationRegistry.get(store.taskId)?.conversations.get(store.conversationId)?.data
+          .providerId ?? '';
+      const curBot = curProviderId.startsWith('xiangwo-')
+        ? curProviderId.slice('xiangwo-'.length)
+        : '';
+      const expertPool = curBot
+        ? XIANGWO_SUBAGENTS.filter((e) => e.bot === curBot)
+        : [...XIANGWO_BOTS, ...XIANGWO_ROLES];
+      const experts = expertPool
+        .filter(
+          (e) => !normalized || e.name.toLowerCase().includes(normalized) || e.id.includes(normalized)
+        )
+        .map((e) => ({
+          id: `use:${e.id}`,
+          name: `use ${e.name}`,
+          label: e.name,
+          description: `切换到专家「${e.name}」`,
+          behavior: 'insert-text' as const,
+          insertText: `/use ${e.name} `,
+          section: '专家',
+        }));
+      return [...experts, ...commands, ...prompts];
     },
     [store, promptLibrary]
   );
@@ -563,23 +678,23 @@ const ComposerForStore = observer(function ComposerForStore({
   return createPortal(
     <>
       <input ref={fileInputRef} type="file" multiple hidden onChange={handleFileInputChange} />
-      {!disabledReason && store.loadError && (
-        <div className="border-destructive/30 bg-destructive/5 mx-3 mb-1 flex items-center justify-between gap-2 rounded-md border px-2 py-1 text-xs">
-          <span className="truncate text-foreground-muted">{store.loadError.message}</span>
-          <Button variant="secondary" size="sm" onClick={() => store.retry()}>
-            Retry
-          </Button>
+      {disabledReason && (
+        <div
+          className="mx-3 mb-1 rounded-md border bg-background/95 px-2 py-1 text-center text-xs text-foreground-muted"
+          tabIndex={0}
+          role="note"
+        >
+          {disabledReason}
         </div>
       )}
-      <div>
+      <div inert={disabledReason ? true : undefined}>
         <ChatComposer
           isWorking={a.isWorking}
           canSubmit={a.canSubmit}
-          value={store.draftText}
           onSubmit={handleSubmit}
           onInputChange={(text) => store.setDraftText(text)}
-          onSubmitWhileWorking={store.liveActionsEnabled ? handleSubmit : undefined}
-          onStop={a.canCancel ? handleStop : undefined}
+          onSubmitWhileWorking={handleSubmit}
+          onStop={a.isWorking ? handleStop : undefined}
           permissionRequest={permissionRequest}
           permissionQueueCount={store.permissionQueue.length}
           onResolvePermission={handleResolvePermission}
@@ -591,18 +706,13 @@ const ComposerForStore = observer(function ComposerForStore({
           editorApiRef={editorApiRef}
           modelOptions={store.modelOptions}
           selectedModel={store.model ?? undefined}
-          onModelChange={store.liveActionsEnabled ? handleModelChange : undefined}
+          onModelChange={handleModelChange}
           effortOptions={store.effortOptions}
           selectedEffort={store.effort ?? undefined}
-          onEffortChange={store.liveActionsEnabled ? handleEffortChange : undefined}
+          onEffortChange={handleEffortChange}
           permissionModeOptions={store.permissionModeOptions}
           selectedPermissionMode={store.permissionMode ?? undefined}
-          onPermissionModeChange={store.liveActionsEnabled ? handleModeChange : undefined}
-          collaborationModeOptions={store.collaborationModeOptions}
-          selectedCollaborationMode={store.collaborationMode ?? undefined}
-          onCollaborationModeChange={
-            store.liveActionsEnabled ? handleCollaborationModeChange : undefined
-          }
+          onPermissionModeChange={handleModeChange}
           mcpServers={store.mcpServers}
           agentOptions={agentOptions}
           selectedAgent={providerId ?? undefined}
@@ -622,13 +732,9 @@ const ComposerForStore = observer(function ComposerForStore({
           queryCommands={querySlashItems}
           attachments={attachments}
           onAttachmentsChange={handleAttachmentsChange}
-          onAttach={store.liveActionsEnabled ? handleAttach : undefined}
-          onImageFilesDropped={
-            store.liveActionsEnabled ? (files) => void addImageFiles(files) : undefined
-          }
-          onFilesDropped={
-            store.liveActionsEnabled ? (files) => void handleFilesDropped(files) : undefined
-          }
+          onAttach={handleAttach}
+          onImageFilesDropped={(files) => void addImageFiles(files)}
+          onFilesDropped={insertFileMentions}
           onViewImage={(att) => onViewerOpen(att.previewUrl, att.name)}
         />
       </div>
@@ -763,11 +869,8 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
     setViewer({ src, alt });
   }, []);
 
-  const transcriptCommands = useMemo<ChatCommands>(() => {
-    const fileCommands = store
-      ? createTranscriptFileCommands({ projectId: store.projectId, taskId: store.taskId })
-      : null;
-    return {
+  const transcriptCommands = useMemo<ChatCommands>(
+    () => ({
       onViewImage: (arg) => {
         if (arg.attachment.dataUrl || !store) {
           handleViewerOpen(arg.attachment.dataUrl, arg.attachment.name);
@@ -784,12 +887,15 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
           svg: store?.chatContext.sharedCaches.renderMermaid(arg.chart) ?? null,
         });
       },
-      classifyLink: fileCommands?.classifyLink,
-      onOpenFile: fileCommands?.onOpenFile,
+      onOpenFile: (arg) => {
+        if (!store) return;
+        const open = arg.source === 'diff' ? openFileInAdjacentPane : openFileInTaskEditor;
+        void open(store.projectId, store.taskId, arg.path);
+      },
       onClickMention: (arg: Parameters<NonNullable<ChatCommands['onClickMention']>>[0]) => {
         if (!store) return;
         if (arg.kind === 'file') {
-          fileCommands?.openMentionFile(arg.id);
+          void openFileInTaskEditor(store.projectId, store.taskId, arg.id);
           return;
         }
         if (arg.kind === 'issue') {
@@ -809,23 +915,32 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
             });
         }
       },
-    };
-  }, [store, handleViewerOpen]);
+    }),
+    [store, handleViewerOpen]
+  );
 
   if (!store) return null;
 
   const unavailableWithoutTranscript =
     store.loadError?.kind === 'unavailable' && store.messageCount === 0;
-  const showComposer = store.historyKnown || store.messageCount > 0;
   const showBlockingOverlay =
-    !showComposer &&
-    (store.historyLoading ||
-      (store.loadError !== null && store.loadError.kind !== 'unavailable') ||
-      unavailableWithoutTranscript);
+    store.historyLoading ||
+    (store.loadError !== null && store.loadError.kind !== 'unavailable') ||
+    unavailableWithoutTranscript;
+  const showComposer =
+    !store.historyLoading && (store.loadError === null || store.loadError.kind === 'unavailable');
   const showHero = showComposer && store.isEmpty && store.loadError === null;
 
   return (
     <div ref={rootRef} className="surface-paper relative h-full overflow-hidden bg-(--em-surface)">
+      {/* [XG-CUSTOM] 💬 侧边聊天浮窗按钮：弹出置顶小窗，拖到任意浏览器旁当侧边聊天框 */}
+      <button
+        onClick={() => void openXiangwoFloating()}
+        title="弹出侧边聊天浮窗（置顶小窗，可拖到浏览器旁）"
+        className="absolute right-2 top-2 z-30 flex items-center gap-1 rounded-lg bg-gray-700 px-2.5 py-1.5 text-sm text-white hover:bg-gray-600"
+      >
+        💬 浮窗
+      </button>
       <ChatTranscript
         context={store.chatContext}
         state={store.chatState}
@@ -840,8 +955,10 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
         style={{ position: 'absolute', inset: 0 }}
       />
 
-      {/* Unknown restored history owns the content area until it can be laid out. Fresh chats
-          render their centered composer immediately, independently of provider activation. */}
+      {/* Loading / error overlay portaled into the library-owned slot.
+          The slot sits at z-index 15 (above pinned, below composer at 20).
+          Hide the composer in error state so the overlay owns the whole content area.
+          Precedence: error > loading. */}
       {overlaySlot &&
         showBlockingOverlay &&
         createPortal(
@@ -855,14 +972,14 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
           >
             {store.loadError?.kind === 'unavailable' ? (
               <div className="flex max-w-md flex-col items-center gap-2 px-6 text-center">
-                <span className="text-foreground">Chat unavailable</span>
+                <span className="text-foreground">聊天不可用</span>
                 <span className="text-xs text-foreground-muted">{store.loadError.message}</span>
               </div>
             ) : store.loadError !== null ? (
               store.loadError.kind === 'auth_required' ? (
                 <div className="flex max-w-md flex-col items-center gap-2 px-6 text-center">
                   <span className="text-foreground">
-                    {agent?.name ?? 'This agent'} needs you to sign in.
+                    {agent?.name ?? '此 agent'} 需要你登录。
                   </span>
                   <span className="text-xs text-foreground-muted">
                     {cliAuthMethod?.description ?? store.loadError.message}
@@ -925,7 +1042,7 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
             <Button
               variant="secondary"
               icon
-              aria-label="Scroll to bottom"
+              aria-label="滚动到底部"
               onClick={() => viewRef.current?.scrollToBottom({ behavior: 'smooth' })}
               className="pointer-events-auto rounded-full shadow-md"
             >

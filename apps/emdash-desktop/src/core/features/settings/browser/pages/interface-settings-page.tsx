@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { PageLayout, SettingsSection } from '@emdash/ui/react/patterns';
 import FilesSettingsCard from '../components/FilesSettingsCard';
 import HiddenToolsSettingsCard from '../components/HiddenToolsSettingsCard';
@@ -6,38 +7,34 @@ import KeyboardSettingsCard from '../components/KeyboardSettingsCard';
 import SidebarMetadataSettingsCard from '../components/SidebarMetadataSettingsCard';
 import TerminalSettingsCard from '../components/TerminalSettingsCard';
 import ThemeCard from '../components/ThemeCard';
-import { TrayIconSettingsRow } from '../components/TrayIconSettingsRow';
 
 export function InterfaceSettingsPage() {
   return (
     <div className="space-y-8 pb-4">
       <PageLayout.Header
         sticky
-        title="Interface"
-        description="Customize the appearance and behavior of the app."
+        title={t('interface')}
+        description={t('interface_desc')}
       />
-      <SettingsSection title="Color mode" bare>
+      <SettingsSection title={t('color_mode')} bare>
         <ThemeCard />
       </SettingsSection>
-      <SettingsSection title="Application icon">
-        <TrayIconSettingsRow />
-      </SettingsSection>
-      <SettingsSection title="Terminal" bare>
+      <SettingsSection title={t('terminal')} bare>
         <TerminalSettingsCard />
       </SettingsSection>
-      <SettingsSection title="Files" bare>
+      <SettingsSection title={t('files')} bare>
         <FilesSettingsCard />
       </SettingsSection>
-      <SettingsSection title="Sidebar" bare>
+      <SettingsSection title={t('sidebar')} bare>
         <SidebarMetadataSettingsCard />
       </SettingsSection>
       <SettingsSection bare>
         <InterfaceSettingsCard />
       </SettingsSection>
-      <SettingsSection title="Keyboard shortcuts" bare>
+      <SettingsSection title={t('keyboard_shortcuts')} bare>
         <KeyboardSettingsCard />
       </SettingsSection>
-      <SettingsSection title="Tools" bare>
+      <SettingsSection title={t('tools')} bare>
         <HiddenToolsSettingsCard />
       </SettingsSection>
     </div>

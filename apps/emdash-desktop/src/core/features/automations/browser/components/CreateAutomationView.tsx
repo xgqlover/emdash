@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import {
   Button,
   Collapsible,
@@ -7,7 +8,7 @@ import {
   Sheet,
   useToast,
 } from '@emdash/ui/react/primitives';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, ChevronDown } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import type { Automation } from '@core/primitives/automations/api';
@@ -93,8 +94,8 @@ export const CreateAutomationView = observer(function CreateAutomationView({
         taskConfig,
         projectId: effectiveProjectId,
       });
-      toast('Automation created', {
-        description: `"${saved.name}" is ready to go.`,
+      toast(t('automation_created'), {
+        description: `"${saved.name}" ${t('ready_to_go')}`,
         icon: <CheckCircle2 className="size-4 text-emerald-500" aria-hidden="true" />,
       });
       onSaved?.(saved);
@@ -111,17 +112,17 @@ export const CreateAutomationView = observer(function CreateAutomationView({
 
   return (
     <div className="flex h-full flex-col">
-      <SheetHeader title="Create automation" onClose={onClose} />
+      <SheetHeader title={t('create_automation')} onClose={onClose} />
       <div className="flex-1 overflow-y-auto">
         <div className="flex flex-col gap-4 px-4">
           <Field.Root>
-            <Label>Name</Label>
+            <Label>{t('name')}</Label>
             <Input
               bare
               autoFocus={name.trim().length === 0}
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Daily Pull Request Review"
+              placeholder={t('daily_pr_review')}
               className="h-9 px-0 text-lg!"
             />
           </Field.Root>
@@ -142,12 +143,20 @@ export const CreateAutomationView = observer(function CreateAutomationView({
       <Collapsible.Root
         open={!templatesCollapsed}
         onOpenChange={(open) => setTemplatesCollapsed(!open)}
-        className="border-t border-border bg-background"
+        className="group border-t border-border bg-background"
       >
-        {/* The whole row is the trigger; the primitive owns the trailing chevron. */}
-        <Collapsible.Trigger className="h-auto rounded-none px-4 py-3">
-          Use a template
-        </Collapsible.Trigger>
+        <div className="flex w-full items-center justify-between gap-3 p-4 py-3">
+          <Label>{t('use_template')}</Label>
+
+          <Collapsible.Trigger
+            hideChevron
+            render={
+              <Button variant="ghost" size="xs" icon>
+                <ChevronDown className="size-3.5 shrink-0 text-foreground-passive transition-transform duration-150 group-data-open:rotate-180" />
+              </Button>
+            }
+          ></Collapsible.Trigger>
+        </div>
         <Collapsible.Panel className="h-(--collapsible-panel-height) overflow-hidden transition-[height] duration-200 ease-out">
           <AutomationTemplateRail
             templates={emptyStateAutomationTemplates}

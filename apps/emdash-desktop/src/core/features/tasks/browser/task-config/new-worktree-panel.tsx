@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { Button, Combobox } from '@emdash/ui/react/primitives';
 import { ChevronDown, GitBranch, Layers } from 'lucide-react';
 import { ProjectBranchSelector } from '@core/features/source-control/contributions/browser/project-branch-selector';
@@ -37,7 +38,7 @@ export function NewWorktreePanel({
             <Combobox.Trigger className="flex w-full items-center justify-between gap-2 rounded-lg border border-border px-2.5 py-2 outline-none hover:bg-background-2 data-popup-open:bg-background-1">
               <div className="flex flex-col gap-1 text-left text-sm">
                 <span className="text-xs text-foreground-passive">
-                  {createBranchAndWorktree ? 'From branch' : 'Branch'}
+                  {createBranchAndWorktree ? t('from_branch') : t('branch')}
                 </span>
                 <span className="flex items-center gap-1">
                   <GitBranch

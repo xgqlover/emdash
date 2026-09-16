@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 import { Popover, Tooltip } from '@emdash/ui/react/primitives';
 import { ArrowUp, ChevronDown, ChevronUp, FileSearch } from 'lucide-react';
 import { useState, type CSSProperties } from 'react';
@@ -113,7 +114,7 @@ export function PromptActionsMenu({
                       type="button"
                       className="rounded-sm p-1 text-foreground-muted hover:bg-background-quaternary-2 hover:text-foreground focus:outline-none focus-visible:ring-1 focus-visible:ring-foreground/30"
                       onClick={() => toggleExpanded(action.id)}
-                      aria-label={`${expanded ? 'Collapse' : 'Expand'} ${action.prompt.title}`}
+                      aria-label={`${expanded ? t('collapse') : t('expand')} ${action.prompt.title}`}
                     >
                       {expanded ? (
                         <ChevronUp className="size-3.5" />

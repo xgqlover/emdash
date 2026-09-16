@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { Label } from '@emdash/ui/react/primitives';
 import type { BuiltinAutomationTemplate } from '../automation-template';
 import { AutomationTemplateCard } from './AutomationTemplateCard';
@@ -14,9 +15,9 @@ export function AutomationTemplatesEmptyState({
   return (
     <section className="flex flex-col gap-4 py-2">
       <div className="flex flex-col gap-1">
-        <Label>Start with a template</Label>
+        <Label>{t('start_with_template')}</Label>
         <p className="max-w-xl text-sm text-foreground-muted">
-          Choose a template and adjust it before creating your first automation
+          {t('choose_template_desc')}
         </p>
       </div>
       <div className="grid grid-cols-3 gap-3">

@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { ContextMenu, Tooltip } from '@emdash/ui/react/primitives';
 import {
   ChevronRight,
@@ -45,8 +46,8 @@ import {
 } from './sidebar-primitives';
 
 const UNREGISTERED_STAGE_LABEL: Record<ProjectCreationStage, string> = {
-  'creating-repo': 'Creating repository…',
-  cloning: 'Cloning…',
+  'creating-repo': t('creating_repository'),
+  cloning: t('cloning'),
   registering: 'Registering…',
 };
 

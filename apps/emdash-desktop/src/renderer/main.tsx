@@ -1,3 +1,4 @@
+import './lib/i18n'; // [XG-CUSTOM]
 import {
   connectSession,
   createChatContext,
@@ -36,6 +37,7 @@ import {
 import { getNavigation } from '@core/primitives/navigation/browser/navigation-selectors';
 import { createAppScope } from '@core/primitives/scoped-stores/browser';
 import { appSubject } from '@core/primitives/subjects/api';
+import { XiangwoFloatingPanel } from './XiangwoFloatingPanel'; // [XG-CUSTOM]
 import { assertViewRuntimesComplete, registerViewRuntime } from '@core/primitives/views/react';
 import { ErrorBoundary } from '@renderer/error-boundary';
 import {
@@ -73,6 +75,27 @@ function bootMark(mark: string, extra?: Record<string, unknown>): void {
 }
 
 async function bootstrap() {
+  // [XG-CUSTOM] 浮窗路由：主进程 additionalArguments 传入 --xiangwo-floating 标志，
+  // preload 暴露 isXiangwoFloating，这里尽早渲染浮窗并返回，不走 workbench 初始化。
+  // 不依赖 URL（app:// 协议下 query/hash 都会被 net.fetch(file://) 吞掉）。
+  if ((window as unknown as { electronAPI?: { isXiangwoFloating?: boolean } }).electronAPI?.isXiangwoFloating) {
+    // [XG-CUSTOM] 关闭 splash：浮窗不走 bootstrap，dismissBootSplash 不会被调用。
+    // #boot-splash 是 z-index 2147483647 的全屏覆盖层（root 之外），会盖住浮窗界面。
+    document.getElementById('boot-splash')?.classList.add('boot-splash-done');
+    // [XG-CUSTOM] 浮窗渲染错误捕获：渲染抛错时把错误显示在 root，方便定位（否则卡 splash）。
+    const showErr = (msg: string) => {
+      const el = document.getElementById('root');
+      if (el) el.innerHTML = `<pre style="color:#f66;padding:16px;font-size:12px;white-space:pre-wrap">浮窗渲染错误:\n${msg}</pre>`;
+    };
+    window.addEventListener('error', (e) => showErr(e.message));
+    window.addEventListener('unhandledrejection', (e) => showErr(String(e.reason)));
+    try {
+      ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(<XiangwoFloatingPanel />);
+    } catch (e) {
+      showErr((e as Error).message);
+    }
+    return;
+  }
   bootMark('bootstrap-start');
   // The static splash from index.html is already painted; wire its watchdog
   // escape hatch before anything that could block.

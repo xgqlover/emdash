@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { Button, useToast } from '@emdash/ui/react/primitives';
 import { Loader2, LogIn, LogOut, User } from 'lucide-react';
 import { useState } from 'react';
@@ -57,8 +58,8 @@ export function AccountTab() {
 
   const handleSignOut = () => {
     void openConfirmSignOut({
-      title: 'Sign out of Emdash?',
-      description: 'You will need to sign in again to reconnect your Emdash account.',
+      title: t('sign_out_confirm'),
+      description: t('sign_out_desc'),
       confirmLabel: 'Sign Out',
       variant: 'default',
     }).then((outcome) => {
@@ -70,7 +71,7 @@ export function AccountTab() {
     return (
       <div className="text-muted-foreground flex items-center gap-2 text-sm">
         <Loader2 className="h-4 w-4 animate-spin" />
-        Loading account...
+        {t('loading_account')}
       </div>
     );
   }
@@ -100,7 +101,7 @@ export function AccountTab() {
           disabled={signOutMutation.isPending}
         >
           <LogOut className="h-3.5 w-3.5" />
-          Sign Out
+          {t('sign_out')}
         </Button>
       </div>
     );
@@ -110,9 +111,9 @@ export function AccountTab() {
     return (
       <div className="flex flex-col gap-3">
         <div>
-          <p className="text-sm font-medium text-foreground">Session expired</p>
+          <p className="text-sm font-medium text-foreground">{t('session_expired')}</p>
           <p className="text-muted-foreground text-xs">
-            Sign in again to reconnect your Emdash account.
+            {t('session_expired_desc')}
           </p>
         </div>
         {error && <p className="text-destructive text-xs">{error}</p>}
@@ -126,7 +127,7 @@ export function AccountTab() {
             disabled={signInMutation.isPending}
           >
             <LogIn className="h-3.5 w-3.5" />
-            {signInMutation.isPending ? 'Signing in...' : 'Sign In'}
+            {signInMutation.isPending ? t('signing_in') : t('sign_in')}
           </Button>
         )}
       </div>
@@ -136,9 +137,9 @@ export function AccountTab() {
   return (
     <div className="flex flex-col gap-3">
       <div>
-        <p className="text-sm font-medium text-foreground">Emdash Account</p>
+        <p className="text-sm font-medium text-foreground">{t('emdash_account')}</p>
         <p className="text-muted-foreground text-xs">
-          Create an Emdash account to automatically connect GitHub using OAuth2.
+          {t('emdash_account_desc')}
         </p>
       </div>
       {error && <p className="text-destructive text-xs">{error}</p>}
@@ -152,7 +153,7 @@ export function AccountTab() {
           disabled={signInMutation.isPending}
         >
           <LogIn className="h-3.5 w-3.5" />
-          {signInMutation.isPending ? 'Creating account...' : 'Create Account'}
+          {signInMutation.isPending ? t('creating_account') : t('create_account')}
         </Button>
       )}
     </div>

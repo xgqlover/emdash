@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { Button, DropdownMenu, Input, Switch, Tabs, Tooltip } from '@emdash/ui/react/primitives';
 import { Ellipsis, Play, Trash2 } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
@@ -13,8 +14,8 @@ import { SheetHeader } from './sheet-header';
 type AutomationTab = 'runs' | 'settings';
 
 const AUTOMATION_TABS: { value: AutomationTab; label: string }[] = [
-  { value: 'runs', label: 'Runs' },
-  { value: 'settings', label: 'Settings' },
+  { value: 'runs', label: 'runs' },
+  { value: 'settings', label: 'settings' },
 ];
 
 export interface AutomationDetailViewProps {
@@ -38,7 +39,7 @@ export const AutomationDetailView = observer(function AutomationDetailView({
   const availability = useAutomationTargetAvailability(automation.projectId);
   const runtimeAvailability = availability.data ?? {
     available: false as const,
-    reason: 'Checking automation runtime…',
+    reason: t('checking_runtime'),
   };
   const canEdit = runtimeAvailability.available;
 
@@ -59,7 +60,7 @@ export const AutomationDetailView = observer(function AutomationDetailView({
 
   return (
     <div className="flex h-full flex-col">
-      <SheetHeader title="Automation details" onClose={onClose} />
+      <SheetHeader title={t('automation_details')} onClose={onClose} />
       <div className="flex flex-col gap-2 px-4">
         <div className="flex w-full items-center justify-between gap-2">
           <div className="flex flex-1 flex-row items-center gap-3">
@@ -68,7 +69,7 @@ export const AutomationDetailView = observer(function AutomationDetailView({
               value={name}
               onChange={(e) => setName(e.target.value)}
               onBlur={handleNameBlur}
-              placeholder="Name this automation"
+              placeholder={t('name_this_automation')}
               className="flex-1 px-0 text-lg!"
               disabled={!canEdit}
             />
@@ -81,7 +82,7 @@ export const AutomationDetailView = observer(function AutomationDetailView({
               <DropdownMenu.Content side="bottom" align="end">
                 <DropdownMenu.Item variant="destructive" onClick={() => onDelete?.(automation)}>
                   <Trash2 />
-                  Delete automation
+                  {t('delete_automation')}
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu.Root>
@@ -89,7 +90,7 @@ export const AutomationDetailView = observer(function AutomationDetailView({
               checked={automation.enabled}
               disabled={!canEdit}
               onCheckedChange={(checked) => onToggleEnabled?.(automation, checked)}
-              aria-label={automation.enabled ? 'Pause automation' : 'Enable automation'}
+              aria-label={automation.enabled ? t('pause_automation') : t('enable_automation')}
             />
           </div>
         </div>
@@ -111,7 +112,7 @@ export const AutomationDetailView = observer(function AutomationDetailView({
             <Tabs.List>
               {AUTOMATION_TABS.map(({ value, label }) => (
                 <Tabs.Tab key={value} value={value}>
-                  {label}
+                  {t(label)}
                 </Tabs.Tab>
               ))}
             </Tabs.List>
@@ -138,16 +139,16 @@ export const AutomationDetailView = observer(function AutomationDetailView({
                 </Tooltip.Trigger>
                 <Tooltip.Content>
                   {automation.projectId == null
-                    ? 'Assign a project before running'
+                    ? t('assign_project_before_running')
                     : !canEdit
                       ? runtimeAvailability.reason
                       : !automation.enabled
-                        ? 'Enable the automation before running'
+                        ? t('enable_before_running')
                         : !automation.conversationConfig ||
                             !automation.triggerConfig ||
                             !automation.taskConfig
-                          ? 'Configure the automation before running'
-                          : 'Run now'}
+                          ? t('configure_before_running')
+                          : t('run_now')}
                 </Tooltip.Content>
               </Tooltip.Root>
             </div>

@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { ListPopoverCard } from '@emdash/ui/react/components';
 import { CollectionToolbar, CollectionView, SortSelect } from '@emdash/ui/react/patterns';
 import { Button, ToggleGroup } from '@emdash/ui/react/primitives';
@@ -59,7 +60,6 @@ const TasksTabs = observer(function TasksTabs({
     <ToggleGroup.Root
       multiple={false}
       value={[taskView.tab]}
-      aria-label="Task status"
       onValueChange={([value]) => {
         if (!value) return;
         const tab = value as TaskListTab;
@@ -77,56 +77,33 @@ const TasksTabs = observer(function TasksTabs({
 const TasksToolbar = observer(function TasksToolbar({
   view,
   taskView,
-  taskManager,
-  projectId,
 }: {
   view: TaskListViewModel;
   taskView: TaskViewStore;
-  taskManager: TaskManagerStore;
-  projectId: string;
 }) {
   const searchRef = useSearchFocusHotkeys();
   const search = view.useSearch();
   const sort = view.useSort();
-  const openCreateTaskModal = useOpenModal('taskModal');
-  const createAvailability = taskHostActionAvailability(projectId);
-  const createDisabledReason =
-    createAvailability.kind === 'disabled'
-      ? (projectAvailabilityUi.getLiveActionDisabledReason(projectId) ??
-        projectAvailabilityUi.defaultLiveActionDisabledReason)
-      : undefined;
 
   return (
-    <CollectionToolbar.Root>
-      <TasksTabs view={view} taskView={taskView} taskManager={taskManager} />
-      <CollectionToolbar.Separator />
-      <SortSelect
-        sort={{
-          ...sort,
-          // Persist the chosen sort in the project memento alongside the view.
-          setKey: (key) => {
-            sort.setKey(key);
-            taskView.setSortBy(key);
-          },
-        }}
-      />
-      <CollectionToolbar.Spacer />
-      <CollectionToolbar.Search
-        ref={searchRef}
-        value={search.query}
-        onValueChange={search.setQuery}
-        placeholder="Search tasks…"
-      />
-      <Button
-        variant="primary"
-        disabled={!!createDisabledReason}
-        title={createDisabledReason}
-        aria-label={createDisabledReason ? `Create Task. ${createDisabledReason}` : 'Create Task'}
-        onClick={() => void openCreateTaskModal({ projectId })}
-      >
-        Create Task <BoundShortcut command="app.newTask" variant="keycaps" />
-      </Button>
-    </CollectionToolbar.Root>
+    <CollectionToolbar
+      ref={searchRef}
+      searchValue={search.query}
+      onSearchValueChange={search.setQuery}
+      searchPlaceholder={t('search_tasks')}
+      actions={
+        <SortSelect
+          sort={{
+            ...sort,
+            // Persist the chosen sort in the project memento alongside the view.
+            setKey: (key) => {
+              sort.setKey(key);
+              taskView.setSortBy(key);
+            },
+          }}
+        />
+      }
+    />
   );
 });
 
@@ -210,6 +187,14 @@ const TaskListContent = observer(function TaskListContent({
   taskView: TaskViewStore;
 }) {
   const { navigate } = useNavigate();
+  const openCreateTaskModal = useOpenModal('taskModal');
+  const createAvailability = taskHostActionAvailability(projectId);
+  const createDisabledReason =
+    createAvailability.kind === 'disabled'
+      ? (projectAvailabilityUi.getLiveActionDisabledReason(projectId) ??
+        projectAvailabilityUi.defaultLiveActionDisabledReason)
+      : undefined;
+
   const [view] = useState(() =>
     createTaskListView({
       getTasks: () => listedTasks(taskManager),
@@ -226,22 +211,28 @@ const TaskListContent = observer(function TaskListContent({
 
   return (
     <view.Root>
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 pb-3">
+        <TasksTabs view={view} taskView={taskView} taskManager={taskManager} />
+        <Button
+          variant="primary"
+          disabled={!!createDisabledReason}
+          title={createDisabledReason}
+          aria-label={createDisabledReason ? `${t('create_task')}. ${createDisabledReason}` : t('create_task')}
+          onClick={() => void openCreateTaskModal({ projectId })}
+        >
+          Create Task <BoundShortcut command="app.newTask" variant="keycaps" />
+        </Button>
+      </div>
       <CollectionView
         view={view}
         renderRow={(task) => <TaskRow task={task} view={view} />}
-        toolbar={
-          <TasksToolbar
-            view={view}
-            taskView={taskView}
-            taskManager={taskManager}
-            projectId={projectId}
-          />
-        }
+        toolbar={<TasksToolbar view={view} taskView={taskView} />}
         footer={
           <TasksSelectionBar taskView={taskView} taskManager={taskManager} projectId={projectId} />
         }
         onItemClick={(task) => {
           if (task.data.archivedAt) return;
+          void taskManager.provisionTask(task.data.id);
           navigate(taskViewDef({ projectId, taskId: task.data.id }));
         }}
         emptySlot={

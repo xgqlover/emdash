@@ -34,7 +34,7 @@ export function useTaskName(opts?: {
   const handleTaskNameChange = useCallback((value: string) => {
     const transformed = liveTransformTaskName(value);
     setTaskName(transformed);
-    const hasDroppedChars = /[^a-z0-9\s-]/i.test(value);
+    const hasDroppedChars = /[^a-z0-9\s\p{L}-]/iu.test(value);
     setShowSlugHint(hasDroppedChars);
   }, []);
 

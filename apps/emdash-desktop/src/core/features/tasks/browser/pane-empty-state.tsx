@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { FileSearch, MessageSquare } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTaskViewContext } from '@core/features/tasks/contributions/browser/task-view-context';
@@ -47,7 +48,7 @@ export function PaneEmptyState() {
           onMouseEnter={() => setSelectedIndex(0)}
           onClick={actions[0]}
           icon={<MessageSquare className="size-3.5" />}
-          label="New conversation"
+          label={t('new_conversation')}
           commandId="task.newConversation"
         />
         <PaneEmptyStateAction
@@ -55,7 +56,7 @@ export function PaneEmptyState() {
           onMouseEnter={() => setSelectedIndex(1)}
           onClick={actions[1]}
           icon={<FileSearch className="size-3.5" />}
-          label="Open file"
+          label={t('open_file')}
           commandId="app.commandPalette"
         />
       </div>

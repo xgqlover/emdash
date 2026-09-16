@@ -72,6 +72,10 @@ class UpdateService implements Disposable {
 
     if (import.meta.env.DEV) return;
 
+    // [XG-CUSTOM] 定制版禁用自动更新：本版是本地中文化+修复版，不追官方更新，
+    // 否则用户点「更新」会被官方 AppImage 覆盖，中文化全部丢失。
+    return;
+
     this.setupAutoUpdater();
     this.setupEventListeners();
     this.active = true;

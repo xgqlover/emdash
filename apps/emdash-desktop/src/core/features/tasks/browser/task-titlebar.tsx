@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import {
   Badge,
   Button,
@@ -221,7 +222,7 @@ const ActiveTaskTitlebar = observer(function ActiveTaskTitlebar({
                           {isPulling
                             ? 'Pulling...'
                             : behindCount === 0
-                              ? 'Nothing to pull'
+                              ? t('nothing_to_pull')
                               : 'Pull changes'}
                         </Tooltip.Content>
                       </Tooltip.Root>
@@ -249,7 +250,7 @@ const ActiveTaskTitlebar = observer(function ActiveTaskTitlebar({
                           {isPushing
                             ? 'Pushing...'
                             : aheadCount === 0
-                              ? 'Nothing to push'
+                              ? t('nothing_to_push')
                               : 'Push changes'}
                         </Tooltip.Content>
                       </Tooltip.Root>

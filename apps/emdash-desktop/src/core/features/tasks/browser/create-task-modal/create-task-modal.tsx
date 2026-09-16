@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 import { Dialog } from '@emdash/ui/react/primitives';
 import { observer } from 'mobx-react-lite';
 import { useMemo } from 'react';
@@ -46,12 +47,10 @@ export const CreateTaskModal = observer(function CreateTaskModal({
   projectId,
   strategy: initialStrategy = 'from-branch',
   initialPR,
-  initialWorkspaceId,
 }: {
   projectId?: string;
   strategy?: 'from-branch' | 'from-issue' | 'from-pull-request';
   initialPR?: PullRequest;
-  initialWorkspaceId?: string;
 }) {
   const { complete } = useModalController('taskModal');
   const selectedProjectId = useDefaultProjectId(projectId);
@@ -90,8 +89,7 @@ export const CreateTaskModal = observer(function CreateTaskModal({
     currentBranch,
     repositoryWorkspaceId,
     resolvedInitialPR,
-    defaultLinkedType,
-    initialWorkspaceId
+    defaultLinkedType
   );
 
   const { autoApproveByDefault, includeIssueContextByDefault } = useTaskSettings();
@@ -122,7 +120,7 @@ export const CreateTaskModal = observer(function CreateTaskModal({
   return (
     <>
       <Dialog.Header className="flex items-center gap-2">
-        <Dialog.Title>Create Task</Dialog.Title>
+        <Dialog.Title>{t('create_task')}</Dialog.Title>
       </Dialog.Header>
       <Dialog.Body>
         <div className="flex w-full flex-col gap-5">
@@ -151,13 +149,13 @@ export const CreateTaskModal = observer(function CreateTaskModal({
               tabs={[
                 {
                   value: 'conversation',
-                  label: 'Initial Conversation',
+                  label: t('initial_conversation'),
                   content: <ConversationField />,
                 },
                 {
                   value: 'workspace',
-                  label: 'Workspace Settings',
-                  content: <WorkspaceSettingsSection defaultOpen={!!initialWorkspaceId} />,
+                  label: t('workspace_settings'),
+                  content: <WorkspaceSettingsSection defaultOpen={false} />,
                 },
               ]}
             />
@@ -173,9 +171,9 @@ export const CreateTaskModal = observer(function CreateTaskModal({
             !canCreate || initialConversation.issueContextEditorOpen || !!createDisabledReason
           }
           title={createDisabledReason}
-          aria-label={createDisabledReason ? `Create. ${createDisabledReason}` : 'Create'}
+          aria-label={createDisabledReason ? `${t('create')}. ${createDisabledReason}` : t('create')}
         >
-          Create
+          {t('create')}
         </ConfirmButton>
       </Dialog.Footer>
     </>

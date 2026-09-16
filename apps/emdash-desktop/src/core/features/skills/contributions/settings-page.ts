@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import type { SettingsPageTab } from '@core/features/settings/contributions/views';
 import { SkillsView } from '@core/features/skills/browser/components/SkillsView';
 import {
@@ -7,7 +8,7 @@ import {
 
 export const skillsSettingsPage = defineSettingsPageContribution({
   id: 'skills',
-  label: 'Skills',
+  label: t('skills'),
   icon: 'brain',
   component: SkillsView,
 } satisfies SettingsPageContribution<SettingsPageTab>);

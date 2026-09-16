@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { AgentStatus, BrailleSpinner } from '@emdash/ui/react/components';
 import { RelativeTime, Tooltip } from '@emdash/ui/react/primitives';
 import { observer } from 'mobx-react-lite';
@@ -36,7 +37,7 @@ export const TaskSidebarTrailingSlot = observer(function TaskSidebarTrailingSlot
               <BrailleSpinner variant="wave" />
             </span>
           </Tooltip.Trigger>
-          <Tooltip.Content>Creating task workspace...</Tooltip.Content>
+          <Tooltip.Content>t('creating_workspace')</Tooltip.Content>
         </Tooltip.Root>
       </Slot>
     );

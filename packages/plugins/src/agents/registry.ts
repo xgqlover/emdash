@@ -36,6 +36,16 @@ import { provider as pi } from './impl/pi';
 import { provider as primeAgent } from './impl/prime-agent';
 import { provider as qoder } from './impl/qoder';
 import { provider as qwen } from './impl/qwen';
+import { provider as xiangwo } from './impl/xiangwo';
+import { provider as xiangwo_sxsj } from './impl/xiangwo-sxsj';
+import { provider as xiangwo_babado } from './impl/xiangwo-babado';
+import { provider as xiangwo_dayi } from './impl/xiangwo-dayi';
+import { provider as xiangwo_shangcha } from './impl/xiangwo-shangcha';
+import { provider as xiangwo_shuobo } from './impl/xiangwo-shuobo';
+import { provider as xiangwo_yunyou } from './impl/xiangwo-yunyou';
+import { provider as xiangwo_chief_engineer } from './impl/xiangwo-chief-engineer';
+import { provider as xiangwo_ceo } from './impl/xiangwo-ceo';
+import { provider as xiangwo_caiwuzongguan } from './impl/xiangwo-caiwuzongguan';
 import { provider as rovo } from './impl/rovo';
 import { provider as zero } from './impl/zero';
 
@@ -50,6 +60,16 @@ for (const p of [
   grok,
   devin,
   qwen,
+  xiangwo,
+  xiangwo_sxsj,
+  xiangwo_babado,
+  xiangwo_dayi,
+  xiangwo_shangcha,
+  xiangwo_shuobo,
+  xiangwo_yunyou,
+  xiangwo_chief_engineer,
+  xiangwo_ceo,
+  xiangwo_caiwuzongguan,
   droid,
   antigravity,
   cursor,

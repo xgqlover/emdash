@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { SettingsCard } from '@emdash/ui/react/patterns';
 import { Button, toast, Tooltip } from '@emdash/ui/react/primitives';
 import { RotateCcw, X } from 'lucide-react';
@@ -83,8 +84,8 @@ const KeyboardSettingsCard: React.FC = observer(function KeyboardSettingsCard() 
           COMMAND_CATALOG.byId(rejected.id)?.title ??
           (rejected.id === SYSTEM_HIDE_ENTRY.id ? 'Hide Emdash' : rejected.id);
         toast.error(
-          rejected.severity === 'reserved' ? 'Shortcut is reserved' : 'Shortcut conflict',
-          { description: `Conflicts with "${conflictingTitle}". Choose a different shortcut.` }
+          rejected.severity === 'reserved' ? t('shortcut_reserved') : t('shortcut_conflict'),
+          { description: t('shortcut_conflict_desc', { title: conflictingTitle }) }
         );
         setEditingKey(null);
         return;
@@ -93,7 +94,7 @@ const KeyboardSettingsCard: React.FC = observer(function KeyboardSettingsCard() 
       update({ [editingKey]: candidate });
       const shadowing = conflicts.find((conflict) => conflict.severity === 'shadowing');
       const label = keyboardLayoutService.displayLabel(candidate, platform).join(' + ');
-      toast('Shortcut updated', {
+      toast(t('shortcut_updated'), {
         description: shadowing
           ? `${editingEntry.command.title} is now ${label}. It shadows ${
               COMMAND_CATALOG.byId(shadowing.id)?.title ?? shadowing.id
@@ -147,7 +148,7 @@ const KeyboardSettingsCard: React.FC = observer(function KeyboardSettingsCard() 
                             onClick={recorder.cancelRecording}
                             disabled={saving}
                           >
-                            Press keys...
+                            {t('press_keys')}
                           </Button>
                           <Button
                             type="button"
@@ -156,7 +157,7 @@ const KeyboardSettingsCard: React.FC = observer(function KeyboardSettingsCard() 
                             onClick={recorder.cancelRecording}
                             disabled={saving}
                           >
-                            Cancel
+                            {t('cancel')}
                           </Button>
                         </>
                       ) : (
@@ -174,17 +175,19 @@ const KeyboardSettingsCard: React.FC = observer(function KeyboardSettingsCard() 
                                         className="text-muted-foreground hover:text-foreground"
                                         onClick={() => {
                                           resetField(key);
-                                          toast('Shortcut reset', {
-                                            description: `${entry.command.title} reset to default.`,
+                                          toast(t('shortcut_reset'), {
+                                            description: t('shortcut_reset_desc', {
+                                              title: entry.command.title,
+                                            }),
                                           });
                                         }}
                                         disabled={loading || saving}
-                                        aria-label="Reset to default"
+                                        aria-label={t('reset_to_default')}
                                       >
                                         <RotateCcw className="h-3.5 w-3.5" />
                                       </Button>
                                     </Tooltip.Trigger>
-                                    <Tooltip.Content side="top">Reset to default</Tooltip.Content>
+                                    <Tooltip.Content side="top">{t('reset_to_default')}</Tooltip.Content>
                                   </Tooltip.Root>
                                 )}
                                 {showClear && (
@@ -197,17 +200,19 @@ const KeyboardSettingsCard: React.FC = observer(function KeyboardSettingsCard() 
                                         className="text-muted-foreground hover:text-foreground"
                                         onClick={() => {
                                           update({ [key]: null });
-                                          toast('Shortcut removed', {
-                                            description: `${entry.command.title} no longer has a key binding.`,
+                                          toast(t('shortcut_removed'), {
+                                            description: t('shortcut_removed_desc', {
+                                              title: entry.command.title,
+                                            }),
                                           });
                                         }}
                                         disabled={loading || saving}
-                                        aria-label="Remove shortcut"
+                                        aria-label={t('remove_shortcut')}
                                       >
                                         <X className="h-3.5 w-3.5" />
                                       </Button>
                                     </Tooltip.Trigger>
-                                    <Tooltip.Content side="top">Remove shortcut</Tooltip.Content>
+                                    <Tooltip.Content side="top">{t('remove_shortcut')}</Tooltip.Content>
                                   </Tooltip.Root>
                                 )}
                               </Tooltip.Provider>

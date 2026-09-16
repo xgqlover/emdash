@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { Input, Select } from '@emdash/ui/react/primitives';
 import { type ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@core/primitives/styling/browser/cn';
@@ -242,7 +243,7 @@ export function CronPicker({ value, onChange, className }: CronPickerProps) {
   return (
     <div className={cn('flex flex-col gap-1.5 border p-2 rounded-md', className)}>
       <div className="flex flex-wrap items-center gap-1.5">
-        <Label>Every</Label>
+        <Label>{t('every')}</Label>
 
         {/* Period selector */}
         <InlineSelect

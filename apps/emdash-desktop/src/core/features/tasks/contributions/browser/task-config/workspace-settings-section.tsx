@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { Collapsible, Tabs } from '@emdash/ui/react/primitives';
 import { ChevronRight } from 'lucide-react';
 import { CheckoutPrPanel } from '@core/features/tasks/browser/task-config/checkout-pr-panel';
@@ -35,9 +36,9 @@ export function WorkspaceSettingsSection({ defaultOpen = true }: WorkspaceSettin
   const { createBranchAndWorktree, setCreateBranchAndWorktree } = branchSelection;
 
   const worktreesDisabledReason = !hasRepository
-    ? 'Folder is not a Git repository'
+    ? t('folder_not_git_repo')
     : isUnborn
-      ? 'Repository has no commits yet'
+      ? t('repo_no_commits')
       : undefined;
   const hasSettings = !PRESETS_WITHOUT_SETTINGS.has(presetId);
   const Panel = PRESET_PANELS[presetId as Exclude<WorkspacePresetId, 'repo-root'>];
@@ -68,7 +69,7 @@ export function WorkspaceSettingsSection({ defaultOpen = true }: WorkspaceSettin
             )}
           >
             <span className="flex items-center gap-2">
-              <span className="text-foreground-muted">Settings</span>
+              <span className="text-foreground-muted">{t('settings')}</span>
               <ChevronRight className="ml-auto size-3.5 shrink-0 text-foreground-passive transition-transform duration-150 group-data-open:rotate-90" />
             </span>
           </Collapsible.Trigger>
@@ -78,8 +79,8 @@ export function WorkspaceSettingsSection({ defaultOpen = true }: WorkspaceSettin
               onValueChange={(v) => setCreateBranchAndWorktree(v === 'create')}
             >
               <Tabs.List>
-                <Tabs.Tab value="checkout">Checkout branch</Tabs.Tab>
-                <Tabs.Tab value="create">Create new branch</Tabs.Tab>
+                <Tabs.Tab value="checkout">{t('checkout_branch')}</Tabs.Tab>
+                <Tabs.Tab value="create">{t('create_new_branch')}</Tabs.Tab>
               </Tabs.List>
             </Tabs.Root>
           )}

@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import {
   defineSettingsPageContribution,
   type SettingsPageContribution,
@@ -12,42 +13,42 @@ import type { SettingsPageTab } from './views';
 
 export const generalSettingsPage = defineSettingsPageContribution({
   id: 'general',
-  label: 'General',
+  label: t('general'),
   icon: 'settings',
   component: GeneralSettingsPage,
 } satisfies SettingsPageContribution<SettingsPageTab>);
 
 export const integrationsSettingsPage = defineSettingsPageContribution({
   id: 'integrations',
-  label: 'Integrations',
+  label: t('integrations'),
   icon: 'plug',
   component: IntegrationsSettingsPage,
 } satisfies SettingsPageContribution<SettingsPageTab>);
 
 export const interfaceSettingsPage = defineSettingsPageContribution({
   id: 'interface',
-  label: 'Interface',
+  label: t('interface'),
   icon: 'panel-left',
   component: InterfaceSettingsPage,
 } satisfies SettingsPageContribution<SettingsPageTab>);
 
 export const browserSettingsPage = defineSettingsPageContribution({
   id: 'browser',
-  label: 'Browser',
+  label: t('browser'),
   icon: 'globe',
   component: BrowserSettingsPage,
 } satisfies SettingsPageContribution<SettingsPageTab>);
 
 export const repositorySettingsPage = defineSettingsPageContribution({
   id: 'repository',
-  label: 'Repository',
+  label: t('repository'),
   icon: 'git-branch',
   component: RepositorySettingsPage,
 } satisfies SettingsPageContribution<SettingsPageTab>);
 
 export const agentsSettingsPage = defineSettingsPageContribution({
   id: 'clis-models',
-  label: 'Agents',
+  label: t('agents'),
   icon: 'bot',
   component: AgentsSettingsPage,
 } satisfies SettingsPageContribution<SettingsPageTab>);

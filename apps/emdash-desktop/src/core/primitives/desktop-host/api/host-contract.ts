@@ -78,6 +78,14 @@ export const desktopHostContract = defineContract({
     input: z.object({ url: z.string() }),
     output: z.custom<ActionResult>(),
   }),
+  openXiangwoFloating: procedure({
+    input: z.void(),
+    output: z.custom<ActionResult>(),
+  }),
+  openWeKnora: procedure({
+    input: z.void(),
+    output: z.custom<ActionResult>(),
+  }),
   openPath: procedure({
     input: z.object({ ref: hostFileRefSchema }),
     output: z.custom<ActionResult>(),

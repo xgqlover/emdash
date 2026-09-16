@@ -7,9 +7,9 @@ const TEST_COVERAGE_PROMPT =
 export const builtinAutomationCatalog: BuiltinAutomationTemplate[] = [
   {
     id: 'critical-bug-finder',
-    category: 'Code quality',
-    name: 'Find critical bugs',
-    description: 'Analyze recent commits for high-severity correctness bugs and submit safe fixes',
+    category: '代码质量',
+    name: '查找严重 bug',
+    description: '分析最近的提交，查找高严重性正确性 bug 并提交安全修复',
     icon: Bug,
     defaultTrigger: { expr: '0 10 * * 1', tz: 'UTC' },
     defaultConversationConfig: {
@@ -19,10 +19,10 @@ export const builtinAutomationCatalog: BuiltinAutomationTemplate[] = [
   },
   {
     id: 'daily-change-summary',
-    category: 'Status reports',
-    name: 'Summarize changes daily',
+    category: '状态报告',
+    name: '每日总结变更',
     description:
-      'Post a daily digest summarizing notable repository changes and risks from the previous day',
+      '发布每日摘要，总结前一天的仓库变更和风险',
     icon: Mail,
     defaultTrigger: { expr: '0 9 * * 1', tz: 'UTC' },
     defaultConversationConfig: {
@@ -32,10 +32,10 @@ export const builtinAutomationCatalog: BuiltinAutomationTemplate[] = [
   },
   {
     id: 'codebase-vulnerability-scan',
-    category: 'Security',
-    name: 'Scan for vulnerabilities',
+    category: '安全',
+    name: '扫描漏洞',
     description:
-      'Review the full repository on a schedule and alert on validated high-impact security issues',
+      '按计划审查整个仓库，对已验证的高影响安全问题告警',
     icon: Search,
     defaultTrigger: { expr: '0 11 * * 1', tz: 'UTC' },
     defaultConversationConfig: {
@@ -45,20 +45,20 @@ export const builtinAutomationCatalog: BuiltinAutomationTemplate[] = [
   },
   {
     id: 'test-coverage',
-    category: 'Code quality',
-    name: 'Add test coverage',
+    category: '代码质量',
+    name: '补充测试覆盖',
     description:
-      'Review recent changes and add tests for high-risk logic that lacks adequate coverage',
+      '审查最近的变更，为覆盖不足的高风险逻辑添加测试',
     icon: FlaskConical,
     defaultTrigger: { expr: '0 10 * * 2', tz: 'UTC' },
     defaultConversationConfig: { initialPrompt: TEST_COVERAGE_PROMPT },
   },
   {
     id: 'reported-bugs',
-    category: 'Incidents & triage',
-    name: 'Fix reported bugs',
+    category: '事件与分诊',
+    name: '修复上报的 bug',
     description:
-      'Investigate bug reports you provide in issues, docs, or prompt notes and fix with a PR',
+      '调查你在 issue、文档或提示笔记中提供的 bug 报告，并用 PR 修复',
     icon: Wrench,
     defaultTrigger: { expr: '0 10 * * 1', tz: 'UTC' },
     defaultConversationConfig: {
@@ -68,10 +68,10 @@ export const builtinAutomationCatalog: BuiltinAutomationTemplate[] = [
   },
   {
     id: 'docs-generator',
-    category: 'Documentation',
-    name: 'Generate docs',
+    category: '文档',
+    name: '生成文档',
     description:
-      'Create and update developer documentation for recently changed or under-documented code',
+      '为最近变更或文档不足的代码创建和更新开发者文档',
     icon: BookOpen,
     defaultTrigger: { expr: '0 14 * * 5', tz: 'UTC' },
     defaultConversationConfig: {

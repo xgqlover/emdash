@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { AgentStatus } from '@emdash/ui/react/components';
 import { AbsoluteTime, Switch } from '@emdash/ui/react/primitives';
 import cronstrue from 'cronstrue';
@@ -131,7 +132,7 @@ export const AutomationRow = observer(function AutomationRow({
                   projectId == null && 'text-destructive/80'
                 )}
               >
-                {projectId ? projectDisplayName(getProjectStore(projectId)) : 'No project'}
+                {projectId ? projectDisplayName(getProjectStore(projectId)) : t('no_project')}
               </span>
             </div>
           </div>
@@ -140,7 +141,7 @@ export const AutomationRow = observer(function AutomationRow({
         {/* Row 2: latest run sentence left, next run / disabled right */}
         <div className="flex min-w-0 items-center justify-between gap-2">
           {!runtimeAvailable ? (
-            <span className="text-sm text-foreground-warning">Remote runtime unavailable</span>
+            <span className="text-sm text-foreground-warning">{t('remote_runtime_unavailable')}</span>
           ) : run ? (
             (() => {
               const { Icon, textClass, spin } = RUN_STATUS_ICON[run.status];
@@ -155,19 +156,19 @@ export const AutomationRow = observer(function AutomationRow({
               );
             })()
           ) : (
-            <span className="text-sm text-foreground-passive">No runs</span>
+            <span className="text-sm text-foreground-passive">{t('no_runs')}</span>
           )}
 
           <div className="shrink-0 text-xs text-foreground-muted">
             {automation.enabled ? (
               scheduledAt ? (
                 <span className="flex items-center gap-1">
-                  Next run scheduled
+                  {t('next_run_scheduled')}
                   <AbsoluteTime value={scheduledAt} />
                 </span>
               ) : null
             ) : (
-              <span className="text-foreground-passive">Disabled</span>
+              <span className="text-foreground-passive">{t('disabled')}</span>
             )}
           </div>
         </div>

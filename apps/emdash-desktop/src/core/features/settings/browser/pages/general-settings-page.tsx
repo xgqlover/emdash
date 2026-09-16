@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { PageLayout, SettingsSection } from '@emdash/ui/react/patterns';
 import { AccountTab } from '../components/AccountTab';
 import NotificationSettingsCard from '../components/NotificationSettingsCard';
@@ -20,20 +21,20 @@ export function GeneralSettingsPage() {
       <PageLayout.Header
         sticky
         draggable
-        title="General"
-        description="Manage your account, app updates, and task preferences."
+        title={t('general')}
+        description={t('general_desc')}
       />
       <SettingsSection>
         <AccountTab />
       </SettingsSection>
-      <SettingsSection title="App">
+      <SettingsSection title={t('app')}>
         <UpdateCard />
         <TelemetryCard />
       </SettingsSection>
-      <SettingsSection title="Notifications" bare>
+      <SettingsSection title={t('notifications')} bare>
         <NotificationSettingsCard />
       </SettingsSection>
-      <SettingsSection title="Preferences">
+      <SettingsSection title={t('preferences')}>
         <AutoGenerateTaskNamesRow />
         <AutoApproveByDefaultRow />
         <AutoTrustWorktreesRow />

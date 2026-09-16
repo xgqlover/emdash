@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { Button, Switch } from '@emdash/ui/react/primitives';
 import { ArrowUpRight } from 'lucide-react';
 import React from 'react';
@@ -13,10 +14,10 @@ const TelemetryCard: React.FC = () => {
 
   return (
     <SettingRow
-      title="Privacy & Telemetry"
+      title={t('privacy_telemetry')}
       description={
         <div>
-          <p>Help improve {PRODUCT_NAME} by sending anonymous usage data.</p>
+          <p>{t('telemetry_desc')}</p>
           <p>
             <span>See </span>
             <Button
@@ -27,11 +28,11 @@ const TelemetryCard: React.FC = () => {
               onClick={() => openExternal('https://docs.emdash.sh/telemetry')}
             >
               <span className="transition-colors group-hover:text-foreground">
-                Telemetry information
+                {t('telemetry_info')}
               </span>
               <ArrowUpRight className="text-muted-foreground size-3.5 transition-colors transition-transform duration-200 group-hover:translate-x-px group-hover:-translate-y-px group-hover:text-foreground" />
             </Button>
-            <span> for details.</span>
+            <span>{t('for_details')}</span>
           </p>
         </div>
       }
@@ -48,7 +49,7 @@ const TelemetryCard: React.FC = () => {
           />
           {!hasKeyAndHost && (
             <span className="text-muted-foreground text-[10px]">
-              Inactive in this build (no PostHog keys)
+              {t('telemetry_inactive')}
             </span>
           )}
         </div>

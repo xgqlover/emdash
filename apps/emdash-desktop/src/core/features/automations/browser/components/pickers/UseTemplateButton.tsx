@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { DropdownMenu } from '@emdash/ui/react/primitives';
 import { ChevronDown } from 'lucide-react';
 import { cn } from '@core/primitives/styling/browser/cn';
@@ -24,7 +25,7 @@ export function UseTemplateButton({ open, onOpenChange, onSelect }: UseTemplateB
           />
         }
       >
-        <span>Use template</span>
+        <span>{t('use_template')}</span>
         <ChevronDown className="size-3 shrink-0 text-foreground-passive" />
       </DropdownMenu.Trigger>
       <DropdownMenu.Content align="end" className="w-80">

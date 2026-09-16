@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { SettingsCard } from '@emdash/ui/react/patterns';
 import { Button, Select, SeparatedList, Switch, Tooltip } from '@emdash/ui/react/primitives';
 import { FolderOpen, Play } from 'lucide-react';
@@ -43,7 +44,7 @@ function PreviewSoundButton({
             </Button>
           }
         />
-        <Tooltip.Content side="top">Preview</Tooltip.Content>
+        <Tooltip.Content side="top">{t('preview')}</Tooltip.Content>
       </Tooltip.Root>
     </Tooltip.Provider>
   );
@@ -94,8 +95,8 @@ const NotificationSettingsCard: React.FC = () => {
     <SettingsCard>
       <SeparatedList gap="0.75rem" direction="column">
         <SettingRow
-          title="Notifications"
-          description="Get notified when agents need your attention."
+          title={t('notifications')}
+          description={t('notifications_desc')}
           control={
             <>
               <ResetToDefaultButton
@@ -120,8 +121,8 @@ const NotificationSettingsCard: React.FC = () => {
         >
           <SeparatedList gap="0.75rem" direction="column">
             <SettingRow
-              title="Sound"
-              description="Play audio cues for agent events."
+              title={t('sound')}
+              description={t('sound_desc')}
               control={
                 <>
                   <ResetToDefaultButton
@@ -141,8 +142,8 @@ const NotificationSettingsCard: React.FC = () => {
             />
 
             <SettingRow
-              title="Custom sound"
-              description="Use an audio file instead of the built-in cue."
+              title={t('custom_sound')}
+              description={t('custom_sound_desc')}
               control={
                 <>
                   <ResetToDefaultButton
@@ -165,12 +166,12 @@ const NotificationSettingsCard: React.FC = () => {
                             disabled={loading}
                             onClick={chooseCustomSound}
                             aria-label={
-                              customSoundPath ? 'Change custom sound' : 'Choose custom sound'
+                              customSoundPath ? t('change_custom_sound') : t('choose_custom_sound')
                             }
                           >
                             <FolderOpen className="size-3.5 shrink-0" />
                             <span className="truncate">
-                              {customSoundPath ? getFileName(customSoundPath) : 'Choose file…'}
+                              {customSoundPath ? getFileName(customSoundPath) : t('choose_file')}
                             </span>
                           </Button>
                         }
@@ -187,8 +188,8 @@ const NotificationSettingsCard: React.FC = () => {
             />
 
             <SettingRow
-              title="Sound timing"
-              description="When to play sounds."
+              title={t('sound_timing')}
+              description={t('sound_timing_desc')}
               control={
                 <>
                   <ResetToDefaultButton

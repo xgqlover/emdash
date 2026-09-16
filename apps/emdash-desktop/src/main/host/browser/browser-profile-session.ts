@@ -39,6 +39,16 @@ export function configureBrowserProfileSession(partition: string): Session {
   if (configuredPartitions.has(partition)) return ses;
   configuredPartitions.add(partition);
 
+  // [XG-CUSTOM] 内嵌浏览器走 socks5 代理上外网（Windows 端连 Linux 的 socks5-proxy.py）。
+  // 通过环境变量 XIANGWO_BROWSER_PROXY 配置，格式 socks5://10.239.5.174:1080；
+  // 不设则保持原行为（浏览器直连本机网络）。只影响浏览器 partition session，
+  // 不影响 emdash 主连接（ZeroTier 连 agent.py）。
+  const browserProxy = process.env.XIANGWO_BROWSER_PROXY;
+  if (browserProxy) {
+    ses.setProxy({ proxyRules: browserProxy });
+    log.info('Browser proxy enabled', { proxy: browserProxy });
+  }
+
   ses.setUserAgent(stripEmbeddedBrowserTokens(ses.getUserAgent(), app.getName()));
 
   const corsRequests = new Map<number, BrowserCorsRelaxationRequest>();

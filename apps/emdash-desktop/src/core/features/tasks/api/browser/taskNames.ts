@@ -10,7 +10,7 @@ const applyCapitalization = (input: string, options?: TaskNameTransformOptions):
 export const liveTransformTaskName = (input: string, options?: TaskNameTransformOptions): string =>
   applyCapitalization(input, options)
     .replace(/\s+/g, '-')
-    .replace(/[^a-zA-Z0-9-]/g, '')
+    .replace(/[^a-zA-Z0-9\p{L}-]/gu, '')
     .replace(/-+/g, '-')
     .slice(0, MAX_TASK_NAME_LENGTH);
 
@@ -18,7 +18,7 @@ export const normalizeTaskName = (input: string, options?: TaskNameTransformOpti
   applyCapitalization(input, options)
     .trim()
     .replace(/\s+/g, '-')
-    .replace(/[^a-zA-Z0-9-]/g, '')
+    .replace(/[^a-zA-Z0-9\p{L}-]/gu, '')
     .replace(/-+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, MAX_TASK_NAME_LENGTH);

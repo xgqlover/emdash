@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { SettingsCard, SettingsSection } from '@emdash/ui/react/patterns';
 import {
   Button,
@@ -139,8 +140,8 @@ export function BrowserSettingsCard() {
       <SettingsCard>
         <SeparatedList gap="1rem" direction="column">
           <SettingRow
-            title="Default browser profile"
-            description="New browser tabs open with this profile. You can switch an individual tab's profile from its toolbar menu."
+            title={t('default_browser_profile')}
+            description={t('default_browser_profile_desc')}
             control={
               <Select.Root
                 value={selectedDefault}
@@ -158,15 +159,15 @@ export function BrowserSettingsCard() {
                       {profile.name}
                     </Select.Item>
                   ))}
-                  <Select.Item value={BROWSER_ISOLATED_PROFILE_ID}>Isolated per task</Select.Item>
+                  <Select.Item value={BROWSER_ISOLATED_PROFILE_ID}>{t('isolated_per_task')}</Select.Item>
                 </Select.Content>
               </Select.Root>
             }
           />
 
           <SettingRow
-            title="Disable CORS for localhost"
-            description="Allows pages opened from localhost in Emdash browser tabs to call APIs that do not send matching CORS headers."
+            title={t('disable_cors_localhost')}
+            description={t('disable_cors_desc')}
             control={
               <Switch
                 checked={browserSettings?.relaxCorsForLocalhost ?? false}
@@ -178,11 +179,10 @@ export function BrowserSettingsCard() {
         </SeparatedList>
       </SettingsCard>
 
-      <SettingsSection title="Browser profiles" bare>
+      <SettingsSection title={t('browser_profiles')} bare>
         <SettingsCard>
           <div className="text-xs text-foreground-passive">
-            Each profile keeps its own cookies and logins, shared across tasks. Profiles do not
-            import anything from your system browser.
+            {t('browser_profiles_desc')}
           </div>
 
           <div className="mt-2 flex flex-col divide-y divide-border/40">
@@ -254,11 +254,11 @@ export function BrowserSettingsCard() {
                       >
                         <DropdownMenu.Item onClick={() => setEditingProfileId(profile.id)}>
                           <Pencil className="size-4" />
-                          Rename
+                          {t('rename')}
                         </DropdownMenu.Item>
                         <DropdownMenu.Item onClick={() => clearProfileStorage(profile)}>
                           <Eraser className="size-4" />
-                          Clear storage
+                          {t('clear_storage')}
                         </DropdownMenu.Item>
                         <DropdownMenu.Separator />
                         <DropdownMenu.Item
@@ -267,7 +267,7 @@ export function BrowserSettingsCard() {
                           onClick={() => deleteProfile(profile)}
                         >
                           <Trash2 className="size-4" />
-                          Delete
+                          {t('delete')}
                         </DropdownMenu.Item>
                       </DropdownMenu.Content>
                     </DropdownMenu.Root>

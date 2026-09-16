@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 import { menuItemBase } from '@emdash/ui/styles/recipes/menu-item';
 import { FolderOpen, Github, Plus, Server, type LucideIcon } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -13,26 +14,26 @@ import { defineViewRuntime } from '@core/primitives/views/react';
 
 const PROJECT_ACTIONS = [
   {
-    label: 'Open project',
-    description: 'Create a project from an existing local directory',
+    label: t('open_project'),
+    description: t('open_project_desc'),
     icon: FolderOpen,
     modalArgs: { strategy: 'local', mode: 'pick' },
   },
   {
-    label: 'Create repository',
-    description: 'Create a project and repository on GitHub',
+    label: t('create_repository'),
+    description: t('create_repository_desc'),
     icon: Plus,
     modalArgs: { strategy: 'local', mode: 'create' },
   },
   {
-    label: 'Clone from GitHub',
-    description: 'Clone a GitHub repository to work on locally',
+    label: t('clone_github'),
+    description: t('clone_github_desc'),
     icon: Github,
     modalArgs: { strategy: 'local', mode: 'clone' },
   },
   {
-    label: 'Add remote project',
-    description: 'Create a project on a remote SSH server',
+    label: t('add_remote'),
+    description: t('add_remote_desc'),
     icon: Server,
     modalArgs: { strategy: 'ssh', mode: 'pick' },
   },

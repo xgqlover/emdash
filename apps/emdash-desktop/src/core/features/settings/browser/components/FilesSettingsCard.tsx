@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { normalizeExclusionPatterns } from '@emdash/core/primitives/exclusion-policy/api';
 import { SettingsCard } from '@emdash/ui/react/patterns';
 import { SeparatedList, Textarea } from '@emdash/ui/react/primitives';
@@ -44,8 +45,8 @@ const FilesSettingsCard: React.FC = () => {
     <SettingsCard>
       <SeparatedList gap="1rem" direction="column">
         <ExclusionListEditor
-          title="File tree exclusions"
-          description="Hide matching files or folders from the editor file tree."
+          title={t('file_tree_exclusions')}
+          description={t('file_tree_exclusions_desc')}
           field="treeExclude"
           value={current.treeExclude}
           loading={loading}
@@ -55,8 +56,8 @@ const FilesSettingsCard: React.FC = () => {
           onReset={resetField}
         />
         <ExclusionListEditor
-          title="Search exclusions"
-          description="Exclude matching files or folders from file and content search."
+          title={t('search_exclusions')}
+          description={t('search_exclusions_desc')}
           field="searchExclude"
           value={current.searchExclude}
           loading={loading}
@@ -66,8 +67,8 @@ const FilesSettingsCard: React.FC = () => {
           onReset={resetField}
         />
         <ExclusionListEditor
-          title="Watcher exclusions"
-          description="Folders the file watcher skips for the editor, Git status, and workspace tracking. Watching dependency or build folders can use tens of thousands of native watches. Changes apply after restart."
+          title={t('watcher_exclusions')}
+          description={t('watcher_exclusions_desc')}
           field="watcherExclude"
           value={current.watcherExclude}
           loading={loading}
@@ -115,14 +116,14 @@ function ExclusionListEditor({
         </div>
         <ResetToDefaultButton
           visible={overridden}
-          defaultLabel="defaults"
+          defaultLabel={t('defaults')}
           onReset={() => onReset(field)}
           disabled={loading || saving}
         />
       </div>
       <Textarea
         value={draft}
-        placeholder="One pattern per line"
+        placeholder={t('one_pattern_per_line')}
         rows={4}
         disabled={loading || saving}
         spellCheck={false}

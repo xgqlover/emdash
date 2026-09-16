@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { ToggleGroup } from '@emdash/ui/react/primitives';
 import { IssueComboboxField } from './issue-combobox-field';
 import { PrComboboxField } from './pr-combobox-field';
@@ -25,7 +26,7 @@ export function LinkedEntitySection({
       <div
         className={`flex w-full items-center justify-between gap-2 px-2 py-1 ${state.linkedType ? 'border-b' : ''}`}
       >
-        <span className="shrink-0 text-sm text-foreground-muted">Based on</span>
+        <span className="shrink-0 text-sm text-foreground-muted">{t('based_on')}</span>
         <ToggleGroup.Root
           className="bg-transparent"
           value={state.linkedType ? [state.linkedType] : []}
@@ -34,10 +35,10 @@ export function LinkedEntitySection({
           }}
         >
           <ToggleGroup.Item className="text-xs" value="issue" disabled={!hasAnyIssueIntegration}>
-            Issue
+            {t('issue')}
           </ToggleGroup.Item>
           <ToggleGroup.Item className="text-xs" value="pr" disabled={!hasPrSupport}>
-            Pull Request
+            {t('pull_request')}
           </ToggleGroup.Item>
         </ToggleGroup.Root>
       </div>

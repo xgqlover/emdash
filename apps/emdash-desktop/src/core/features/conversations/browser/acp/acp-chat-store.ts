@@ -543,7 +543,15 @@ export class AcpChatStore {
       ?.setOption('mode', modeId)
       .then((result) => {
         if (!result.success) {
-          this._toastError('Failed to change session mode', result.error);
+          // [XG-CUSTOM] 诊断：把错误详情显示在 toast，定位「R2 不在 available」还是「setSessionConfigOption 异常」
+          const detail = (() => {
+            try {
+              return JSON.stringify(result.error);
+            } catch {
+              return String(result.error);
+            }
+          })();
+          this._toastError(`Failed to change session mode: ${detail}`, result.error);
           return;
         }
         void this._rememberPreference({ modeId });

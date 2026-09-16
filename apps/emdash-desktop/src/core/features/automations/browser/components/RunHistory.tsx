@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { EmptyState } from '@emdash/ui/react/components';
 import { Button, Spinner } from '@emdash/ui/react/primitives';
 import { useState } from 'react';
@@ -14,11 +15,11 @@ import { AutomationRunRow } from './AutomationRunRow';
 const PAGE_SIZE = 25;
 
 const FILTERS: { value: RunHistoryFilter; label: string }[] = [
-  { value: 'all', label: 'All' },
-  { value: 'done', label: 'Done' },
-  { value: 'failed', label: 'Failed' },
-  { value: 'skipped', label: 'Skipped' },
-  { value: 'cancelled', label: 'Cancelled' },
+  { value: 'all', label: 'all' },
+  { value: 'done', label: 'done' },
+  { value: 'failed', label: 'failed' },
+  { value: 'skipped', label: 'skipped' },
+  { value: 'cancelled', label: 'cancelled' },
 ];
 
 interface RunHistoryProps {
@@ -57,7 +58,7 @@ export function RunHistory({ automation }: RunHistoryProps) {
                 : 'text-foreground-muted hover:bg-background-1 hover:text-foreground'
             )}
           >
-            {label}
+            {t(label)}
             <span
               className={cn(
                 'tabular-nums',
@@ -72,7 +73,7 @@ export function RunHistory({ automation }: RunHistoryProps) {
       <div className="min-h-0 flex-1 divide-y divide-border/70 overflow-y-auto">
         {!runtimeAvailable ? (
           <EmptyState
-            label="Connect to the remote automation runtime to load its runs."
+            label={t('connect_runtime')}
             className="h-full"
           />
         ) : runs.isPending ? (
@@ -96,13 +97,13 @@ export function RunHistory({ automation }: RunHistoryProps) {
                   disabled={runs.isLoadingMore}
                   onClick={() => void runs.loadMore()}
                 >
-                  {runs.isLoadingMore ? 'Loading…' : 'Load more'}
+                  {runs.isLoadingMore ? t('loading') : t('load_more')}
                 </Button>
               </div>
             )}
           </>
         ) : (
-          <EmptyState label="No runs yet." className="h-full bg-transparent" />
+          <EmptyState label={t('no_runs_yet')} className="h-full bg-transparent" />
         )}
       </div>
     </section>

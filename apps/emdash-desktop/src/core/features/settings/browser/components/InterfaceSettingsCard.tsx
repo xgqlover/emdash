@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { SettingsCard } from '@emdash/ui/react/patterns';
 import { SeparatedList, Switch } from '@emdash/ui/react/primitives';
 import React from 'react';
@@ -21,13 +22,13 @@ const InterfaceSettingsCard: React.FC = () => {
     <SettingsCard>
       <SeparatedList gap="1rem" direction="column">
         <SettingRow
-          title="Context bar"
-          description="Hide the on-screen context trigger. The keyboard shortcut still works."
+          title={t('context_bar')}
+          description={t('context_bar_desc')}
           control={
             <>
               <ResetToDefaultButton
                 visible={isFieldOverridden('hideContextBar')}
-                defaultLabel="shown"
+                defaultLabel={t('shown')}
                 onReset={() => resetField('hideContextBar')}
                 disabled={loading || saving}
               />

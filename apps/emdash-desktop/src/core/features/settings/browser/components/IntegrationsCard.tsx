@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import type { PluginIconAsset } from '@emdash/shared/plugins';
 import { Sheet, Tooltip } from '@emdash/ui/react/primitives';
 import React, { useMemo, useState } from 'react';
@@ -6,6 +7,7 @@ import { isIssueIntegration } from '@core/features/integrations/api/browser/inte
 import { useIntegrationsContext } from '@core/features/integrations/contributions/browser/integrations-provider';
 import { sortGitHubAccountsByDefault } from '@core/features/projects/api/browser/components/github-account-select-model';
 import { useOpenModal } from '@core/manifests/browser/modal-api';
+import { openWeKnora } from '@core/primitives/desktop-host/browser/host-client';
 import type { ConnectionStatus, IssueProviderType } from '@core/primitives/issue-providers/api';
 import { IntegrationDetailSidebar } from './IntegrationDetailSidebar';
 import { IntegrationGridCard } from './IntegrationGridCard';
@@ -55,11 +57,11 @@ const IntegrationsCard: React.FC = () => {
     onDisconnect: () => void | Promise<void>;
   }) => {
     void openConfirm({
-      title: `Disconnect ${name}`,
+      title: t('disconnect_title', { name }),
       description: credential
         ? `This will delete the saved ${name} ${credential} and disconnect ${name}.`
-        : `This will disconnect ${name}.`,
-      confirmLabel: 'Disconnect',
+        : t('disconnect_desc', { name }),
+      confirmLabel: t('disconnect'),
     }).then((outcome) => {
       if (outcome.success) void onDisconnect();
     });
@@ -134,7 +136,7 @@ const IntegrationsCard: React.FC = () => {
     <Tooltip.Provider delay={150}>
       <div className="space-y-8">
         {connectedIntegrations.length > 0 && (
-          <IntegrationSection title="Connected">
+          <IntegrationSection title={t('connected')}>
             {connectedIntegrations.map((integration) => (
               <IntegrationGridCard
                 key={integration.id}
@@ -146,7 +148,7 @@ const IntegrationsCard: React.FC = () => {
           </IntegrationSection>
         )}
 
-        <IntegrationSection title="Available">
+        <IntegrationSection title={t('available')}>
           {availableIntegrations.map((integration) => (
             <IntegrationGridCard
               key={integration.id}
@@ -155,6 +157,22 @@ const IntegrationsCard: React.FC = () => {
               onSelect={() => setSelectedProvider(integration.id)}
             />
           ))}
+        </IntegrationSection>
+
+        {/* [XG-CUSTOM] WeKnora 入口（非 Issue 集成，点击直接打开 WeKnora 窗口 3010） */}
+        <IntegrationSection title="本地工具">
+          <button
+            type="button"
+            onClick={() => void openWeKnora()}
+            className="group relative flex w-full items-center gap-4 rounded-lg border border-border bg-background-1 p-4 text-left text-card-foreground transition-all hover:bg-background-2"
+          >
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-background-2 text-2xl">📚</span>
+            <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span className="text-sm font-medium text-foreground">WeKnora</span>
+              <span className="truncate text-sm text-foreground-muted">本地知识库 / 资料加工台（上传 · 检索 · Wiki）</span>
+            </span>
+            <span className="text-sm text-foreground-muted">打开 ↗</span>
+          </button>
         </IntegrationSection>
       </div>
 

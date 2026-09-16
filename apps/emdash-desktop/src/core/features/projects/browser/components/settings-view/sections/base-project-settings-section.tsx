@@ -10,6 +10,7 @@ import {
   Switch,
 } from '@emdash/ui/react/primitives';
 import { Folder, Github } from 'lucide-react';
+import { t } from '@renderer/lib/i18n';
 import { observer } from 'mobx-react-lite';
 import { useState, type ReactNode } from 'react';
 import { sortGitHubAccountsByDefault } from '@core/features/projects/api/browser/components/github-account-select-model';
@@ -218,8 +219,8 @@ export const BaseProjectSettingsSection = observer(function BaseProjectSettingsS
   return (
     <>
       <ProvenanceField
-        label="GitHub account"
-        description="Used for pull requests and issues in this project."
+        label={t('github_account')}
+        description={t('github_account_desc')}
         resolved={effective?.githubAccount ?? null}
         isExplicit={gitIdentityForm.githubAccount !== undefined}
         onReset={() => updateGitIdentity('githubAccount', undefined)}
@@ -312,8 +313,8 @@ export const BaseProjectSettingsSection = observer(function BaseProjectSettingsS
         <>
           <fieldset disabled={hostActionReason !== null} className="contents">
             <ProvenanceField
-              label="Worktree root"
-              description="Where task worktrees are created."
+              label={t('worktree_root')}
+              description={t('worktree_root_desc')}
               resolved={hostActionReason ? null : (effective?.worktreeRoot ?? null)}
               flavor="inherited"
               isExplicit={placementForm.worktreeDirectory.trim() !== ''}
@@ -365,8 +366,8 @@ export const BaseProjectSettingsSection = observer(function BaseProjectSettingsS
       <Separator />
 
       <ProvenanceField
-        label="Default branch"
-        description="The branch new tasks are created from by default."
+        label={t('default_branch')}
+        description={t('default_branch_desc')}
         resolved={effective?.defaultBranch ?? null}
         isExplicit={gitIdentityForm.defaultBranch !== null}
         onReset={() => updateGitIdentity('defaultBranch', null)}
@@ -381,8 +382,8 @@ export const BaseProjectSettingsSection = observer(function BaseProjectSettingsS
       <Separator />
 
       <ProvenanceField
-        label="Base remote"
-        description="Used for fetching remote branches, choosing task base branches and targeting pull requests."
+        label={t('base_remote')}
+        description={t('base_remote_desc')}
         resolved={effective?.baseRemote ?? null}
         isExplicit={gitIdentityForm.baseRemote.trim() !== ''}
         onReset={() => updateGitIdentity('baseRemote', '')}
@@ -398,8 +399,8 @@ export const BaseProjectSettingsSection = observer(function BaseProjectSettingsS
       <Separator />
 
       <ProvenanceField
-        label="Push remote"
-        description="Used when publishing task branches and pushing commits."
+        label={t('push_remote')}
+        description={t('push_remote_desc')}
         resolved={effective?.pushRemote ?? null}
         isExplicit={gitIdentityForm.pushRemote.trim() !== ''}
         onReset={() => updateGitIdentity('pushRemote', '')}
@@ -415,11 +416,9 @@ export const BaseProjectSettingsSection = observer(function BaseProjectSettingsS
       <Separator />
 
       <Field.Root>
-        <Field.Label>Agent git credentials</Field.Label>
+        <Field.Label>{t('agent_git_credentials')}</Field.Label>
         <Field.Description className="text-foreground-muted">
-          Which git credentials agent and terminal sessions use in this project. Effective account
-          wires the account above, system keeps your machine's credentials, none disables credential
-          helpers in sessions.
+          {t('agent_git_credentials_desc')}
         </Field.Description>
         <Select.Root
           value={gitIdentityForm.agentGitCredentials}

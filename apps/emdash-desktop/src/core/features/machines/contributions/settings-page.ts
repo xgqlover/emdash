@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { getMachinesStore } from '@core/features/machines/contributions/app-stores';
 import { getProjectManagerStore } from '@core/features/projects/api/browser/stores/project-selectors';
 import type { SettingsPageTab } from '@core/features/settings/contributions/views';
@@ -22,14 +23,14 @@ function projectBreadcrumbLabel(path: string[]): string | null {
 
 export const systemSettingsPage = defineSettingsPageContribution({
   id: 'system',
-  label: 'System',
+  label: t('system'),
   icon: 'activity',
   component: SystemSettingsPage,
 } satisfies SettingsPageContribution<SettingsPageTab>);
 
 export const localWorkspacesSettingsPage = defineSettingsPageContribution({
   id: 'workspaces-local',
-  label: 'Workspaces',
+  label: t('workspaces_local'),
   icon: 'folder-git-2',
   component: LocalWorkspacesSettingsPage,
   detail: {
@@ -40,14 +41,14 @@ export const localWorkspacesSettingsPage = defineSettingsPageContribution({
 
 export const conversationsSettingsPage = defineSettingsPageContribution({
   id: 'conversations',
-  label: 'Conversations',
+  label: t('conversations'),
   icon: 'message-square',
   component: ConversationsSettingsPage,
 } satisfies SettingsPageContribution<SettingsPageTab>);
 
 export const machinesConnectionsPage = defineSettingsPageContribution({
   id: 'connections',
-  label: 'Machines',
+  label: t('connections'),
   icon: 'server',
   component: MachinesSettingsPage,
   detail: {

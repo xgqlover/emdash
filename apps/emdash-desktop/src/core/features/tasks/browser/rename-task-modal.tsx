@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 import { Button, Dialog, Field, Input } from '@emdash/ui/react/primitives';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useState } from 'react';
@@ -48,7 +49,7 @@ export const RenameTaskModal = observer(function RenameTaskModal({
   const validationMessage = isDuplicate
     ? 'A task with this name already exists in this project.'
     : isEmpty
-      ? 'Task name cannot be empty.'
+      ? t('task_name_empty')
       : undefined;
 
   const handleNameChange = useCallback(
@@ -91,7 +92,7 @@ export const RenameTaskModal = observer(function RenameTaskModal({
       <Dialog.Body className="pt-0">
         <Field.Group>
           <Field.Root>
-            <Field.Label>Task name</Field.Label>
+            <Field.Label>{t('task_name_label')}</Field.Label>
             <Input
               value={name}
               onChange={(e) => handleNameChange(e.target.value)}

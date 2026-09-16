@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { Tooltip } from '@emdash/ui/react/primitives';
 import { CircleAlert } from 'lucide-react';
 import { IntegrationIcon } from '@core/features/integrations/contributions/browser/integration-icon';
@@ -65,7 +66,7 @@ export function ConnectionIssueIndicator({
           </span>
         }
       />
-      <Tooltip.Content side="top">{error || 'Connection issue'}</Tooltip.Content>
+      <Tooltip.Content side="top">{error || t('connection_issue')}</Tooltip.Content>
     </Tooltip.Root>
   );
 }

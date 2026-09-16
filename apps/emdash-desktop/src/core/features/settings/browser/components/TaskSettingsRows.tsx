@@ -1,9 +1,9 @@
+import { t } from '@renderer/lib/i18n';
 import { Switch, Tooltip } from '@emdash/ui/react/primitives';
 import { Info } from 'lucide-react';
 import React from 'react';
 import { useAppSettingsKey } from '@core/features/settings/api/browser/use-app-settings-key';
 import { useTaskSettings } from '@core/features/tasks/api/browser/hooks/useTaskSettings';
-import { detectPlatformContext } from '@core/primitives/keybindings/api';
 import { ResetToDefaultButton } from './ResetToDefaultButton';
 import { SettingRow } from './SettingRow';
 
@@ -33,8 +33,8 @@ export const AutoGenerateTaskNamesRow: React.FC = () => {
 
   return (
     <SettingRow
-      title="Auto-generate task names"
-      description="Automatically suggests a task name when creating a new task."
+      title={t('auto_generate_task_names')}
+      description={t('auto_generate_task_names_desc')}
       control={
         <>
           <ResetToDefaultButton
@@ -59,8 +59,8 @@ export const AutoApproveByDefaultRow: React.FC = () => {
 
   return (
     <SettingRow
-      title="Auto-approve by default"
-      description="Skip permission prompts for supported agents when creating new tasks and conversations."
+      title={t('auto_approve_by_default')}
+      description={t('auto_approve_desc')}
       control={
         <>
           <ResetToDefaultButton
@@ -87,14 +87,14 @@ export const AutoTrustWorktreesRow: React.FC = () => {
     <SettingRow
       title={
         <div className="flex items-center gap-1.5">
-          Auto-trust worktree directories
+          {t('auto_trust_worktrees')}
           <InfoTooltip
-            label="More info about auto-trust worktrees"
-            content="For agents that support workspace trust, Emdash writes trust entries before launching."
+            label={t('auto_trust_tooltip')}
+            content={t('auto_trust_tooltip_desc')}
           />
         </div>
       }
-      description="Skip the folder trust prompt in supported CLIs for new tasks."
+      description={t('auto_trust_desc')}
       control={
         <>
           <ResetToDefaultButton
@@ -119,8 +119,8 @@ export const CreateBranchAndWorktreeRow: React.FC = () => {
 
   return (
     <SettingRow
-      title="Create branch and worktree by default"
-      description="Start new From Branch tasks in a dedicated task branch and worktree unless changed in the task modal."
+      title={t('create_branch_worktree')}
+      description={t('create_branch_worktree_desc')}
       control={
         <>
           <ResetToDefaultButton
@@ -145,8 +145,8 @@ export const DeleteBranchByDefaultRow: React.FC = () => {
 
   return (
     <SettingRow
-      title="Delete branch by default"
-      description="Preselect the delete branch option when deleting tasks with a deletable task branch."
+      title={t('delete_branch_by_default')}
+      description={t('delete_branch_desc')}
       control={
         <>
           <ResetToDefaultButton
@@ -171,8 +171,8 @@ export const PreserveTaskNameCapitalizationRow: React.FC = () => {
 
   return (
     <SettingRow
-      title="Preserve task name capitalization"
-      description="Keep uppercase letters in generated and manually entered task names. Defaults to lowercase."
+      title={t('preserve_capitalization')}
+      description={t('preserve_capitalization_desc')}
       control={
         <>
           <ResetToDefaultButton
@@ -197,8 +197,8 @@ export const IncludeIssueContextByDefaultRow: React.FC = () => {
 
   return (
     <SettingRow
-      title="Include issue context by default"
-      description="Add the selected issue to the initial agent prompt when creating a task from an issue."
+      title={t('include_issue_context')}
+      description={t('include_issue_context_desc')}
       control={
         <>
           <ResetToDefaultButton
@@ -229,27 +229,22 @@ export const EnableTmuxRow: React.FC = () => {
   } = useAppSettingsKey('project');
 
   const tmuxByDefault = projects?.tmuxByDefault ?? false;
-  const tmuxSupported = detectPlatformContext().os !== 'windows';
 
   return (
     <SettingRow
-      title="Enable tmux"
-      description={
-        tmuxSupported
-          ? 'Run agent sessions and terminals in tmux sessions by default.'
-          : 'tmux is unavailable for Windows sessions. Your stored preference is preserved.'
-      }
+      title={t('enable_tmux')}
+      description={t('enable_tmux_desc')}
       control={
         <>
           <ResetToDefaultButton
             visible={isFieldOverridden('tmuxByDefault')}
             defaultLabel="off"
             onReset={() => resetField('tmuxByDefault')}
-            disabled={loading || saving || !tmuxSupported}
+            disabled={loading || saving}
           />
           <Switch
-            checked={tmuxSupported ? tmuxByDefault : false}
-            disabled={loading || saving || !tmuxSupported}
+            checked={tmuxByDefault}
+            disabled={loading || saving}
             onCheckedChange={(checked) => update({ tmuxByDefault: checked })}
           />
         </>

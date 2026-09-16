@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import type { AutomationRun } from '@emdash/core/runtimes/automations/api';
 import { toast } from '@emdash/ui/react/primitives';
 import { observer } from 'mobx-react-lite';
@@ -58,7 +59,7 @@ export const AutomationRunRow = observer(function AutomationRunRow({
       const adopted = taskId ? { taskId, projectId } : await adoptRun(runId);
       navigate(taskViewDef(adopted));
     } catch (error) {
-      toast.error('Could not open automation run', {
+      toast.error(t('could_not_open_run'), {
         description: formatAutomationError(error),
       });
     }
@@ -86,10 +87,10 @@ export const AutomationRunRow = observer(function AutomationRunRow({
       }
       aria-label={
         taskStore
-          ? `Open ${taskStore.displayName}`
+          ? t('open_name', { name: taskStore.displayName })
           : displayName
-            ? `Open ${displayName}`
-            : 'Open run'
+            ? t('open_name', { name: displayName })
+            : t('open_run')
       }
       aria-disabled={!interactive}
     >

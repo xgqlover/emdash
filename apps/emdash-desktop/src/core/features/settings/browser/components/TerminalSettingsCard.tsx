@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import type { TerminalShellId } from '@emdash/core/primitives/terminal-shell/api';
 import { SettingsCard } from '@emdash/ui/react/patterns';
 import { Button, Combobox, SeparatedList, Select, Switch } from '@emdash/ui/react/primitives';
@@ -100,8 +101,8 @@ const TerminalSettingsCard: React.FC = () => {
     }
 
     return [
-      { value: 'popular', label: 'Popular', items: popularItems },
-      { value: 'installed', label: 'Installed', items: installedItems },
+      { value: 'popular', label: t('popular'), items: popularItems },
+      { value: 'installed', label: t('installed'), items: installedItems },
     ];
   }, [installedFonts]);
 
@@ -180,8 +181,8 @@ const TerminalSettingsCard: React.FC = () => {
     <SettingsCard>
       <SeparatedList gap="1rem" direction="column">
         <SettingRow
-          title="Default terminal shell"
-          description="Used for new local terminals. Remote terminals use the remote system shell."
+          title={t('default_terminal_shell')}
+          description={t('default_terminal_shell_desc')}
           control={
             <Select.Root
               value={defaultShell}
@@ -209,8 +210,8 @@ const TerminalSettingsCard: React.FC = () => {
           }
         />
         <SettingRow
-          title="Terminal font"
-          description="Choose the font family for the terminal."
+          title={t('terminal_font')}
+          description={t('terminal_font_desc')}
           control={
             <div className="w-[183px] flex-shrink-0">
               <Combobox.Root
@@ -239,7 +240,7 @@ const TerminalSettingsCard: React.FC = () => {
                       disabled={loading || saving}
                       className="flex h-9 w-full items-center justify-between rounded-md border border-border bg-transparent px-2.5 py-1 text-left text-sm font-normal outline-none disabled:opacity-50"
                     >
-                      <Combobox.Value placeholder="Default (Menlo)" />
+                      <Combobox.Value placeholder={t('default_font', { font: DEFAULT_FONT_FAMILY })} />
                       <ChevronsUpDownIcon className="ml-2 size-4 shrink-0 text-foreground-muted" />
                     </button>
                   }
@@ -247,7 +248,7 @@ const TerminalSettingsCard: React.FC = () => {
                 <Combobox.Content>
                   <Combobox.Input
                     showTrigger={false}
-                    placeholder="Search custom font"
+                    placeholder={t('search_custom_font')}
                     onKeyDown={(e) => {
                       if (e.key !== 'Enter') return;
                       const typed = e.currentTarget.value.trim();
@@ -279,22 +280,22 @@ const TerminalSettingsCard: React.FC = () => {
                   </Combobox.List>
                   {loadingFonts ? (
                     <div className="px-1 pb-1">
-                      <div className="px-2 py-1.5 text-xs text-foreground-muted">Installed</div>
+                      <div className="px-2 py-1.5 text-xs text-foreground-muted">{t('installed')}</div>
                       <div className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-foreground-muted">
                         <LoaderCircle className="size-3.5 shrink-0 animate-spin" />
-                        <span className="truncate">Loading fonts...</span>
+                        <span className="truncate">{t('loading_fonts')}</span>
                       </div>
                     </div>
                   ) : null}
-                  <Combobox.Empty>No fonts found.</Combobox.Empty>
+                  <Combobox.Empty>{t('no_fonts_found')}</Combobox.Empty>
                 </Combobox.Content>
               </Combobox.Root>
             </div>
           }
         />
         <SettingRow
-          title="Terminal font size"
-          description="Adjust the font size used by terminal sessions and CLI agents."
+          title={t('terminal_font_size')}
+          description={t('terminal_font_size_desc')}
           control={
             <div className="flex h-9 w-[183px] flex-shrink-0 items-center justify-between rounded-md border border-border bg-background px-1 shadow-xs">
               <Button
@@ -304,7 +305,7 @@ const TerminalSettingsCard: React.FC = () => {
                 icon
                 disabled={loading || saving || fontSize <= TERMINAL_FONT_SIZE_MIN}
                 onClick={() => applyFontSize(fontSize - 1)}
-                aria-label="Decrease terminal font size"
+                aria-label={t('decrease_font_size')}
               >
                 <Minus />
               </Button>
@@ -319,7 +320,7 @@ const TerminalSettingsCard: React.FC = () => {
                 icon
                 disabled={loading || saving || fontSize >= TERMINAL_FONT_SIZE_MAX}
                 onClick={() => applyFontSize(fontSize + 1)}
-                aria-label="Increase terminal font size"
+                aria-label={t('increase_font_size')}
               >
                 <Plus />
               </Button>
@@ -327,8 +328,8 @@ const TerminalSettingsCard: React.FC = () => {
           }
         />
         <SettingRow
-          title="Auto-copy selected text"
-          description="Automatically copy text to clipboard when you select it in the terminal."
+          title={t('auto_copy_selected')}
+          description={t('auto_copy_desc')}
           control={
             <Switch
               checked={autoCopyOnSelection}
@@ -339,8 +340,8 @@ const TerminalSettingsCard: React.FC = () => {
         />
         {isMac ? (
           <SettingRow
-            title="Use Option as Meta key"
-            description="Treat the Option key as the Meta key in the terminal."
+            title={t('option_as_meta')}
+            description={t('option_as_meta_desc')}
             control={
               <Switch
                 checked={macOptionIsMeta}

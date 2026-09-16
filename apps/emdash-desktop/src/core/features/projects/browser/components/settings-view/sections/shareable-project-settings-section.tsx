@@ -1,5 +1,6 @@
 import { Button, Field, Input, Separator, Switch, Textarea } from '@emdash/ui/react/primitives';
 import { Fragment } from 'react';
+import { t } from '@renderer/lib/i18n';
 import { openExternal } from '@core/primitives/desktop-host/browser/host-client';
 import { EnvironmentVariableInputs } from '@core/primitives/environment-variables/browser/environment-variable-inputs';
 import type {
@@ -225,11 +226,9 @@ export function ShareableSettingsSection({
 
       <div className="flex flex-col gap-4">
         <Field.Root className="gap-1">
-          <Field.Label>Lifecycle scripts</Field.Label>
+          <Field.Label>{t('lifecycle_scripts')}</Field.Label>
           <Field.Description className="text-foreground-muted">
-            Shell commands run at each stage of the worktree lifecycle. Prepare blocks task startup;
-            Setup and Run start after the workspace is ready. When both are set to auto-run, Run
-            waits for Setup to complete.
+            {t('lifecycle_scripts_desc')}
             <span> See </span>
             <Button
               type="button"
@@ -260,7 +259,7 @@ export function ShareableSettingsSection({
             beforeInput={
               descriptor.id === 'scripts.setup' ? (
                 <AutoRunToggle
-                  label="Auto-run on task creation"
+                  label={t('setup_desc')}
                   value={lifecycleForm.autoRunSetupScriptOnTaskCreation}
                   resolved={lifecycle.resolved.autoRunSetup}
                   onCheckedChange={(checked) =>
@@ -270,7 +269,7 @@ export function ShareableSettingsSection({
                 />
               ) : descriptor.id === 'scripts.run' ? (
                 <AutoRunToggle
-                  label="Auto-run on task creation"
+                  label={t('run_desc')}
                   value={lifecycleForm.autoRunRunScriptOnTaskCreation}
                   resolved={lifecycle.resolved.autoRunRun}
                   onCheckedChange={(checked) =>

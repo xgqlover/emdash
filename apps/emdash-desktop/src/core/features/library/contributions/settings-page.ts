@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import type { SettingsPageTab } from '@core/features/settings/contributions/views';
 import {
   defineSettingsPageContribution,
@@ -7,7 +8,7 @@ import { PromptLibraryView } from '../browser/prompts/prompt-library-view';
 
 export const promptsSettingsPage = defineSettingsPageContribution({
   id: 'prompts',
-  label: 'Prompts',
+  label: t('prompts'),
   icon: 'message-square-text',
   component: PromptLibraryView,
 } satisfies SettingsPageContribution<SettingsPageTab>);

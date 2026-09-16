@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { SettingsCard } from '@emdash/ui/react/patterns';
 import { Input, SeparatedList, Switch } from '@emdash/ui/react/primitives';
 import React from 'react';
@@ -35,8 +36,8 @@ const RepositorySettingsCard: React.FC = () => {
                   updateProject({ branchPrefix: next });
                 }
               }}
-              placeholder="Branch prefix"
-              aria-label="Branch prefix"
+              placeholder={t('branch_prefix')}
+              aria-label={t('branch_prefix')}
               disabled={projectBusy}
               className="flex-1"
             />
@@ -48,17 +49,17 @@ const RepositorySettingsCard: React.FC = () => {
             />
           </div>
           <div className="text-xs text-foreground-passive">
-            Leave empty to create branches without a prefix.
+            {t('branch_prefix_empty')}
           </div>
         </div>
         <SettingRow
-          title="Random branch suffix"
-          description="Add a random suffix to branch names."
+          title={t('random_branch_suffix')}
+          description={t('random_branch_suffix_desc')}
           control={
             <>
               <ResetToDefaultButton
                 visible={isProjectFieldOverridden('appendRandomBranchSuffix')}
-                defaultLabel="on"
+                defaultLabel={t('on')}
                 onReset={() => resetProjectField('appendRandomBranchSuffix')}
                 disabled={projectBusy}
               />
@@ -72,13 +73,13 @@ const RepositorySettingsCard: React.FC = () => {
           }
         />
         <SettingRow
-          title="Auto-push on create"
-          description="Push the new branch to the selected project remote and set upstream after creation."
+          title={t('auto_push_on_create')}
+          description={t('auto_push_desc')}
           control={
             <>
               <ResetToDefaultButton
                 visible={isProjectFieldOverridden('pushOnCreate')}
-                defaultLabel="on"
+                defaultLabel={t('on')}
                 onReset={() => resetProjectField('pushOnCreate')}
                 disabled={projectBusy}
               />

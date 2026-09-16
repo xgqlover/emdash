@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import type { AgentProviderId } from '@emdash/plugins/agents/types';
 import { ChatComposer } from '@emdash/ui/react/components';
 import type { CommandItem, MentionItem, PromptEditorRef } from '@emdash/ui/react/components';
@@ -160,8 +161,6 @@ function useModelOptions(
   return models?.kind === 'selectable' ? models.modelOptions : null;
 }
 
-const SLASH_PROMPTS_SECTION = 'Prompts';
-
 function promptPreview(text: string): string {
   return text.split(/\r?\n/, 1)[0] ?? '';
 }
@@ -233,14 +232,14 @@ export function InitialConversationField({
       requirePromptDelivery &&
       !agentSupportsInitialPromptDelivery(agent.capabilities) &&
       !agentSupportsAcp(agent.capabilities)
-        ? "Doesn't support automation prompts"
+        ? t('no_automation_prompts')
         : null,
     [requirePromptDelivery]
   );
   const initialPromptInfo = !canDeliverInitialPrompt
     ? canToggleChatUi
-      ? `${selectedAgent?.name ?? 'This agent'} doesn't support initial prompts in terminal mode. Enable Chat UI to send an initial prompt.`
-      : `${selectedAgent?.name ?? 'This agent'} doesn't support initial prompts.`
+      ? `${selectedAgent?.name ?? 'This agent'} ${t('no_terminal_prompt')}`
+      : `${selectedAgent?.name ?? 'This agent'} ${t('no_initial_prompt')}`
     : null;
 
   const { isDragOver, dropHandlers } = usePromptFileDrop({
@@ -305,7 +304,7 @@ export function InitialConversationField({
           description: promptPreview(prompt.prompt),
           behavior: 'insert-text' as const,
           insertText: prompt.prompt,
-          section: SLASH_PROMPTS_SECTION,
+          section: t('prompts'),
         }));
     },
     [promptLibrary]
@@ -352,7 +351,7 @@ export function InitialConversationField({
               onCheckedChange={state.setAutoApprove}
               disabled={!state.provider}
             />
-            <Field.Label htmlFor={autoApproveSwitchId}>Auto-approve permissions</Field.Label>
+            <Field.Label htmlFor={autoApproveSwitchId}>{t('auto_approve_permissions')}</Field.Label>
           </div>
         ) : null}
 
@@ -363,7 +362,7 @@ export function InitialConversationField({
               checked={state.useChatUi}
               onCheckedChange={state.setUseChatUi}
             />
-            <Field.Label htmlFor={chatUiSwitchId}>Use chat UI</Field.Label>
+            <Field.Label htmlFor={chatUiSwitchId}>{t('use_chat_ui')}</Field.Label>
           </div>
         ) : null}
 
@@ -371,7 +370,7 @@ export function InitialConversationField({
           canSubmit={false}
           showSubmitButton={false}
           placeholder={
-            placeholder ?? 'Describe what the agent should do, or use / to select a prompt...'
+            placeholder ?? t('initial_prompt_placeholder')
           }
           onSubmit={() => {}}
           onInputChange={handleComposerInputChange}

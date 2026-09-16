@@ -1,4 +1,5 @@
 import { formatHostRef } from '@emdash/core/primitives/host/api';
+import { t } from '@renderer/lib/i18n';
 import { Dialog, Field, Select, Switch } from '@emdash/ui/react/primitives';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useState } from 'react';
@@ -172,7 +173,7 @@ export const CreateConversationModal = observer(function CreateConversationModal
   return (
     <>
       <Dialog.Header>
-        <Dialog.Title>Create Conversation</Dialog.Title>
+        <Dialog.Title>创建对话</Dialog.Title>
       </Dialog.Header>
       <Dialog.Body>
         <Field.Group>
@@ -193,7 +194,7 @@ export const CreateConversationModal = observer(function CreateConversationModal
                 onValueChange={(value) => setSelectedModel(value || null)}
               >
                 <Select.Trigger appearance="input" className="w-full">
-                  <Select.Value placeholder="Default model">
+                  <Select.Value placeholder="默认模型">
                     {selectedModel
                       ? (modelOptions[selectedModel]?.name ?? selectedModel)
                       : 'Default model'}
@@ -226,7 +227,7 @@ export const CreateConversationModal = observer(function CreateConversationModal
             <Field.Root>
               <div className="flex items-center gap-2">
                 <Switch checked={useAcp} onCheckedChange={setUseChatUiPreference} />
-                <Field.Label>Use chat UI</Field.Label>
+                <Field.Label>{t('use_chat_ui')}</Field.Label>
               </div>
             </Field.Root>
           ) : null}
