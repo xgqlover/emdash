@@ -1,5 +1,5 @@
-import { t } from '@renderer/lib/i18n';
 import { DropdownMenu } from '@emdash/ui/react/primitives';
+import { t } from '@renderer/lib/i18n';
 import { ChevronDown } from 'lucide-react';
 import { cn } from '@core/primitives/styling/browser/cn';
 import type { BuiltinAutomationTemplate } from '../../automation-template';

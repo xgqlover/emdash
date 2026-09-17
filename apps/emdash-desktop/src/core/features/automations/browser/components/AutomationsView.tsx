@@ -1,5 +1,5 @@
-import { t } from '@renderer/lib/i18n';
 import { EmptyState } from '@emdash/ui/react/components';
+import { t } from '@renderer/lib/i18n';
 import {
   CollectionToolbar,
   CollectionView,
@@ -79,14 +79,14 @@ export function AutomationsView() {
     const automation = pendingDelete;
     setPendingDelete(null);
     void openConfirm({
-      title: t('delete_automation'),
-      description: `"${automation.name}" ${t('permanently_deleted')}`,
-      confirmLabel: t('delete'),
+      title: 'Delete automation',
+      description: `"${automation.name}" and its run history will be permanently deleted.`,
+      confirmLabel: 'Delete',
     }).then((outcome) => {
       if (outcome.success) {
         void destroy.mutateAsync(automation.id).catch((error) => {
           setParams({ automationId: automation.id });
-          toast.error(t('could_not_delete_automation'), {
+          toast.error('Could not delete automation', {
             description: formatAutomationError(error),
           });
         });
@@ -101,49 +101,52 @@ export function AutomationsView() {
       <div className="h-6 shrink-0 [-webkit-app-region:drag]" />
       <div className="mx-auto grid min-h-0 w-full max-w-4xl flex-1 grid-cols-1 gap-8">
         <div className="relative min-h-0 w-full min-w-0 overflow-y-auto px-8">
-          <div className="flex w-full flex-col gap-4 py-8">
+          <div className="flex w-full flex-col gap-8 py-8">
             <PageLayout.Header
               title={t('automations')}
               description={t('run_agents_on_schedule')}
             />
             <view.Root>
-              <CollectionView
-                view={view}
-                renderRow={(automation) => (
-                  <AutomationRow
-                    automation={automation}
-                    onToggleEnabled={(enabled) => handleToggleEnabled(automation, enabled)}
-                  />
-                )}
-                estimateSize={68}
-                toolbar={
+              {/* With zero automations the templates render on the page background —
+                  the tiles are cards themselves, so no list card should wrap them. */}
+              {!hasAutomations && !automations.isLoading && !automations.isError ? (
+                <div className="flex w-full flex-col gap-3">
                   <AutomationsToolbar view={view} onNewAutomation={() => openCreateSheet()} />
-                }
-                onItemClick={(automation) =>
-                  navigate(automationsViewDef({ automationId: automation.id }))
-                }
-                // The slot element is built on every render even though it only
-                // shows on error — guard so a null error is never formatted.
-                errorSlot={
-                  automations.isError ? (
-                    <EmptyState
-                      bare
-                      label={t('could_not_load_automations')}
-                      description={formatAutomationError(automations.error)}
+                  <AutomationTemplatesEmptyState
+                    templates={emptyStateAutomationTemplates}
+                    onSelectTemplate={openCreateSheet}
+                  />
+                </div>
+              ) : (
+                <CollectionView
+                  view={view}
+                  renderRow={(automation) => (
+                    <AutomationRow
+                      automation={automation}
+                      onToggleEnabled={(enabled) => handleToggleEnabled(automation, enabled)}
                     />
-                  ) : undefined
-                }
-                emptySlot={
-                  hasAutomations ? (
-                    <EmptyState bare label={t('no_automations_match')} />
-                  ) : (
-                    <AutomationTemplatesEmptyState
-                      templates={emptyStateAutomationTemplates}
-                      onSelectTemplate={openCreateSheet}
-                    />
-                  )
-                }
-              />
+                  )}
+                  estimateSize={68}
+                  toolbar={
+                    <AutomationsToolbar view={view} onNewAutomation={() => openCreateSheet()} />
+                  }
+                  onItemClick={(automation) =>
+                    navigate(automationsViewDef({ automationId: automation.id }))
+                  }
+                  // The slot element is built on every render even though it only
+                  // shows on error — guard so a null error is never formatted.
+                  errorSlot={
+                    automations.isError ? (
+                      <EmptyState
+                        bare
+                        label={t('could_not_load_automations')}
+                        description={formatAutomationError(automations.error)}
+                      />
+                    ) : undefined
+                  }
+                  emptySlot={<EmptyState bare label={t('no_automations_match')} />}
+                />
+              )}
             </view.Root>
           </div>
         </div>
@@ -185,17 +188,20 @@ const AutomationsToolbar = observer(function AutomationsToolbar({
   const search = view.useSearch();
   const searchRef = useSearchFocusHotkeys();
   return (
-    <CollectionToolbar
-      ref={searchRef}
-      searchValue={search.query}
-      onSearchValueChange={search.setQuery}
-      searchPlaceholder={t('search_automations')}
-      actions={
+    <CollectionToolbar.Root>
+      <CollectionToolbar.Search
+        ref={searchRef}
+        value={search.query}
+        onValueChange={search.setQuery}
+        placeholder={t('search_automations')}
+      />
+      <CollectionToolbar.Spacer />
+      <CollectionToolbar.Group>
         <Button variant="primary" className="shrink-0 whitespace-nowrap" onClick={onNewAutomation}>
           <Plus className="h-3.5 w-3.5" />
-          {t('new_automation')}
+          New Automation
         </Button>
-      }
-    />
+      </CollectionToolbar.Group>
+    </CollectionToolbar.Root>
   );
 });

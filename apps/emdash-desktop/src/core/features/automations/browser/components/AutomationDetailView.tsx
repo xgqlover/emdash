@@ -1,5 +1,5 @@
-import { t } from '@renderer/lib/i18n';
 import { Button, DropdownMenu, Input, Switch, Tabs, Tooltip } from '@emdash/ui/react/primitives';
+import { t } from '@renderer/lib/i18n';
 import { Ellipsis, Play, Trash2 } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
@@ -14,8 +14,8 @@ import { SheetHeader } from './sheet-header';
 type AutomationTab = 'runs' | 'settings';
 
 const AUTOMATION_TABS: { value: AutomationTab; label: string }[] = [
-  { value: 'runs', label: 'runs' },
-  { value: 'settings', label: 'settings' },
+  { value: 'runs', label: 'Runs' },
+  { value: 'settings', label: 'Settings' },
 ];
 
 export interface AutomationDetailViewProps {
@@ -39,7 +39,7 @@ export const AutomationDetailView = observer(function AutomationDetailView({
   const availability = useAutomationTargetAvailability(automation.projectId);
   const runtimeAvailability = availability.data ?? {
     available: false as const,
-    reason: t('checking_runtime'),
+    reason: 'Checking automation runtime…',
   };
   const canEdit = runtimeAvailability.available;
 
@@ -82,7 +82,7 @@ export const AutomationDetailView = observer(function AutomationDetailView({
               <DropdownMenu.Content side="bottom" align="end">
                 <DropdownMenu.Item variant="destructive" onClick={() => onDelete?.(automation)}>
                   <Trash2 />
-                  {t('delete_automation')}
+                  Delete automation
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu.Root>
@@ -90,7 +90,7 @@ export const AutomationDetailView = observer(function AutomationDetailView({
               checked={automation.enabled}
               disabled={!canEdit}
               onCheckedChange={(checked) => onToggleEnabled?.(automation, checked)}
-              aria-label={automation.enabled ? t('pause_automation') : t('enable_automation')}
+              aria-label={automation.enabled ? 'Pause automation' : 'Enable automation'}
             />
           </div>
         </div>
@@ -112,7 +112,7 @@ export const AutomationDetailView = observer(function AutomationDetailView({
             <Tabs.List>
               {AUTOMATION_TABS.map(({ value, label }) => (
                 <Tabs.Tab key={value} value={value}>
-                  {t(label)}
+                  {label}
                 </Tabs.Tab>
               ))}
             </Tabs.List>
@@ -139,16 +139,16 @@ export const AutomationDetailView = observer(function AutomationDetailView({
                 </Tooltip.Trigger>
                 <Tooltip.Content>
                   {automation.projectId == null
-                    ? t('assign_project_before_running')
+                    ? 'Assign a project before running'
                     : !canEdit
                       ? runtimeAvailability.reason
                       : !automation.enabled
-                        ? t('enable_before_running')
+                        ? 'Enable the automation before running'
                         : !automation.conversationConfig ||
                             !automation.triggerConfig ||
                             !automation.taskConfig
-                          ? t('configure_before_running')
-                          : t('run_now')}
+                          ? 'Configure the automation before running'
+                          : 'Run now'}
                 </Tooltip.Content>
               </Tooltip.Root>
             </div>

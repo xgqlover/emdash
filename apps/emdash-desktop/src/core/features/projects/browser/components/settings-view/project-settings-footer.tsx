@@ -1,4 +1,5 @@
 import { Button, Tooltip } from '@emdash/ui/react/primitives';
+import { t } from '@renderer/lib/i18n';
 import { Check, Loader2, Undo2 } from 'lucide-react';
 import { ConfirmButton } from '@core/primitives/keybindings/browser/confirm-button';
 
@@ -72,7 +73,7 @@ export function ProjectSettingsFooter({
           <span className="inline-flex min-w-22 items-center justify-center gap-1.5">
             {saving && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
             {!saving && saved && <Check className="size-4" aria-hidden="true" />}
-            {saving ? 'Saving…' : saved ? 'Saved' : 'Save settings'}
+            {saving ? t('saving') : saved ? t('saved') : t('save_settings')}
           </span>
         </ConfirmButton>
       </div>

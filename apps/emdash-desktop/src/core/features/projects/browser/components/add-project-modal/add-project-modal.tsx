@@ -1,4 +1,5 @@
 import { Dialog, Input, ModalLayout, SelectableCard, toast } from '@emdash/ui/react/primitives';
+import { t } from '@renderer/lib/i18n';
 import { useQuery } from '@tanstack/react-query';
 import { DownloadIcon, FolderOpenIcon, PlusIcon } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
@@ -270,7 +271,7 @@ export const AddProjectModal = observer(function AddProjectModal({
     <ModalLayout
       header={
         <Dialog.Header showCloseButton={submitState === 'idle'}>
-          <Dialog.Title>Add Project</Dialog.Title>
+          <Dialog.Title>{t('add_project')}</Dialog.Title>
         </Dialog.Header>
       }
       footer={
@@ -323,21 +324,21 @@ export const AddProjectModal = observer(function AddProjectModal({
               mode="pick"
               selected={mode === 'pick'}
               icon={<FolderOpenIcon className="size-3" />}
-              label="Pick Directory"
+              label={t('pick_directory')}
               onSelect={setMode}
             />
             <ModeCard
               mode="create"
               selected={mode === 'create'}
               icon={<PlusIcon className="size-3" />}
-              label="Create Repository"
+              label={t('create_repository')}
               onSelect={setMode}
             />
             <ModeCard
               mode="clone"
               selected={mode === 'clone'}
               icon={<DownloadIcon className="size-2" />}
-              label="Clone Repository"
+              label={t('clone_repository')}
               onSelect={setMode}
             />
           </div>

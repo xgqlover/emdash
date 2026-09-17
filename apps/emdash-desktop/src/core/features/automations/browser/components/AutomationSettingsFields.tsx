@@ -1,5 +1,5 @@
-import { t } from '@renderer/lib/i18n';
 import { Field, Label } from '@emdash/ui/react/primitives';
+import { t } from '@renderer/lib/i18n';
 import { CronPicker } from '@core/features/automations/browser/CronPicker';
 import { ProjectSelector } from '@core/features/tasks/contributions/browser/project-selector';
 import { ConversationField } from '@core/features/tasks/contributions/browser/task-config/conversation-field';
@@ -42,14 +42,14 @@ export function AutomationSettingsFields({
     <fieldset disabled={disabled} className="contents">
       <Field.Group>
         <Field.Root>
-          <Label>{t('project')}</Label>
+          <Label>Project</Label>
           <ProjectSelector
             value={effectiveProjectId}
             onChange={(nextProjectId) => setProjectId(nextProjectId)}
           />
         </Field.Root>
         <Field.Root>
-          <Label>{t('schedule')}</Label>
+          <Label>Schedule</Label>
           <CronPicker
             value={cronExpr}
             onChange={(nextCronExpr) => {

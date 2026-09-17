@@ -1,4 +1,5 @@
 import { err, type Result } from '@emdash/shared';
+import { t } from '@renderer/lib/i18n';
 import { ComboboxPopover } from '@emdash/ui/react/components';
 import { Button, Checkbox, Dialog, Field } from '@emdash/ui/react/primitives';
 import { Check, Loader2 } from 'lucide-react';
@@ -120,7 +121,7 @@ export function ShareProjectConfigModal({
   return (
     <>
       <Dialog.Header showCloseButton={false}>
-        <Dialog.Title>Share settings with your team</Dialog.Title>
+        <Dialog.Title>{t('share_settings_with_team')}</Dialog.Title>
       </Dialog.Header>
       <Dialog.Body className="pt-0">
         <Field.Group>
@@ -130,7 +131,7 @@ export function ShareProjectConfigModal({
             after pulling.
           </p>
           <Field.Root>
-            <Field.Label>Write to</Field.Label>
+            <Field.Label>{t('write_to')}</Field.Label>
             <ComboboxPopover
               items={targets}
               value={selectedTargetValue}
@@ -172,7 +173,7 @@ export function ShareProjectConfigModal({
           </Field.Root>
 
           <Field.Root>
-            <Field.Label>Settings to share</Field.Label>
+            <Field.Label>{t('settings_to_share')}</Field.Label>
             <div className="grid grid-cols-2 gap-2">
               {availableFields.map((field) => (
                 <label key={field} className="flex items-center gap-2 rounded-md py-2 text-sm">

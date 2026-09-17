@@ -1,4 +1,5 @@
 import { ListPopoverCard, type ListPopoverCardStatus } from '@emdash/ui/react/components';
+import { t } from '@renderer/lib/i18n';
 import { Button } from '@emdash/ui/react/primitives';
 import { AlertCircle, CheckCircle2, Loader2, X } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
@@ -7,7 +8,7 @@ import { pullRequestErrorMessage } from '@root/src/core/services/pull-requests/a
 import { usePullRequestsStore } from '@root/src/core/services/pull-requests/browser';
 
 const KIND_LABELS: Record<string, string> = {
-  repository: 'Pull requests',
+  repository: t('pull_requests'),
   history: 'PR history',
 };
 
@@ -47,7 +48,7 @@ function SyncErrorStatusCard({
       label={<span className="font-medium text-foreground-destructive">Sync failed</span>}
       content={
         <span className="block truncate text-foreground-destructive/80" title={error ?? undefined}>
-          {error ?? 'Unknown error'}
+          {error ?? t('unknown_error')}
         </span>
       }
       actions={actions}
@@ -128,7 +129,7 @@ export const PrSyncStatusCard = observer(function PrSyncStatusCard({
     );
   }
 
-  const error = state?.error ? pullRequestErrorMessage(state.error) : 'Unknown error';
+  const error = state?.error ? pullRequestErrorMessage(state.error) : t('unknown_error');
   if (dismissedError === error) return null;
   return (
     <SyncErrorStatusCard

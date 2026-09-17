@@ -1,4 +1,5 @@
 import { CollectionToolbar, CollectionView, SortSelect } from '@emdash/ui/react/patterns';
+import { t } from '@renderer/lib/i18n';
 import { Button, ContextMenu, Input, Popover, ToggleGroup } from '@emdash/ui/react/primitives';
 import { CheckIcon, ChevronDownIcon, RefreshCw, X } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
@@ -126,10 +127,10 @@ function LabelFilterPopover({
     onChange(selected.includes(value) ? selected.filter((v) => v !== value) : [...selected, value]);
 
   return (
-    <FilterButton label="Label" active={selected.length > 0} disabled={items.length === 0}>
+    <FilterButton label={t('label')} active={selected.length > 0} disabled={items.length === 0}>
       <Input
         className="mb-1 h-7 text-xs"
-        placeholder="Search labels…"
+        placeholder={t('search_labels')}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         autoFocus
@@ -396,15 +397,15 @@ const PrToolbar = observer(function PrToolbar({
             onStatusChange(next as StatusFilter);
           }}
         >
-          <ToggleGroup.Item value="open">Open</ToggleGroup.Item>
-          <ToggleGroup.Item value="not-open">Closed</ToggleGroup.Item>
+          <ToggleGroup.Item value="open">{t('open')}</ToggleGroup.Item>
+          <ToggleGroup.Item value="not-open">{t('closed')}</ToggleGroup.Item>
         </ToggleGroup.Root>
         <CollectionToolbar.Spacer />
         <CollectionToolbar.Search
           ref={searchRef}
           value={search.query}
           onValueChange={search.setQuery}
-          placeholder="Search by title, branch, or number..."
+          placeholder={t('search_pr')}
         />
         <CollectionToolbar.Group>
           <ContextMenu.Root>
@@ -437,7 +438,7 @@ const PrToolbar = observer(function PrToolbar({
         <div className="flex items-center gap-3">
           <span className="text-sm text-foreground-passive">Filter by</span>
           <UserFilterPopover
-            label="Author"
+            label={t('author')}
             items={authorItems}
             selected={selectedAuthorLogin}
             onChange={onAuthorChange}
@@ -448,7 +449,7 @@ const PrToolbar = observer(function PrToolbar({
             onChange={onLabelChange}
           />
           <UserFilterPopover
-            label="Assignee"
+            label={t('assignee')}
             items={assigneeItems}
             selected={selectedAssigneeLogin}
             onChange={onAssigneeChange}

@@ -1,4 +1,5 @@
 import { Button, Dialog, Field, Input } from '@emdash/ui/react/primitives';
+import { t } from '@renderer/lib/i18n';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useState } from 'react';
 import { getProjectManagerStore } from '@core/features/projects/api/browser/stores/project-selectors';
@@ -41,12 +42,12 @@ export const RenameProjectModal = observer(function RenameProjectModal({
   return (
     <>
       <Dialog.Header showCloseButton={false}>
-        <Dialog.Title>Rename project</Dialog.Title>
+        <Dialog.Title>{t('rename_project')}</Dialog.Title>
       </Dialog.Header>
       <Dialog.Body className="pt-0">
         <Field.Group>
           <Field.Root>
-            <Field.Label>Project name</Field.Label>
+            <Field.Label>{t('project_name')}</Field.Label>
             <Input
               value={name}
               onChange={(e) => {

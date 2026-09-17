@@ -3,6 +3,7 @@ import {
   definePlugin,
   registerPluginBehavior,
 } from '@emdash/core/services/agent-plugins/api/plugins';
+import { passthroughMcpAdapter } from '@emdash/core/services/agent-plugins/api/plugins/helpers';
 import { createNativeAcpBehavior } from '../../helpers/acp-stdio';
 import { enrichXiangwoUpdate } from './acp-transform';
 import { icon } from './icon';
@@ -22,6 +23,7 @@ export const plugin = definePlugin(
     sessions: {
       kind: 'resumable',
     },
+    mcp: { kind: 'supported', scope: 'global', supportedTransports: ['stdio', 'http'] },
     hostDependency: {
       id: 'xiangwo',
       binaryNames: ['python3'],
@@ -31,6 +33,7 @@ export const plugin = definePlugin(
 );
 
 export const provider = registerPluginBehavior(plugin, {
+  mcp: passthroughMcpAdapter('.xiangwo/mcp.json'),
   acp: {
     ...createNativeAcpBehavior(() => ({
       command: 'python3',

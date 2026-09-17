@@ -228,7 +228,9 @@ export function ShareableSettingsSection({
         <Field.Root className="gap-1">
           <Field.Label>{t('lifecycle_scripts')}</Field.Label>
           <Field.Description className="text-foreground-muted">
-            {t('lifecycle_scripts_desc')}
+            Shell commands run at each stage of the worktree lifecycle. Prepare blocks task startup;
+            Setup and Run start after the workspace is ready. When both are set to auto-run, Run
+            waits for Setup to complete.
             <span> See </span>
             <Button
               type="button"
@@ -259,7 +261,7 @@ export function ShareableSettingsSection({
             beforeInput={
               descriptor.id === 'scripts.setup' ? (
                 <AutoRunToggle
-                  label={t('setup_desc')}
+                  label="Auto-run on task creation"
                   value={lifecycleForm.autoRunSetupScriptOnTaskCreation}
                   resolved={lifecycle.resolved.autoRunSetup}
                   onCheckedChange={(checked) =>
@@ -269,7 +271,7 @@ export function ShareableSettingsSection({
                 />
               ) : descriptor.id === 'scripts.run' ? (
                 <AutoRunToggle
-                  label={t('run_desc')}
+                  label="Auto-run on task creation"
                   value={lifecycleForm.autoRunRunScriptOnTaskCreation}
                   resolved={lifecycle.resolved.autoRunRun}
                   onCheckedChange={(checked) =>

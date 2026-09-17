@@ -1,4 +1,5 @@
 import { SettingsRow } from '@emdash/ui/react/patterns';
+import { t } from '@renderer/lib/i18n';
 import { Field, Input, Select, Separator, Switch } from '@emdash/ui/react/primitives';
 import { useId } from 'react';
 import { GitHubIdentityStrip } from '@core/features/github/contributions/browser/identity-strip';
@@ -35,8 +36,8 @@ export function PickExistingPanel({
           path={state.path}
           onPathChange={state.handlePathChange}
           getProjectsClient={getProjectsClient}
-          title="Select a local project"
-          message="Select a project directory to open"
+          title={t('select_local_project')}
+          message={t('select_project_directory')}
         />
       </Field.Root>
       {inspectionError && (
@@ -58,7 +59,7 @@ export function PickExistingPanel({
                 checked={state.initGitRepository}
                 onCheckedChange={state.setinitGitRepository}
               />
-              <Field.Label>Initialize git repository</Field.Label>
+              <Field.Label>{t('initialize_git_repository')}</Field.Label>
             </Field.Root>
             <p className="mt-1.5 text-xs text-foreground-muted">
               You can also open this folder now and initialize Git later from the changes view.
@@ -125,11 +126,11 @@ export function CreateRepositoryPanel({
           </Field.Root>
           <span className="pb-2 text-sm text-foreground-muted">/</span>
           <Field.Root className="min-w-0">
-            <Field.Label htmlFor={repositoryNameId}>Repository name</Field.Label>
+            <Field.Label htmlFor={repositoryNameId}>{t('repository_name')}</Field.Label>
             <Input
               id={repositoryNameId}
               autoFocus
-              placeholder="Enter a repository name"
+              placeholder={t('enter_repository_name')}
               value={state.repositoryName}
               onChange={(e) => state.handleRepositoryNameChange(e.target.value)}
             />
@@ -168,8 +169,8 @@ export function CreateRepositoryPanel({
             onPathChange={state.setPath}
             getProjectsClient={getProjectsClient}
             ensureDefaultRoot={ensureDefaultRoot}
-            title="Select a local project"
-            message="Select a project directory to open"
+            title={t('select_local_project')}
+            message={t('select_project_directory')}
           />
         </Field.Root>
       </Field.Group>
@@ -227,8 +228,8 @@ export function ClonePanel({
             onPathChange={state.setPath}
             getProjectsClient={getProjectsClient}
             ensureDefaultRoot={ensureDefaultRoot}
-            title="Select a local project"
-            message="Select a project directory to open"
+            title={t('select_local_project')}
+            message={t('select_project_directory')}
           />
         </Field.Root>
       </Field.Group>

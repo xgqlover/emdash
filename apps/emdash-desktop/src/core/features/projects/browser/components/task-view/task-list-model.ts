@@ -1,4 +1,3 @@
-import { t } from '@renderer/lib/i18n';
 import type { ExternalSelectionStore } from '@emdash/ui/react/patterns';
 import { createListView, createTextMatcher } from '@emdash/ui/react/patterns';
 import { taskAgentStatus } from '@core/features/conversations/api/browser/conversation-selectors';
@@ -79,10 +78,10 @@ export function createTaskListView(options: {
     },
     sort: {
       keys: {
-        'updated-at': { label: t('last_used'), compare: TASK_SORT_COMPARATORS['updated-at'] },
-        'created-at': { label: 'Created at', compare: TASK_SORT_COMPARATORS['created-at'] },
-        'pr-status': { label: 'PR status', compare: TASK_SORT_COMPARATORS['pr-status'] },
-        unread: { label: 'Unread first', compare: TASK_SORT_COMPARATORS.unread },
+        'updated-at': { label: '最近使用', compare: TASK_SORT_COMPARATORS['updated-at'] },
+        'created-at': { label: '创建时间', compare: TASK_SORT_COMPARATORS['created-at'] },
+        'pr-status': { label: 'PR 状态', compare: TASK_SORT_COMPARATORS['pr-status'] },
+        unread: { label: '未读优先', compare: TASK_SORT_COMPARATORS.unread },
       },
       initial: { key: options.initialSortBy, dir: 'asc' },
     },

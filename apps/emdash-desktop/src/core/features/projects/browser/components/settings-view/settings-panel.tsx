@@ -1,4 +1,5 @@
 import { Button, Spinner } from '@emdash/ui/react/primitives';
+import { t } from '@renderer/lib/i18n';
 import { observer } from 'mobx-react-lite';
 import {
   asAvailableProject,
@@ -29,7 +30,7 @@ export const SettingsPanel = observer(function SettingsPanel() {
     ? (getProjectLiveActionDisabledReason(projectId) ??
       (hostDomains?.kind === 'unavailable'
         ? `Settings from this Project’s ${
-            context.project.type === 'local' ? 'Local runtime' : 'Machine'
+            context.project.type === 'local' ? t('local_runtime') : t('machine')
           } are unavailable until they finish loading.`
         : null))
     : null;

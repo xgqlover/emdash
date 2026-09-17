@@ -1,4 +1,5 @@
 import { StatusIcon } from '@emdash/ui/react/components';
+import { t } from '@renderer/lib/i18n';
 import { EntityHeader } from '@emdash/ui/react/patterns';
 import { Button, DropdownMenu, Heading, Separator } from '@emdash/ui/react/primitives';
 import {
@@ -93,7 +94,7 @@ export const ProjectHeader = observer(function ProjectHeader({ projectId }: { pr
                   variant="secondary"
                   size="xs"
                   icon
-                  aria-label="Project actions"
+                  aria-label={t('project_actions')}
                 />
               }
             >

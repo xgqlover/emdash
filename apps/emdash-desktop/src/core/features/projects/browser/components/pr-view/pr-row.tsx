@@ -1,4 +1,5 @@
 import { Button, RelativeTime, Tooltip } from '@emdash/ui/react/primitives';
+import { t } from '@renderer/lib/i18n';
 import { ExternalLink, ScanSearch } from 'lucide-react';
 import { memo } from 'react';
 import { useOpenModal } from '@core/manifests/browser/modal-api';
@@ -42,7 +43,7 @@ export const PrRow = memo(function PrRow({
                   <ExternalLink className="size-3.5" />
                 </Button>
               </Tooltip.Trigger>
-              <Tooltip.Content>Open PR on GitHub</Tooltip.Content>
+              <Tooltip.Content>{t('open_pr_on_github')}</Tooltip.Content>
             </Tooltip.Root>
           </div>
           <RelativeTime value={pr.createdAt} className="text-xs text-foreground-passive" compact />

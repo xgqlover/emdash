@@ -1,5 +1,5 @@
-import { t } from '@renderer/lib/i18n';
 import { menuItemBase } from '@emdash/ui/styles/recipes/menu-item';
+import { t } from '@renderer/lib/i18n';
 import { CircleDot, GitBranch, GitPullRequest, type LucideIcon } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useConnectedIssueProviders } from '@core/features/integrations/api/browser/use-connected-issue-providers';
@@ -48,18 +48,18 @@ export const TaskListEmptyState = observer(function TaskListEmptyState({
 
   const actions: TaskAction[] = [
     {
-      label: t('create_from_branch'),
-      description: t('create_from_existing_branch'),
+      label: 'Create a Task from a Branch',
+      description: 'Create a task from an existing branch',
       icon: GitBranch,
       disabled: !!createDisabledReason,
       disabledReason: createDisabledReason,
       onActivate: () => void openTaskModal({ projectId, strategy: 'from-branch' }),
     },
     {
-      label: t('create_from_issue'),
+      label: 'Create from Issue',
       description: hasAnyIntegration
         ? 'Link and create a task from an issue'
-        : 'Configure issue integrations',
+        : t('configure_issue_integrations'),
       icon: CircleDot,
       disabled: !!createDisabledReason,
       disabledReason: createDisabledReason,
@@ -73,7 +73,7 @@ export const TaskListEmptyState = observer(function TaskListEmptyState({
       description: 'Create a task from a pull request',
       icon: GitPullRequest,
       disabled: !!createDisabledReason || !supportsPullRequests,
-      disabledReason: createDisabledReason ?? 'No remote repository connected',
+      disabledReason: createDisabledReason ?? t('no_remote_repository'),
       onActivate: () => void openTaskModal({ projectId, strategy: 'from-pull-request' }),
     },
   ];

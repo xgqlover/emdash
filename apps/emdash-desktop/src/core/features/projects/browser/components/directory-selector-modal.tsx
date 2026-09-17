@@ -1,4 +1,5 @@
 import { Button, Dialog, Field, Input, ModalLayout } from '@emdash/ui/react/primitives';
+import { t } from '@renderer/lib/i18n';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useModalController } from '@core/manifests/browser/modal-api';
@@ -53,7 +54,7 @@ export function DirectorySelectorModal({
     <ModalLayout
       header={
         <Dialog.Header>
-          <Dialog.Title>Select Remote Directory</Dialog.Title>
+          <Dialog.Title>{t('select_remote_directory')}</Dialog.Title>
         </Dialog.Header>
       }
       footer={

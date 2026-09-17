@@ -1,5 +1,5 @@
-import { t } from '@renderer/lib/i18n';
 import { AgentStatus } from '@emdash/ui/react/components';
+import { t } from '@renderer/lib/i18n';
 import { AbsoluteTime, Switch } from '@emdash/ui/react/primitives';
 import cronstrue from 'cronstrue';
 import {
@@ -132,7 +132,7 @@ export const AutomationRow = observer(function AutomationRow({
                   projectId == null && 'text-destructive/80'
                 )}
               >
-                {projectId ? projectDisplayName(getProjectStore(projectId)) : t('no_project')}
+                {projectId ? projectDisplayName(getProjectStore(projectId)) : 'No project'}
               </span>
             </div>
           </div>
@@ -163,12 +163,12 @@ export const AutomationRow = observer(function AutomationRow({
             {automation.enabled ? (
               scheduledAt ? (
                 <span className="flex items-center gap-1">
-                  {t('next_run_scheduled')}
+                  Next run scheduled
                   <AbsoluteTime value={scheduledAt} />
                 </span>
               ) : null
             ) : (
-              <span className="text-foreground-passive">{t('disabled')}</span>
+              <span className="text-foreground-passive">Disabled</span>
             )}
           </div>
         </div>

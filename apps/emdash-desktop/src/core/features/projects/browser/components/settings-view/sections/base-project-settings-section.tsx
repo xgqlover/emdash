@@ -1,4 +1,5 @@
 import type { GitBranchRef, GitRemote } from '@emdash/core/runtimes/git/api';
+import { t } from '@renderer/lib/i18n';
 import { deriveWorktreePoolPath } from '@emdash/core/runtimes/workspace-registry/api';
 import {
   Alert,
@@ -10,7 +11,6 @@ import {
   Switch,
 } from '@emdash/ui/react/primitives';
 import { Folder, Github } from 'lucide-react';
-import { t } from '@renderer/lib/i18n';
 import { observer } from 'mobx-react-lite';
 import { useState, type ReactNode } from 'react';
 import { sortGitHubAccountsByDefault } from '@core/features/projects/api/browser/components/github-account-select-model';
@@ -265,7 +265,7 @@ export const BaseProjectSettingsSection = observer(function BaseProjectSettingsS
                   <span className="flex min-w-0 items-center gap-2 truncate">
                     <span className="min-w-0 truncate">Unavailable GitHub account</span>
                     <span className="shrink-0 text-sm text-foreground-muted">
-                      No longer connected
+                      {t('no_longer_connected')}
                     </span>
                   </span>
                 ) : (
@@ -286,7 +286,7 @@ export const BaseProjectSettingsSection = observer(function BaseProjectSettingsS
                 <Select.Item value={EXPLICIT_NO_ACCOUNT_OPTION} className="py-2">
                   <div className="flex min-w-0 items-center gap-2">
                     <Github className="text-muted-foreground h-4 w-4 shrink-0" />
-                    <span className="relative -top-px shrink-0">No GitHub account</span>
+                    <span className="relative -top-px shrink-0">{t('no_github_account')}</span>
                   </div>
                 </Select.Item>
                 {accounts.map((account) => (
@@ -302,7 +302,7 @@ export const BaseProjectSettingsSection = observer(function BaseProjectSettingsS
 
       {hostObservationKind === 'unavailable' ? (
         <Field.Root>
-          <Field.Label>Worktree root</Field.Label>
+          <Field.Label>{t('worktree_root')}</Field.Label>
           <Field.Description className="text-foreground-muted">
             {projectType === 'local'
               ? 'Worktree placement is unavailable until the local runtime is ready.'
@@ -418,7 +418,9 @@ export const BaseProjectSettingsSection = observer(function BaseProjectSettingsS
       <Field.Root>
         <Field.Label>{t('agent_git_credentials')}</Field.Label>
         <Field.Description className="text-foreground-muted">
-          {t('agent_git_credentials_desc')}
+          Which git credentials agent and terminal sessions use in this project. Effective account
+          wires the account above, system keeps your machine's credentials, none disables credential
+          helpers in sessions.
         </Field.Description>
         <Select.Root
           value={gitIdentityForm.agentGitCredentials}
@@ -447,7 +449,7 @@ export const BaseProjectSettingsSection = observer(function BaseProjectSettingsS
       <Field.Root orientation="horizontal">
         <div className="flex flex-1 flex-col gap-1">
           <div className="flex items-center gap-2">
-            <Field.Label>Enable tmux</Field.Label>
+            <Field.Label>{t('enable_tmux')}</Field.Label>
             {tmuxSupported &&
             (hostObservationKind !== 'unavailable' || placementForm.tmux !== undefined) ? (
               <ProvenanceBadge provenance={effectiveTmux.provenance} flavor="inherited" />

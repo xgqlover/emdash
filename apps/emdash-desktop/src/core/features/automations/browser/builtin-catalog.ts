@@ -8,8 +8,8 @@ export const builtinAutomationCatalog: BuiltinAutomationTemplate[] = [
   {
     id: 'critical-bug-finder',
     category: '代码质量',
-    name: '查找严重 bug',
-    description: '分析最近的提交，查找高严重性正确性 bug 并提交安全修复',
+    name: '查找严重缺陷',
+    description: '分析近期提交，查找高严重性正确性缺陷并提交安全修复',
     icon: Bug,
     defaultTrigger: { expr: '0 10 * * 1', tz: 'UTC' },
     defaultConversationConfig: {
@@ -21,8 +21,7 @@ export const builtinAutomationCatalog: BuiltinAutomationTemplate[] = [
     id: 'daily-change-summary',
     category: '状态报告',
     name: '每日总结变更',
-    description:
-      '发布每日摘要，总结前一天的仓库变更和风险',
+    description: '发布每日摘要，总结前一天的显著仓库变更和风险',
     icon: Mail,
     defaultTrigger: { expr: '0 9 * * 1', tz: 'UTC' },
     defaultConversationConfig: {
@@ -34,8 +33,7 @@ export const builtinAutomationCatalog: BuiltinAutomationTemplate[] = [
     id: 'codebase-vulnerability-scan',
     category: '安全',
     name: '扫描漏洞',
-    description:
-      '按计划审查整个仓库，对已验证的高影响安全问题告警',
+    description: '定期审查整个仓库，并对已验证的高影响安全问题告警',
     icon: Search,
     defaultTrigger: { expr: '0 11 * * 1', tz: 'UTC' },
     defaultConversationConfig: {
@@ -47,18 +45,16 @@ export const builtinAutomationCatalog: BuiltinAutomationTemplate[] = [
     id: 'test-coverage',
     category: '代码质量',
     name: '补充测试覆盖',
-    description:
-      '审查最近的变更，为覆盖不足的高风险逻辑添加测试',
+    description: '审查近期变更，为缺乏充分覆盖的高风险逻辑添加测试',
     icon: FlaskConical,
     defaultTrigger: { expr: '0 10 * * 2', tz: 'UTC' },
     defaultConversationConfig: { initialPrompt: TEST_COVERAGE_PROMPT },
   },
   {
     id: 'reported-bugs',
-    category: '事件与分诊',
-    name: '修复上报的 bug',
-    description:
-      '调查你在 issue、文档或提示笔记中提供的 bug 报告，并用 PR 修复',
+    category: '事故与分诊',
+    name: '修复已报告缺陷',
+    description: '调查你在 issue、文档或提示笔记中提供的缺陷报告，并以 PR 修复',
     icon: Wrench,
     defaultTrigger: { expr: '0 10 * * 1', tz: 'UTC' },
     defaultConversationConfig: {
@@ -70,8 +66,7 @@ export const builtinAutomationCatalog: BuiltinAutomationTemplate[] = [
     id: 'docs-generator',
     category: '文档',
     name: '生成文档',
-    description:
-      '为最近变更或文档不足的代码创建和更新开发者文档',
+    description: '为近期变更或文档不足的代码创建和更新开发者文档',
     icon: BookOpen,
     defaultTrigger: { expr: '0 14 * * 5', tz: 'UTC' },
     defaultConversationConfig: {

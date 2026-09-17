@@ -1,4 +1,5 @@
 import type { GitRemote } from '@emdash/core/runtimes/git/api';
+import { t } from '@renderer/lib/i18n';
 import { err, type Result } from '@emdash/shared';
 import { useToast } from '@emdash/ui/react/primitives';
 import { useCallback, useMemo, useState } from 'react';
@@ -199,7 +200,7 @@ export function useProjectSettingsForm({
     }
 
     if (result.error.type === 'invalid-worktree-directory') {
-      setWorktreeDirectoryError('Invalid worktree directory');
+      setWorktreeDirectoryError(t('invalid_worktree_directory'));
       setSaveStatus('idle');
       return;
     }
@@ -228,7 +229,7 @@ export function useProjectSettingsForm({
         savedForm: nextForm,
         touchedFields: new Set(),
       });
-      toast('Team config shared', { description: '.emdash.json was written successfully.' });
+      toast(t('team_config_shared'), { description: '.emdash.json was written successfully.' });
       onSuccess();
     });
   }, [

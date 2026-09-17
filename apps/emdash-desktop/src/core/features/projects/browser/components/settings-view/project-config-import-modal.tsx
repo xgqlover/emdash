@@ -1,4 +1,5 @@
 import { err, type Result } from '@emdash/shared';
+import { t } from '@renderer/lib/i18n';
 import { Button, Dialog, Field, RadioGroup, Select } from '@emdash/ui/react/primitives';
 import { Check, Loader2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
@@ -93,7 +94,7 @@ export function ProjectConfigImportModal({
   return (
     <>
       <Dialog.Header showCloseButton={false}>
-        <Dialog.Title>Import project config</Dialog.Title>
+        <Dialog.Title>{t('import_project_config')}</Dialog.Title>
       </Dialog.Header>
       <Dialog.Body className="pt-0">
         <Field.Group>
@@ -108,7 +109,7 @@ export function ProjectConfigImportModal({
               >
                 <Select.Trigger className="w-full min-w-0">
                   <span className="min-w-0 truncate">
-                    {selectedMigration?.label ?? 'Select config'}
+                    {selectedMigration?.label ?? t('select_config')}
                   </span>
                 </Select.Trigger>
                 <Select.Content align="start" alignItemWithTrigger={false} sideOffset={6}>
@@ -124,7 +125,7 @@ export function ProjectConfigImportModal({
 
           {selectedMigration ? (
             <div className="space-y-2 text-sm">
-              <p>Settings to import</p>
+              <p>{t('settings_to_import')}</p>
               <ul className="list-disc space-y-1 pl-5 text-foreground-muted">
                 {selectedMigration.fields.map((field) => (
                   <li key={field}>{fieldLabel(field)}</li>
@@ -134,7 +135,7 @@ export function ProjectConfigImportModal({
           ) : null}
 
           <div className="space-y-2 text-sm">
-            <p>Save to</p>
+            <p>{t('save_to')}</p>
             <RadioGroup.Root
               value={destination}
               onValueChange={(value) => setDestination(value as ProjectConfigMigrationDestination)}
@@ -143,7 +144,7 @@ export function ProjectConfigImportModal({
               <label className="flex items-center gap-3 rounded-md text-sm">
                 <RadioGroup.Item value="local" className="translate-y-px" />
                 <span className="flex min-w-0 flex-row gap-1.5">
-                  <p>Personal settings</p>
+                  <p>{t('personal_settings')}</p>
                   <p className="text-foreground-muted">– stored only on this machine</p>
                 </span>
               </label>

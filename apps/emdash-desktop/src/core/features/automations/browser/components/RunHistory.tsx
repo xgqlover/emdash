@@ -1,5 +1,5 @@
-import { t } from '@renderer/lib/i18n';
 import { EmptyState } from '@emdash/ui/react/components';
+import { t } from '@renderer/lib/i18n';
 import { Button, Spinner } from '@emdash/ui/react/primitives';
 import { useState } from 'react';
 import type { Automation } from '@core/primitives/automations/api';
@@ -15,11 +15,11 @@ import { AutomationRunRow } from './AutomationRunRow';
 const PAGE_SIZE = 25;
 
 const FILTERS: { value: RunHistoryFilter; label: string }[] = [
-  { value: 'all', label: 'all' },
-  { value: 'done', label: 'done' },
-  { value: 'failed', label: 'failed' },
-  { value: 'skipped', label: 'skipped' },
-  { value: 'cancelled', label: 'cancelled' },
+  { value: 'all', label: 'All' },
+  { value: 'done', label: 'Done' },
+  { value: 'failed', label: 'Failed' },
+  { value: 'skipped', label: 'Skipped' },
+  { value: 'cancelled', label: 'Cancelled' },
 ];
 
 interface RunHistoryProps {
@@ -58,7 +58,7 @@ export function RunHistory({ automation }: RunHistoryProps) {
                 : 'text-foreground-muted hover:bg-background-1 hover:text-foreground'
             )}
           >
-            {t(label)}
+            {label}
             <span
               className={cn(
                 'tabular-nums',
@@ -97,7 +97,7 @@ export function RunHistory({ automation }: RunHistoryProps) {
                   disabled={runs.isLoadingMore}
                   onClick={() => void runs.loadMore()}
                 >
-                  {runs.isLoadingMore ? t('loading') : t('load_more')}
+                  {runs.isLoadingMore ? 'Loading…' : 'Load more'}
                 </Button>
               </div>
             )}

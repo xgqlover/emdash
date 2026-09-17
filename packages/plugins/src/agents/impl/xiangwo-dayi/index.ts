@@ -1,5 +1,6 @@
 // [XG-CUSTOM] 项我定制（见 emdash/CUSTOMIZATIONS.md）
 import { definePlugin, registerPluginBehavior } from '@emdash/core/services/agent-plugins/api/plugins';
+import { passthroughMcpAdapter } from '@emdash/core/services/agent-plugins/api/plugins/helpers';
 import { createNativeAcpBehavior } from '../../helpers/acp-stdio';
 import { icon } from '../xiangwo/icon';
 import { enrichXiangwoUpdate } from '../xiangwo/acp-transform';
@@ -14,12 +15,16 @@ export const plugin = definePlugin(
     prompt: { kind: 'none' },
     acp: { kind: 'supported', supportedTransports: ['stdio'] },
     sessions: { kind: 'resumable' },
+    // [XG-CUSTOM] 声明 MCP 能力：bot 聊天窗读 WeKnora MCP server
+    mcp: { kind: 'supported', scope: 'global', supportedTransports: ['stdio', 'http'] },
     hostDependency: { id: 'xiangwo-dayi', binaryNames: ['python3'] },
   },
   { icon }
 );
 
 export const provider = registerPluginBehavior(plugin, {
+  // [XG-CUSTOM] MCP 配置共用 ~/.xiangwo/mcp.json
+  mcp: passthroughMcpAdapter('.xiangwo/mcp.json'),
   acp: {
     ...createNativeAcpBehavior(() => ({
     command: 'python3',

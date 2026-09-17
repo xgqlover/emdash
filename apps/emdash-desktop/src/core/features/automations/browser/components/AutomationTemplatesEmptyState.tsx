@@ -1,5 +1,5 @@
-import { t } from '@renderer/lib/i18n';
 import { Label } from '@emdash/ui/react/primitives';
+import { t } from '@renderer/lib/i18n';
 import type { BuiltinAutomationTemplate } from '../automation-template';
 import { AutomationTemplateCard } from './AutomationTemplateCard';
 

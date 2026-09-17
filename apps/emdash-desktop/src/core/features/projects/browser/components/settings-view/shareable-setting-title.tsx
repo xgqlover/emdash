@@ -1,4 +1,5 @@
 import { Badge, Button, Field, Tooltip } from '@emdash/ui/react/primitives';
+import { t } from '@renderer/lib/i18n';
 import { RotateCcw } from 'lucide-react';
 
 type Props = {
@@ -42,7 +43,7 @@ export function ShareableSettingTitle({
             {isPersonal ? (
               <Tooltip.Root>
                 <Tooltip.Trigger className="inline-flex h-4.5 items-center">
-                  <Badge variant="outline">Personal</Badge>
+                  <Badge variant="outline">{t('personal')}</Badge>
                 </Tooltip.Trigger>
                 <Tooltip.Content side="top" align="end" className="max-w-sm">
                   Personal — stored on this machine, not shared with your team and not synced to
