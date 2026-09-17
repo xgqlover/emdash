@@ -94,7 +94,6 @@ jobs:
         shell: bash
         working-directory: apps/emdash-desktop
         env:
-          ELECTRON_BUILDER_BINARIES_MIRROR: https://ghproxy.com/https://github.com/electron-userland/electron-builder-binaries/releases/download/
           ELECTRON_MIRROR: https://npmmirror.com/mirrors/electron/
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
