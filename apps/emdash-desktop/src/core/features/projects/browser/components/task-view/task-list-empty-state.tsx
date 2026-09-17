@@ -48,17 +48,17 @@ export const TaskListEmptyState = observer(function TaskListEmptyState({
 
   const actions: TaskAction[] = [
     {
-      label: 'Create a Task from a Branch',
-      description: 'Create a task from an existing branch',
+      label: t('create_from_branch'),
+      description: t('create_from_branch_desc'),
       icon: GitBranch,
       disabled: !!createDisabledReason,
       disabledReason: createDisabledReason,
       onActivate: () => void openTaskModal({ projectId, strategy: 'from-branch' }),
     },
     {
-      label: 'Create from Issue',
+      label: t('create_from_issue'),
       description: hasAnyIntegration
-        ? 'Link and create a task from an issue'
+        ? t('link_from_issue')
         : t('configure_issue_integrations'),
       icon: CircleDot,
       disabled: !!createDisabledReason,
@@ -70,7 +70,7 @@ export const TaskListEmptyState = observer(function TaskListEmptyState({
     },
     {
       label: t('create_from_pr'),
-      description: 'Create a task from a pull request',
+      description: t('create_from_pr_desc'),
       icon: GitPullRequest,
       disabled: !!createDisabledReason || !supportsPullRequests,
       disabledReason: createDisabledReason ?? t('no_remote_repository'),
