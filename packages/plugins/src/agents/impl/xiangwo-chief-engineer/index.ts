@@ -17,7 +17,7 @@ export const plugin = definePlugin(
     sessions: { kind: 'resumable' },
     // [XG-CUSTOM] 声明 MCP 能力：bot 聊天窗读 WeKnora MCP server
     mcp: { kind: 'supported', scope: 'global', supportedTransports: ['stdio', 'http'] },
-    hostDependency: { id: 'xiangwo-chief-engineer', binaryNames: ['python3'] },
+    hostDependency: { id: 'xiangwo-chief-engineer', binaryNames: ['/usr/bin/python3'] },
   },
   { icon }
 );
@@ -27,7 +27,7 @@ export const provider = registerPluginBehavior(plugin, {
   mcp: passthroughMcpAdapter('.xiangwo/mcp.json'),
   acp: {
     ...createNativeAcpBehavior(() => ({
-    command: 'python3',
+    command: '/usr/bin/python3',
     args: ['/persistent/home/xgqlover/天天项上/五层四维记忆系统/xiangwo_acp.py'],
     env: { XIANGWO_BOT: 'chief-engineer' },
   })),

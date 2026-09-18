@@ -26,7 +26,7 @@ export const plugin = definePlugin(
     mcp: { kind: 'supported', scope: 'global', supportedTransports: ['stdio', 'http'] },
     hostDependency: {
       id: 'xiangwo',
-      binaryNames: ['python3'],
+      binaryNames: ['/usr/bin/python3'],
     },
   },
   { icon }
@@ -36,7 +36,7 @@ export const provider = registerPluginBehavior(plugin, {
   mcp: passthroughMcpAdapter('.xiangwo/mcp.json'),
   acp: {
     ...createNativeAcpBehavior(() => ({
-      command: 'python3',
+      command: '/usr/bin/python3',
       args: ['/persistent/home/xgqlover/天天项上/五层四维记忆系统/xiangwo_acp.py'],
       env: {},
     })),
