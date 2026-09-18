@@ -77,12 +77,7 @@ const config: Configuration = {
       { target: 'nsis', arch: ['x64'] },
       { target: 'msi', arch: ['x64'] },
     ],
-    azureSignOptions: {
-      publisherName: 'General Action, Inc.',
-      endpoint: 'https://eus.codesigning.azure.net/',
-      certificateProfileName: 'emdash-public',
-      codeSigningAccountName: 'emdash',
-    },
+    // [XG-CUSTOM] 去掉 azureSignOptions：fork 无 Azure 凭据，签名会卡 6h 超时，打 unsigned 包
   },
   msi: {
     oneClick: false,
