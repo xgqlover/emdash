@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import { Button, Dialog, Field, Input, Textarea } from '@emdash/ui/react/primitives';
 import { useMemo, useState } from 'react';
 import { useModalController } from '@core/manifests/browser/modal-api';
@@ -36,12 +37,12 @@ export function PromptModal({ initialPrompt }: Props) {
   return (
     <>
       <Dialog.Header>
-        <Dialog.Title>{initialPrompt ? 'Edit Prompt' : 'New Prompt'}</Dialog.Title>
+        <Dialog.Title>{initialPrompt ? t('edit_prompt') : t('new_prompt')}</Dialog.Title>
       </Dialog.Header>
       <Dialog.Body className="gap-4 pt-0">
         <Field.Group>
           <Field.Root>
-            <Field.Label>Title</Field.Label>
+            <Field.Label>{t('title')}</Field.Label>
             <Input
               data-autofocus
               value={form.title}
@@ -50,11 +51,11 @@ export function PromptModal({ initialPrompt }: Props) {
             />
           </Field.Root>
           <Field.Root>
-            <Field.Label>Prompt</Field.Label>
+            <Field.Label>{t('prompt')}</Field.Label>
             <Textarea
               value={form.prompt}
               onChange={(e) => setForm((prev) => ({ ...prev, prompt: e.target.value }))}
-              placeholder="Write the prompt agents should receive."
+              placeholder={t('write_prompt')}
               className="max-h-[50dvh] min-h-56 resize-y overflow-y-auto px-3 py-2.5 text-[14px] leading-relaxed"
             />
           </Field.Root>

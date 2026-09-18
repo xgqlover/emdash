@@ -86,6 +86,10 @@ export const desktopHostContract = defineContract({
     input: z.void(),
     output: z.custom<ActionResult>(),
   }),
+  openT8: procedure({
+    input: z.void(),
+    output: z.custom<ActionResult>(),
+  }),
   openPath: procedure({
     input: z.object({ ref: hostFileRefSchema }),
     output: z.custom<ActionResult>(),

@@ -95,6 +95,7 @@ jobs:
         working-directory: apps/emdash-desktop
         env:
           ELECTRON_MIRROR: https://npmmirror.com/mirrors/electron/
+          ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.github/electron-builder-cache
           ELECTRON_BUILDER_ICONS_TOOLSET_DIR: ${{ github.workspace }}/.github/electron-builder-bin/icons/icons-bundle
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}

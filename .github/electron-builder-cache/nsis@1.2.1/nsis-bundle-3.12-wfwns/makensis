@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ----------------------------------------
+# Resolve script directory
+# ----------------------------------------
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+UNAME_S="$(uname -s)"
+UNAME_M="$(uname -m)"
+
+# Normalize ARCH
+case "$UNAME_M" in
+  x86_64|amd64) ARCH="x86_64" ;;
+  arm64|aarch64) ARCH="arm64" ;;
+  *) ARCH="$UNAME_M" ;;
+esac
+
+# ----------------------------------------
+# Platform dispatch
+# ----------------------------------------
+case "$UNAME_S" in
+  Darwin)
+    case "$ARCH" in
+      x86_64) ARCH_DIR="x64" ;;
+      arm64)  ARCH_DIR="arm64" ;;
+      *) echo "❌ Unsupported architecture: $UNAME_M" >&2; exit 1 ;;
+    esac
+    BINARY="$SCRIPT_DIR/mac/$ARCH_DIR/makensis"
+    ;;
+  Linux)
+    case "$ARCH" in
+      x86_64) ARCH_DIR="x64" ;;
+      arm64)  ARCH_DIR="arm64" ;;
+      *) echo "❌ Unsupported architecture: $UNAME_M" >&2; exit 1 ;;
+    esac
+    BINARY="$SCRIPT_DIR/linux/$ARCH_DIR/makensis"
+    ;;
+  MINGW*|MSYS*|CYGWIN*)
+    # makensisw.exe is GUI-subsystem. -VERSION triggers a MessageBox (hangs in
+    # headless CI). Read the version from the bundle's VERSION.txt instead.
+    # All other invocations (compilation) delegate to makensis.cmd via cmd.exe
+    # to avoid MSYS2 path-translation mangling of .nsi file arguments.
+    case "${1:-}" in
+      -VERSION|-version|/VERSION|/version)
+        ver=$(grep -oE "[0-9]+\.[0-9]+" "$SCRIPT_DIR/VERSION.txt" 2>/dev/null | head -1)
+        echo "v${ver:-unknown}"
+        exit 0
+        ;;
+    esac
+    CMD_WIN=$(cygpath -w "$SCRIPT_DIR/makensis.cmd" 2>/dev/null || echo "$SCRIPT_DIR\\makensis.cmd")
+    cmd.exe //c "$CMD_WIN" "$@"
+    exit $?
+    ;;
+  *)
+    echo "❌ Unsupported platform: $UNAME_S" >&2
+    exit 1
+    ;;
+esac
+
+# ----------------------------------------
+# Validate + execute
+# ----------------------------------------
+if [ ! -f "$BINARY" ]; then
+  echo "❌ makensis binary not found: $BINARY" >&2
+  exit 1
+fi
+
+if [ ! -x "$BINARY" ]; then
+  chmod +x "$BINARY" 2>/dev/null || true
+fi
+
+export NSISDIR="$SCRIPT_DIR/windows"
+
+exec "$BINARY" "$@"
+

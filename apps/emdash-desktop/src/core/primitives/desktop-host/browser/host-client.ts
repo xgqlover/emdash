@@ -21,6 +21,10 @@ export async function openWeKnora() {
   return (await getHostClient()).openWeKnora();
 }
 
+export async function openT8() {
+  return (await getHostClient()).openT8();
+}
+
 export async function copyTextToClipboard(text: string) {
   return (await getHostClient()).clipboardWriteText({ text });
 }

@@ -1,0 +1,18 @@
+Platform: Linux
+Binary: makensis (native ELF binary)
+Architectures: x64, arm64
+Build Date: 2026-05-23T15:28:26Z
+Compiled from source: NSIS v312
+Compiler: GCC (Ubuntu 22.04)
+Build system: SCons
+Docker image: ubuntu:22.04
+
+This binary is compiled from source with:
+- Static linking where possible
+- NSIS_MAX_STRLEN=8192
+- NSIS_CONFIG_CONST_DATA_PATH=no
+
+Usage:
+  export NSISDIR="$(pwd)/share/nsis"
+  ./linux/x64/makensis your-script.nsi   # x86_64
+  ./linux/arm64/makensis your-script.nsi # aarch64

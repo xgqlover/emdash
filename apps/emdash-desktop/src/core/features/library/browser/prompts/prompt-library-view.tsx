@@ -1,3 +1,4 @@
+import { t } from '@renderer/lib/i18n';
 import {
   CollectionToolbar,
   CollectionView,
@@ -129,7 +130,7 @@ export function PromptLibraryView() {
   const createPrompt = () => {
     void openPromptModal().then((outcome) => {
       if (!outcome.success) return;
-      upsertPrompt({ id: createPromptId(), ...outcome.data }, 'Prompt added');
+      upsertPrompt({ id: createPromptId(), ...outcome.data }, t('prompt_added'));
     });
   };
 
@@ -138,21 +139,21 @@ export function PromptLibraryView() {
       initialPrompt: prompt,
     }).then((outcome) => {
       if (!outcome.success) return;
-      upsertPrompt({ ...prompt, ...outcome.data }, 'Prompt updated');
+      upsertPrompt({ ...prompt, ...outcome.data }, t('prompt_updated'));
     });
   };
 
   const deletePrompt = (prompt: PromptLibraryPrompt) => {
     void openConfirm({
-      title: 'Delete prompt?',
-      description: `"${prompt.title}" will be removed from the prompt library.`,
-      confirmLabel: 'Delete',
+      title: t('delete_prompt'),
+      description: t('delete_prompt_desc', { title: prompt.title }),
+      confirmLabel: t('delete'),
     }).then((outcome) => {
       if (!outcome.success) return;
       updatePromptLibrary(
         promptLibrary.filter((item) => item.id !== prompt.id),
         {
-          onSuccess: () => toast('Prompt deleted'),
+          onSuccess: () => toast(t('prompt_deleted')),
         }
       );
     });
@@ -162,8 +163,8 @@ export function PromptLibraryView() {
     <div className="flex min-h-0 flex-col gap-8 text-foreground">
       <PageLayout.Header
         sticky
-        title="Prompts"
-        description="Manage reusable prompts that can be sent from task prompt menus."
+        title={t('prompts')}
+        description={t('prompts_desc')}
       />
       <view.Root>
         <CollectionView
@@ -204,13 +205,13 @@ const PromptsToolbar = observer(function PromptsToolbar({
         ref={searchRef}
         value={search.query}
         onValueChange={search.setQuery}
-        placeholder="Search prompts…"
+        placeholder={t('search_prompts')}
       />
       <CollectionToolbar.Spacer />
       <CollectionToolbar.Group>
-        <Button variant="primary" onClick={onNewPrompt} disabled={disabled} aria-label="New Prompt">
+        <Button variant="primary" onClick={onNewPrompt} disabled={disabled} aria-label={t('new_prompt')}>
           <Plus className="size-4" />
-          <span className="[@container(max-width:520px)]:hidden">New Prompt</span>
+          <span className="[@container(max-width:520px)]:hidden">{t('new_prompt')}</span>
         </Button>
       </CollectionToolbar.Group>
     </CollectionToolbar.Root>
@@ -224,12 +225,12 @@ function PromptsEmptyState({ hasPrompts }: { hasPrompts: boolean }) {
     <div className="flex min-h-48 flex-col items-center justify-center p-8 text-center">
       <LibraryIcon className="mb-3 size-8 text-foreground-passive" />
       <div className="text-sm text-foreground">
-        {hasPrompts ? 'No prompts match your search' : 'No prompts'}
+        {hasPrompts ? t('no_prompts_match') : t('no_prompts')}
       </div>
       <p className="mt-1 max-w-sm text-xs text-foreground-passive">
         {hasPrompts
-          ? 'Try a different title or prompt text.'
-          : 'Add a prompt to reuse it from task prompt menus.'}
+          ? t('try_different')
+          : t('add_prompt_reuse')}
       </p>
     </div>
   );

@@ -1,0 +1,17 @@
+Platform: macOS
+Binary: makensis (native Mach-O binary)
+Architecture: x64 (x86_64)
+Build Date: 2026-05-23T15:22:41Z
+Compiled from source: NSIS v312
+Compiler: Clang Apple clang version 17.0.0 (clang-1700.0.13.5)
+Build system: SCons
+macOS Version: 15.7.5
+
+This binary is compiled from source with:
+- Native macOS compilation (no cross-compile)
+- NSIS_MAX_STRLEN=8192
+- NSIS_CONFIG_CONST_DATA_PATH=no
+
+Usage:
+  export NSISDIR="$(pwd)/share/nsis"
+  ./mac/makensis your-script.nsi

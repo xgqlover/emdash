@@ -1,0 +1,4 @@
+Platform: Windows
+Binary: makensis.exe (official pre-built with strlen_8192 patch)
+Architecture: x86 (runs on all Windows via WoW64)
+Max String Length: 8192

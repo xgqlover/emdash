@@ -1,0 +1,5 @@
+NSIS Complete Bundle
+====================
+NSIS Version: 3.12
+Branch/Tag: v312
+Bundle Date: 2026-05-23T15:28:54Z

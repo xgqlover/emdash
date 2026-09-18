@@ -397,6 +397,43 @@ export function createWeKnoraWindow(): BrowserWindow {
   return weKnoraWindow;
 }
 
+// [XG-CUSTOM] T8 窗口：AI 生成工作流引擎画板（T8 前端 18766，执行引擎 comfyui/volcengine 等）。
+// 设置→集成里 T8 卡片点「打开」→ 弹出这个窗口加载 T8 画板。
+let t8Window: BrowserWindow | null = null;
+
+export function createT8Window(): BrowserWindow {
+  if (t8Window && !t8Window.isDestroyed()) {
+    t8Window.show();
+    t8Window.focus();
+    return t8Window;
+  }
+  t8Window = new BrowserWindow({
+    width: 1400,
+    height: 900,
+    minWidth: 900,
+    minHeight: 600,
+    title: 'T8 画板',
+    backgroundColor: nativeTheme.shouldUseDarkColors ? '#111111' : '#fcfcfc',
+    ...(import.meta.env.DEV && { icon: devIcon }),
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      sandbox: true,
+    },
+    show: false,
+  });
+  void t8Window.loadURL('http://127.0.0.1:18766');
+  t8Window.once('ready-to-show', () => {
+    t8Window?.show();
+    t8Window?.focus();
+  });
+  t8Window.show();
+  t8Window.on('closed', () => {
+    t8Window = null;
+  });
+  return t8Window;
+}
+
 export function showMainWindow(): BrowserWindow {
   const win = mainWindow && !mainWindow.isDestroyed() ? mainWindow : createMainWindow();
   if (win.isMinimized()) win.restore();
