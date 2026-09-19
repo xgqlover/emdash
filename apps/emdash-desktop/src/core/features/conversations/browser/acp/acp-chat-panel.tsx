@@ -1,4 +1,4 @@
-import type { AttachmentMimeType, AttachmentRef } from '@emdash/core/runtimes/acp/api/client';
+import type { AttachmentMimeType, AttachmentRef, ImageAttachmentMimeType } from '@emdash/core/runtimes/acp/api/client';
 import { ChatComposer, ImageViewerDialog, MermaidViewerDialog } from '@emdash/ui/react/components';
 import type {
   CommandItem,
@@ -52,10 +52,6 @@ import {
   getRegisteredTaskData,
   getTaskStore,
 } from '@core/features/tasks/api/browser/task-state/task-selectors';
-import {
-  isHeicLikeFile,
-  isUnstableDropPath,
-} from '@core/features/terminals/api/browser/pty/terminal-image-paths';
 import { openModal } from '@core/manifests/browser/modal-api';
 import { projectAvailabilityUi } from '@core/manifests/browser/project-availability-ui';
 import { openExternal, openXiangwoFloating } from '@core/primitives/desktop-host/browser/host-client';
@@ -67,6 +63,7 @@ import type { AcpChatStore, AcpPromptAttachment } from './acp-chat-store';
 import type { AcpChatTabResource } from './acp-chat-tab-resource';
 import { chatViewCommandForShortcut, executeChatViewCommand } from './acp-chat-view-commands';
 import { buildIssueMentionHiddenContext } from './issue-mention-context';
+import { shouldUseAcpImageAttachment, uploadDroppedFile } from './acp-dropped-file';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -134,13 +131,13 @@ function toComposerPermission(
   };
 }
 
-const supportedAttachmentMimeTypes = new Set<AttachmentMimeType>([
+const supportedAttachmentMimeTypes = new Set<ImageAttachmentMimeType>([
   'image/png',
   'image/jpeg',
   'image/gif',
   'image/webp',
 ]);
-const attachmentMimeTypeByExtension: Record<string, AttachmentMimeType> = {
+const attachmentMimeTypeByExtension: Record<string, ImageAttachmentMimeType> = {
   gif: 'image/gif',
   jpeg: 'image/jpeg',
   jpg: 'image/jpeg',
@@ -148,14 +145,14 @@ const attachmentMimeTypeByExtension: Record<string, AttachmentMimeType> = {
   webp: 'image/webp',
 };
 
-function toAttachmentMimeTypeValue(value: string): AttachmentMimeType | null {
+function toAttachmentMimeTypeValue(value: string): ImageAttachmentMimeType | null {
   const mimeType = value.toLowerCase();
-  return supportedAttachmentMimeTypes.has(mimeType as AttachmentMimeType)
-    ? (mimeType as AttachmentMimeType)
+  return supportedAttachmentMimeTypes.has(mimeType as ImageAttachmentMimeType)
+    ? (mimeType as ImageAttachmentMimeType)
     : null;
 }
 
-function toAttachmentMimeType(file: File): AttachmentMimeType | null {
+function toAttachmentMimeType(file: File): ImageAttachmentMimeType | null {
   const declaredMimeType = toAttachmentMimeTypeValue(file.type);
   if (declaredMimeType) return declaredMimeType;
   const extension = file.name.split('.').pop()?.toLowerCase();
@@ -174,7 +171,7 @@ function readFileAsDataUrl(file: File): Promise<string | undefined> {
 async function uploadImageFile(
   store: AcpChatStore,
   file: File
-): Promise<ComposerAttachment | null> {
+): Promise<AcpPromptAttachment | null> {
   const mimeType = toAttachmentMimeType(file);
   if (!mimeType) {
     log.warn('Dropped image type is not supported for ACP attachments', {
@@ -184,20 +181,10 @@ async function uploadImageFile(
     return null;
   }
 
-  const originalPath = window.electronAPI.getPathForFile(file).trim();
-  const canReference =
-    originalPath.length > 0 && !isUnstableDropPath(originalPath) && !isHeicLikeFile(file);
   const previewUrl = await readFileAsDataUrl(file);
   let ref: AttachmentRef | null;
   try {
-    ref = canReference
-      ? await store.uploadAttachment({ originalPath, mimeType, name: file.name })
-      : await store.uploadAttachment({
-          source: file.stream(),
-          size: file.size,
-          mimeType,
-          name: file.name,
-        });
+    ref = await uploadDroppedFile(store, file, mimeType);
   } catch (error) {
     log.warn('Failed to prepare ACP attachment upload', { name: file.name, error });
     return null;
@@ -205,19 +192,25 @@ async function uploadImageFile(
 
   if (!ref) return null;
   return {
-    id: ref.id,
-    name: ref.name,
-    kind: 'image',
+    ref: { type: 'attachment', id: ref.id, name: ref.name, mimeType },
     previewUrl,
-    mimeType: ref.mimeType,
+  };
+}
+
+function toComposerAttachment(attachment: AcpPromptAttachment): ComposerAttachment {
+  return {
+    id: attachment.ref.id,
+    name: attachment.ref.name ?? 'image',
+    kind: 'image',
+    previewUrl: attachment.previewUrl,
+    mimeType: attachment.ref.mimeType,
   };
 }
 
 function resolveAttachmentDataUrl(store: AcpChatStore, id: string): Promise<string | null> {
-  if (!store.session) return Promise.resolve(null);
   const cached = attachmentDataUrlCache.get(id);
   if (cached) return cached;
-  const promise = store.session
+  const promise = store
     .downloadAttachment(id)
     .then((result) => {
       if (!result.success) return null;
@@ -258,7 +251,7 @@ const ComposerForStore = observer(function ComposerForStore({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   // [XG-CUSTOM] 方案 B：@bot/专家 后切左侧到对应 bot 大仓
   const { navigate } = useNavigate();
-  const [attachments, setAttachments] = useState<ComposerAttachment[]>([]);
+  const attachments = store.draftAttachments.map(toComposerAttachment);
   const { value: promptLibrary } = usePromptLibrary();
   const disabledReason = projectAvailabilityUi.getLiveActionDisabledReason(store.projectId);
 
@@ -272,25 +265,6 @@ const ComposerForStore = observer(function ComposerForStore({
     if (!editor || editor.getText() === store.draftText) return;
     editor.setText(store.draftText);
   }, [store, store.draftText]);
-
-  const buildPromptAttachments = useCallback(
-    (): AcpPromptAttachment[] =>
-      attachments
-        .filter((att) => att.kind === 'image' && toAttachmentMimeTypeValue(att.mimeType ?? ''))
-        .map((att) => {
-          const mimeType = toAttachmentMimeTypeValue(att.mimeType ?? '') ?? 'image/png';
-          return {
-            ref: {
-              type: 'attachment' as const,
-              id: att.id,
-              mimeType,
-              name: att.name,
-            },
-            previewUrl: att.previewUrl,
-          };
-        }),
-    [attachments]
-  );
 
   const buildHiddenIssueContext = useCallback(
     (value: string) =>
@@ -315,9 +289,7 @@ const ComposerForStore = observer(function ComposerForStore({
 
   const handleSubmit = useCallback(
     (value: string) => {
-      const promptAttachments = buildPromptAttachments();
-      if (!value.trim() && promptAttachments.length === 0) return;
-      setAttachments([]);
+      if (!value.trim() && store.draftAttachments.length === 0) return;
       editorApiRef.current?.clear();
       // [XG-CUSTOM] 方案 B：@bot/@专家 后左侧切到对应 bot 大仓
       // （@sxsj / @尚享设计主理人 → 切 sxsj 项目；@通用角色 不切；已在该仓则不重复切）
@@ -344,9 +316,9 @@ const ComposerForStore = observer(function ComposerForStore({
         }
       }
       const hiddenContext = buildHiddenIssueContext(value);
-      store.submitPrompt(value, promptAttachments, hiddenContext);
+      store.submitPrompt(value, store.draftAttachments, hiddenContext);
     },
-    [store, buildPromptAttachments, buildHiddenIssueContext, navigate]
+    [store, buildHiddenIssueContext, navigate]
   );
 
   const handleStop = useCallback(() => {
@@ -406,15 +378,39 @@ const ComposerForStore = observer(function ComposerForStore({
     fileInputRef.current?.click();
   }, []);
 
-  const insertFileMentions = useCallback((files: File[]) => {
-    for (const file of files) {
-      if (file.type.startsWith('image/')) continue;
-      const abs = window.electronAPI.getPathForFile(file).trim().replace(/\\/g, '/');
-      if (!abs) continue;
-      const name = abs.split('/').pop() ?? abs;
-      editorApiRef.current?.insertMention({ id: abs, label: abs, name, kind: 'file' });
-    }
-  }, []);
+  const addFileMentions = useCallback(
+    async (files: File[]) => {
+      const regularFiles = files.filter((file) => !shouldUseAcpImageAttachment(file));
+      const refs = await Promise.all(
+        regularFiles.map(async (file) => {
+          try {
+            return await uploadDroppedFile(store, file);
+          } catch (error) {
+            log.warn('Failed to upload dropped ACP file', { name: file.name, error });
+            return null;
+          }
+        })
+      );
+      for (const [index, ref] of refs.entries()) {
+        if (!ref) continue;
+        if (!ref.targetPath) {
+          void store.deleteAttachment(ref.id);
+          toast.error('Failed to attach file', {
+            description: `${regularFiles[index]?.name ?? ref.name} has no target Host path.`,
+          });
+          continue;
+        }
+        const targetPath = ref.targetPath.replace(/\\/g, '/');
+        editorApiRef.current?.insertMention({
+          id: targetPath,
+          label: targetPath,
+          name: ref.name,
+          kind: 'file',
+        });
+      }
+    },
+    [store]
+  );
 
   const addImageFiles = useCallback(
     async (files: File[]) => {
@@ -430,9 +426,9 @@ const ComposerForStore = observer(function ComposerForStore({
       }
 
       const next = await Promise.all(supportedFiles.map((file) => uploadImageFile(store, file)));
-      const uploaded = next.filter((att): att is ComposerAttachment => att !== null);
+      const uploaded = next.filter((att): att is AcpPromptAttachment => att !== null);
       if (uploaded.length > 0) {
-        setAttachments((prev) => [...prev, ...uploaded]);
+        store.addDraftAttachments(uploaded);
       }
     },
     [store]
@@ -443,10 +439,9 @@ const ComposerForStore = observer(function ComposerForStore({
       const nextIds = new Set(next.map((attachment) => attachment.id));
       for (const attachment of attachments) {
         if (attachment.kind === 'image' && !nextIds.has(attachment.id)) {
-          void store.deleteAttachment(attachment.id);
+          store.removeDraftAttachment(attachment.id);
         }
       }
-      setAttachments(next);
     },
     [attachments, store]
   );
@@ -462,9 +457,9 @@ const ComposerForStore = observer(function ComposerForStore({
         await addImageFiles(images);
       }
 
-      insertFileMentions(files);
+      await addFileMentions(files);
     },
-    [addImageFiles, insertFileMentions]
+    [addImageFiles, addFileMentions]
   );
 
   const workspaceId = useObserver(
@@ -734,7 +729,7 @@ const ComposerForStore = observer(function ComposerForStore({
           onAttachmentsChange={handleAttachmentsChange}
           onAttach={handleAttach}
           onImageFilesDropped={(files) => void addImageFiles(files)}
-          onFilesDropped={insertFileMentions}
+          onFilesDropped={addFileMentions}
           onViewImage={(att) => onViewerOpen(att.previewUrl, att.name)}
         />
       </div>
