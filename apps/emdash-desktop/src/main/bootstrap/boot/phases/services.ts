@@ -57,6 +57,7 @@ import {
 import { LocalSettingsSync } from '@core/features/machines/node/local-settings-sync';
 import { previewServerService } from '@core/features/preview-servers/api/node/preview-server-service-instance';
 import { PreviewServerAccessService } from '@core/features/preview-servers/node/preview-server-access-service';
+import { previewServerUrl } from '@core/primitives/preview-servers/api';
 import type { ProjectAttachmentManager } from '@core/features/projects/api/node/project-attachment-manager';
 import { projectEvents } from '@core/features/projects/api/node/project-events';
 import { loadStoredGitSettings } from '@core/features/projects/api/node/settings/effective-settings';
@@ -167,6 +168,7 @@ export type ServicesBundle = {
   readonly hostAttachments: HostAttachmentRegistry;
   readonly notifications: ReturnType<typeof createNotificationService>;
   readonly previewServerAccess: PreviewServerAccessService;
+  readonly forwardManualPreview: (remotePort: number) => Promise<string | null>;
   readonly promptLibrary: ReturnType<typeof createPromptLibraryService>;
   readonly projectDeletion: ProjectDeletionDependencies;
   readonly projects: ProjectAttachmentManager;
@@ -334,6 +336,25 @@ export async function bootServices(
       previewServerAccess.forgetProject(projectId);
     })
   );
+
+  // [XG-CUSTOM] 手动端口转发：WeKnora/T8 窗口在 SSH 远程项目里，把远程 port 转发到本地 127.0.0.1，返回可加载的 URL
+  const forwardManualPreview = async (remotePort: number): Promise<string | null> => {
+    const connectionId = infrastructure.ssh.manager.getConnectionIds()[0];
+    if (!connectionId) return null;
+    try {
+      const result = await previewServerService.forwardManual({
+        projectId: 'xiangwo-tools',
+        workspaceId: 'xiangwo-tools',
+        connectionId,
+        protocol: 'http:',
+        remotePort,
+      });
+      return result.success ? previewServerUrl(result.data) : null;
+    } catch (error) {
+      log.warn('forwardManualPreview failed', { remotePort, error: String(error) });
+      return null;
+    }
+  };
   const projectSettingsService = new ProjectSettingsService({
     db,
     projects: projectManager,
@@ -823,6 +844,7 @@ export async function bootServices(
     issueProviders,
     notifications: notificationService,
     previewServerAccess,
+    forwardManualPreview,
     promptLibrary: promptLibraryService,
     projectDeletion,
     projects: projectManager,

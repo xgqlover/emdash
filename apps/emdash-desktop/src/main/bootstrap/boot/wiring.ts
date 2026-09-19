@@ -83,12 +83,14 @@ export function createDesktopWireOptions(
         void ensureChromeRunning();
         return { success: true };
       },
-      openWeKnora: () => {
-        createWeKnoraWindow();
+      openWeKnora: async () => {
+        const url = (await services.forwardManualPreview(9036)) ?? 'http://127.0.0.1:9036';
+        createWeKnoraWindow(url);
         return { success: true };
       },
-      openT8: () => {
-        createT8Window();
+      openT8: async () => {
+        const url = (await services.forwardManualPreview(18766)) ?? 'http://127.0.0.1:18766';
+        createT8Window(url);
         return { success: true };
       },
       showWorkspaceItemInFolder: (input) => appOperations.showWorkspaceItemInFolder(input),

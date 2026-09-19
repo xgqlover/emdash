@@ -364,7 +364,7 @@ export function createXiangwoFloatingWindow(): BrowserWindow {
 // 设置→集成里 WeKnora 卡片点「打开」→ 弹出这个窗口加载 WeKnora UI。
 let weKnoraWindow: BrowserWindow | null = null;
 
-export function createWeKnoraWindow(): BrowserWindow {
+export function createWeKnoraWindow(url = 'http://127.0.0.1:9036'): BrowserWindow {
   if (weKnoraWindow && !weKnoraWindow.isDestroyed()) {
     weKnoraWindow.show();
     weKnoraWindow.focus();
@@ -385,7 +385,7 @@ export function createWeKnoraWindow(): BrowserWindow {
     },
     show: false,
   });
-  void weKnoraWindow.loadURL('http://127.0.0.1:9036');
+  void weKnoraWindow.loadURL(url);
   weKnoraWindow.once('ready-to-show', () => {
     weKnoraWindow?.show();
     weKnoraWindow?.focus();
@@ -401,7 +401,7 @@ export function createWeKnoraWindow(): BrowserWindow {
 // 设置→集成里 T8 卡片点「打开」→ 弹出这个窗口加载 T8 画板。
 let t8Window: BrowserWindow | null = null;
 
-export function createT8Window(): BrowserWindow {
+export function createT8Window(url = 'http://127.0.0.1:18766'): BrowserWindow {
   if (t8Window && !t8Window.isDestroyed()) {
     t8Window.show();
     t8Window.focus();
@@ -422,7 +422,7 @@ export function createT8Window(): BrowserWindow {
     },
     show: false,
   });
-  void t8Window.loadURL('http://127.0.0.1:18766');
+  void t8Window.loadURL(url);
   t8Window.once('ready-to-show', () => {
     t8Window?.show();
     t8Window?.focus();
