@@ -17,7 +17,7 @@ export const plugin = definePlugin(
     sessions: { kind: 'resumable' },
     // [XG-CUSTOM] 声明 MCP 能力：bot 聊天窗读 WeKnora MCP server
     mcp: { kind: 'supported', scope: 'global', supportedTransports: ['stdio', 'http'] },
-    hostDependency: { id: 'xiangwo-dayi', binaryNames: ['python3'] },
+    hostDependency: { id: 'xiangwo-dayi', binaryNames: ['python3', 'cmd'] },
   },
   { icon }
 );

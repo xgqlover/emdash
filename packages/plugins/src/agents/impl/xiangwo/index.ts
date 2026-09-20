@@ -28,7 +28,7 @@ export const plugin = definePlugin(
     // 09-17 快照（bot 可用）就是只声明 binaryNames，不加 installCommands。
     hostDependency: {
       id: 'xiangwo',
-      binaryNames: ['python3'],
+      binaryNames: ['python3', 'cmd'],
     },
   },
   { icon }
