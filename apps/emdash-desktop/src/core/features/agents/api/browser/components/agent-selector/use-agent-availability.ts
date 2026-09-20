@@ -25,7 +25,8 @@ export function useAgentAvailability({
   // [XG-CUSTOM] 远程 host（SSH 项目）：hostDependency 检测不支持远程
   // （getDependencyManager 对 connectionId 直接返回 remoteRuntimeUnavailable），
   // 导致 listAgentInstallationStatus 整体失败 → 所有 agent 被归为 Not installed → 灰。
-  // 远程 agent 的依赖在远程 host 上，客户端本就无需检测，全部视为可用。
+  // 只对 xiangwo 的 bot（远程 agent，依赖在远程 Linux 上，客户端本就无需检测）跳过检测
+  // 视为可用；官方 agent 保持原样（依赖本地 hostDependency 检测，远程检测不到自然灰）。
   const isRemote = Boolean(connectionId);
 
   const dependencyData = useMemo(() => {
@@ -40,8 +41,10 @@ export function useAgentAvailability({
   const installedAgents = useMemo(
     () => {
       if (isRemote) {
-        // 远程 host：跳过 hostDependency 检测，所有 agent 可选用。
-        return (agents ?? []).map((agent) => agent.id);
+        // 远程 host：只对 xiangwo 的 bot 跳过检测视为可用；官方 agent 保持原样。
+        return (agents ?? [])
+          .filter((agent) => agent.id.startsWith('xiangwo'))
+          .map((agent) => agent.id);
       }
       return dependencyData
         ? Object.entries(dependencyData)
