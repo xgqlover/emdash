@@ -24,14 +24,11 @@ export const plugin = definePlugin(
       kind: 'resumable',
     },
     mcp: { kind: 'supported', scope: 'global', supportedTransports: ['stdio', 'http'] },
+    // [XG-CUSTOM] 无 installCommands：加 installCommands(method 'other') 会被判「不可安装」→ 全灰。
+    // 09-17 快照（bot 可用）就是只声明 binaryNames，不加 installCommands。
     hostDependency: {
       id: 'xiangwo',
       binaryNames: ['python3'],
-      installCommands: {
-        linux: [{ method: 'other', command: 'true' }],
-        macos: [{ method: 'other', command: 'true' }],
-        windows: [{ method: 'other', command: 'true' }],
-      },
     },
   },
   { icon }
