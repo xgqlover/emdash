@@ -258,14 +258,15 @@ export function registerXiangwoTaskSpaces(): void {
   );
 }
 
-// [XG-CUSTOM] 专家交接平台桥接：subprocess 调 wego-lite/expert-handoff/expert-handoff.mjs（Node CLI，输出 JSON）。
-// 命令：by-expert <expert> / accept <id> / delete <id>。
-const EXPERT_HANDOFF_MJS =
-  '/persistent/home/xgqlover/天天项上/五层四维记忆系统/wego-lite/expert-handoff/expert-handoff.mjs';
+// [XG-CUSTOM] 专家交接平台桥接：subprocess 调 xiangwo-agent/expert_handoff.py（session 隔离版 CLI，输出 JSON）。
+// 与 agent.py 后端共用同一模块 + 同一数据文件，保证 session 隔离逻辑只有一份。
+// 命令：by-expert <expert> [session] / accept <id> / delete <id>。
+const EXPERT_HANDOFF_PY =
+  '/persistent/home/xgqlover/天天项上/五层四维记忆系统/xiangwo-agent/expert_handoff.py';
 
 function expertHandoffCall(cmd: string, ...args: string[]): Promise<unknown> {
   return new Promise((resolve, reject) => {
-    const child = spawn('node', [EXPERT_HANDOFF_MJS, cmd, ...args]);
+    const child = spawn('python3', [EXPERT_HANDOFF_PY, cmd, ...args]);
     let out = '';
     child.stdout.on('data', (d) => {
       out += d.toString();
