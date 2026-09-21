@@ -62,6 +62,19 @@ export type DesktopHostEvent =
       action: 'paste' | 'select-all' | 'clear';
     };
 
+
+// [XG-CUSTOM] 专家交接平台 topic 数据模型（对应 wego-lite/expert-handoff/expert_topics.json）
+export interface ExpertHandoffTopic {
+  id: number;
+  bot: string;
+  expert: string;
+  title: string;
+  summary: string;
+  file: string;
+  status: string;
+  created: number;
+}
+
 type ActionResult = { success: boolean; error?: string };
 type RequiredPathResult = { success: true; path: string } | { success: false; error: string };
 type NullablePathResult =
@@ -89,6 +102,19 @@ export const desktopHostContract = defineContract({
   openT8: procedure({
     input: z.void(),
     output: z.custom<ActionResult>(),
+  }),
+  // [XG-CUSTOM] 专家交接平台：列前专家主题 / 接下 / 删除
+  expertHandoffByExpert: procedure({
+    input: z.object({ expert: z.string() }),
+    output: z.custom<ExpertHandoffTopic[]>(),
+  }),
+  expertHandoffAccept: procedure({
+    input: z.object({ id: z.string() }),
+    output: z.custom<ExpertHandoffTopic>(),
+  }),
+  expertHandoffDelete: procedure({
+    input: z.object({ id: z.string() }),
+    output: z.custom<{ done: boolean; id: number }>(),
   }),
   openPath: procedure({
     input: z.object({ ref: hostFileRefSchema }),

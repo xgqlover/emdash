@@ -258,6 +258,42 @@ export function registerXiangwoTaskSpaces(): void {
   );
 }
 
+// [XG-CUSTOM] 专家交接平台桥接：subprocess 调 wego-lite/expert-handoff/expert-handoff.mjs（Node CLI，输出 JSON）。
+// 命令：by-expert <expert> / accept <id> / delete <id>。
+const EXPERT_HANDOFF_MJS =
+  '/persistent/home/xgqlover/天天项上/五层四维记忆系统/wego-lite/expert-handoff/expert-handoff.mjs';
+
+function expertHandoffCall(cmd: string, ...args: string[]): Promise<unknown> {
+  return new Promise((resolve, reject) => {
+    const child = spawn('node', [EXPERT_HANDOFF_MJS, cmd, ...args]);
+    let out = '';
+    child.stdout.on('data', (d) => {
+      out += d.toString();
+    });
+    child.on('error', (e) => reject(e));
+    child.on('close', (code) => {
+      if (code !== 0) return reject(new Error(`expert-handoff exit ${code}`));
+      try {
+        resolve(JSON.parse(out));
+      } catch {
+        resolve(out);
+      }
+    });
+  });
+}
+
+export function registerXiangwoExpertHandoff(): void {
+  ipcMain.handle('xiangwo:expert-handoff-by-expert', (_e, expert: string) =>
+    expertHandoffCall('by-expert', expert)
+  );
+  ipcMain.handle('xiangwo:expert-handoff-accept', (_e, id: string) =>
+    expertHandoffCall('accept', id)
+  );
+  ipcMain.handle('xiangwo:expert-handoff-delete', (_e, id: string) =>
+    expertHandoffCall('delete', id)
+  );
+}
+
 // [XG-CUSTOM] 一键组合：浮窗 + 真实 Chrome。拉起 CDP Chrome（若没跑），
 // 用真实指纹/登录态抓外网（pixiv/Google 等），与 wego-lite 共用同一 profile。
 const CHROME_CMD = 'google-chrome-stable';
@@ -303,6 +339,7 @@ export function createXiangwoFloatingWindow(): BrowserWindow {
     cdpBridgeRegistered = true;
     registerXiangwoCdpBridge();
     registerXiangwoTaskSpaces();
+    registerXiangwoExpertHandoff();
   }
   if (xiangwoFloatingWindow && !xiangwoFloatingWindow.isDestroyed()) {
     xiangwoFloatingWindow.show();

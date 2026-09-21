@@ -53,6 +53,8 @@ import {
   getTaskStore,
 } from '@core/features/tasks/api/browser/task-state/task-selectors';
 import { openModal } from '@core/manifests/browser/modal-api';
+import { reaction } from 'mobx';
+import type { ExpertHandoffTopic } from '@core/primitives/desktop-host/api/host-contract';
 import { projectAvailabilityUi } from '@core/manifests/browser/project-availability-ui';
 import { openExternal, openXiangwoFloating } from '@core/primitives/desktop-host/browser/host-client';
 import { issueMentionToken, parseIssueMentionToken } from '@core/primitives/issues/api';
@@ -839,6 +841,48 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
       conversationStore.markSeen();
     }
   }, [conversationStore, conversationSeen]);
+
+  // [XG-CUSTOM] 专家交接平台：检测 agent 回复里的【HANDOFF_TOPICS】标记 → 弹「专家交接」弹窗（原生 modal）。
+  // 去重：同一段标记只弹一次（流式渲染 messageCount 会多次触发）。
+  const handoffHandledRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!store) return;
+    const dispose = reaction(
+      () => store.messageCount,
+      () => {
+        const transcript = store.chatState.transcript;
+        const turns = [...transcript.state.displayTurns].reverse();
+        const active = transcript.state.activeTurnSnapshot;
+        if (active) turns.unshift(active);
+        let text: string | null = null;
+        for (const turn of turns) {
+          for (const item of [...turn.items].reverse()) {
+            if (item.kind === 'message' && item.role === 'assistant') {
+              text = item.text;
+              break;
+            }
+          }
+          if (text !== null) break;
+        }
+        if (!text) return;
+        const m = text.match(/【HANDOFF_TOPICS】([\s\S]*?)【\/HANDOFF_TOPICS】/);
+        if (!m) return;
+        const raw = m[1];
+        if (handoffHandledRef.current === raw) return;
+        handoffHandledRef.current = raw;
+        try {
+          const topics = JSON.parse(raw) as ExpertHandoffTopic[];
+          if (Array.isArray(topics) && topics.length > 0) {
+            void openModal('expertHandoffModal', { topics });
+          }
+        } catch {
+          /* 解析失败忽略 */
+        }
+      },
+      { fireImmediately: false }
+    );
+    return () => dispose();
+  }, [store]);
 
   useEffect(() => {
     if (!store) return;

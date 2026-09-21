@@ -25,6 +25,19 @@ export async function openT8() {
   return (await getHostClient()).openT8();
 }
 
+
+// [XG-CUSTOM] 专家交接平台：列前专家主题 / 接下 / 删除
+export async function expertHandoffByExpert(expert: string) {
+  return (await getHostClient()).expertHandoffByExpert({ expert });
+}
+
+export async function expertHandoffAccept(id: string) {
+  return (await getHostClient()).expertHandoffAccept({ id });
+}
+
+export async function expertHandoffDelete(id: string) {
+  return (await getHostClient()).expertHandoffDelete({ id });
+}
 export async function copyTextToClipboard(text: string) {
   return (await getHostClient()).clipboardWriteText({ text });
 }
