@@ -79,6 +79,13 @@ const storedLifecycle = defineVersionedSchema()
     version: '2' as const,
     value: migrateLegacyBackground(prev.value),
   }))
+  // [XG-CUSTOM] 官方 v3：新增 previousScriptRuns（保留上次 script 结果，不参与创建身份）。
+  // fork 的 workspaceLifecycleSchema 尚未含该字段，zod 默认 strip 掉 db 里的多余字段，
+  // upcast 透传即可兼容官方写入的 version '3' 数据，避免 future-version 崩溃。
+  .version('3', z.object({ version: z.literal('3'), value: workspaceLifecycleSchema }), (prev) => ({
+    version: '3' as const,
+    value: prev.value,
+  }))
   .build();
 
 function migrateLegacyBackground(legacy: LegacyBackground): WorkspaceLifecycle {
@@ -149,7 +156,7 @@ export function parseRemovalAttemptPayload(payload: string): WorkspaceRemovalAtt
 }
 
 export function serializeLifecyclePayload(lifecycle: WorkspaceLifecycle): string {
-  return storedLifecycle.serialize({ version: '2', value: lifecycle });
+  return storedLifecycle.serialize({ version: '3', value: lifecycle });
 }
 
 export function parseLifecyclePayload(payload: string): WorkspaceLifecycle {
@@ -182,6 +189,10 @@ function parseVersioned<T>(schema: VersionedEnvelope<T>, payload: string, label:
     throw new Error(`Stored workspace ${label} contains invalid JSON`, { cause: error });
   }
   const result = schema.safeParse(json);
+  if (result.status === "future-version") {
+    // [XG-CUSTOM] future-version 诊断日志：打印 version + order（无害，仅 future-version 时触发）
+    console.error(`[XG-DEBUG] future-version label=${label} version=${(result as any).version} order=${JSON.stringify((schema as any).order)}`);
+  }
   if (result.status !== 'ok') {
     const detail = result.status === 'invalid' ? result.reason : `${result.status}`;
     throw new Error(`Unable to parse stored workspace ${label}: ${detail}`);
