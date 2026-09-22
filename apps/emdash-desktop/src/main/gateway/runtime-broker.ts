@@ -41,7 +41,10 @@ async function resolveDesktopRuntimeClient(
       try {
         const current = hosts.get(host);
         if (!current) return err(runtimeHostNotConfigured(host, 'Host is not managed'));
-        const connection = await current.runtime.client({ waitForReady: false });
+        // [XG-CUSTOM] 高延迟远程（SSH 异地，ping ~340ms）：首次获取 client 时等待 runtime 就绪，
+// 避免 host 还没 ready（连接未建立）就立即抛 runtime-unavailable（Error creating task / Host runtime is unavailable）。
+// 本地 host 立即 ready 不受影响；远程会等连接建立（几秒）后再返回。
+const connection = await current.runtime.client();
         return ok(
           connection.connection
             ? { client: connection.client, connection: connection.connection }
