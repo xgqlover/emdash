@@ -116,6 +116,10 @@ export const desktopHostContract = defineContract({
     input: z.object({ id: z.string() }),
     output: z.custom<{ done: boolean; id: number }>(),
   }),
+  expertHandoffList: procedure({
+    input: z.object({ bot: z.string(), session: z.string() }),
+    output: z.custom<ExpertHandoffTopic[]>(),
+  }),
   openPath: procedure({
     input: z.object({ ref: hostFileRefSchema }),
     output: z.custom<ActionResult>(),

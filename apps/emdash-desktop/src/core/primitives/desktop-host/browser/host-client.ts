@@ -38,6 +38,10 @@ export async function expertHandoffAccept(id: string) {
 export async function expertHandoffDelete(id: string) {
   return (await getHostClient()).expertHandoffDelete({ id });
 }
+
+export async function expertHandoffList(bot: string, session: string) {
+  return (await getHostClient()).expertHandoffList({ bot, session });
+}
 export async function copyTextToClipboard(text: string) {
   return (await getHostClient()).clipboardWriteText({ text });
 }

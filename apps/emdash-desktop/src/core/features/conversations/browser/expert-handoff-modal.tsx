@@ -73,7 +73,7 @@ export const ExpertHandoffModal = observer(function ExpertHandoffModal({
         )}
       </Dialog.Body>
       <Dialog.Footer>
-        <Button variant="secondary" onClick={() => complete(undefined)}>
+        <Button variant="secondary" onClick={() => complete({ topics: list })}>
           关闭
         </Button>
       </Dialog.Footer>
