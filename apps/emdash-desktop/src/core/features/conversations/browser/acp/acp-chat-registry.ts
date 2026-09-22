@@ -38,6 +38,17 @@ export class AcpChatRegistry {
     return this._entries.get(taskId);
   }
 
+  /** [XG-CUSTOM] Return all stores across all tasks (for handoff target selection). */
+  listAll(): Array<{ taskId: string; conversationId: string; store: AcpChatStore }> {
+    const result: Array<{ taskId: string; conversationId: string; store: AcpChatStore }> = [];
+    for (const [taskId, taskMap] of this._entries) {
+      for (const [conversationId, store] of taskMap) {
+        result.push({ taskId, conversationId, store });
+      }
+    }
+    return result;
+  }
+
   /** Dispose and remove all stores for the given taskId. */
   release(taskId: string): void {
     const taskMap = this._entries.get(taskId);

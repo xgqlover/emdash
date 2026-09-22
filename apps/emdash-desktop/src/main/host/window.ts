@@ -264,7 +264,7 @@ export function registerXiangwoTaskSpaces(): void {
 const EXPERT_HANDOFF_PY =
   '/persistent/home/xgqlover/天天项上/五层四维记忆系统/xiangwo-agent/expert_handoff.py';
 
-function expertHandoffCall(cmd: string, ...args: string[]): Promise<unknown> {
+export function expertHandoffCall(cmd: string, ...args: string[]): Promise<unknown> {
   return new Promise((resolve, reject) => {
     const child = spawn('/usr/bin/python3', [EXPERT_HANDOFF_PY, cmd, ...args]);
     let out = '';
@@ -294,13 +294,7 @@ export function registerXiangwoExpertHandoff(): void {
     expertHandoffCall('delete', id)
   );
   ipcMain.handle('xiangwo:expert-handoff-list', (_e, bot: string, session: string) =>
-    expertHandoffCall('list', bot, session).then((raw) => {
-    try {
-      return JSON.parse(raw);
-    } catch {
-      return [];
-    }
-  })
+    expertHandoffCall('list', bot, session)
   );
 }
 

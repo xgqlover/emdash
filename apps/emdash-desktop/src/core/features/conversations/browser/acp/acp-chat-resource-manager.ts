@@ -49,6 +49,15 @@ export class AcpChatResourceManager {
     return this._entries.get(conversationId)?.store;
   }
 
+  /** [XG-CUSTOM] List all live stores in this task (for handoff target selection). */
+  listEntries(): Array<{ conversationId: string; projectId: string; store: AcpChatStore }> {
+    return Array.from(this._entries.entries()).map(([conversationId, entry]) => ({
+      conversationId,
+      projectId: this.projectId,
+      store: entry.store,
+    }));
+  }
+
   release(conversationId: string): void {
     const entry = this._entries.get(conversationId);
     if (!entry) return;
@@ -91,4 +100,25 @@ export function releaseAcpChatResourceManager(taskId: string): void {
   if (!manager) return;
   manager.dispose();
   _registry.delete(taskId);
+}
+
+/** [XG-CUSTOM] List all live ACP chats across all tasks (for handoff target selection). */
+export function listAllAcpChats(): Array<{
+  taskId: string;
+  projectId: string;
+  conversationId: string;
+  store: AcpChatStore;
+}> {
+  const result: Array<{
+    taskId: string;
+    projectId: string;
+    conversationId: string;
+    store: AcpChatStore;
+  }> = [];
+  for (const [taskId, manager] of _registry) {
+    for (const { conversationId, projectId, store } of manager.listEntries()) {
+      result.push({ taskId, projectId, conversationId, store });
+    }
+  }
+  return result;
 }

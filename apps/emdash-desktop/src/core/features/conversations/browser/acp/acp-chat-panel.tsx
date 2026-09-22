@@ -54,7 +54,8 @@ import {
 } from '@core/features/tasks/api/browser/task-state/task-selectors';
 import { openModal } from '@core/manifests/browser/modal-api';
 import { reaction } from 'mobx';
-import { ExpertHandoffBar } from './expert-handoff-bar';
+// [XG-CUSTOM] 交接横条暂时关闭，import 一并注释（2026-09-22）
+// import { ExpertHandoffBar } from './expert-handoff-bar';
 import type { ExpertHandoffTopic } from '@core/primitives/desktop-host/api/host-contract';
 import { projectAvailabilityUi } from '@core/manifests/browser/project-availability-ui';
 import { openExternal, openXiangwoFloating } from '@core/primitives/desktop-host/browser/host-client';
@@ -735,7 +736,8 @@ const ComposerForStore = observer(function ComposerForStore({
           onFilesDropped={addFileMentions}
           onViewImage={(att) => onViewerOpen(att.previewUrl, att.name)}
         />
-        <ExpertHandoffBar bot="" session="" />
+        {/* [XG-CUSTOM] 交接横条暂时关闭（用户要求 2026-09-22，聊天窗下方不显示） */}
+        {/* <ExpertHandoffBar bot="" session="" /> */}
       </div>
     </>,
     composerSlot

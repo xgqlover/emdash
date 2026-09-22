@@ -20,7 +20,7 @@ import { createDevPerfOperations } from '@main/host/dev-perf/controller-operatio
 import { writeRendererLogEntry } from '@main/host/file-logger';
 import { setTrayVisible } from '@main/host/tray';
 import { updateOperations } from '@main/host/updates/controller-operations';
-import { applyNativeTheme, createT8Window, createWeKnoraWindow, createXiangwoFloatingWindow, ensureChromeRunning } from '@main/host/window';
+import { applyNativeTheme, createT8Window, createWeKnoraWindow, createXiangwoFloatingWindow, ensureChromeRunning, expertHandoffCall } from '@main/host/window';
 import { log } from '@main/lib/logger';
 import { telemetryService } from '@main/lib/telemetry';
 import type { DatabaseBundle } from './phases/database';
@@ -93,6 +93,11 @@ export function createDesktopWireOptions(
         createT8Window(url);
         return { success: true };
       },
+      // [XG-CUSTOM] 专家交接平台：wire RPC → expert_handoff.py（session 隔离版 CLI）
+      expertHandoffByExpert: ({ expert }) => expertHandoffCall('by-expert', expert),
+      expertHandoffAccept: ({ id }) => expertHandoffCall('accept', id),
+      expertHandoffDelete: ({ id }) => expertHandoffCall('delete', id),
+      expertHandoffList: ({ bot, session }) => expertHandoffCall('list', bot, session),
       showWorkspaceItemInFolder: (input) => appOperations.showWorkspaceItemInFolder(input),
       clipboardWriteText: ({ text }) => appOperations.clipboardWriteText(text),
       persistDroppedBlob: (input) => appOperations.persistDroppedBlob(input),
