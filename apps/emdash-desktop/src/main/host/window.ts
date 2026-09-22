@@ -301,6 +301,9 @@ const CHROME_CMD = 'google-chrome-stable';
 const CHROME_PROFILE = '/persistent/home/xgqlover/.wego-lite/chrome-profile';
 
 export async function ensureChromeRunning(): Promise<void> {
+  // [XG-CUSTOM] 真实 Chrome CDP（9222）只在 Linux 本机（wego-lite）有用。
+  // Windows 客户端没有 google-chrome-stable，spawn 会 error 且无监听 → 主进程崩溃（点悬浮按钮闪退）。
+  if (process.platform !== 'linux') return;
   try {
     const res = await fetch('http://127.0.0.1:9222/json');
     if (res.ok) {
