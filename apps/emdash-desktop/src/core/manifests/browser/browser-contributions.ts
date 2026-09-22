@@ -12,10 +12,12 @@ import { sourceControlBrowserContributions } from '@core/features/source-control
 import { tasksBrowserContributions } from '@core/features/tasks/contributions/browser';
 import { workbenchBrowserContributions } from '@core/features/workbench/contributions/browser';
 import { xiangwoBrowserContributions } from '@core/features/xiangwo/contributions/browser';
+import { handoffBrowserContributions } from '@core/features/handoff/contributions/browser';
 
 export const featureViewRuntimes = [
   ...workbenchBrowserContributions.views,
   ...xiangwoBrowserContributions.views,
+  ...handoffBrowserContributions.views,
   ...automationsBrowserContributions.views,
   ...projectsBrowserContributions.views,
   ...settingsBrowserContributions.views,

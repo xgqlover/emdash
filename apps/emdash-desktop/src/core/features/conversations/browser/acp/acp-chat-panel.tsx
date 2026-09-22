@@ -735,7 +735,7 @@ const ComposerForStore = observer(function ComposerForStore({
           onFilesDropped={addFileMentions}
           onViewImage={(att) => onViewerOpen(att.previewUrl, att.name)}
         />
-        <ExpertHandoffBar bot={providerId ?? ''} session={store.conversationId} />
+        <ExpertHandoffBar bot="" session="" />
       </div>
     </>,
     composerSlot

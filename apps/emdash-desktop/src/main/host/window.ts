@@ -266,7 +266,7 @@ const EXPERT_HANDOFF_PY =
 
 function expertHandoffCall(cmd: string, ...args: string[]): Promise<unknown> {
   return new Promise((resolve, reject) => {
-    const child = spawn('python3', [EXPERT_HANDOFF_PY, cmd, ...args]);
+    const child = spawn('/usr/bin/python3', [EXPERT_HANDOFF_PY, cmd, ...args]);
     let out = '';
     child.stdout.on('data', (d) => {
       out += d.toString();
@@ -294,7 +294,13 @@ export function registerXiangwoExpertHandoff(): void {
     expertHandoffCall('delete', id)
   );
   ipcMain.handle('xiangwo:expert-handoff-list', (_e, bot: string, session: string) =>
-    expertHandoffCall('list', bot, session)
+    expertHandoffCall('list', bot, session).then((raw) => {
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  })
   );
 }
 
