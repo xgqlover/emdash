@@ -84,7 +84,7 @@ export function createDesktopWireOptions(
         return { success: true };
       },
       openWeKnora: async () => {
-        const url = (await services.forwardManualPreview(9036)) ?? 'http://127.0.0.1:9036';
+        const url = (await services.forwardManualPreview(9037)) ?? 'http://127.0.0.1:9037';
         createWeKnoraWindow(url);
         return { success: true };
       },

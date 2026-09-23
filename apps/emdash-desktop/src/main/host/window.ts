@@ -403,12 +403,12 @@ export function createXiangwoFloatingWindow(): BrowserWindow {
   return xiangwoFloatingWindow;
 }
 
-// [XG-CUSTOM] WeKnora 窗口：本地知识库/资料加工台（WeKnora 前端 9036，后端 API 9035）。
-// ⚠️ 3010 是 AFFiNE（不是 WeKnora），WeKnora 前端是 9036（容器 FRONTEND_PORT 映射）。
+// [XG-CUSTOM] WeKnora 窗口：本地知识库/资料加工台（WeKnora 前端 9037，后端 API 9035）。
+// ⚠️ 3010 是 AFFiNE（不是 WeKnora）；9036 是孤儿 nginx 容器（502 弃用），9037 是宿主机 nginx 代理。
 // 设置→集成里 WeKnora 卡片点「打开」→ 弹出这个窗口加载 WeKnora UI。
 let weKnoraWindow: BrowserWindow | null = null;
 
-export function createWeKnoraWindow(url = 'http://127.0.0.1:9036'): BrowserWindow {
+export function createWeKnoraWindow(url = 'http://127.0.0.1:9037'): BrowserWindow {
   if (weKnoraWindow && !weKnoraWindow.isDestroyed()) {
     weKnoraWindow.show();
     weKnoraWindow.focus();
