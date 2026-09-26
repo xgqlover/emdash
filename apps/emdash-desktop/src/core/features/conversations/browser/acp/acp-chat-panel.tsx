@@ -1,4 +1,4 @@
-import type { AttachmentMimeType, AttachmentRef, ImageAttachmentMimeType } from '@emdash/core/services/attachments/api';
+import type { AttachmentRef } from '@emdash/core/services/attachments/api';
 import { ChatComposer, ImageViewerDialog, MermaidViewerDialog } from '@emdash/ui/react/components';
 import type {
   CommandItem,
@@ -136,13 +136,15 @@ function toComposerPermission(
   };
 }
 
-const supportedAttachmentMimeTypes = new Set<ImageAttachmentMimeType>([
+type ImageMimeType = 'image/png' | 'image/jpeg' | 'image/gif' | 'image/webp';
+
+const supportedAttachmentMimeTypes = new Set<ImageMimeType>([
   'image/png',
   'image/jpeg',
   'image/gif',
   'image/webp',
 ]);
-const attachmentMimeTypeByExtension: Record<string, ImageAttachmentMimeType> = {
+const attachmentMimeTypeByExtension: Record<string, ImageMimeType> = {
   gif: 'image/gif',
   jpeg: 'image/jpeg',
   jpg: 'image/jpeg',
@@ -150,14 +152,14 @@ const attachmentMimeTypeByExtension: Record<string, ImageAttachmentMimeType> = {
   webp: 'image/webp',
 };
 
-function toAttachmentMimeTypeValue(value: string): ImageAttachmentMimeType | null {
+function toAttachmentMimeTypeValue(value: string): ImageMimeType | null {
   const mimeType = value.toLowerCase();
-  return supportedAttachmentMimeTypes.has(mimeType as ImageAttachmentMimeType)
-    ? (mimeType as ImageAttachmentMimeType)
+  return supportedAttachmentMimeTypes.has(mimeType as ImageMimeType)
+    ? (mimeType as ImageMimeType)
     : null;
 }
 
-function toAttachmentMimeType(file: File): ImageAttachmentMimeType | null {
+function toAttachmentMimeType(file: File): ImageMimeType | null {
   const declaredMimeType = toAttachmentMimeTypeValue(file.type);
   if (declaredMimeType) return declaredMimeType;
   const extension = file.name.split('.').pop()?.toLowerCase();
@@ -310,7 +312,7 @@ const ComposerForStore = observer(function ComposerForStore({
       // （@sxsj / @尚享设计主理人 → 切 sxsj 项目；@通用角色 不切；已在该仓则不重复切）
       const mentionMatch = value.match(/@([a-zA-Z0-9_-]+|[\u4e00-\u9fff]+)/);
       if (mentionMatch) {
-        const token = mentionMatch.group(1)!;
+        const token = mentionMatch[1]!;
         // [XG-CUSTOM] 只 @主 bot（XIANGWO_BOTS）切仓；@子代理/@通用专家 不切仓——
         // 用户要的是「同一个 sxsj session 里 @专家 = 同一 session 的 tool_call」，切仓反而打断对话
         const isBigBot = XIANGWO_BOTS.some((b) => b.id === token || b.name === token);
@@ -586,11 +588,11 @@ const ComposerForStore = observer(function ComposerForStore({
         }
 
         const fileItems = files.map((f) => ({
-          id: f.path,
-          label: f.path,
+          id: f.relativePath,
+          label: f.relativePath,
           name: f.filename,
           kind: 'file' as const,
-          description: f.path,
+          description: f.relativePath,
         }));
 
         return [...expertItems, ...pinnedIssueItems, ...fileItems, ...searchedIssueItems];

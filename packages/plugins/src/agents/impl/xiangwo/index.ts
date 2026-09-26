@@ -13,12 +13,12 @@ export const plugin = definePlugin(
     id: 'xiangwo',
     name: '项我',
     description: '项我多 bot 对话（R0 直接答 / R1 蜂群 / R2 本地规则），8900 OpenAI 接口，ACP 接入',
+    websiteUrl: '',
   },
   {
     prompt: { kind: 'none' },
     acp: {
       kind: 'supported',
-      supportedTransports: ['stdio'],
     },
     sessions: {
       kind: 'resumable',

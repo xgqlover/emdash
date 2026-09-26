@@ -14,7 +14,7 @@ type XiangwoMeta = {
 };
 
 export function enrichXiangwoUpdate(update: NormalizedEvent, raw: SessionUpdate): NormalizedEvent {
-  if (update.kind !== 'tool_call' && update.kind !== 'tool_call_update') return update;
+  if (update.kind !== 'tool_call' && update.kind !== 'tool_update') return update;
   const meta = (raw._meta as XiangwoMeta | null | undefined)?.xiangwo;
   if (!meta?.subagent) return update;
 

@@ -10,10 +10,11 @@ export const plugin = definePlugin(
     id: 'xiangwo-yunyou',
     name: '云悠上茶',
     description: '云悠上茶 bot（独立 persona + 记忆 + 工作文件夹），项我 @yunyou 路由',
+    websiteUrl: '',
   },
   {
     prompt: { kind: 'none' },
-    acp: { kind: 'supported', supportedTransports: ['stdio'] },
+    acp: { kind: 'supported' },
     sessions: { kind: 'resumable' },
     // [XG-CUSTOM] 声明 MCP 能力：bot 聊天窗读 WeKnora MCP server
     mcp: { kind: 'supported', scope: 'global', supportedTransports: ['stdio', 'http'] },

@@ -2,7 +2,7 @@
 // 侧边栏「交接台」→ 列表页：按专家分组 + 状态徽章（复用 automations RunStatusBadge + builtin-catalog 模式）
 // 点主题 → Sheet 抽屉（复用 automations Sheet 骨架）：可编辑摘要 + 产生时间 + 目标会话 + 右下角「并入对话」
 // 数据走 host 桥接 → python3 expert_handoff.py list/accept/delete（与 agent.py 后端共用 expert_topics.json）
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { Bot, CheckCircle2, Clock, Trash2, UserRound, X } from 'lucide-react';
 import { AbsoluteTime, Button, Sheet, toast } from '@emdash/ui/react/primitives';
 import { defineViewRuntime } from '@core/primitives/views/react';
@@ -298,5 +298,5 @@ export function HandoffMainPanel() {
 }
 
 export const handoffViewRuntime = defineViewRuntime(handoffViewDef, {
-  slots: { main: HandoffMainPanel },
+  slots: { wrap: Fragment, main: HandoffMainPanel },
 });

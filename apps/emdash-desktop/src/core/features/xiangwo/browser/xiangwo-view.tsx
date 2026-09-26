@@ -3,7 +3,7 @@
 //   emdash 原生 conversation 必须挂 task（createConversationModal 需要 projectId+taskId），
 //   没有"全局主对话"场景。但项我是主智能（所有 bot 的大脑），需要全局视角直接对话，
 //   故保留此自造入口。其余聊天（bot 对话）全部走 emdash 原生 acp-chat-panel + ACP。
-import { useRef, useState } from 'react';
+import { Fragment, useRef, useState } from 'react';
 import { defineViewRuntime } from '@core/primitives/views/react';
 import { xiangwoViewDef } from '../contributions/views';
 import { openExternal, openXiangwoFloating } from '@core/primitives/desktop-host/browser/host-client';
@@ -255,5 +255,5 @@ export function XiangwoMainPanel() {
 }
 
 export const xiangwoViewRuntime = defineViewRuntime(xiangwoViewDef, {
-  slots: { main: XiangwoMainPanel },
+  slots: { wrap: Fragment, main: XiangwoMainPanel },
 });

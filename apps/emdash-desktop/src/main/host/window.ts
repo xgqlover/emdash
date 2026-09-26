@@ -230,7 +230,7 @@ export function registerXiangwoCdpBridge(): void {
 const TASK_SPACES_MJS =
   '/persistent/home/xgqlover/天天项上/五层四维记忆系统/wego-lite/task-spaces/task-spaces.mjs';
 
-function taskSpaceCall(cmd: string, ...args: string[]): Promise<unknown> {
+function taskSpaceCall<T = unknown>(cmd: string, ...args: string[]): Promise<T> {
   return new Promise((resolve, reject) => {
     const child = spawn('node', [TASK_SPACES_MJS, cmd, ...args]);
     let out = '';
@@ -243,7 +243,7 @@ function taskSpaceCall(cmd: string, ...args: string[]): Promise<unknown> {
       try {
         resolve(JSON.parse(out));
       } catch {
-        resolve(out);
+        resolve(out as T);
       }
     });
   });
@@ -264,7 +264,7 @@ export function registerXiangwoTaskSpaces(): void {
 const EXPERT_HANDOFF_PY =
   '/persistent/home/xgqlover/天天项上/五层四维记忆系统/xiangwo-agent/expert_handoff.py';
 
-export function expertHandoffCall(cmd: string, ...args: string[]): Promise<unknown> {
+export function expertHandoffCall<T = unknown>(cmd: string, ...args: string[]): Promise<T> {
   return new Promise((resolve, reject) => {
     const child = spawn('/usr/bin/python3', [EXPERT_HANDOFF_PY, cmd, ...args]);
     let out = '';
@@ -277,7 +277,7 @@ export function expertHandoffCall(cmd: string, ...args: string[]): Promise<unkno
       try {
         resolve(JSON.parse(out));
       } catch {
-        resolve(out);
+        resolve(out as T);
       }
     });
   });

@@ -14,6 +14,7 @@
       "@root/*": ["./*"],
       "@/assets/*": ["./src/assets/*"],
       "@tooling/*": ["./tooling/*"],
+      "@renderer/*": ["./src/renderer/*"],
       // The real cross-fetch d.ts pulls `/// <reference lib="dom" />` into the
       // program; see the shim for the full chain.
       "cross-fetch": ["./tooling/types/cross-fetch.node.d.ts"]
