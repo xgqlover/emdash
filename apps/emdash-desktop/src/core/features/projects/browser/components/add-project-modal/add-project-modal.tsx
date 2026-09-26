@@ -4,12 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import { DownloadIcon, FolderOpenIcon, PlusIcon } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
-import { useGitHubAccounts } from '@core/features/github/api/browser/useGithubAccounts';
+import { useAccounts } from '@core/features/integrations/api/browser/use-provider-accounts';
 import { deriveConnectionMachineStatusKind } from '@core/features/machines/api/browser/machine-status-kind';
 import { getMachinesStore } from '@core/features/machines/contributions/app-stores';
 import type { ProjectHostParams } from '@core/features/projects/api';
 import { getProjectsWireClient } from '@core/features/projects/api/browser/client';
-import { createRequiredGitHubAccountSelectState } from '@core/features/projects/api/browser/components/github-account-select-model';
 import {
   getProjectManagerStore,
   getProjectSettingsStore,
@@ -21,11 +20,13 @@ import type {
 import { projectViewDef } from '@core/features/projects/contributions/views';
 import { settingsViewDef } from '@core/features/settings/contributions/views';
 import { useModalController, useOpenModal } from '@core/manifests/browser/modal-api';
+import { isGitHubAccountSummary } from '@core/primitives/github/api';
 import { ConfirmButton } from '@core/primitives/keybindings/browser/confirm-button';
 import { log } from '@core/primitives/logging/browser/logger';
 import { defineModal } from '@core/primitives/modals/react';
 import { useNavigate } from '@core/primitives/navigation/browser/navigation-hooks';
 import { basenameFromAnyPath } from '@core/primitives/path-name/api';
+import { createRequiredProviderAccountSelectState } from '@core/primitives/provider-accounts/api/account-select-state';
 import type { SshConfig } from '@core/primitives/ssh/api';
 import { ClonePanel, CreateRepositoryPanel, PickExistingPanel } from './content';
 import { LocationSelector } from './location-selector';
@@ -69,7 +70,7 @@ export const AddProjectModal = observer(function AddProjectModal({
   const { navigate } = useNavigate();
 
   const openProjectConfigImportModal = useOpenModal('projectConfigImportModal');
-  const openGithubConnectModal = useOpenModal('githubConnectModal');
+  const openIntegrationSetup = useOpenModal('integrationSetupModal');
   const getProjectsClient = useCallback(async () => await getProjectsWireClient(), []);
 
   const maybeShowProjectConfigImportPrompt = async (projectId: string) => {
@@ -116,15 +117,15 @@ export const AddProjectModal = observer(function AddProjectModal({
   });
   const defaultPath = defaultRepositoriesRootQuery.data ?? '';
 
-  const githubAccountsQuery = useGitHubAccounts();
+  const githubAccountsQuery = useAccounts('github', isGitHubAccountSummary);
   const githubAccounts = githubAccountsQuery.data;
   const [githubAccountOverride, setGithubAccountOverride] = useState<string | undefined>(undefined);
   const githubAccountSelect = useMemo(
-    () => createRequiredGitHubAccountSelectState(githubAccountOverride, githubAccounts ?? []),
+    () => createRequiredProviderAccountSelectState(githubAccountOverride, githubAccounts ?? []),
     [githubAccountOverride, githubAccounts]
   );
   const defaultGitHubAccountSelect = useMemo(
-    () => createRequiredGitHubAccountSelectState(undefined, githubAccounts ?? []),
+    () => createRequiredProviderAccountSelectState(undefined, githubAccounts ?? []),
     [githubAccounts]
   );
   const selectedGitHubAccountId = githubAccountSelect.selectedAccountId;
@@ -362,7 +363,7 @@ export const AddProjectModal = observer(function AddProjectModal({
               selectedAccount={githubAccountSelect.selectedAccount}
               defaultAccount={defaultGitHubAccountSelect.selectedAccount}
               onAccountChange={setGithubAccountOverride}
-              onConnectGithub={() => void openGithubConnectModal({})}
+              onConnectGithub={() => void openIntegrationSetup({ integration: 'github' })}
               ensureDefaultRoot={
                 defaultRepositoriesRootQuery.data !== undefined &&
                 createRepositoryState.path === defaultRepositoriesRootQuery.data

@@ -1,4 +1,4 @@
-import type { AttachmentMimeType, AttachmentRef, ImageAttachmentMimeType } from '@emdash/core/runtimes/acp/api/client';
+import type { AttachmentMimeType, AttachmentRef, ImageAttachmentMimeType } from '@emdash/core/services/attachments/api';
 import { ChatComposer, ImageViewerDialog, MermaidViewerDialog } from '@emdash/ui/react/components';
 import type {
   CommandItem,
@@ -60,6 +60,7 @@ import type { ExpertHandoffTopic } from '@core/primitives/desktop-host/api/host-
 import { projectAvailabilityUi } from '@core/manifests/browser/project-availability-ui';
 import { openExternal, openXiangwoFloating } from '@core/primitives/desktop-host/browser/host-client';
 import { issueMentionToken, parseIssueMentionToken } from '@core/primitives/issues/api';
+import { resolveIssueMentionSource } from '@core/primitives/issues/api/issue-context';
 import { linkedIssueMentionName, type LinkedIssue } from '@core/primitives/linked-issues/api';
 import { log } from '@core/primitives/logging/browser/logger';
 import { usePaneContext } from '@core/primitives/workbench-shell/browser/tabs/pane-context';
@@ -100,7 +101,7 @@ function commandMatchesQuery(command: CommandItem, query: string): boolean {
 }
 
 function toIssueMentionItem(issue: LinkedIssue): MentionItem {
-  const token = issueMentionToken(issue.provider, issue.identifier);
+  const token = issueMentionToken(issue.provider, issue.identifier, issue);
   return {
     id: token,
     label: token,
@@ -239,8 +240,8 @@ function bytesToBase64(bytes: Uint8Array): string {
 
 // ── Composer for a single store ────────────────────────────────────────────────
 //
-// Keyed by conversationId in the parent so that drafts, focus, and editor state
-// reset when switching conversations — the same isolation the old remount gave.
+// Keyed by conversationId to isolate view-local UI. The store owns the editor
+// model so the document, selection, viewport and undo history survive remounts.
 
 const ComposerForStore = observer(function ComposerForStore({
   store,
@@ -262,7 +263,7 @@ const ComposerForStore = observer(function ComposerForStore({
   // Autofocus when the slot becomes available.
   useEffect(() => {
     editorApiRef.current?.focus();
-  }, []);
+  }, [composerSlot]);
 
   useEffect(() => {
     const editor = editorApiRef.current;
@@ -273,11 +274,21 @@ const ComposerForStore = observer(function ComposerForStore({
   const buildHiddenIssueContext = useCallback(
     (value: string) =>
       buildIssueMentionHiddenContext(value, async (target) => {
+        const source = resolveIssueMentionSource(
+          target,
+          getRegisteredTaskData(store.projectId, store.taskId)?.linkedIssue
+        );
+        if (!source) return null;
         const result = await (
           await getIssuesClient()
         ).getIssueContext({
           provider: target.provider,
-          options: { identifier: target.identifier, projectId: store.projectId },
+          options: {
+            identifier: source.identifier,
+            accountId: source.accountId,
+            issueUrl: source.issueUrl,
+            projectId: store.projectId,
+          },
         });
         if (!result.success) {
           log.warn('Failed to resolve issue mention context', {
@@ -288,7 +299,7 @@ const ComposerForStore = observer(function ComposerForStore({
         }
         return result.data;
       }),
-    [store.projectId]
+    [store.projectId, store.taskId]
   );
 
   const handleSubmit = useCallback(
@@ -475,6 +486,7 @@ const ComposerForStore = observer(function ComposerForStore({
   const issueProviderContext = useObserver(() => {
     const project = projectData(getProjectStore(store.projectId));
     return {
+      projectId: store.projectId,
       projectPath: project?.path,
       repositoryUrl:
         getGitRepositoryStore(store.projectId)?.issueRepositoryUrl ??
@@ -686,14 +698,38 @@ const ComposerForStore = observer(function ComposerForStore({
           {disabledReason}
         </div>
       )}
+      {!disabledReason && store.loadError && (
+        <div className="border-destructive/30 bg-destructive/5 mx-3 mb-1 flex items-center justify-between gap-2 rounded-md border px-2 py-1 text-xs">
+          <span className="truncate text-foreground-muted">{store.loadError.message}</span>
+          <Button
+            variant="secondary"
+            size="sm"
+            disabled={store.historyLoading}
+            onClick={() => store.retry()}
+          >
+            Retry
+          </Button>
+          {store.loadError.kind === 'session_not_found' && (
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={store.historyLoading}
+              onClick={() => store.retry({ mode: 'fresh' })}
+            >
+              Start fresh session
+            </Button>
+          )}
+        </div>
+      )}
       <div inert={disabledReason ? true : undefined}>
         <ChatComposer
+          model={store.composerModel}
           isWorking={a.isWorking}
           canSubmit={a.canSubmit}
           onSubmit={handleSubmit}
           onInputChange={(text) => store.setDraftText(text)}
-          onSubmitWhileWorking={handleSubmit}
-          onStop={a.isWorking ? handleStop : undefined}
+          onSubmitWhileWorking={store.liveActionsEnabled ? handleSubmit : undefined}
+          onStop={a.canCancel ? handleStop : undefined}
           permissionRequest={permissionRequest}
           permissionQueueCount={store.permissionQueue.length}
           onResolvePermission={handleResolvePermission}
@@ -751,8 +787,8 @@ const ComposerForStore = observer(function ComposerForStore({
 // triggers ChatTranscript's setModel effect — the Solid view swaps ChatState
 // in-place without dispose/recreate, preserving per-conversation scroll.
 //
-// The composer subtree is keyed by conversationId so draft text, focus, and
-// editor state reset on each switch (equivalent to the old remount behavior).
+// The composer subtree is keyed by conversationId; each store retains its own
+// editor model while only the active conversation has a mounted editor view.
 
 export const AcpChatPanel = observer(function AcpChatPanel() {
   const { pane } = usePaneContext();
@@ -944,11 +980,21 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
         if (arg.kind === 'issue') {
           const target = parseIssueMentionToken(arg.id);
           if (!target) return;
+          const source = resolveIssueMentionSource(
+            target,
+            getRegisteredTaskData(store.projectId, store.taskId)?.linkedIssue
+          );
+          if (!source) return;
           void getIssuesClient()
             .then((client) =>
               client.getIssueContext({
                 provider: target.provider,
-                options: { identifier: target.identifier, projectId: store.projectId },
+                options: {
+                  identifier: source.identifier,
+                  accountId: source.accountId,
+                  issueUrl: source.issueUrl,
+                  projectId: store.projectId,
+                },
               })
             )
             .then((result) => {
@@ -998,10 +1044,8 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
         style={{ position: 'absolute', inset: 0 }}
       />
 
-      {/* Loading / error overlay portaled into the library-owned slot.
-          The slot sits at z-index 15 (above pinned, below composer at 20).
-          Hide the composer in error state so the overlay owns the whole content area.
-          Precedence: error > loading. */}
+      {/* Authentication errors own the content area so sign-in remains accessible even after
+          attachment. Otherwise, show the composer as soon as history is known. */}
       {overlaySlot &&
         showBlockingOverlay &&
         createPortal(
@@ -1050,6 +1094,15 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
                   >
                     Retry
                   </Button>
+                  {store.loadError.kind === 'session_not_found' && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => store.retry({ mode: 'fresh' })}
+                    >
+                      Start fresh session
+                    </Button>
+                  )}
                 </div>
               )
             ) : (

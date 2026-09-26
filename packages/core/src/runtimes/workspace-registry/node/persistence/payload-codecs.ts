@@ -71,13 +71,25 @@ type LegacyBackground = z.infer<typeof legacyBackgroundSchema>;
 /**
  * The `background` column now stores the unified lifecycle section; v1 payloads (the
  * old background-steps shape) upgrade in place, best-effort — the legacy single `at`
- * stamp becomes startedAt/finishedAt as its status implies.
+ * stamp becomes startedAt/finishedAt as its status implies. v3 adds the run-ID
+ * baseline that keeps retained script results out of a newer activation cycle.
  */
 const storedLifecycle = defineVersionedSchema()
   .initial('1', z.object({ version: z.literal('1'), value: legacyBackgroundSchema }))
-  .version('2', z.object({ version: z.literal('2'), value: workspaceLifecycleSchema }), (prev) => ({
-    version: '2' as const,
-    value: migrateLegacyBackground(prev.value),
+  .version(
+    '2',
+    z.object({
+      version: z.literal('2'),
+      value: workspaceLifecycleSchema.omit({ previousScriptRuns: true }),
+    }),
+    (prev) => ({
+      version: '2' as const,
+      value: migrateLegacyBackground(prev.value),
+    })
+  )
+  .version('3', z.object({ version: z.literal('3'), value: workspaceLifecycleSchema }), (prev) => ({
+    version: '3' as const,
+    value: prev.value,
   }))
   // [XG-CUSTOM] 官方 v3：新增 previousScriptRuns（保留上次 script 结果，不参与创建身份）。
   // fork 的 workspaceLifecycleSchema 尚未含该字段，zod 默认 strip 掉 db 里的多余字段，
