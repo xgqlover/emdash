@@ -289,7 +289,8 @@ export const WorkspaceDetailPage = observer(function WorkspaceDetailPage({
     (item: WorkspaceDetailListItem) => {
       const workspaceId = item.row.workspaceId;
       if (!workspaceId) return;
-      // @ts-expect-error taskModal 官方已改为 void 参数（projectId 改走 store），旧调用保留待官方修
+      // [XG-CUSTOM] taskModal 官方已改为 void 参数（projectId 改走 store），旧调用保留待官方修
+      // @ts-expect-error taskModal void 参数与旧调用不匹配
       void openTask({ projectId: item.row.projectId, initialWorkspaceId: workspaceId });
     },
     [openTask]

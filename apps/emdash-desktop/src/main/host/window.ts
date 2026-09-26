@@ -264,6 +264,7 @@ export function registerXiangwoTaskSpaces(): void {
 const EXPERT_HANDOFF_PY =
   '/persistent/home/xgqlover/天天项上/五层四维记忆系统/xiangwo-agent/expert_handoff.py';
 
+// [XG-CUSTOM] 专家交接台 CLI 调用（泛型返回，适配 ProcedureDef 具体类型）
 export function expertHandoffCall<T = unknown>(cmd: string, ...args: string[]): Promise<T> {
   return new Promise((resolve, reject) => {
     const child = spawn('/usr/bin/python3', [EXPERT_HANDOFF_PY, cmd, ...args]);

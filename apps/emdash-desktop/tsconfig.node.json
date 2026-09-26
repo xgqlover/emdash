@@ -14,6 +14,7 @@
       "@root/*": ["./*"],
       "@/assets/*": ["./src/assets/*"],
       "@tooling/*": ["./tooling/*"],
+      // [XG-CUSTOM] 中文化在 shared/api 层用了 @renderer/lib/i18n，node 配置需此别名
       "@renderer/*": ["./src/renderer/*"],
       // The real cross-fetch d.ts pulls `/// <reference lib="dom" />` into the
       // program; see the shim for the full chain.

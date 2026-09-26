@@ -15,6 +15,7 @@ type SpawnCountProps = {
   [P in SpawnPurpose as `spawns_${P}`]?: number;
 };
 
+// [XG-CUSTOM] 加 'xiangwo'（项我浮窗视图）
 export type FocusView = 'home' | 'project' | 'task' | 'settings' | 'automations' | 'xiangwo';
 export type FocusMainPanel = 'agents' | 'editor' | 'diff' | 'browser' | 'terminal';
 export type FocusedRegion = 'main' | 'bottom';
@@ -65,6 +66,7 @@ export type TelemetryEventProperties = {
   task_viewed: { from_view: FocusView | null };
   settings_viewed: { from_view: FocusView | null };
   automations_viewed: { from_view: FocusView | null };
+  // [XG-CUSTOM] 项我浮窗视图曝光
   xiangwo_viewed: { from_view: FocusView | null };
 
   automation_created: {
