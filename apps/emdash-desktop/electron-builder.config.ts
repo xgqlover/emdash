@@ -31,11 +31,35 @@ const config: Configuration = {
   generateUpdatesFilesForAllChannels: false,
   files: [
     'out/**/*',
-    // [XG-CUSTOM] 根 node_modules 全量收集到 asar 顶层。electron-builder 26 在 pnpm workspace 下
-    // 依赖收集报 "cannot find path for dependency ...@undefined"（版本解析失败），把直接依赖
-    // 嵌套到 @emdash/core/node_modules，导致运行时顶层 require 报 Cannot find package。
-    // 全量收集（排除 .pnpm 存储）一次性根治，不再挤牙膏补包。
-    { from: '../../node_modules', to: 'node_modules', filter: ['**/*', '!**/.pnpm/**', '!**/.cache/**'] },
+    // [XG-CUSTOM] 精确收集 emdash-desktop 的直接依赖（electron-builder 在 pnpm workspace 下
+    // 对这些包报 "cannot find path for dependency ...@undefined"，漏进顶层 node_modules，
+    // 运行时顶层 require 报 Cannot find package）。逐个 from/to 收集，避免全量 node_modules 过大。
+    { from: '../../node_modules/@agentclientprotocol/sdk', to: 'node_modules/@agentclientprotocol/sdk' },
+    { from: '../../node_modules/@fontsource-variable/inter', to: 'node_modules/@fontsource-variable/inter' },
+    { from: '../../node_modules/@fontsource-variable/jetbrains-mono', to: 'node_modules/@fontsource-variable/jetbrains-mono' },
+    { from: '../../node_modules/@gitbeaker/rest', to: 'node_modules/@gitbeaker/rest' },
+    { from: '../../node_modules/@linear/sdk', to: 'node_modules/@linear/sdk' },
+    { from: '../../node_modules/@llamaduck/forgejo-ts', to: 'node_modules/@llamaduck/forgejo-ts' },
+    { from: '../../node_modules/@octokit/auth-oauth-device', to: 'node_modules/@octokit/auth-oauth-device' },
+    { from: '../../node_modules/@octokit/rest', to: 'node_modules/@octokit/rest' },
+    { from: '../../node_modules/@parcel/watcher', to: 'node_modules/@parcel/watcher' },
+    { from: '../../node_modules/@team-plain/graphql', to: 'node_modules/@team-plain/graphql' },
+    { from: '../../node_modules/@typescript/native-preview', to: 'node_modules/@typescript/native-preview' },
+    { from: '../../node_modules/better-sqlite3', to: 'node_modules/better-sqlite3' },
+    { from: '../../node_modules/croner', to: 'node_modules/croner' },
+    { from: '../../node_modules/cronstrue', to: 'node_modules/cronstrue' },
+    { from: '../../node_modules/drizzle-orm', to: 'node_modules/drizzle-orm' },
+    { from: '../../node_modules/i18next', to: 'node_modules/i18next' },
+    { from: '../../node_modules/jsonc-parser', to: 'node_modules/jsonc-parser' },
+    { from: '../../node_modules/node-pty', to: 'node_modules/node-pty' },
+    { from: '../../node_modules/pidusage', to: 'node_modules/pidusage' },
+    { from: '../../node_modules/react-i18next', to: 'node_modules/react-i18next' },
+    { from: '../../node_modules/smol-toml', to: 'node_modules/smol-toml' },
+    { from: '../../node_modules/socks-proxy-agent', to: 'node_modules/socks-proxy-agent' },
+    { from: '../../node_modules/ssh2', to: 'node_modules/ssh2' },
+    { from: '../../node_modules/tinykeys', to: 'node_modules/tinykeys' },
+    { from: '../../node_modules/ts-pattern', to: 'node_modules/ts-pattern' },
+    { from: '../../node_modules/zod', to: 'node_modules/zod' },
     'drizzle/**/*',
   ],
   asarUnpack: [
