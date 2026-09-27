@@ -90,6 +90,7 @@ export function createDesktopWireOptions(
         createWeKnoraWindow(url);
         return { success: true };
       },
+      // [XG-CUSTOM] OpenViking 窗口（照 WeKnora 模板，1933 Studio）
       openOpenViking: async () => {
         const url = (await services.forwardManualPreview(1933)) ?? 'http://127.0.0.1:1933/studio';
         createOpenVikingWindow(url);
@@ -105,6 +106,8 @@ export function createDesktopWireOptions(
       expertHandoffAccept: ({ id }) => expertHandoffCall('accept', id),
       expertHandoffDelete: ({ id }) => expertHandoffCall('delete', id),
       expertHandoffList: ({ bot, session }) => expertHandoffCall('list', bot, session),
+      // [XG-CUSTOM] 新建交接（手动写交接内容，让专家接下去做）
+      expertHandoffAdd: ({ bot, expert, title, summary, session, context }) => expertHandoffCall('add', bot, expert, title, summary, session, context),
       showWorkspaceItemInFolder: (input) => appOperations.showWorkspaceItemInFolder(input),
       clipboardWriteText: ({ text }) => appOperations.clipboardWriteText(text),
       persistDroppedBlob: (input) => appOperations.persistDroppedBlob(input),

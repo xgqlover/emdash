@@ -99,6 +99,7 @@ export const desktopHostContract = defineContract({
     input: z.void(),
     output: z.custom<ActionResult>(),
   }),
+  // [XG-CUSTOM] OpenViking 窗口
   openOpenViking: procedure({
     input: z.void(),
     output: z.custom<ActionResult>(),
@@ -119,6 +120,18 @@ export const desktopHostContract = defineContract({
   expertHandoffDelete: procedure({
     input: z.object({ id: z.string() }),
     output: z.custom<{ done: boolean; id: number }>(),
+  }),
+  // [XG-CUSTOM] 新建交接
+  expertHandoffAdd: procedure({
+    input: z.object({
+      bot: z.string(),
+      expert: z.string(),
+      title: z.string(),
+      summary: z.string(),
+      session: z.string(),
+      context: z.string(),
+    }),
+    output: z.custom<ExpertHandoffTopic>(),
   }),
   expertHandoffList: procedure({
     input: z.object({ bot: z.string(), session: z.string() }),

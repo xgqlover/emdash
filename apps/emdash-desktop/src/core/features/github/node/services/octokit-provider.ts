@@ -1,6 +1,8 @@
 import { err, ok, type Result } from '@emdash/shared';
 import { log } from '@emdash/shared/logger';
 import { Octokit } from '@octokit/rest';
+// [XG-CUSTOM] socks5 代理：GitHub API 走用户代理，解决国内直连 api.github.com 慢
+import { SocksProxyAgent } from 'socks-proxy-agent';
 import type { ReadGitHubCredentials } from '@core/features/github/api/node/services/github-credentials';
 import { normalizeRepositoryHost } from '@core/primitives/repository/api';
 import type { GitHubApiAuthError } from './github-api-auth-errors';
@@ -35,10 +37,13 @@ export async function getOctokit(
   const cached = getCachedOctokit(normalizedHost, accountId);
   if (cached?.token === accessToken && cached.apiBaseUrl === apiBaseUrl) return ok(cached.octokit);
 
+  // [XG-CUSTOM] 代理：XIANGWO_GITHUB_PROXY 优先，回退 XIANGWO_BROWSER_PROXY（和浏览器同代理）
+  const proxyUrl = process.env.XIANGWO_GITHUB_PROXY || process.env.XIANGWO_BROWSER_PROXY;
   const octokit = new Octokit({
     auth: accessToken,
     baseUrl: apiBaseUrl,
     log: octokitLog,
+    ...(proxyUrl ? { request: { agent: new SocksProxyAgent(proxyUrl) } } : {}),
   });
 
   setCachedOctokit(normalizedHost, accountId, { octokit, token: accessToken, apiBaseUrl });

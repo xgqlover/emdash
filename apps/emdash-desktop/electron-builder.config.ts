@@ -29,7 +29,15 @@ const config: Configuration = {
     },
   ],
   generateUpdatesFilesForAllChannels: false,
-  files: ['out/**/*', 'node_modules/**/*', 'drizzle/**/*'],
+  files: [
+    'out/**/*',
+    // [XG-CUSTOM] 根 node_modules 全量收集到 asar 顶层。electron-builder 26 在 pnpm workspace 下
+    // 依赖收集报 "cannot find path for dependency ...@undefined"（版本解析失败），把直接依赖
+    // 嵌套到 @emdash/core/node_modules，导致运行时顶层 require 报 Cannot find package。
+    // 全量收集（排除 .pnpm 存储）一次性根治，不再挤牙膏补包。
+    { from: '../../node_modules', to: 'node_modules', filter: ['**/*', '!**/.pnpm/**', '!**/.cache/**'] },
+    'drizzle/**/*',
+  ],
   asarUnpack: [
     'out/main/adapters/**',
     'node_modules/better-sqlite3/**',

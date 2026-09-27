@@ -21,6 +21,7 @@ export async function openWeKnora() {
   return (await getHostClient()).openWeKnora();
 }
 
+// [XG-CUSTOM] OpenViking 窗口
 export async function openOpenViking() {
   return (await getHostClient()).openOpenViking();
 }
@@ -41,6 +42,11 @@ export async function expertHandoffAccept(id: string) {
 
 export async function expertHandoffDelete(id: string) {
   return (await getHostClient()).expertHandoffDelete({ id });
+}
+
+// [XG-CUSTOM] 新建交接
+export async function expertHandoffAdd(bot: string, expert: string, title: string, summary: string, session: string, context: string) {
+  return (await getHostClient()).expertHandoffAdd({ bot, expert, title, summary, session, context });
 }
 
 export async function expertHandoffList(bot: string, session: string) {

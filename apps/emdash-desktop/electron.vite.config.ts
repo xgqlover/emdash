@@ -61,7 +61,9 @@ export default defineConfig({
     },
     build: {
       externalizeDeps: {
-        exclude: workspacePackages,
+        // [XG-CUSTOM] zod 加进 exclude：monorepo hoist 把 zod 嵌套到 @emdash/core/node_modules，
+        // 顶层 external 解析不到 → AppImage 报 Cannot find package 'zod'。bundle 进产物根治。
+        exclude: [...workspacePackages, 'zod', 'electron-updater', 'human-id', 'nbranch'],
       },
       rollupOptions: {
         input: {
@@ -86,7 +88,9 @@ export default defineConfig({
     root: 'src/entry',
     build: {
       externalizeDeps: {
-        exclude: workspacePackages,
+        // [XG-CUSTOM] zod 加进 exclude：monorepo hoist 把 zod 嵌套到 @emdash/core/node_modules，
+        // 顶层 external 解析不到 → AppImage 报 Cannot find package 'zod'。bundle 进产物根治。
+        exclude: [...workspacePackages, 'zod', 'electron-updater', 'human-id', 'nbranch'],
       },
       rollupOptions: {
         input: {

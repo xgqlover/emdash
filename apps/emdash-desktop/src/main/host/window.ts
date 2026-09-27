@@ -297,6 +297,12 @@ export function registerXiangwoExpertHandoff(): void {
   ipcMain.handle('xiangwo:expert-handoff-list', (_e, bot: string, session: string) =>
     expertHandoffCall('list', bot, session)
   );
+  // [XG-CUSTOM] 新建交接
+  ipcMain.handle(
+    'xiangwo:expert-handoff-add',
+    (_e, bot: string, expert: string, title: string, summary: string, session: string, context: string) =>
+      expertHandoffCall('add', bot, expert, title, summary, session, context)
+  );
 }
 
 // [XG-CUSTOM] 一键组合：浮窗 + 真实 Chrome。拉起 CDP Chrome（若没跑），

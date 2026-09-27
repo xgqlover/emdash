@@ -127,6 +127,7 @@ const IntegrationsCard: React.FC = () => {
             </span>
             <span className="text-sm text-foreground-muted">打开 ↗</span>
           </button>
+          {/* [XG-CUSTOM] OpenViking 本地工具卡片 */}
           <button
             type="button"
             onClick={() => void openOpenViking()}

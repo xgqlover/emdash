@@ -3,7 +3,7 @@
 // 点主题 → Sheet 抽屉（复用 automations Sheet 骨架）：可编辑摘要 + 产生时间 + 目标会话 + 右下角「并入对话」
 // 数据走 host 桥接 → python3 expert_handoff.py list/accept/delete（与 agent.py 后端共用 expert_topics.json）
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
-import { Bot, CheckCircle2, Clock, Trash2, UserRound, X } from 'lucide-react';
+import { Bot, CheckCircle2, Clock, Plus, Search, Trash2, UserRound, X } from 'lucide-react';
 import { AbsoluteTime, Button, Sheet, toast } from '@emdash/ui/react/primitives';
 import { defineViewRuntime } from '@core/primitives/views/react';
 import { handoffViewDef } from '../contributions/views';
@@ -11,6 +11,7 @@ import { cn } from '@core/primitives/styling/browser/cn';
 import { listAllAcpChats } from '@core/features/conversations/browser/acp/acp-chat-resource-manager';
 import {
   expertHandoffAccept,
+  expertHandoffAdd,
   expertHandoffDelete,
   expertHandoffList,
 } from '@core/primitives/desktop-host/browser/host-client';
@@ -48,6 +49,9 @@ export function HandoffMainPanel() {
   const [selected, setSelected] = useState<ExpertHandoffTopic | null>(null);
   const [mergeText, setMergeText] = useState('');
   const [target, setTarget] = useState('');
+  const [query, setQuery] = useState('');
+  const [showNew, setShowNew] = useState(false);
+  const [newForm, setNewForm] = useState({ bot: '', expert: '', title: '', summary: '', context: '' });
 
   const refresh = useCallback(async () => {
     setBusy(true);
@@ -77,6 +81,17 @@ export function HandoffMainPanel() {
     [refresh]
   );
 
+  const handleAdd = useCallback(async () => {
+    try {
+      await expertHandoffAdd(newForm.bot, newForm.expert, newForm.title, newForm.summary, '', newForm.context);
+      setShowNew(false);
+      setNewForm({ bot: '', expert: '', title: '', summary: '', context: '' });
+      void refresh();
+    } catch {
+      /* 忽略 */
+    }
+  }, [newForm, refresh]);
+
   const handleDelete = useCallback(
     async (id: number) => {
       try {
@@ -89,10 +104,23 @@ export function HandoffMainPanel() {
     [refresh]
   );
 
+  // 搜索过滤（按标题/摘要/专家/bot）
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return topics;
+    return topics.filter(
+      (t) =>
+        (t.title || '').toLowerCase().includes(q) ||
+        (t.summary || '').toLowerCase().includes(q) ||
+        (t.expert || '').toLowerCase().includes(q) ||
+        (t.bot || '').toLowerCase().includes(q)
+    );
+  }, [topics, query]);
+
   // 按 bot → 专家 二级分组（对齐 automations builtin-catalog 的 category 分组模式）
   const grouped = useMemo(() => {
     const byBot = new Map<string, Map<string, ExpertHandoffTopic[]>>();
-    for (const t of topics) {
+    for (const t of filtered) {
       const bot = t.bot || '未知业务线';
       const expert = t.expert || '未知专家';
       if (!byBot.has(bot)) byBot.set(bot, new Map());
@@ -101,9 +129,9 @@ export function HandoffMainPanel() {
       byExpert.get(expert)!.push(t);
     }
     return byBot;
-  }, [topics]);
+  }, [filtered]);
 
-  const pendingCount = topics.filter((t) => t.status !== 'accepted').length;
+  const pendingCount = filtered.filter((t) => t.status !== 'accepted').length;
 
   // 可用的 ACP 聊天（并入目标）
   const chats = useMemo(() => listAllAcpChats(), [selected]);
@@ -145,19 +173,40 @@ export function HandoffMainPanel() {
             </span>
           )}
         </div>
-        <button
-          type="button"
-          onClick={() => void refresh()}
-          className="rounded-md border border-border px-2 py-1 text-xs text-foreground-muted hover:bg-background-secondary"
-        >
-          刷新
-        </button>
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-2 top-1/2 size-3.5 -translate-y-1/2 text-foreground-muted" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="搜索标题/摘要/专家/bot"
+              className="w-44 rounded-md border border-border bg-background-1 py-1 pl-7 pr-2 text-xs text-foreground placeholder:text-foreground-muted/60"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowNew(true)}
+            className="flex items-center gap-1 rounded-md bg-(--em-accent) px-2 py-1 text-xs text-white hover:opacity-90"
+          >
+            <Plus className="size-3" />
+            新建
+          </button>
+          <button
+            type="button"
+            onClick={() => void refresh()}
+            className="rounded-md border border-border px-2 py-1 text-xs text-foreground-muted hover:bg-background-secondary"
+          >
+            刷新
+          </button>
+        </div>
       </div>
       <div className="flex-1 overflow-y-auto p-4">
         {busy ? (
           <p className="text-sm text-foreground-muted">加载中…</p>
         ) : topics.length === 0 ? (
-          <p className="text-sm text-foreground-muted">暂无待接主题</p>
+          <p className="text-sm text-foreground-muted">暂无待接主题，点右上角「新建」手动写一个交接</p>
+        ) : filtered.length === 0 ? (
+          <p className="text-sm text-foreground-muted">没有匹配「{query}」的主题</p>
         ) : (
           <div className="space-y-5">
             {Array.from(grouped.entries()).map(([bot, byExpert]) => (
@@ -230,6 +279,82 @@ export function HandoffMainPanel() {
           </div>
         )}
       </div>
+
+      {/* [XG-CUSTOM] 新建交接 Sheet */}
+      <Sheet.Root open={showNew} onOpenChange={(open) => !open && setShowNew(false)}>
+        <Sheet.Content className="[-webkit-app-region:no-drag]">
+          <div className="flex h-full flex-col">
+            <div className="flex flex-row items-center justify-between gap-1.5 p-4">
+              <span className="text-sm font-medium text-foreground">新建交接</span>
+              <Button variant="ghost" size="sm" onClick={() => setShowNew(false)} className="p-0">
+                <X className="size-4" />
+              </Button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-4">
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs text-foreground-muted">业务线（bot）</label>
+                  <input
+                    value={newForm.bot}
+                    onChange={(e) => setNewForm({ ...newForm, bot: e.target.value })}
+                    placeholder="如 sxsj"
+                    className="mt-1 w-full rounded-md border border-border bg-background-1 p-2 text-sm text-foreground"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-foreground-muted">接手专家</label>
+                  <input
+                    value={newForm.expert}
+                    onChange={(e) => setNewForm({ ...newForm, expert: e.target.value })}
+                    placeholder="如 design-brand-guardian（接下去做的专家）"
+                    className="mt-1 w-full rounded-md border border-border bg-background-1 p-2 text-sm text-foreground"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-foreground-muted">标题</label>
+                  <input
+                    value={newForm.title}
+                    onChange={(e) => setNewForm({ ...newForm, title: e.target.value })}
+                    placeholder="交接任务标题"
+                    className="mt-1 w-full rounded-md border border-border bg-background-1 p-2 text-sm text-foreground"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-foreground-muted">摘要</label>
+                  <textarea
+                    value={newForm.summary}
+                    onChange={(e) => setNewForm({ ...newForm, summary: e.target.value })}
+                    placeholder="交接内容摘要"
+                    className="mt-1 min-h-20 w-full rounded-md border border-border bg-background-1 p-2 text-sm text-foreground"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-foreground-muted">完整上下文（可选）</label>
+                  <textarea
+                    value={newForm.context}
+                    onChange={(e) => setNewForm({ ...newForm, context: e.target.value })}
+                    placeholder="交接给专家的完整上下文/前专家产出"
+                    className="mt-1 min-h-20 w-full rounded-md border border-border bg-background-1 p-2 text-sm text-foreground"
+                  />
+                </div>
+              </div>
+            </div>
+            <Sheet.Footer className="flex flex-row items-center justify-end gap-2">
+              <Button variant="secondary" size="sm" onClick={() => setShowNew(false)}>
+                取消
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => void handleAdd()}
+                disabled={!newForm.title.trim() || !newForm.expert.trim()}
+              >
+                创建交接
+              </Button>
+            </Sheet.Footer>
+          </div>
+        </Sheet.Content>
+      </Sheet.Root>
 
       {/* 并入对话 Sheet（复用 automations Sheet 骨架） */}
       <Sheet.Root open={selected !== null} onOpenChange={(open) => !open && setSelected(null)}>
