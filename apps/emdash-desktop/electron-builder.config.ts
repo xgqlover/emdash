@@ -60,6 +60,9 @@ const config: Configuration = {
     { from: '../../node_modules/tinykeys', to: 'node_modules/tinykeys' },
     { from: '../../node_modules/ts-pattern', to: 'node_modules/ts-pattern' },
     { from: '../../node_modules/zod', to: 'node_modules/zod' },
+    { from: '../../node_modules/electron-updater', to: 'node_modules/electron-updater' },
+    { from: '../../node_modules/human-id', to: 'node_modules/human-id' },
+    { from: '../../node_modules/nbranch', to: 'node_modules/nbranch' },
     'drizzle/**/*',
   ],
   asarUnpack: [
