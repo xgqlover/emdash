@@ -442,6 +442,44 @@ export function createWeKnoraWindow(url = 'http://127.0.0.1:9037'): BrowserWindo
   return weKnoraWindow;
 }
 
+// [XG-CUSTOM] OpenViking 窗口：自进化上下文数据库 Studio（1933，viking:// 虚拟文件系统）。
+// 设置→集成里 OpenViking 卡片点「打开」→ 弹出这个窗口加载 OpenViking Studio。
+let openVikingWindow: BrowserWindow | null = null;
+
+export function createOpenVikingWindow(url = 'http://127.0.0.1:1933/studio'): BrowserWindow {
+  if (openVikingWindow && !openVikingWindow.isDestroyed()) {
+    openVikingWindow.show();
+    openVikingWindow.focus();
+    return openVikingWindow;
+  }
+  openVikingWindow = new BrowserWindow({
+    width: 1200,
+    height: 800,
+    minWidth: 800,
+    minHeight: 600,
+    title: 'OpenViking 上下文数据库',
+    backgroundColor: nativeTheme.shouldUseDarkColors ? '#111111' : '#fcfcfc',
+    ...(import.meta.env.DEV && { icon: devIcon }),
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      sandbox: true,
+    },
+    show: false,
+  });
+  void openVikingWindow.loadURL(url);
+  openVikingWindow.once('ready-to-show', () => {
+    openVikingWindow?.show();
+    openVikingWindow?.focus();
+  });
+  openVikingWindow.show();
+  openVikingWindow.on('closed', () => {
+    openVikingWindow = null;
+  });
+  return openVikingWindow;
+}
+
+
 // [XG-CUSTOM] T8 窗口：AI 生成工作流引擎画板（T8 前端 18766，执行引擎 comfyui/volcengine 等）。
 // 设置→集成里 T8 卡片点「打开」→ 弹出这个窗口加载 T8 画板。
 let t8Window: BrowserWindow | null = null;

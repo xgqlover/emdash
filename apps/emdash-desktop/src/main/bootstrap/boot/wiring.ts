@@ -21,7 +21,7 @@ import { createDevPerfOperations } from '@main/host/dev-perf/controller-operatio
 import { writeRendererLogEntry } from '@main/host/file-logger';
 import { setTrayVisible } from '@main/host/tray';
 import { updateOperations } from '@main/host/updates/controller-operations';
-import { applyNativeTheme, createT8Window, createWeKnoraWindow, createXiangwoFloatingWindow, ensureChromeRunning, expertHandoffCall } from '@main/host/window';
+import { applyNativeTheme, createOpenVikingWindow, createT8Window, createWeKnoraWindow, createXiangwoFloatingWindow, ensureChromeRunning, expertHandoffCall } from '@main/host/window';
 import { log } from '@main/lib/logger';
 import { telemetryService } from '@main/lib/telemetry';
 import type { DatabaseBundle } from './phases/database';
@@ -88,6 +88,11 @@ export function createDesktopWireOptions(
       openWeKnora: async () => {
         const url = (await services.forwardManualPreview(9037)) ?? 'http://127.0.0.1:9037';
         createWeKnoraWindow(url);
+        return { success: true };
+      },
+      openOpenViking: async () => {
+        const url = (await services.forwardManualPreview(1933)) ?? 'http://127.0.0.1:1933/studio';
+        createOpenVikingWindow(url);
         return { success: true };
       },
       openT8: async () => {

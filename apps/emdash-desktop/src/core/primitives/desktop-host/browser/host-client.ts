@@ -21,6 +21,10 @@ export async function openWeKnora() {
   return (await getHostClient()).openWeKnora();
 }
 
+export async function openOpenViking() {
+  return (await getHostClient()).openOpenViking();
+}
+
 export async function openT8() {
   return (await getHostClient()).openT8();
 }
