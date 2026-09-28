@@ -50,13 +50,6 @@
   },
   "dependencies": {
     "@agentclientprotocol/sdk": "^1.1.0",
-    "@emdash/chat-ui": "workspace:*",
-    "@emdash/core": "workspace:*",
-    "@emdash/plugins": "workspace:*",
-    "@emdash/shared": "workspace:*",
-    "@emdash/theme": "workspace:*",
-    "@emdash/ui": "workspace:*",
-    "@emdash/wire": "workspace:*",
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource-variable/jetbrains-mono": "5.2.8",
     "@gitbeaker/rest": "^43.8.0",
@@ -144,7 +137,14 @@
     "vite": "^6.4.1",
     "vitest": "^4.1.0",
     "vitest-browser-react": "^2.1.0",
-    "yaml": "^2.9.0"
+    "yaml": "^2.9.0",
+    "@emdash/chat-ui": "workspace:*",
+    "@emdash/core": "workspace:*",
+    "@emdash/plugins": "workspace:*",
+    "@emdash/shared": "workspace:*",
+    "@emdash/theme": "workspace:*",
+    "@emdash/ui": "workspace:*",
+    "@emdash/wire": "workspace:*"
   },
   "engines": {
     "node": ">=24.0.0",
