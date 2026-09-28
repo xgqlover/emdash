@@ -23,27 +23,6 @@ importers:
       '@agentclientprotocol/sdk':
         specifier: ^1.1.0
         version: 1.1.0(zod@4.4.3)
-      '@emdash/chat-ui':
-        specifier: workspace:*
-        version: link:../../packages/chat-ui
-      '@emdash/core':
-        specifier: workspace:*
-        version: link:../../packages/core
-      '@emdash/plugins':
-        specifier: workspace:*
-        version: link:../../packages/plugins
-      '@emdash/shared':
-        specifier: workspace:*
-        version: link:../../packages/shared
-      '@emdash/theme':
-        specifier: workspace:*
-        version: link:../../packages/theme
-      '@emdash/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
-      '@emdash/wire':
-        specifier: workspace:*
-        version: link:../../packages/wire
       '@fontsource-variable/inter':
         specifier: ^5.2.8
         version: 5.2.8
@@ -150,6 +129,27 @@ importers:
       '@electron/rebuild':
         specifier: ^4.0.1
         version: 4.0.4
+      '@emdash/chat-ui':
+        specifier: workspace:*
+        version: link:../../packages/chat-ui
+      '@emdash/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@emdash/plugins':
+        specifier: workspace:*
+        version: link:../../packages/plugins
+      '@emdash/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      '@emdash/theme':
+        specifier: workspace:*
+        version: link:../../packages/theme
+      '@emdash/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@emdash/wire':
+        specifier: workspace:*
+        version: link:../../packages/wire
       '@monaco-editor/react':
         specifier: ^4.7.0
         version: 4.7.0(monaco-editor@0.55.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
