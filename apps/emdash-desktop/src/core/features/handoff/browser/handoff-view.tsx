@@ -1,6 +1,7 @@
 // [XG-CUSTOM] 专家交接台视图（见 emdash/CUSTOMIZATIONS.md）
 // 侧边栏「交接台」→ 卡片列表页：复用 automations 的 CollectionView + CollectionToolbar 卡片骨架
-// 卡片：标题 + 状态徽章 + 摘要 + bot/专家/时间 pill + 接下/删除；点卡片 → Sheet（可编辑摘要 + 并入对话）
+// 卡片：标题 + 状态徽章 + 摘要 + bot/专家/时间 pill + 删除；点卡片 → Sheet（可编辑摘要 + 并入对话）
+// 注：已去掉「接下」按钮（同专家记忆自带，跨专家交接未落地），并入对话是唯一动作
 // 数据走 host 桥接 → python3 expert_handoff.py list/accept/delete/add（与 agent.py 后端共用 expert_topics.json）
 import {
   CollectionToolbar,
@@ -16,7 +17,6 @@ import { Fragment, useCallback, useMemo, useState } from 'react';
 import { listAllAcpChats } from '@core/features/conversations/browser/acp/acp-chat-resource-manager';
 import type { ExpertHandoffTopic } from '@core/primitives/desktop-host/api/host-contract';
 import {
-  expertHandoffAccept,
   expertHandoffAdd,
   expertHandoffDelete,
   expertHandoffList,
@@ -122,14 +122,11 @@ const HandoffToolbar = observer(function HandoffToolbar({
 /** 卡片行（对齐 AutomationRow 的两行结构：主行 + meta pill，次行 + 操作）。 */
 function HandoffRow({
   topic,
-  onAccept,
   onDelete,
 }: {
   topic: ExpertHandoffTopic;
-  onAccept: (id: number) => void;
   onDelete: (id: number) => void;
 }) {
-  const accepted = topic.status === 'accepted';
   return (
     <div className="group flex w-full items-start gap-4 text-left">
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
@@ -169,9 +166,6 @@ function HandoffRow({
             onClick={(event) => event.stopPropagation()}
             onPointerDown={(event) => event.stopPropagation()}
           >
-            <Button variant="primary" size="sm" disabled={accepted} onClick={() => onAccept(topic.id)}>
-              接下
-            </Button>
             <Button variant="ghost" size="sm" onClick={() => onDelete(topic.id)}>
               <Trash2 className="size-3" />
               删除
@@ -191,18 +185,6 @@ export function HandoffMainPanel() {
   const [newForm, setNewForm] = useState({ bot: '', expert: '', title: '', summary: '', context: '' });
 
   const reload = useCallback(() => void handoffListView.reload(), []);
-
-  const handleAccept = useCallback(
-    async (id: number) => {
-      try {
-        await expertHandoffAccept(String(id));
-      } catch {
-        /* 忽略 */
-      }
-      reload();
-    },
-    [reload]
-  );
 
   const handleAdd = useCallback(async () => {
     try {
@@ -271,9 +253,7 @@ export function HandoffMainPanel() {
                 view={handoffListView}
                 layout="grouped"
                 estimateSize={104}
-                renderRow={(topic) => (
-                  <HandoffRow topic={topic} onAccept={handleAccept} onDelete={handleDelete} />
-                )}
+                renderRow={(topic) => <HandoffRow topic={topic} onDelete={handleDelete} />}
                 toolbar={<HandoffToolbar onNew={() => setShowNew(true)} onRefresh={reload} />}
                 onItemClick={(topic) => openMerge(topic)}
                 emptySlot={
