@@ -269,7 +269,7 @@ export function HandoffMainPanel() {
             <handoffListView.Root>
               <CollectionView
                 view={handoffListView}
-                layout="card"
+                layout="grouped"
                 estimateSize={104}
                 renderRow={(topic) => (
                   <HandoffRow topic={topic} onAccept={handleAccept} onDelete={handleDelete} />
