@@ -55,7 +55,7 @@ const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const appDirectory = resolve(scriptDirectory, '..');
 const repositoryDirectory = resolve(appDirectory, '../..');
 const runtimeDepsDirectory = join(appDirectory, 'runtime-deps');
-const dockerfilePath = join(appDirectory, 'tooling/docker/runtime-deps.dockerfile');
+// [XG-CUSTOM] 不再用 Docker 构建 native 依赖（本机无 Docker），见下方 buildLinuxRuntimeDependencies
 const artifactsDirectory = join(appDirectory, 'dist-artifacts');
 
 type PackageMetadata = {
@@ -151,7 +151,8 @@ async function packageTarget(options: {
     const runtimeNodeModules =
       target.os === 'darwin'
         ? await installDarwinRuntimeDependencies(nodeDistributionDirectory, temporaryDirectory)
-        : await buildLinuxRuntimeDependencies(nodeVersion, target, temporaryDirectory);
+        : // [XG-CUSTOM] Linux 同样走本地编译（本机无 Docker），需要 node 发行版目录
+          await buildLinuxRuntimeDependencies(nodeDistributionDirectory, temporaryDirectory);
     const artifactDirectory = await assembleArtifact({
       target,
       packageMetadata,
@@ -552,36 +553,43 @@ async function installDarwinRuntimeDependencies(
   return join(stagingDirectory, 'node_modules');
 }
 
+// [XG-CUSTOM] 本机无 Docker：原实现用 `docker buildx build` 编译 native 依赖
+// （better-sqlite3 / node-pty / @parcel/watcher），本机 podman 拉镜像 25min+ 失败。
+// 改为用打包好的 node 发行版直接跑 npm install，本地 gcc 编译（node 24.x 同 major ABI 兼容）。
+// 官方升级若与本函数冲突，用 grep '[XG-CUSTOM]' 找回本定制（OPS「workspace-server fork 版构建部署」节）。
 async function buildLinuxRuntimeDependencies(
-  nodeVersion: string,
-  target: PackageTarget,
+  nodeDistributionDirectory: string,
   temporaryDirectory: string
 ): Promise<string> {
-  if (target.dockerPlatform === undefined) {
-    throw new Error(`Target ${target.id} does not define a Docker platform`);
-  }
+  const stagingDirectory = join(temporaryDirectory, 'linux-runtime-deps');
+  const nodeBinDirectory = join(nodeDistributionDirectory, 'bin');
+  const nodePath = join(nodeBinDirectory, 'node');
+  const npmPath = join(nodeDistributionDirectory, 'lib/node_modules/npm/bin/npm-cli.js');
+  const existingPath = process.env['PATH'];
 
-  const outputDirectory = join(temporaryDirectory, 'linux-runtime-deps');
-  await mkdir(outputDirectory, { recursive: true });
-  await runCommand('docker', [
-    'buildx',
-    'build',
-    '--platform',
-    target.dockerPlatform,
-    '--progress',
-    'plain',
-    '--file',
-    dockerfilePath,
-    '--build-arg',
-    `NODE_VERSION=${nodeVersion}`,
-    '--output',
-    `type=local,dest=${outputDirectory}`,
-    runtimeDepsDirectory,
-  ]);
+  await mkdir(stagingDirectory, { recursive: true });
+  await copyFile(
+    join(runtimeDepsDirectory, 'package.json'),
+    join(stagingDirectory, 'package.json')
+  );
+  // npm 11 默认阻止 install 脚本（EALLOWSCRIPTS）→ native 模块不编译、产物坏
+  await writeFile(join(stagingDirectory, '.npmrc'), 'allow-scripts=all\n', 'utf8');
+  await runCommand(
+    nodePath,
+    [npmPath, 'install', '--omit=dev', '--no-audit', '--no-fund', '--package-lock=false'],
+    {
+      cwd: stagingDirectory,
+      env: {
+        ...process.env,
+        PATH: existingPath === undefined ? nodeBinDirectory : `${nodeBinDirectory}:${existingPath}`,
+        npm_config_update_notifier: 'false',
+      },
+    }
+  );
 
-  const nodeModules = join(outputDirectory, 'node_modules');
+  const nodeModules = join(stagingDirectory, 'node_modules');
   if (!(await pathExists(nodeModules))) {
-    throw new Error(`Docker build did not export node_modules for ${target.id}`);
+    throw new Error('Local npm install did not produce node_modules for linux');
   }
   return nodeModules;
 }
