@@ -1,21 +1,29 @@
 // [XG-CUSTOM] 专家交接台视图（见 emdash/CUSTOMIZATIONS.md）
-// 侧边栏「交接台」→ 列表页：按专家分组 + 状态徽章（复用 automations RunStatusBadge + builtin-catalog 模式）
-// 点主题 → Sheet 抽屉（复用 automations Sheet 骨架）：可编辑摘要 + 产生时间 + 目标会话 + 右下角「并入对话」
-// 数据走 host 桥接 → python3 expert_handoff.py list/accept/delete（与 agent.py 后端共用 expert_topics.json）
-import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
-import { Bot, CheckCircle2, Clock, Plus, Search, Trash2, UserRound, X } from 'lucide-react';
+// 侧边栏「交接台」→ 卡片列表页：复用 automations 的 CollectionView + CollectionToolbar 卡片骨架
+// 卡片：标题 + 状态徽章 + 摘要 + bot/专家/时间 pill + 接下/删除；点卡片 → Sheet（可编辑摘要 + 并入对话）
+// 数据走 host 桥接 → python3 expert_handoff.py list/accept/delete/add（与 agent.py 后端共用 expert_topics.json）
+import {
+  CollectionToolbar,
+  CollectionView,
+  createListView,
+  createTextMatcher,
+  PageLayout,
+} from '@emdash/ui/react/patterns';
 import { AbsoluteTime, Button, Sheet, toast } from '@emdash/ui/react/primitives';
-import { defineViewRuntime } from '@core/primitives/views/react';
-import { handoffViewDef } from '../contributions/views';
-import { cn } from '@core/primitives/styling/browser/cn';
+import { Bot, CheckCircle2, Clock, Plus, Trash2, UserRound, X } from 'lucide-react';
+import { observer } from 'mobx-react-lite';
+import { Fragment, useCallback, useMemo, useState } from 'react';
 import { listAllAcpChats } from '@core/features/conversations/browser/acp/acp-chat-resource-manager';
+import type { ExpertHandoffTopic } from '@core/primitives/desktop-host/api/host-contract';
 import {
   expertHandoffAccept,
   expertHandoffAdd,
   expertHandoffDelete,
   expertHandoffList,
 } from '@core/primitives/desktop-host/browser/host-client';
-import type { ExpertHandoffTopic } from '@core/primitives/desktop-host/api/host-contract';
+import { cn } from '@core/primitives/styling/browser/cn';
+import { defineViewRuntime } from '@core/primitives/views/react';
+import { handoffViewDef } from '../contributions/views';
 
 // 状态徽章（对齐 automations RunStatusBadge：图标 + 颜色）
 function TopicStatusBadge({ status }: { status: string }) {
@@ -43,31 +51,146 @@ function expertLabel(expert: string): string {
   return expert;
 }
 
+// 列表骨架（复用 UI kit 的 CollectionView 卡片模式，和 automations 页一致）
+const handoffListView = createListView({
+  getItemId: (topic: ExpertHandoffTopic) => String(topic.id),
+  source: {
+    kind: 'async',
+    load: async () => {
+      const list = await expertHandoffList('', '');
+      return Array.isArray(list) ? (list as ExpertHandoffTopic[]) : [];
+    },
+  },
+  search: {
+    kind: 'sync',
+    predicate: createTextMatcher((topic: ExpertHandoffTopic) => [
+      topic.title,
+      topic.summary,
+      topic.expert,
+      topic.bot,
+    ]),
+  },
+  sections: {
+    by: (topic: ExpertHandoffTopic) => `${topic.bot || '未知业务线'} · ${expertLabel(topic.expert)}`,
+  },
+});
+
+/** 工具条左侧的计数（搜索后按可见项算，和旧版「N 个主题 · M 待接」一致）。 */
+const HandoffCounts = observer(function HandoffCounts() {
+  const list = handoffListView.useListView();
+  if (list.status === 'loading' && list.visibleItems.length === 0) {
+    return <span className="shrink-0 text-xs text-foreground-muted">加载中…</span>;
+  }
+  const pending = list.visibleItems.filter((topic) => topic.status !== 'accepted').length;
+  return (
+    <span className="shrink-0 text-xs text-foreground-muted">
+      {list.visibleItems.length} 个主题 · {pending} 待接
+    </span>
+  );
+});
+
+const HandoffToolbar = observer(function HandoffToolbar({
+  onNew,
+  onRefresh,
+}: {
+  onNew: () => void;
+  onRefresh: () => void;
+}) {
+  const search = handoffListView.useSearch();
+  return (
+    <CollectionToolbar.Root>
+      <CollectionToolbar.Search
+        value={search.query}
+        onValueChange={search.setQuery}
+        placeholder="搜索标题/摘要/专家/bot"
+      />
+      <HandoffCounts />
+      <CollectionToolbar.Spacer />
+      <CollectionToolbar.Group>
+        <Button variant="secondary" size="sm" onClick={onRefresh}>
+          刷新
+        </Button>
+        <Button variant="primary" size="sm" onClick={onNew}>
+          <Plus className="size-3.5" />
+          新建
+        </Button>
+      </CollectionToolbar.Group>
+    </CollectionToolbar.Root>
+  );
+});
+
+/** 卡片行（对齐 AutomationRow 的两行结构：主行 + meta pill，次行 + 操作）。 */
+function HandoffRow({
+  topic,
+  onAccept,
+  onDelete,
+}: {
+  topic: ExpertHandoffTopic;
+  onAccept: (id: number) => void;
+  onDelete: (id: number) => void;
+}) {
+  const accepted = topic.status === 'accepted';
+  return (
+    <div className="group flex w-full items-start gap-4 text-left">
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+        {/* 第 1 行：标题 + 状态徽章 左，bot/专家/时间 pill 右 */}
+        <div className="flex min-w-0 items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="min-w-0 truncate text-md text-foreground">
+              [{topic.id}] {topic.title}
+            </span>
+            <TopicStatusBadge status={topic.status} />
+          </div>
+          <div className="flex shrink-0 items-center gap-1 text-xs text-foreground-muted">
+            <span className="flex items-center gap-1 rounded-md bg-background-1 px-2 py-1 group-hover:bg-background-2">
+              <Bot className="size-3 shrink-0" />
+              <span className="shrink-0">{topic.bot || '未知业务线'}</span>
+            </span>
+            <span className="flex max-w-40 items-center gap-1.5 rounded-md bg-background-1 px-2 py-1 group-hover:bg-background-2">
+              <UserRound className="size-3 shrink-0" />
+              <span className="min-w-0 truncate text-xs font-normal">
+                {expertLabel(topic.expert)}
+              </span>
+            </span>
+            <span className="flex items-center gap-1 rounded-md bg-background-1 px-2 py-1 group-hover:bg-background-2">
+              <Clock className="size-3 shrink-0" />
+              <AbsoluteTime value={topic.created * 1000} />
+            </span>
+          </div>
+        </div>
+
+        {/* 第 2 行：摘要 左，操作 右（按钮不能冒泡到整行点击） */}
+        <div className="flex min-w-0 items-center justify-between gap-3">
+          <span className="line-clamp-2 min-w-0 flex-1 text-sm text-foreground-muted">
+            {topic.summary || '（无摘要）'}
+          </span>
+          <div
+            className="flex shrink-0 gap-1"
+            onClick={(event) => event.stopPropagation()}
+            onPointerDown={(event) => event.stopPropagation()}
+          >
+            <Button variant="primary" size="sm" disabled={accepted} onClick={() => onAccept(topic.id)}>
+              接下
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => onDelete(topic.id)}>
+              <Trash2 className="size-3" />
+              删除
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function HandoffMainPanel() {
-  const [topics, setTopics] = useState<ExpertHandoffTopic[]>([]);
-  const [busy, setBusy] = useState(false);
   const [selected, setSelected] = useState<ExpertHandoffTopic | null>(null);
   const [mergeText, setMergeText] = useState('');
   const [target, setTarget] = useState('');
-  const [query, setQuery] = useState('');
   const [showNew, setShowNew] = useState(false);
   const [newForm, setNewForm] = useState({ bot: '', expert: '', title: '', summary: '', context: '' });
 
-  const refresh = useCallback(async () => {
-    setBusy(true);
-    try {
-      const list = await expertHandoffList('', '');
-      setTopics(Array.isArray(list) ? list : []);
-    } catch {
-      setTopics([]);
-    } finally {
-      setBusy(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
+  const reload = useCallback(() => void handoffListView.reload(), []);
 
   const handleAccept = useCallback(
     async (id: number) => {
@@ -76,9 +199,9 @@ export function HandoffMainPanel() {
       } catch {
         /* 忽略 */
       }
-      void refresh();
+      reload();
     },
-    [refresh]
+    [reload]
   );
 
   const handleAdd = useCallback(async () => {
@@ -86,11 +209,11 @@ export function HandoffMainPanel() {
       await expertHandoffAdd(newForm.bot, newForm.expert, newForm.title, newForm.summary, '', newForm.context);
       setShowNew(false);
       setNewForm({ bot: '', expert: '', title: '', summary: '', context: '' });
-      void refresh();
+      reload();
     } catch {
       /* 忽略 */
     }
-  }, [newForm, refresh]);
+  }, [newForm, reload]);
 
   const handleDelete = useCallback(
     async (id: number) => {
@@ -99,39 +222,10 @@ export function HandoffMainPanel() {
       } catch {
         /* 忽略 */
       }
-      void refresh();
+      reload();
     },
-    [refresh]
+    [reload]
   );
-
-  // 搜索过滤（按标题/摘要/专家/bot）
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return topics;
-    return topics.filter(
-      (t) =>
-        (t.title || '').toLowerCase().includes(q) ||
-        (t.summary || '').toLowerCase().includes(q) ||
-        (t.expert || '').toLowerCase().includes(q) ||
-        (t.bot || '').toLowerCase().includes(q)
-    );
-  }, [topics, query]);
-
-  // 按 bot → 专家 二级分组（对齐 automations builtin-catalog 的 category 分组模式）
-  const grouped = useMemo(() => {
-    const byBot = new Map<string, Map<string, ExpertHandoffTopic[]>>();
-    for (const t of filtered) {
-      const bot = t.bot || '未知业务线';
-      const expert = t.expert || '未知专家';
-      if (!byBot.has(bot)) byBot.set(bot, new Map());
-      const byExpert = byBot.get(bot)!;
-      if (!byExpert.has(expert)) byExpert.set(expert, []);
-      byExpert.get(expert)!.push(t);
-    }
-    return byBot;
-  }, [filtered]);
-
-  const pendingCount = filtered.filter((t) => t.status !== 'accepted').length;
 
   // 可用的 ACP 聊天（并入目标）
   const chats = useMemo(() => listAllAcpChats(), [selected]);
@@ -163,121 +257,39 @@ export function HandoffMainPanel() {
   }
 
   return (
-    <div className="flex h-full flex-col overflow-hidden bg-background">
-      <div className="flex items-center justify-between border-b border-border px-4 py-3">
-        <div className="flex items-center gap-2">
-          <h1 className="text-base font-semibold text-foreground">交接台</h1>
-          {!busy && topics.length > 0 && (
-            <span className="text-xs text-foreground-muted">
-              {topics.length} 个主题 · {pendingCount} 待接
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-2 top-1/2 size-3.5 -translate-y-1/2 text-foreground-muted" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="搜索标题/摘要/专家/bot"
-              className="w-44 rounded-md border border-border bg-background-1 py-1 pl-7 pr-2 text-xs text-foreground placeholder:text-foreground-muted/60"
+    <div className="flex h-full flex-col overflow-hidden bg-background text-foreground">
+      <div className="h-6 shrink-0 [-webkit-app-region:drag]" />
+      <div className="mx-auto grid min-h-0 w-full max-w-4xl flex-1 grid-cols-1 gap-8">
+        <div className="relative min-h-0 w-full min-w-0 overflow-y-auto px-8">
+          <div className="flex w-full flex-col gap-8 py-8">
+            <PageLayout.Header
+              title="交接台"
+              description="专家之间的任务交接 —— 按 bot / 专家分组，点卡片并入对话"
             />
+            <handoffListView.Root>
+              <CollectionView
+                view={handoffListView}
+                layout="card"
+                estimateSize={104}
+                renderRow={(topic) => (
+                  <HandoffRow topic={topic} onAccept={handleAccept} onDelete={handleDelete} />
+                )}
+                toolbar={<HandoffToolbar onNew={() => setShowNew(true)} onRefresh={reload} />}
+                onItemClick={(topic) => openMerge(topic)}
+                emptySlot={
+                  <p className="p-6 text-sm text-foreground-muted">
+                    暂无待接主题，点右上角「新建」手动写一个交接
+                  </p>
+                }
+                errorSlot={
+                  <p className="p-6 text-sm text-foreground-muted">
+                    读取交接台失败（检查 expert_handoff.py 桥接）
+                  </p>
+                }
+              />
+            </handoffListView.Root>
           </div>
-          <button
-            type="button"
-            onClick={() => setShowNew(true)}
-            className="flex items-center gap-1 rounded-md bg-(--em-accent) px-2 py-1 text-xs text-white hover:opacity-90"
-          >
-            <Plus className="size-3" />
-            新建
-          </button>
-          <button
-            type="button"
-            onClick={() => void refresh()}
-            className="rounded-md border border-border px-2 py-1 text-xs text-foreground-muted hover:bg-background-secondary"
-          >
-            刷新
-          </button>
         </div>
-      </div>
-      <div className="flex-1 overflow-y-auto p-4">
-        {busy ? (
-          <p className="text-sm text-foreground-muted">加载中…</p>
-        ) : topics.length === 0 ? (
-          <p className="text-sm text-foreground-muted">暂无待接主题，点右上角「新建」手动写一个交接</p>
-        ) : filtered.length === 0 ? (
-          <p className="text-sm text-foreground-muted">没有匹配「{query}」的主题</p>
-        ) : (
-          <div className="space-y-5">
-            {Array.from(grouped.entries()).map(([bot, byExpert]) => (
-              <section key={bot} className="space-y-4">
-                <div className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
-                  <Bot className="size-4" />
-                  {bot}
-                </div>
-                {Array.from(byExpert.entries()).map(([expert, list]) => (
-                  <div key={expert}>
-                    <div className="mb-2 flex items-center gap-1.5 text-xs font-medium text-foreground-muted">
-                      <UserRound className="size-3.5" />
-                      {expertLabel(expert)}
-                      <span className="text-foreground-muted/60">· {list.length}</span>
-                    </div>
-                <ul className="space-y-2">
-                  {list.map((t) => (
-                    <li
-                      key={t.id}
-                      onClick={() => openMerge(t)}
-                      className="cursor-pointer rounded-md border border-border p-3 transition-colors hover:bg-background-secondary"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="min-w-0 truncate text-sm font-medium text-foreground">
-                              [{t.id}] {t.title}
-                            </span>
-                            <TopicStatusBadge status={t.status} />
-                          </div>
-                          {t.summary ? (
-                            <div className="mt-1 text-xs text-foreground-muted">{t.summary}</div>
-                          ) : null}
-                          <div className="mt-1 flex items-center gap-1.5 text-xs text-foreground-muted/60">
-                            <AbsoluteTime value={t.created * 1000} />
-                          </div>
-                        </div>
-                        <div className="flex shrink-0 gap-2">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              void handleAccept(t.id);
-                            }}
-                            disabled={t.status === 'accepted'}
-                            className="rounded-md bg-(--em-accent) px-2.5 py-1 text-xs text-white hover:opacity-90 disabled:opacity-40"
-                          >
-                            接下
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              void handleDelete(t.id);
-                            }}
-                            className="flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-xs text-foreground-muted hover:bg-background-secondary"
-                          >
-                            <Trash2 className="size-3" />
-                            删除
-                          </button>
-                        </div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-                  </div>
-                ))}
-              </section>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* [XG-CUSTOM] 新建交接 Sheet */}

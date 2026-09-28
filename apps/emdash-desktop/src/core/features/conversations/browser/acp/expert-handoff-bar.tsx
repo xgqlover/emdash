@@ -93,7 +93,7 @@ export function ExpertHandoffBar({ bot, session }: { bot: string; session: strin
                 <div className="flex shrink-0 gap-1">
                   <button
                     onClick={() => void handleAccept(t.id)}
-                    className="rounded bg-(--em-accent) px-2 py-0.5 text-[11px] text-white hover:opacity-90"
+                    className="rounded bg-(--em-accent-9) px-2 py-0.5 text-[11px] text-(--em-accent-contrast) hover:opacity-90"
                   >
                     接下
                   </button>
