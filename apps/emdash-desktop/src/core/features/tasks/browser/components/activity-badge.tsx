@@ -22,6 +22,7 @@ import { cn } from '@core/primitives/styling/browser/cn';
 import type { WorkspaceLifecycleStepInfo } from '@core/primitives/tasks/api';
 import { createLifecycleScriptTerminalId } from '@core/primitives/terminals/api';
 import { LIFECYCLE_STEP_TITLES } from '@core/primitives/workspaces/api';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 /**
  * The workspace lifecycle timeline (spec: workspace-lifecycle-v2, Activity badge):
@@ -155,7 +156,7 @@ export function ActivityBadgeView({
         )}
       >
         {running ? <Spinner size="sm" /> : <Activity className="size-3 shrink-0" />}
-        <span>Activity</span>
+        <span>{t('activity')}</span>
       </Popover.Trigger>
       <Popover.Content align="end" className="flex w-80 flex-col gap-0.5 p-2">
         {visible.map((step) => {

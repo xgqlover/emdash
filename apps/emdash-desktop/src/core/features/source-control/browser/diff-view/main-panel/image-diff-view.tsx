@@ -16,6 +16,7 @@ import { hostFileRefFromNativePath } from '@core/primitives/desktop-runtime/api'
 import { formatBytes } from '@core/primitives/formatting/browser/formatBytes';
 import { HEAD_REF, type GitRef } from '@core/primitives/git/api';
 import { gitRefToString } from '@core/primitives/git/api';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 interface ImageDiffViewProps {
   projectId: string;
@@ -202,7 +203,7 @@ function ImageSidePanel({ label, state, side }: { label: string; state: SideStat
 function ImageSideContent({ state, side }: { state: SideState; side: Side }) {
   switch (state.status) {
     case 'loading':
-      return <div className="text-xs text-foreground-passive">Loading…</div>;
+      return <div className="text-xs text-foreground-passive">{t('loading')}</div>;
     case 'missing':
       return (
         <div className="text-xs text-foreground-passive">
@@ -287,9 +288,9 @@ export const ImageDiffView = observer(function ImageDiffView({
 
   return (
     <div className="flex h-full min-h-0 w-full">
-      <ImageSidePanel label="Original" state={original} side="original" />
+      <ImageSidePanel label={t('original')} state={original} side="original" />
       <div className="w-px shrink-0 bg-border" />
-      <ImageSidePanel label="Modified" state={modified} side="modified" />
+      <ImageSidePanel label={t('modified')} state={modified} side="modified" />
     </div>
   );
 });

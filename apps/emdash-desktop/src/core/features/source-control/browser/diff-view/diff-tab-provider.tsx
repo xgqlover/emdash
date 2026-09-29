@@ -15,6 +15,7 @@ import { DiffTabBarItem, DiffTabBarItemDragPreview } from './diff-tab-item';
 import { DiffView } from './main-panel/diff-view';
 import type { DiffPayload } from './stores/diff-tab-resource';
 import { DiffTabResource } from './stores/diff-tab-resource';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export interface DiffOpenArgs {
   activeFile: ActiveFile;
@@ -99,9 +100,9 @@ export const diffTabProvider: TabProvider<'diff', DiffPayload, DiffTabResource, 
 export function diffGroupSuffix(diffGroup: DiffPayload['diffGroup']): string {
   switch (diffGroup) {
     case 'disk':
-      return '(Working Tree)';
+      return t('diff_group_worktree');
     case 'staged':
-      return '(Index)';
+      return t('diff_group_index');
     case 'pr':
       return '(PR)';
     case 'git':

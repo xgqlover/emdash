@@ -3,6 +3,7 @@ import { AlignJustify, Columns2 } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useTaskComposition } from '@core/features/workbench/api/browser/task-composition-context';
 import type { DiffTabResource } from '../stores/diff-tab-resource';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 interface DiffToolbarProps {
   tab: DiffTabResource;
@@ -14,8 +15,8 @@ export const DiffToolbar = observer(function DiffToolbar({ tab }: DiffToolbarPro
   const canPreview = tab.renderer.kind === 'text' && tab.renderer.previewKind !== undefined;
 
   const diffSourceLabel = (() => {
-    if (tab.diffGroup === 'staged') return 'Staged';
-    if (tab.diffGroup === 'disk') return 'Changed';
+    if (tab.diffGroup === 'staged') return t('staged');
+    if (tab.diffGroup === 'disk') return t('changed');
     if (tab.diffGroup === 'pr') return 'PR';
     if (tab.diffGroup === 'git') return 'Git';
     return undefined;

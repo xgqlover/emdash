@@ -20,6 +20,7 @@ import { CommitCard } from './components/commit-card';
 import { SectionHeader } from './components/section-header';
 import { useChangesViewMode } from './hooks/use-changes-view-mode';
 import { usePrefetchDiffModels } from './hooks/use-prefetch-diff-models';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 /** Always-visible header row; rendered as a direct child of the sections group. */
 export const UnstagedSectionHeader = observer(function UnstagedSectionHeader() {
@@ -33,13 +34,13 @@ export const UnstagedSectionHeader = observer(function UnstagedSectionHeader() {
 
   return (
     <SectionHeader
-      label="Changed"
+      label={t('changed')}
       collapsed={!changesView.expandedSections.unstaged}
       onToggleCollapsed={() => changesView.toggleExpanded('unstaged')}
       count={git.unstagedFileChanges.length}
       selectionState={changesView.unstagedSelectionState}
       onToggleAll={() => changesView.toggleAllUnstaged()}
-      actions={<ChangesViewModeToggle value={viewMode} onChange={setViewMode} label="Changed" />}
+      actions={<ChangesViewModeToggle value={viewMode} onChange={setViewMode} label={t('changed')} />}
     />
   );
 });
@@ -103,7 +104,7 @@ export const UnstagedSectionBody = observer(function UnstagedSectionBody() {
     const paths = [...changesView.unstagedSelection];
     void (async () => {
       const outcome = await openConfirmActionModal({
-        title: 'Discard Files Changes',
+        title: t('discard_files_changes'),
         variant: 'destructive',
         description:
           'Are you sure you want to discard the changes to the selected files? This can not be undone.',
@@ -122,7 +123,7 @@ export const UnstagedSectionBody = observer(function UnstagedSectionBody() {
   const handleDiscardAll = () => {
     void (async () => {
       const outcome = await openConfirmActionModal({
-        title: 'Discard All Changes',
+        title: t('discard_all_changes'),
         variant: 'destructive',
         description: 'Are you sure you want to discard all changes? This can not be undone.',
       });
@@ -157,7 +158,7 @@ export const UnstagedSectionBody = observer(function UnstagedSectionBody() {
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       {!hasChanges && (
-        <EmptyState label="Working tree clean" description="No uncommitted file changes." />
+        <EmptyState label={t('working_tree_clean')} description={t('no_uncommitted_changes')} />
       )}
       {hasChanges && (
         <ActionCard
@@ -168,20 +169,20 @@ export const UnstagedSectionBody = observer(function UnstagedSectionBody() {
                 variant="link"
                 size="xs"
                 onClick={handleDiscardSelection}
-                title="Discard selected files"
+                title={t('discard_selected_files')}
                 className="text-foreground-destructive"
               >
                 <Undo2 className="size-3" />
-                Discard
+                {t('discard')}
               </Button>
               <Button
                 variant="secondary"
                 size="xs"
                 onClick={handleStageSelection}
-                title="Stage selected files"
+                title={t('stage_selected_files')}
               >
                 <Plus className="size-3" />
-                Stage
+                {t('stage')}
               </Button>
             </>
           }
@@ -192,21 +193,21 @@ export const UnstagedSectionBody = observer(function UnstagedSectionBody() {
                 size="xs"
                 disabled={!hasChanges}
                 onClick={handleDiscardAll}
-                title="Discard all changes"
+                title={t('discard_all_changes')}
                 className="text-foreground-destructive"
               >
                 <Undo2 className="size-3" />
-                Discard all
+                {t('discard_all')}
               </Button>
               <Button
                 variant="secondary"
                 size="xs"
                 disabled={!hasChanges}
                 onClick={handleStageAll}
-                title="Stage all changes"
+                title={t('stage_all_changes')}
               >
                 <Plus className="size-3" />
-                Stage all
+                {t('stage_all')}
               </Button>
             </>
           }

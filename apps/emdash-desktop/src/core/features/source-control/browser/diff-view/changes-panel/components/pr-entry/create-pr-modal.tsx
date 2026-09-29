@@ -36,6 +36,7 @@ import { pullRequestErrorMessage } from '@core/services/pull-requests/api';
 import { getPullRequestsRuntimeClient } from '@core/services/pull-requests/api/client';
 import { resolveInitialBaseBranch } from './base-branch';
 import { getTargetRemotes, resolveCreatePrTargetRemote } from './target-remote';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export type CreatePrModalArgs = {
   projectId: string;
@@ -215,7 +216,7 @@ export const CreatePrModal = observer(function CreatePrModal({
         ) : null}
         <div className="flex flex-col items-center gap-2">
           <BranchDisplay
-            label="Head Branch"
+            label={t('head_branch')}
             branchName={branchName}
             className="rounded-md border border-border"
           />
@@ -227,7 +228,7 @@ export const CreatePrModal = observer(function CreatePrModal({
               className="min-h-[58px] w-full"
               renderTrigger={(selected) => (
                 <div className="flex flex-col gap-0.5 text-left text-sm">
-                  <span className="text-xs text-foreground-passive">Target</span>
+                  <span className="text-xs text-foreground-passive">{t('target')}</span>
                   <span className="flex items-center gap-1">
                     <GitPullRequest
                       absoluteStrokeWidth
@@ -252,14 +253,14 @@ export const CreatePrModal = observer(function CreatePrModal({
             trigger={
               <Combobox.Trigger className="flex w-full items-center justify-between gap-2 rounded-md border border-border p-2 text-left outline-none">
                 <div className="flex flex-col gap-0.5 text-left text-sm">
-                  <span className="text-xs text-foreground-passive">Base Branch</span>
+                  <span className="text-xs text-foreground-passive">{t('base_branch')}</span>
                   <span className="flex items-center gap-1">
                     <GitBranch
                       absoluteStrokeWidth
                       strokeWidth={2}
                       className="size-3.5 shrink-0 text-foreground-muted"
                     />
-                    <Combobox.Value placeholder="Select a base branch" />
+                    <Combobox.Value placeholder={t('select_base_branch')} />
                   </span>
                 </div>
                 <ChevronDown className="size-4 shrink-0 text-foreground-muted" />
@@ -270,9 +271,9 @@ export const CreatePrModal = observer(function CreatePrModal({
         <Separator />
         <Field.Group>
           <Field.Root>
-            <Field.Label>Title</Field.Label>
+            <Field.Label>{t('title_label')}</Field.Label>
             <Input
-              placeholder="PR title"
+              placeholder={t('pr_title_placeholder')}
               autoFocus
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -280,7 +281,7 @@ export const CreatePrModal = observer(function CreatePrModal({
             />
           </Field.Root>
           <Field.Root>
-            <Field.Label>Description</Field.Label>
+            <Field.Label>{t('description_placeholder')}</Field.Label>
             <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -293,7 +294,7 @@ export const CreatePrModal = observer(function CreatePrModal({
           <ProviderIdentityStrip
             providerName="GitHub"
             providerIcon={<Github className="size-4 text-foreground-muted" />}
-            actionLabel="Creating as"
+            actionLabel={t('creating_as')}
             emptyState={{
               connect: 'Connect a GitHub account to continue.',
               unavailable: 'Choose a GitHub account to continue.',
@@ -311,7 +312,7 @@ export const CreatePrModal = observer(function CreatePrModal({
         ) : null}
         {error && (
           <Alert.Root status="destructive">
-            <Alert.Title>Failed to create pull request</Alert.Title>
+            <Alert.Title>{t('failed_create_pr')}</Alert.Title>
             <Alert.Description>{error}</Alert.Description>
           </Alert.Root>
         )}
@@ -321,7 +322,7 @@ export const CreatePrModal = observer(function CreatePrModal({
           <SplitButton
             size="sm"
             loading={isCreating}
-            loadingLabel="Creating..."
+            loadingLabel={t('creating')}
             disabled={!hasGitHubRemote || !selectedBase?.branch || !title.trim() || identityBlocked}
             options={[
               {
@@ -330,7 +331,7 @@ export const CreatePrModal = observer(function CreatePrModal({
               },
               {
                 id: 'create-only',
-                label: draft ? 'Create Draft' : 'Create PR',
+                label: draft ? t('create_draft') : t('create_pr'),
                 description: 'Skip push and open a PR from the current remote state',
               },
             ]}
@@ -352,7 +353,7 @@ export const CreatePrModal = observer(function CreatePrModal({
               identityBlocked
             }
           >
-            {isCreating ? 'Creating...' : draft ? 'Create Draft' : 'Create PR'}
+            {isCreating ? t('creating') : draft ? t('create_draft') : t('create_pr')}
           </ConfirmButton>
         )}
       </Dialog.Footer>

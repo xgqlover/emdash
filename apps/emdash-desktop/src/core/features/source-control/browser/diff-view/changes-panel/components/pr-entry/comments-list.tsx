@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import { openExternal } from '@core/primitives/desktop-host/browser/host-client';
 import { useMarkdownLinkOpener } from '@core/primitives/external-links/browser';
 import { cn } from '@core/primitives/styling/browser/cn';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 import {
   sortPullRequestConversationItems,
   type PullRequestConversationItem,
@@ -55,7 +56,7 @@ function CommentItem({ comment }: { comment: PullRequestConversationItem }) {
           {comment.isResolved && (
             <>
               <span className="shrink-0 text-foreground-passive">/</span>
-              <span className="shrink-0 text-foreground-passive">Resolved</span>
+              <span className="shrink-0 text-foreground-passive">{t('resolved')}</span>
             </>
           )}
         </div>
@@ -95,15 +96,15 @@ export function CommentsList({
   const sorted = useMemo(() => [...comments].sort(sortPullRequestConversationItems), [comments]);
 
   if (isLoading && sorted.length === 0) {
-    return <div className="px-3 py-2 text-xs text-foreground-passive">Loading comments...</div>;
+    return <div className="px-3 py-2 text-xs text-foreground-passive">{t('loading_comments')}</div>;
   }
 
   if (error && sorted.length === 0) {
-    return <div className="px-3 py-2 text-xs text-foreground-passive">Unable to load comments</div>;
+    return <div className="px-3 py-2 text-xs text-foreground-passive">{t('unable_load_comments')}</div>;
   }
 
   if (sorted.length === 0) {
-    return <div className="px-3 py-2 text-xs text-foreground-passive">No comments available</div>;
+    return <div className="px-3 py-2 text-xs text-foreground-passive">{t('no_comments_available')}</div>;
   }
 
   return (
@@ -112,10 +113,10 @@ export function CommentsList({
         <CommentItem key={comment.id} comment={comment} />
       ))}
       {isLoading && (
-        <div className="px-3 py-2 text-xs text-foreground-passive">Loading comments...</div>
+        <div className="px-3 py-2 text-xs text-foreground-passive">{t('loading_comments')}</div>
       )}
       {error && (
-        <div className="px-3 py-2 text-xs text-foreground-passive">Unable to load comments</div>
+        <div className="px-3 py-2 text-xs text-foreground-passive">{t('unable_load_comments')}</div>
       )}
     </div>
   );

@@ -19,6 +19,7 @@ import { CommitCard } from './components/commit-card';
 import { SectionHeader } from './components/section-header';
 import { useChangesViewMode } from './hooks/use-changes-view-mode';
 import { usePrefetchDiffModels } from './hooks/use-prefetch-diff-models';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 /** Always-visible header row; rendered as a direct child of the sections group. */
 export const StagedSectionHeader = observer(function StagedSectionHeader() {
@@ -32,11 +33,11 @@ export const StagedSectionHeader = observer(function StagedSectionHeader() {
 
   return (
     <SectionHeader
-      label="Staged"
+      label={t('staged')}
       count={git.stagedFileChanges.length}
       selectionState={changesView.stagedSelectionState}
       onToggleAll={() => changesView.toggleAllStaged()}
-      actions={<ChangesViewModeToggle value={viewMode} onChange={setViewMode} label="Staged" />}
+      actions={<ChangesViewModeToggle value={viewMode} onChange={setViewMode} label={t('staged')} />}
       collapsed={!changesView.expandedSections.staged}
       onToggleCollapsed={() => changesView.toggleExpanded('staged')}
     />
@@ -118,8 +119,8 @@ export const StagedSectionBody = observer(function StagedSectionBody() {
     <>
       {!hasChanges && (
         <EmptyState
-          label="Nothing staged"
-          description="Stage files above to include them in a commit."
+          label={t('nothing_staged')}
+          description={t('stage_files_hint')}
         />
       )}
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -131,10 +132,10 @@ export const StagedSectionBody = observer(function StagedSectionBody() {
                 variant="secondary"
                 size="xs"
                 onClick={handleUnstageSelection}
-                title="Unstage selected files"
+                title={t('unstage_selected_files')}
               >
                 <Minus className="size-3" />
-                Unstage
+                {t('unstage')}
               </Button>
             }
             generalActions={
@@ -143,10 +144,10 @@ export const StagedSectionBody = observer(function StagedSectionBody() {
                 size="xs"
                 disabled={!hasChanges}
                 onClick={handleUnstageAll}
-                title="Unstage all files"
+                title={t('unstage_all_files')}
               >
                 <Minus className="size-3" />
-                Unstage all
+                {t('unstage_all')}
               </Button>
             }
           />

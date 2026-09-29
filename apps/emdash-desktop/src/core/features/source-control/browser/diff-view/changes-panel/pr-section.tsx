@@ -27,9 +27,10 @@ import { PullRequestEntry } from './components/pr-entry/pr-entry';
 import { type CommitRange, useCommits } from './components/pr-entry/use-commits';
 import { SectionHeader } from './components/section-header';
 import { useChangesViewMode } from './hooks/use-changes-view-mode';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 const BRANCH_COMMITS_EMPTY_STATE = {
-  label: 'No commits',
+  label: t('no_commits'),
   description: 'No commits ahead of the base branch.',
 };
 
@@ -84,7 +85,7 @@ function usePullRequestsSectionModel() {
     currentPr,
     branchCommitRange,
     showBranchCommits,
-    sectionLabel: showBranchCommits ? 'Branch Commits' : 'Pull Requests',
+    sectionLabel: showBranchCommits ? t('branch_commits') : t('pull_requests'),
     sectionCount: showBranchCommits ? (branchCommitCount ?? 0) : pullRequests.length,
   };
 }
@@ -149,8 +150,8 @@ export const PullRequestsSectionHeader = observer(function PullRequestsSectionHe
       : undefined;
 
   const prActions = [
-    { id: 'create-pr', label: 'Create PR', action: () => onCreatePr?.() },
-    { id: 'create-draft-pr', label: 'Create draft PR', action: () => onCreateDraftPr?.() },
+    { id: 'create-pr', label: t('create_pr'), action: () => onCreatePr?.() },
+    { id: 'create-draft-pr', label: t('create_draft_pr'), action: () => onCreateDraftPr?.() },
   ];
   const [selectedPrActionId, setSelectedPrActionId] = useState<string | undefined>(undefined);
 
@@ -164,10 +165,10 @@ export const PullRequestsSectionHeader = observer(function PullRequestsSectionHe
       if (!result.success) {
         const message = pullRequestErrorMessage(result.error);
         onSyncError(message);
-        toast.error('Failed to refresh pull requests', { description: message });
+        toast.error(t('failed_refresh_pull_requests'), { description: message });
       }
     } catch (error) {
-      toast.error('Failed to refresh pull requests', {
+      toast.error(t('failed_refresh_pull_requests'), {
         description: error instanceof Error ? error.message : String(error),
       });
     } finally {
@@ -176,12 +177,12 @@ export const PullRequestsSectionHeader = observer(function PullRequestsSectionHe
   };
 
   const createPrTooltip = !repositoryUrl
-    ? 'Pull requests unavailable'
+    ? t('pull_requests_unavailable')
     : hostActionReason
       ? hostActionReason
       : hasOpenPr
-        ? 'A pull request is already open'
-        : 'Create a pull request';
+        ? t('pull_request_already_open')
+        : t('create_a_pull_request');
 
   if (!changesView) return null;
 
@@ -197,7 +198,7 @@ export const PullRequestsSectionHeader = observer(function PullRequestsSectionHe
             <ChangesViewModeToggle
               value={viewMode}
               onChange={setViewMode}
-              label="Pull request files"
+              label={t('pull_request_files')}
             />
           )}
           <Tooltip.Root>
@@ -238,7 +239,7 @@ export const PullRequestsSectionHeader = observer(function PullRequestsSectionHe
                 </Button>
               }
             />
-            <Tooltip.Content>{hostActionReason ?? 'Refresh pull requests'}</Tooltip.Content>
+            <Tooltip.Content>{hostActionReason ?? t('refresh_pull_requests')}</Tooltip.Content>
           </Tooltip.Root>
         </>
       }
@@ -278,22 +279,22 @@ export const PullRequestsSectionBody = observer(function PullRequestsSectionBody
         <BranchCommitsEntry range={branchCommitRange} />
       ) : providerRepositoryObservation.kind === 'unavailable' ? (
         <EmptyState
-          label="Repository details unavailable"
-          description="Provider repository data has not been observed for this Project yet."
+          label={t('repository_details_unavailable')}
+          description={t('repo_data_not_observed')}
         />
       ) : !repositoryUrl ? (
         <EmptyState
-          label="Pull requests unavailable"
-          description="Pull requests are currently available only for configured GitHub remotes."
+          label={t('pull_requests_unavailable')}
+          description={t('pr_only_github_remotes')}
         />
       ) : pullRequestsObservation.kind === 'unavailable' ? (
         <EmptyState
-          label="Pull requests unavailable"
-          description="Pull request data has not been observed for this Project yet."
+          label={t('pull_requests_unavailable')}
+          description={t('pr_data_not_observed')}
         />
       ) : pullRequests.length === 0 ? (
         <EmptyState
-          label={syncError ? 'Could not load pull requests' : 'No pull requests'}
+          label={syncError ? t('could_not_load_pull_requests') : t('no_pull_requests')}
           description={syncError ?? 'Push your branch and create a PR to start a review.'}
         />
       ) : null}

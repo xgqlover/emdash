@@ -17,12 +17,13 @@ import { usePrefetchDiffModels } from '../../hooks/use-prefetch-diff-models';
 import { ChangesListItem } from '../changes-list-item';
 import { useCommitFiles } from './use-commit-files';
 import { type CommitRange, useCommits } from './use-commits';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 const ESTIMATED_COMMIT_ROW_HEIGHT = 43;
 const COMMIT_ROW_GAP = 4;
 
 const DEFAULT_EMPTY_STATE = {
-  label: 'No commits',
+  label: t('no_commits'),
   description: 'No commits available',
 };
 
@@ -130,7 +131,7 @@ export const CommitRangeCommitsList = observer(function CommitRangeCommitsList({
             onClick={() => void fetchNextPage()}
             disabled={isFetchingNextPage}
           >
-            {isFetchingNextPage ? 'Loading...' : 'Load more'}
+            {isFetchingNextPage ? t('loading_ellipsis') : t('load_more')}
           </button>
         </div>
       )}
@@ -267,16 +268,16 @@ const CommitFilesList = observer(function CommitFilesList({ commit }: { commit: 
   };
 
   if (filesQuery.isLoading) {
-    return <div className="px-6 py-2 text-xs text-foreground-passive">Loading files...</div>;
+    return <div className="px-6 py-2 text-xs text-foreground-passive">{t('loading_files')}</div>;
   }
 
   if (filesQuery.isError) {
-    return <div className="px-6 py-2 text-xs text-foreground-passive">Unable to load files</div>;
+    return <div className="px-6 py-2 text-xs text-foreground-passive">{t('unable_load_files')}</div>;
   }
 
   const files = filesQuery.data ?? [];
   if (files.length === 0) {
-    return <div className="px-6 py-2 text-xs text-foreground-passive">No file changes</div>;
+    return <div className="px-6 py-2 text-xs text-foreground-passive">{t('no_file_changes')}</div>;
   }
 
   return (

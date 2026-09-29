@@ -41,6 +41,7 @@ import {
 } from '@core/features/workbench/api/browser/task-composition-context';
 import { createLayoutStorage } from '@core/primitives/mementos/browser';
 import type { InitializeRepositoryError } from '@core/primitives/projects/api';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 const SECTION_IDS = ['unstaged', 'staged', 'pullRequests'] as const;
 type SectionId = (typeof SECTION_IDS)[number];
@@ -115,7 +116,7 @@ export const ChangesPanel = observer(function ChangesPanel() {
         queryClient.invalidateQueries({ queryKey: ['projectPathStatus'] }),
         queryClient.invalidateQueries({ queryKey: noRepositoryQueryKey }),
       ]);
-      toast('Git repository initialized');
+      toast(t('git_repository_initialized'));
     },
     onError: (error) => {
       toast.error('Failed to initialize Git repository', {
@@ -130,7 +131,7 @@ export const ChangesPanel = observer(function ChangesPanel() {
     if (status?.isDirectory && !status.error && status.isGitRepo === false) {
       return (
         <EmptyState
-          label="This folder is not a Git repository"
+          label={t('folder_not_git_repo')}
           description="Initialize Git to enable changes, commits, branches, and worktree-based tasks."
           action={
             <Button
@@ -154,7 +155,7 @@ export const ChangesPanel = observer(function ChangesPanel() {
     if (gitCheckout.error) {
       return (
         <EmptyState
-          label="Git status unavailable"
+          label={t('git_status_unavailable')}
           description={gitCheckout.error}
           action={
             <Button

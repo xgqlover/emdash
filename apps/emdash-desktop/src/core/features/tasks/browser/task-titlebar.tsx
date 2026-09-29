@@ -1,4 +1,3 @@
-import { t } from '@renderer/lib/i18n';
 import {
   Badge,
   Button,
@@ -56,6 +55,7 @@ import { ActivityBadge } from './components/activity-badge';
 import { AutomationRunPill } from './components/automation-run-pill';
 import { IssueSelector, ProviderLogo } from './components/issue-selector/issue-selector';
 import { PreviewServerPills } from './components/preview-servers/preview-server-pills';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export const TaskTitlebar = observer(function TaskTitlebar() {
   const { projectId, taskId } = useTaskViewContext();
@@ -166,7 +166,7 @@ const ActiveTaskTitlebar = observer(function ActiveTaskTitlebar({
                   </Popover.Trigger>
                 }
               />
-              <Tooltip.Content>Link to issue</Tooltip.Content>
+              <Tooltip.Content>{t('link_to_issue')}</Tooltip.Content>
             </Tooltip.Root>
             <Popover.Content align="start" className="flex w-96 flex-col gap-2 p-4">
               <div className="flex w-full flex-col gap-1">
@@ -191,11 +191,11 @@ const ActiveTaskTitlebar = observer(function ActiveTaskTitlebar({
                             onClick={() => fetch()}
                           >
                             <RefreshCcw className="size-3" />
-                            {isFetching ? 'Fetching...' : 'Fetch'}
+                            {isFetching ? t('fetching') : 'Fetch'}
                           </Button>
                         </Tooltip.Trigger>
                         <Tooltip.Content>
-                          {isFetching ? 'Fetching...' : 'Fetch changes'}
+                          {isFetching ? t('fetching') : t('fetch_changes')}
                         </Tooltip.Content>
                       </Tooltip.Root>
                       <Tooltip.Root>
@@ -223,7 +223,7 @@ const ActiveTaskTitlebar = observer(function ActiveTaskTitlebar({
                             ? 'Pulling...'
                             : behindCount === 0
                               ? t('nothing_to_pull')
-                              : 'Pull changes'}
+                              : t('pull_changes')}
                         </Tooltip.Content>
                       </Tooltip.Root>
                       <Tooltip.Root>
@@ -251,7 +251,7 @@ const ActiveTaskTitlebar = observer(function ActiveTaskTitlebar({
                             ? 'Pushing...'
                             : aheadCount === 0
                               ? t('nothing_to_push')
-                              : 'Push changes'}
+                              : t('push_changes')}
                         </Tooltip.Content>
                       </Tooltip.Root>
                     </>
@@ -266,7 +266,7 @@ const ActiveTaskTitlebar = observer(function ActiveTaskTitlebar({
                           onClick={() => publish()}
                         >
                           <ArrowUp className="size-3" />
-                          {isPublishing ? 'Publishing...' : 'Publish'}
+                          {isPublishing ? 'Publishing...' : t('publish_branch')}
                         </Button>
                       </Tooltip.Trigger>
                       <Tooltip.Content>

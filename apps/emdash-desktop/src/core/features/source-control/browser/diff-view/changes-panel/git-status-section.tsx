@@ -14,6 +14,7 @@ import { useTaskViewContext } from '@core/features/tasks/contributions/browser/t
 import { useOpenModal } from '@core/manifests/browser/modal-api';
 import { projectAvailabilityUi } from '@core/manifests/browser/project-availability-ui';
 import { getBranchTooltipText, getPublishTooltipText } from './git-status-tooltips';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export const GitStatusSection = observer(function GitStatusSection() {
   const { projectId, taskId } = useTaskViewContext();
@@ -95,7 +96,7 @@ export const GitStatusSection = observer(function GitStatusSection() {
                     }
                   />
                   <Tooltip.Content>
-                    {hostActionReason ?? (isFetching ? 'Fetching...' : 'Fetch changes')}
+                    {hostActionReason ?? (isFetching ? t('fetching') : t('fetch_changes'))}
                   </Tooltip.Content>
                 </Tooltip.Root>
                 <Tooltip.Root>
@@ -121,8 +122,8 @@ export const GitStatusSection = observer(function GitStatusSection() {
                       (isPulling
                         ? 'Pulling...'
                         : behindCount === 0
-                          ? 'Nothing to pull'
-                          : 'Pull changes')}
+                          ? t('nothing_to_pull')
+                          : t('pull_changes'))}
                   </Tooltip.Content>
                 </Tooltip.Root>
                 <Tooltip.Root>
@@ -148,8 +149,8 @@ export const GitStatusSection = observer(function GitStatusSection() {
                       (isPushing
                         ? 'Pushing...'
                         : aheadCount === 0
-                          ? 'Nothing to push'
-                          : 'Push changes')}
+                          ? t('nothing_to_push')
+                          : t('push_changes'))}
                   </Tooltip.Content>
                 </Tooltip.Root>
               </>
@@ -170,8 +171,8 @@ export const GitStatusSection = observer(function GitStatusSection() {
                         {isPublishing
                           ? 'Publishing...'
                           : shouldOfferAddRemote
-                            ? 'Add Remote'
-                            : 'Publish'}
+                            ? t('add_remote')
+                            : t('publish_branch')}
                       </Button>
                     }
                   />

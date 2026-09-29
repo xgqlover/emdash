@@ -11,6 +11,7 @@ import {
 import { useState } from 'react';
 import { cn } from '@core/primitives/styling/browser/cn';
 import { type MergeSeverity, type MergeUiState } from './merge-ui-state';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 /** A selectable action for the merge split button: label plus its own callback. */
 export type MergeAction = {
@@ -102,7 +103,7 @@ export function MergeFooter({
             checked={bypassRequirements}
             onCheckedChange={(checked) => onBypassRequirementsChange(Boolean(checked))}
           />
-          <span>Merge without waiting for requirements to be met (bypass rules)</span>
+          <span>{t('merge_bypass_rules')}</span>
         </label>
       )}
     </div>

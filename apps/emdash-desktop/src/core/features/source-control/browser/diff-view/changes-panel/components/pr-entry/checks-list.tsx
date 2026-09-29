@@ -18,6 +18,7 @@ import {
 } from '@core/services/pull-requests/api';
 import { CommentsList } from './comments-list';
 import { buildPullRequestConversationItems } from './pull-request-conversation';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 const EMPTY_COMMENTS: PullRequestComment[] = [];
 
@@ -84,7 +85,7 @@ export function ChecksList({ checks }: { checks: CheckRun[] }) {
   const sorted = useMemo(() => sortCheckRunsByLatest(checks), [checks]);
 
   if (sorted.length === 0) {
-    return <div className="px-3 py-2 text-xs text-foreground-passive">No checks available</div>;
+    return <div className="px-3 py-2 text-xs text-foreground-passive">{t('no_checks_available')}</div>;
   }
 
   return (
@@ -116,7 +117,7 @@ export const PrChecksList = observer(function PrChecksList({
   );
 
   if (checks.length === 0 && conversationItems.length === 0 && !isLoading && !error) {
-    return <EmptyState label="No checks or comments" description="Nothing available yet" />;
+    return <EmptyState label={t('no_checks_or_comments')} description={t('nothing_available_yet')} />;
   }
 
   return (

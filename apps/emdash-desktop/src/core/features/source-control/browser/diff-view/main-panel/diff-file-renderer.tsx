@@ -35,6 +35,7 @@ import { useDiffEditorComments } from '../comments/use-diff-editor-comments';
 import type { DiffTabResource } from '../stores/diff-tab-resource';
 import { ImageDiffView } from './image-diff-view';
 import { useDiffFacets } from './use-diff-facets';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 interface DiffFileRendererProps {
   tab: DiffTabResource;
@@ -254,7 +255,7 @@ function DiffPreviewStatusOverlay({ status }: { status: ContentStatus }) {
         : 'Could not load file'
       : status.kind === 'orphaned'
         ? 'File was deleted on disk'
-        : 'Loading file...';
+        : t('loading_file');
 
   return (
     <div className="absolute inset-0 flex items-center justify-center bg-(--em-surface) text-xs text-foreground-passive">

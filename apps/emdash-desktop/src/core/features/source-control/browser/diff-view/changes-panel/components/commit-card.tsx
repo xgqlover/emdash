@@ -16,6 +16,7 @@ import {
 } from '@core/features/workbench/api/browser/task-composition-context';
 import { useOpenModal } from '@core/manifests/browser/modal-api';
 import { cn } from '@core/primitives/styling/browser/cn';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 type CommitPhase =
   | 'idle'
@@ -139,8 +140,8 @@ export const CommitCard = observer(function CommitCard({ autoStage = false }: Co
   };
 
   const actions = [
-    { id: 'commit', label: 'Commit', action: () => void doCommit() },
-    { id: 'commit-push', label: 'Commit & Push', action: () => void doCommitAndPush() },
+    { id: 'commit', label: t('commit_label'), action: () => void doCommit() },
+    { id: 'commit-push', label: t('commit_push'), action: () => void doCommitAndPush() },
     ...(canCreatePr
       ? [
           {
@@ -165,14 +166,14 @@ export const CommitCard = observer(function CommitCard({ autoStage = false }: Co
       )}
     >
       <Input
-        placeholder="Commit message"
+        placeholder={t('commit_message_placeholder')}
         className="w-full bg-background"
         value={commitMessage}
         onChange={(e) => setCommitMessage(e.target.value)}
         disabled={isInFlight}
       />
       <Textarea
-        placeholder="Description"
+        placeholder={t('description_placeholder')}
         className="w-full bg-background"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
@@ -193,24 +194,24 @@ export const CommitCard = observer(function CommitCard({ autoStage = false }: Co
         />
       )}
       {phase === 'committing' && (
-        <StatusRow icon={<Loader2 className="size-4 animate-spin" />} label="Committing…" />
+        <StatusRow icon={<Loader2 className="size-4 animate-spin" />} label={t('committing')} />
       )}
       {phase === 'opening-pr' && (
-        <StatusRow icon={<Loader2 className="size-4 animate-spin" />} label="Opening PR…" />
+        <StatusRow icon={<Loader2 className="size-4 animate-spin" />} label={t('opening_pr')} />
       )}
       {(phase === 'commit-only-done' || phase === 'committed') && (
         <StatusRow
           icon={<CheckCircle className="size-4 text-foreground-success" />}
-          label="Committed"
+          label={t('committed')}
         />
       )}
       {phase === 'pushing' && (
-        <StatusRow icon={<Loader2 className="size-4 animate-spin" />} label="Pushing…" />
+        <StatusRow icon={<Loader2 className="size-4 animate-spin" />} label={t('pushing')} />
       )}
       {phase === 'pushed' && (
         <StatusRow
           icon={<CheckCircle className="size-4 text-foreground-success" />}
-          label="Pushed"
+          label={t('pushed')}
         />
       )}
     </div>
