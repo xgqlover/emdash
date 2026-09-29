@@ -10,6 +10,7 @@ import {
   useWorkspaceSlots,
 } from '@core/primitives/navigation/browser/navigation-hooks';
 import { SidebarMenuButton } from './sidebar-primitives';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export const SidebarSearchTrigger = observer(function SidebarSearchTrigger() {
   const openCommandPalette = useOpenModal('commandPaletteModal');
@@ -40,12 +41,12 @@ export const SidebarSearchTrigger = observer(function SidebarSearchTrigger() {
           workspaceId: currentWorkspaceId,
         });
       }}
-      aria-label="Search"
+      aria-label={t('search_action')}
       className="w-full justify-between"
     >
       <span className="flex min-w-0 items-center gap-2">
         <Search className="h-5 w-5 shrink-0 sm:h-4 sm:w-4" />
-        <span className="truncate">Search…</span>
+        <span className="truncate">{t('search_ellipsis')}</span>
       </span>
       <BoundShortcut command="app.commandPalette" variant="keycaps" />
     </SidebarMenuButton>

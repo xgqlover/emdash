@@ -490,6 +490,8 @@ export const zh = {
   diff_group_worktree: '(工作区)',
   diff_group_index: '(已暂存)',
   untitled: '未命名',
+  search_action: '搜索',
+  search_ellipsis: '搜索…',
 } as const;
 
 export const en: Record<keyof typeof zh, string> = {
@@ -981,6 +983,8 @@ export const en: Record<keyof typeof zh, string> = {
   diff_group_worktree: '(Working Tree)',
   diff_group_index: '(Index)',
   untitled: 'Untitled',
+  search_action: 'Search',
+  search_ellipsis: 'Search…',
 };
 
 export type LocaleKey = keyof typeof zh;

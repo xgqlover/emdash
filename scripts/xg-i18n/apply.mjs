@@ -35,10 +35,22 @@ function ensureImport(lines) {
   return true;
 }
 
+/** 对照表结构自检：to 行里 t() 调用之外的词，必须能在 from 行里找到
+ *  —— 抓「登记成子串 / 张冠李戴」这类错（from 和 to 说的根本不是同一处代码） */
+function looksConsistent(from, to) {
+  const chunks = to.split(/\{?t\('[a-z0-9_]+'(?:,\s*\{[^}]*\})?\)\}?/g);
+  const tokens = chunks
+    .join(' ')
+    .match(/[A-Za-z][A-Za-z0-9_-]{2,}/g);
+  if (!tokens || tokens.length === 0) return true; // 纯文本行（>文字<），无从比较
+  return tokens.some((tok) => from.includes(tok));
+}
+
 let applied = 0;
 let already = 0;
 const missing = [];
 const touched = [];
+const suspicious = [];
 
 for (const [rel, pairs] of Object.entries(manifest.files)) {
   const abs = join(REPO, rel);
@@ -51,6 +63,9 @@ for (const [rel, pairs] of Object.entries(manifest.files)) {
   for (const [from, to] of pairs) {
     if (lines.includes(to)) {
       already += 1;
+      if (!looksConsistent(from, to)) {
+        suspicious.push(`${rel}\n      from: ${from.trim().slice(0, 70)}\n      to:   ${to.trim().slice(0, 70)}`);
+      }
     } else if (lines.includes(from)) {
       if (mode === 'apply') {
         lines[lines.indexOf(from)] = to;
@@ -76,6 +91,10 @@ if (missing.length) {
   console.log(`  ⚠️ 丢失/漂移 ${missing.length} 条：`);
   for (const m of missing.slice(0, 40)) console.log('    ' + m);
   if (missing.length > 40) console.log(`    …还有 ${missing.length - 40} 条`);
+}
+if (suspicious.length) {
+  console.log(`  ⚠️ 对照表结构自检：${suspicious.length} 条可疑（from/to 说的不是同一处代码，登记可能写成了子串）`);
+  for (const s of suspicious.slice(0, 10)) console.log('    ' + s);
 }
 if (mode === 'check' && missing.length) process.exit(1);
 if (mode === 'check' && applied) {

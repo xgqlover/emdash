@@ -451,6 +451,16 @@
     "                          {isPublishing ? 'Publishing...' : 'Publish'}",
     "                          {isPublishing ? 'Publishing...' : t('publish_branch')}"
    ]
+  ],
+  "apps/emdash-desktop/src/core/features/workbench/browser/sidebar/sidebar-search-trigger.tsx": [
+   [
+    "      aria-label=\"Search\"",
+    "      aria-label={t('search_action')}"
+   ],
+   [
+    "        <span className=\"truncate\">Search…</span>",
+    "        <span className=\"truncate\">{t('search_ellipsis')}</span>"
+   ]
   ]
  }
 }
