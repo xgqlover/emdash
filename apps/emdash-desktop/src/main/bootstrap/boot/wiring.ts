@@ -48,6 +48,30 @@ export type DesktopControllerOptions = Omit<
   'hosts' | 'runtimes' | 'scope' | 'ssh'
 >;
 
+/**
+ * [XG-CUSTOM] 项我球（orb）启动常驻：boot 的 window/service 阶段与 wire 注册都完成后，
+ * 由 bootBackground（background-tasks 阶段）调一次，把「点了按钮才出现」改成「启动即常驻」。
+ *
+ * - 逃生开关：XIANGWO_ORB_AUTOSTART=0 时不自动创建（默认创建）。
+ * - 延迟一拍，确保主窗口先上屏（不要长延时）。
+ * - 失败只打日志：绝不影响主窗口启动。创建本身含「已存在则 show/focus」的复用逻辑，重复调用安全。
+ * 球壳/几何/置顶档都在 main/host/xiangwo-orb.ts。
+ */
+export function autostartXiangwoOrb(delayMs = 1500): void {
+  if (process.env.XIANGWO_ORB_AUTOSTART === '0') {
+    log.info('[XG-CUSTOM] 项我球自动创建已关闭（XIANGWO_ORB_AUTOSTART=0）');
+    return;
+  }
+  setTimeout(() => {
+    try {
+      createXiangwoFloatingWindow();
+      log.info('[XG-CUSTOM] 项我球已随启动常驻');
+    } catch (error) {
+      log.warn('[XG-CUSTOM] 项我球自动创建失败（不影响主窗口启动）', { error });
+    }
+  }, delayMs);
+}
+
 export function createDesktopWireOptions(
   database: DatabaseBundle,
   services: ServicesBundle,

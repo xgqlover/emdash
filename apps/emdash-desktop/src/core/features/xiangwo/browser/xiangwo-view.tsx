@@ -6,7 +6,7 @@
 import { Fragment, useRef, useState } from 'react';
 import { defineViewRuntime } from '@core/primitives/views/react';
 import { xiangwoViewDef } from '../contributions/views';
-import { openExternal, openXiangwoFloating } from '@core/primitives/desktop-host/browser/host-client';
+import { openExternal } from '@core/primitives/desktop-host/browser/host-client'; // [XG-CUSTOM] 已移除 openXiangwoFloating（浮窗按钮删除）
 
 type DisplayMsg = { role: 'user' | 'assistant'; text: string; images: string[]; files: string[] };
 type HistoryMsg = { role: 'user' | 'assistant'; content: unknown };
@@ -185,13 +185,7 @@ export function XiangwoMainPanel() {
           style={{ display: 'none' }}
           onChange={onFile}
         />
-        <button
-          onClick={() => void openXiangwoFloating()}
-          title="弹出侧边聊天浮窗（置顶小窗，可拖到浏览器旁）"
-          style={{ padding: '8px', borderRadius: 8, background: '#374151', color: '#fff', border: 'none', cursor: 'pointer' }}
-        >
-          💬
-        </button>
+        {/* [XG-CUSTOM] 💬 浮窗按钮已删除：已改为启动常驻的项我球，见 main/host/xiangwo-orb.ts */}
         <select
           value={route}
           onChange={(e) => setRoute(e.target.value as 'R0' | 'R1' | 'R2')}

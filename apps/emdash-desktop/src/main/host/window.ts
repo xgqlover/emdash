@@ -13,6 +13,8 @@ import {
   watchWindow,
 } from '@main/bootstrap/shutdown';
 import { browserWebContentsRegistry } from '@main/host/browser/browser-webcontents-registry';
+// [XG-CUSTOM] 项我控制球（球/面板两态 + 悬停展开 + 位置记忆）
+import { createXiangwoOrbWindow } from './xiangwo-orb';
 import {
   hardenBrowserWebviewPreferences,
   stripBrowserWebviewParams,
@@ -355,11 +357,16 @@ export function createXiangwoFloatingWindow(): BrowserWindow {
     registerXiangwoTaskSpaces();
     registerXiangwoExpertHandoff();
   }
-  if (xiangwoFloatingWindow && !xiangwoFloatingWindow.isDestroyed()) {
-    xiangwoFloatingWindow.show();
-    xiangwoFloatingWindow.focus();
-    return xiangwoFloatingWindow;
-  }
+  // [XG-CUSTOM] 升级为「项我控制球」：球壳/几何/置顶档/位置记忆都在 main/host/xiangwo-orb.ts
+  xiangwoFloatingWindow = createXiangwoOrbWindow(() => {
+    const main = BrowserWindow.getAllWindows().find((w) => w !== xiangwoFloatingWindow && !w.isDestroyed());
+    main?.show();
+    main?.focus();
+  });
+  return xiangwoFloatingWindow;
+}
+
+function legacyFloatingWindow(): BrowserWindow {
   xiangwoFloatingWindow = new BrowserWindow({
     width: 360,
     height: 640,

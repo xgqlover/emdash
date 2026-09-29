@@ -107,6 +107,17 @@ export default defineConfig({
   renderer: {
     root: 'src/renderer',
     plugins: [react(), tailwindcss()],
+    build: {
+      rollupOptions: {
+        input: {
+          // [XG-CUSTOM] 第二个入口：项我控制球页面（球 + 面板 + 聊天 UI，移植自 deepseek-harness-orb）。
+          // 生产产物 = out/renderer/orb/orb.html（主进程按 app://<app>/orb/orb.html 加载）；
+          // dev = http://localhost:3000/orb/orb.html。
+          index: resolve('src/renderer/index.html'),
+          orb: resolve('src/renderer/orb/orb.html'),
+        },
+      },
+    },
     resolve: {
       alias: {
         '@': resolve('src'),

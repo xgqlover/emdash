@@ -2,7 +2,7 @@
 // 后端直接 fetch 8900（[XIANGWO_SOURCE=sidebar] 侧边 suagent 轻量直答）。
 // 功能：分 bot 下拉、发图（🖼️）、发文件（📎）、截图当前网页（📷，CDP 桥接）、交接台（📤）。
 // 一键组合：主进程 openXiangwoFloating 会同时拉起真实 Chrome（wego-lite CDP）。
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ComposerAgentOption } from '@emdash/ui/react/components';
 
 type DisplayMsg = { role: 'user' | 'assistant'; text: string; img?: string };
@@ -27,6 +27,17 @@ type HostBridge = {
   taskSpaceList?: () => Promise<unknown>;
   taskSpaceHandoff?: (id: string) => Promise<unknown>;
   taskSpaceTakeover?: (id: string) => Promise<unknown>;
+  // [XG-CUSTOM] 控制球（见 main/host/xiangwo-orb.ts）
+  isXiangwoOrb?: boolean;
+  orbExpand?: () => Promise<unknown>;
+  orbCollapse?: () => Promise<unknown>;
+  orbTogglePin?: () => Promise<unknown>;
+  orbDrag?: (x: number, y: number) => Promise<unknown>;
+  orbDragEnd?: () => Promise<unknown>;
+  orbOpenMain?: () => Promise<unknown>;
+  orbQuit?: () => Promise<unknown>;
+  getOrbMode?: () => Promise<[string, boolean]>;
+  onOrbMode?: (cb: (mode: 'ball' | 'panel', pinned: boolean) => void) => () => void;
 };
 const electronAPI = (window as unknown as { electronAPI?: HostBridge }).electronAPI ?? {};
 
@@ -39,6 +50,24 @@ export function XiangwoFloatingPanel() {
   const [input, setInput] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imgInputRef = useRef<HTMLInputElement>(null);
+  // [XG-CUSTOM] 球态：ball = 一颗球；panel = 展开面板。由主进程驱动（悬停展开/离开收起/点击固定）
+  const isOrb = electronAPI.isXiangwoOrb === true;
+  const [orbMode, setOrbMode] = useState<'ball' | 'panel'>(isOrb ? 'ball' : 'panel');
+  const [pinned, setPinned] = useState(false);
+  const dragRef = useRef<{ dx: number; dy: number } | null>(null);
+
+  useEffect(() => {
+    if (!isOrb || !electronAPI.onOrbMode) return;
+    const off = electronAPI.onOrbMode((mode, isPinned) => {
+      setOrbMode(mode);
+      setPinned(isPinned);
+    });
+    void electronAPI.getOrbMode?.().then(([mode, isPinned]) => {
+      setOrbMode(mode === 'panel' ? 'panel' : 'ball');
+      setPinned(isPinned);
+    });
+    return off;
+  }, [isOrb]);
 
   async function send(text: string, imgDataUrl?: string) {
     if ((!text.trim() && !imgDataUrl) || loading) return;
@@ -125,11 +154,70 @@ export function XiangwoFloatingPanel() {
     }
   }
 
+  // [XG-CUSTOM] 球态：只有一颗球。悬停 → 展开面板；单击 → 固定；按住拖 → 移动球（主进程 setBounds）。
+  if (isOrb && orbMode === 'ball') {
+    return (
+      <div
+        style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', userSelect: 'none' }}
+        onMouseEnter={() => void electronAPI.orbExpand?.()}
+        onMouseDown={(e) => {
+          dragRef.current = { dx: e.screenX, dy: e.screenY };
+        }}
+        onMouseMove={(e) => {
+          const d = dragRef.current;
+          if (!d) return;
+          if (Math.abs(e.screenX - d.dx) + Math.abs(e.screenY - d.dy) < 4) return; // 抖动阈值
+          void electronAPI.orbDrag?.(e.screenX - 36, e.screenY - 36);
+        }}
+        onMouseUp={() => {
+          if (dragRef.current) void electronAPI.orbDragEnd?.();
+          dragRef.current = null;
+        }}
+        onDoubleClick={() => void electronAPI.orbOpenMain?.()}
+        title="项我球：悬停展开 · 拖动移动 · 双击打开主窗"
+      >
+        <div
+          style={{
+            width: 60,
+            height: 60,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle at 32% 28%, #7c9cff 0%, #3b5bdb 55%, #1e2a78 100%)',
+            boxShadow: '0 6px 18px rgba(0,0,0,.45)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#fff',
+            fontSize: 22,
+            fontWeight: 700,
+            cursor: 'grab',
+            border: '2px solid rgba(255,255,255,.25)',
+          }}
+        >
+          项
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#1e1e2e', color: '#fff' }}>
+    <div
+      style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#1e1e2e', color: '#fff' }}
+      onMouseLeave={() => {
+        if (isOrb && !pinned) void electronAPI.orbCollapse?.();
+      }}
+    >
       <div style={{ padding: '8px 12px', borderBottom: '1px solid #333', fontSize: 13, fontWeight: 600, userSelect: 'none', display: 'flex', alignItems: 'center', gap: 6, WebkitAppRegion: 'drag' } as React.CSSProperties}>
-        <span>🧠 侧边聊天</span>
+        <span>{isOrb ? '🧠 项我球' : '🧠 侧边聊天'}</span>
         <span style={{ flex: 1 }} />
+        {isOrb && (
+          <button
+            onClick={() => void electronAPI.orbCollapse?.()}
+            title={pinned ? '已固定（点此收起）' : '收起成球'}
+            style={{ padding: '4px 8px', borderRadius: 6, background: pinned ? '#6b8afd' : '#374151', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 13, WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+          >
+            {pinned ? '📌' : '⊖'}
+          </button>
+        )}
         <button onClick={() => void onCapture()} title="截图当前网页给 agent" style={{ padding: '4px 8px', borderRadius: 6, background: '#374151', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 13, WebkitAppRegion: 'no-drag' } as React.CSSProperties}>📷</button>
         <button onClick={() => imgInputRef.current?.click()} title="发图" style={{ padding: '4px 8px', borderRadius: 6, background: '#374151', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 13, WebkitAppRegion: 'no-drag' } as React.CSSProperties}>🖼️</button>
         <button onClick={() => fileInputRef.current?.click()} title="发文件" style={{ padding: '4px 8px', borderRadius: 6, background: '#374151', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 13, WebkitAppRegion: 'no-drag' } as React.CSSProperties}>📎</button>

@@ -3,6 +3,7 @@ import { integrationsEvents } from '@core/features/integrations/node/event-host'
 import type { DesktopRuntimes } from '@main/gateway/desktop-runtimes';
 import { log } from '@main/lib/logger';
 import { runInBackground } from '../../core/background';
+import { autostartXiangwoOrb } from '../wiring';
 import { startMainDevPerfInstruments } from './dev-perf';
 import { startPerfVitalsTelemetry } from './perf-vitals';
 import type { ServicesBundle } from './services';
@@ -55,4 +56,9 @@ export function bootBackground(services: ServicesBundle, runtimes: DesktopRuntim
       providerId: 'github',
     });
   });
+
+  // [XG-CUSTOM] 项我球（orb）启动常驻：这一步在 window/service 阶段与 wire 注册（controllers/gateway）
+  // 之后运行，所以不会和窗口初始化竞争。开关 XIANGWO_ORB_AUTOSTART=0 与失败兜底都在
+  // wiring.ts 的 autostartXiangwoOrb（失败只打日志，绝不影响主窗口启动）。
+  autostartXiangwoOrb();
 }

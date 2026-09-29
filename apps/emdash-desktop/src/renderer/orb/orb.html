@@ -1,0 +1,96 @@
+<!doctype html>
+<!--
+  [XG-CUSTOM] 项我控制球页面 —— 移植自开源项目 mini-yifan/deepseek-harness-orb（MIT）
+  apps/desktop/renderer/floating.html（球 + 面板 + 聊天 UI）。
+
+  与原版的差异（详见 orb.js 顶部注释）：
+  - 去掉 dsh 强耦合的 UI：iframe 转录、用户提问卡、TCC 授权门、选区芯片、macOS 停靠条逻辑；
+  - 加回我们自己的动作：📷 截图当前网页、📤 交接、bot 选择、✕ 关闭；
+  - 交互模型：单击球打开并保持、✕ 关闭、hover 不展开（球的拖动是自绘指针拖动）。
+
+  注意：这里**没有** CSP meta（和 renderer/index.html 一致）—— 面板要 fetch
+  http://127.0.0.1:8900（项我后端），dev 下还要连 vite 的 HMR websocket。
+-->
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>项我球</title>
+    <link rel="stylesheet" href="./orb.css" />
+  </head>
+  <body>
+    <section id="panel" hidden>
+      <button id="history" type="button" aria-pressed="false" title="历史对话">
+        <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+          <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"></circle>
+          <path
+            d="M8 4.5v4l2.5 1.5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ></path>
+        </svg>
+      </button>
+      <button id="capture" type="button" title="截图当前网页">📷</button>
+      <button id="handoff" type="button" title="把当前活交接到主工作台">📤</button>
+      <div id="permission">
+        <button id="permission-button" type="button" aria-haspopup="listbox" aria-expanded="false">
+          <span id="permission-label"></span>
+          <svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+            <path
+              d="M3 4.5 6 8l3-3.5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></path>
+          </svg>
+        </button>
+        <ul id="permission-menu" role="listbox" hidden></ul>
+      </div>
+      <button id="new-conversation" type="button" title="新对话">+</button>
+      <!-- [XG-CUSTOM] 明显的关闭按钮：点它收起面板（球↔面板的唯一收起入口，悬停不再自动收起） -->
+      <button id="close" type="button" title="关闭面板">✕</button>
+      <!-- [XG-CUSTOM] 第二行：bot 选择（原来的 #pin 固定按钮已去掉：新模型下"打开即保持"） -->
+      <div id="options">
+        <select id="bot" title="选择 bot"></select>
+      </div>
+      <div id="transcript" role="log" aria-live="polite"></div>
+      <div id="history-list" role="listbox" hidden></div>
+      <p id="status" role="status"></p>
+      <form id="composer">
+        <label id="input-label" for="prompt"></label>
+        <div
+          id="prompt"
+          class="prompt-empty"
+          role="textbox"
+          aria-multiline="true"
+          aria-labelledby="input-label"
+          contenteditable="true"
+        ></div>
+      </form>
+    </section>
+    <button id="ball" type="button" title="项我球：单击开关 · 双击打开主窗 · 拖动移动 · 右键菜单">
+      <!-- [XG-CUSTOM] 球内字形：白色「项」字（安静克制，不做贴图/大字） -->
+      <span id="ball-mark" aria-hidden="true">项</span>
+      <!-- [XG-CUSTOM] 极小操作提示：只在展开态淡淡显示（⤡ = 可拖；单击就是收起），hover 变实 -->
+      <span id="ball-hint" aria-hidden="true">⤡</span>
+      <!-- [XG-CUSTOM] 自定义头像（上游 orb-avatar.ts 的等价物）：有头像就盖住「项」字，
+           没有就保持内置「项」（不是空白）。换法见 orb.js 头部注释 6)/7)。 -->
+      <img id="ball-avatar" alt="" hidden />
+    </button>
+    <!-- [XG-CUSTOM] 划词工具条（范围内版）：只在面板内选中文字时弹出，见 orb.js 的 wireSelectionBar -->
+    <div id="selection-bar" hidden role="toolbar" aria-label="划词操作">
+      <button type="button" data-action="search">搜索</button>
+      <button type="button" data-action="translate">翻译</button>
+      <button type="button" data-action="send">发给项我</button>
+    </div>
+    <!-- [XG-CUSTOM] TODO 边缘停靠：DOM/CSS 先留着（Orb 的 6px 细条），主进程暂不返回 docked -->
+    <button id="dock-tab" type="button" hidden aria-hidden="true"></button>
+    <button id="stop" type="button" title="停止" hidden></button>
+    <script type="module" src="./orb.js"></script>
+  </body>
+</html>

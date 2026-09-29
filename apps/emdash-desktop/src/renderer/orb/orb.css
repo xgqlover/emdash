@@ -1,0 +1,970 @@
+/*
+ * [XG-CUSTOM] 项我控制球样式 —— 移植自开源项目 mini-yifan/deepseek-harness-orb（MIT）
+ * apps/desktop/renderer/floating.css（球 + 面板 + 输入框 + 历史 + 权限芯片 + 停靠条）。
+ *
+ * 改动：
+ * - 删掉没移植的 UI（用户提问卡 / TCC 授权门 / 选区芯片 / #prompt 之外的 composer 变体）；
+ * - 自绘指针拖动（不再用 -webkit-app-region: drag，它会吞掉 click 导致点不开面板）；
+ * - 新增我们自己的两行工具条（📷/📤/#bot/✕）与聊天消息气泡；
+ * - 交互模型：单击球打开并保持、✕ 关闭、hover 只给视觉反馈（球的拖动是自绘的，见 orb.js）；
+ * - 球改成上游原版外观：深色纯色圆 + 柔和投影 + 白色内联 SVG 字形（不再用渐变块/大字）；
+ * - **收起态 #panel 必须 display:none**（上游只靠 opacity:0，透明窗口里会漏出深色方块）。
+ * 变量名（--ball / --ball-shadow / --panel-*）保持与上游一致，方便以后对齐升级。
+ */
+:root {
+  /* [XG-CUSTOM] **默认浅色**（Orb 原版观感：白/近白面板 + 深色前景）。
+   * 深色只在系统偏好深色（或宿主打了 data-ds-dark-theme）时套用 —— 见文件下方两套变量。
+   * token 名沿用上游语义：`--white` = 面板/气泡底色，`--black` = 前景（文字/图标）。 */
+  color-scheme: light;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  --ball: 72px;
+  --composer-height: var(--ball);
+  --prompt-line: 20px;
+  --prompt-pad: 12px;
+  --composer-max: calc(var(--ball) + var(--prompt-line) * 3);
+  --chrome: 12px;
+  --panel-radius: 36px;
+  /* [XG-CUSTOM] 两行工具条：第二行 top:46px，高度 28px → 转录区留 70px */
+  --toolbar-pad: 70px;
+  --black: #111111; /* 前景 */
+  --white: #ffffff; /* 面板底 */
+  --input-bg: #eeeeee; /* 输入药丸 / 工具条按钮 */
+  /* [XG-CUSTOM] 1px 内描边用**深色半透明**：压在白色网页上也有边界（浅色面板最容易糊成一片） */
+  --border: rgba(0, 0, 0, 0.12);
+  --pin: #5c5c66;
+  --error: #a33;
+  /* [XG-CUSTOM] 球的"核"色：跟着主题的 --black 走会在暗色主题里变成近白，所以单列一个变量 */
+  --ball-core: #111111;
+  --ball-mark: rgba(255, 255, 255, 0.94);
+  /* [XG-CUSTOM] 球窗口是 X11 SHAPE 抠出来的圆（这台机器没有合成器，透明无效），
+   * 形状外的像素一律被裁 → 外投影没了，改用内描边收边。 */
+  --ball-ring: rgba(255, 255, 255, 0.16);
+  --ball-ring-hover: rgba(255, 255, 255, 0.34);
+  /* 上游的柔和外投影：塑形后会被裁掉，留作以后有合成器时切回去用 */
+  --ball-shadow: 0 3px 8px rgba(17, 17, 17, 0.32);
+  /* [XG-CUSTOM] 外投影一律被 X11 SHAPE 裁掉 → 面板边界只靠 1px 内描边 */
+  --panel-shadow: none;
+  /* [XG-CUSTOM] 展开态球（面板一角的拖动/开关柄）：浅底上用**深色球 + 白「项」**（高对比）。
+   * 只用内描边、不做外投影/放大（球跟面板圆角相切，圆外会被 SHAPE 裁）。 */
+  --panel-ball-bg: #111111;
+  --panel-ball-fg: rgba(255, 255, 255, 0.94);
+  --panel-ball-ring: rgba(255, 255, 255, 0.18);
+  --panel-ball-hover-bg: #2a2a33;
+}
+
+/*
+ * [XG-CUSTOM] 主题跟随（上游行为，第一版漏了、第二版被硬编码成深色 —— 这里补齐）：
+ * 浅色是默认；系统偏好深色时套下面这套深色变量。
+ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --black: #e9e9f0;
+    --white: #1b1b20;
+    --input-bg: #2a2a33;
+    --border: rgba(255, 255, 255, 0.14);
+    --pin: #8b96ff;
+    --error: #ff7b7b;
+    --ball-core: #111111;
+    --ball-ring: rgba(255, 255, 255, 0.16);
+    --ball-ring-hover: rgba(255, 255, 255, 0.34);
+    --panel-ball-bg: #f4f4f8;
+    --panel-ball-fg: #17171c;
+    --panel-ball-ring: rgba(0, 0, 0, 0.3);
+    --panel-ball-hover-bg: #ffffff;
+  }
+}
+
+html[data-ds-dark-theme] {
+  color-scheme: dark;
+  --black: #e9e9f0;
+  --white: #1b1b20;
+  --input-bg: #2a2a33;
+  --border: rgba(255, 255, 255, 0.14);
+  --pin: #8b96ff;
+  --error: #ff7b7b;
+  --ball-core: #131317;
+  --ball-ring: rgba(255, 255, 255, 0.13);
+  --ball-ring-hover: rgba(255, 255, 255, 0.3);
+  --panel-shadow: none;
+  --panel-ball-bg: #f4f4f8;
+  --panel-ball-fg: #17171c;
+  --panel-ball-ring: rgba(0, 0, 0, 0.3);
+  --panel-ball-hover-bg: #ffffff;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  /* [XG-CUSTOM] 强制全透明：收起态窗口里除了球不能有任何底色（否则四角是黑的） */
+  background: transparent !important;
+  background-color: transparent !important;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/*
+ * [XG-CUSTOM] 收起态完全不画：默认 display:none，只有 body.panel-mounted（打开时）才 display:flex。
+ * 渲染进程：add('panel-mounted') → 强制回流 → 再给 body 加 'expanded' 触发 120ms 淡入；
+ * 收起时直接 unmountPanel()（无动画、跟手）。
+ */
+#panel {
+  position: absolute;
+  inset: var(--chrome);
+  display: none;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding: 20px 20px calc(var(--composer-height) + 10px);
+  color: var(--black);
+  background: var(--white);
+  border-radius: var(--panel-radius);
+  opacity: 0;
+  pointer-events: none;
+  /* [XG-CUSTOM] 只做淡入、不做 scale 动画：窗口是 X SHAPE 抠出来的（面板态=圆角矩形），
+   * 面板缩放时形状不会跟着缩 → 那 120ms 里四周会露出一圈黑（这台机器没有合成器）。
+   * isolation:isolate 顶替原来 transform 产生的层叠上下文，保证 composer(z-index:2) 不会盖住球(z-index:1)。 */
+  isolation: isolate;
+  transition: opacity 120ms ease-out;
+}
+
+body.panel-mounted #panel {
+  display: flex;
+}
+
+body.expand-left {
+  --origin-x: 100%;
+}
+
+body.expand-right {
+  --origin-x: 0%;
+}
+
+body.expand-up {
+  --origin-y: 100%;
+}
+
+body.expand-down {
+  --origin-y: 0%;
+}
+
+body.expanded #panel {
+  opacity: 1;
+  pointer-events: auto;
+  border: 1px solid var(--border);
+  box-shadow: var(--panel-shadow);
+}
+
+body.expand-down #panel {
+  padding-top: calc(var(--composer-height) + 10px);
+  padding-bottom: 20px;
+}
+
+#panel::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: var(--composer-height);
+  border-radius: calc(var(--ball) / 2);
+  background: var(--input-bg);
+}
+
+body.expand-up #panel::after {
+  bottom: 0;
+}
+
+body.expand-down #panel::after {
+  top: 0;
+}
+
+body.pinned #panel {
+  /* [XG-CUSTOM] 固定(pin)是"打开即保持"的**常态**，别用粗强调环把整个面板框住；
+   * 只把 1px 描边提亮/加深一档。（原先是 3px **外**环 —— 被 X11 SHAPE 裁掉，等于没画。） */
+  border-color: var(--pin);
+  box-shadow: none;
+}
+
+/* [XG-CUSTOM] 工具条（第一行：历史 / 截图 / 交接 / 权限 / 新对话 / 关闭） */
+#history,
+#capture,
+#handoff,
+#new-conversation,
+#close,
+#permission {
+  position: absolute;
+  top: 12px;
+  z-index: 2;
+}
+
+body.expand-down #history,
+body.expand-down #capture,
+body.expand-down #handoff,
+body.expand-down #new-conversation,
+body.expand-down #close,
+body.expand-down #permission {
+  top: auto;
+  bottom: 12px;
+}
+
+#history,
+#capture,
+#handoff,
+#new-conversation,
+#close {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0;
+  color: var(--black);
+  background: var(--input-bg);
+  cursor: pointer;
+}
+
+#history {
+  left: 12px;
+}
+
+#capture {
+  left: 46px;
+  font-size: 14px;
+}
+
+#handoff {
+  left: 80px;
+  font-size: 14px;
+}
+
+/* 关闭在最右，新对话往左挪一格 */
+#close {
+  right: 12px;
+  font-size: 13px;
+  line-height: 1;
+}
+
+#new-conversation {
+  right: 46px;
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* [XG-CUSTOM] 第二行：bot 下拉 + 固定 */
+#options {
+  position: absolute;
+  top: 46px;
+  left: 12px;
+  right: 12px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+body.expand-down #options {
+  top: auto;
+  bottom: 46px;
+}
+
+#bot {
+  height: 28px;
+  max-width: 132px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 8px;
+  color: var(--black);
+  background: var(--input-bg);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+#permission {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#permission-button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 148px;
+  height: 28px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 10px;
+  color: var(--black);
+  background: var(--input-bg);
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+#permission-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#permission-button svg {
+  flex: none;
+  width: 10px;
+  height: 10px;
+}
+
+#permission-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 50%;
+  z-index: 3;
+  transform: translateX(-50%);
+  margin: 0;
+  border-radius: 10px;
+  padding: 4px;
+  list-style: none;
+  background: var(--white);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+}
+
+body.expand-down #permission-menu {
+  top: auto;
+  bottom: calc(100% + 4px);
+}
+
+#permission-menu button {
+  display: block;
+  width: 100%;
+  border: 0;
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: var(--black);
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  line-height: 1.3;
+  text-align: left;
+  white-space: nowrap;
+}
+
+#permission-menu button[aria-selected='true'] {
+  background: var(--input-bg);
+}
+
+#history svg {
+  width: 16px;
+  height: 16px;
+}
+
+#transcript,
+#history-list {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: var(--toolbar-pad);
+}
+
+body.expand-down #transcript,
+body.expand-down #history-list {
+  padding-top: 0;
+  padding-bottom: var(--toolbar-pad);
+}
+
+#transcript[hidden],
+#history-list[hidden] {
+  display: none;
+}
+
+/* [XG-CUSTOM] 聊天消息（替代上游的 iframe 转录） */
+.transcript-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 100%;
+}
+
+.transcript-row.user {
+  align-items: flex-end;
+}
+
+.transcript-row.assistant {
+  align-items: flex-start;
+}
+
+.transcript-bubble {
+  box-sizing: border-box;
+  max-width: 92%;
+  border-radius: 14px;
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.transcript-row.user .transcript-bubble {
+  color: var(--white);
+  background: var(--black);
+}
+
+.transcript-row.assistant .transcript-bubble {
+  border: 1px solid var(--border);
+  color: var(--black);
+  background: var(--white);
+}
+
+.transcript-image {
+  max-width: 92%;
+  border-radius: 12px;
+}
+
+.transcript-empty {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--pin);
+}
+
+.history-row {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 14px;
+  text-align: left;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--black);
+  background: var(--white);
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.history-row.current {
+  border-color: var(--black);
+  background: var(--input-bg);
+}
+
+.history-empty {
+  margin: 0;
+  font-size: 13px;
+  color: var(--pin);
+}
+
+#status {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--pin);
+  overflow-wrap: anywhere;
+}
+
+#composer {
+  position: absolute;
+  z-index: 2;
+  box-sizing: border-box;
+  left: 16px;
+  right: 16px;
+  height: var(--composer-height);
+  padding: 0 12px;
+}
+
+body.expand-up #composer {
+  bottom: 0;
+}
+
+body.expand-down #composer {
+  top: 0;
+}
+
+body.running #composer {
+  visibility: hidden;
+}
+
+#input-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+#prompt {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 0;
+  padding: var(--prompt-pad) 8px;
+  color: var(--black);
+  background: transparent;
+  outline: none;
+  font: inherit;
+  font-size: 13px;
+  line-height: var(--prompt-line);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+#prompt::before {
+  content: '';
+  width: var(--ball);
+  height: var(--composer-height);
+  margin-top: calc(0px - var(--prompt-pad));
+  shape-margin: 8px;
+}
+
+body.expand-left #prompt::before {
+  float: right;
+}
+
+body.expand-right #prompt::before {
+  float: left;
+}
+
+body.expand-up #prompt::before {
+  shape-outside: circle(36px at 50% calc(100% - 36px));
+}
+
+body.expand-down #prompt::before {
+  shape-outside: circle(36px at 50% 36px);
+}
+
+body.composer-capped.expand-left #prompt {
+  padding-right: var(--ball);
+}
+
+body.composer-capped.expand-right #prompt {
+  padding-left: var(--ball);
+}
+
+body.composer-capped #prompt::before {
+  content: none;
+  width: 0;
+  height: 0;
+  float: none;
+}
+
+#prompt.prompt-empty::after {
+  content: attr(data-placeholder);
+  color: var(--pin);
+  line-height: calc(var(--ball) - 2 * var(--prompt-pad));
+}
+
+/* [XG-CUSTOM] 球：上游原版外观 —— 深色纯色圆 + 柔和投影。
+ * 拖动改成自绘指针拖动（原生 -webkit-app-region: drag 会吞掉 click），所以这里不再有 drag 区域。 */
+#ball {
+  position: absolute;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  top: var(--chrome);
+  left: var(--chrome);
+  width: var(--ball);
+  height: var(--ball);
+  border: 0;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--ball-core);
+  /* [XG-CUSTOM] 必须用 inset 内描边：窗口是 X Shape 抠出来的圆，任何外投影/外描边都会被裁掉 */
+  box-shadow: inset 0 0 0 1px var(--ball-ring);
+  cursor: grab;
+  transition: box-shadow 120ms ease-out;
+}
+
+/* hover 只给视觉反馈：加粗内描边（放大 scale 会被 shape 裁掉，所以不用缩放） */
+#ball:hover {
+  box-shadow: inset 0 0 0 2px var(--ball-ring-hover);
+}
+
+/* [XG-CUSTOM] 展开态球：亮圆上的深字 + hover 强调环（"这里能拖、能点收起"） */
+body.expanded #ball-mark {
+  color: var(--panel-ball-fg);
+}
+
+/* [XG-CUSTOM] hover 反馈要连 pinned 状态（常态）也看得出来：pinned 已经是 3px pin 环，
+ * 所以 hover 再提亮底色 + 加到 4px（不用 scale：球跟面板圆角相切，放大就被 SHAPE 裁） */
+body.expanded #ball:hover {
+  background: var(--panel-ball-hover-bg);
+  box-shadow: inset 0 0 0 4px var(--pin);
+}
+
+/* [XG-CUSTOM] 球上的极小操作提示：只在展开态淡淡显示，hover 时变实
+ * （⤡ = 可拖；点一下就是收起，用 title 里的文案兜底说明） */
+#ball-hint {
+  position: absolute;
+  top: 5px;
+  left: 8px;
+  font-size: 11px;
+  line-height: 1;
+  color: inherit;
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+  pointer-events: none;
+  user-select: none;
+}
+
+body.expanded #ball-hint {
+  opacity: 0.5;
+}
+
+body.expanded #ball:hover #ball-hint {
+  opacity: 1;
+}
+
+body.dragging #ball {
+  cursor: grabbing;
+}
+
+body.expand-left #ball {
+  left: auto;
+  right: var(--chrome);
+}
+
+body.expand-right #ball {
+  right: auto;
+  left: var(--chrome);
+}
+
+body.expand-up #ball {
+  top: auto;
+  bottom: var(--chrome);
+}
+
+body.expand-down #ball {
+  bottom: auto;
+  top: var(--chrome);
+}
+
+body.expanded #ball {
+  /* [XG-CUSTOM] 展开态球 = 面板一角的拖动/开关柄。用户实测"球都找不着了"：
+   * 深色面板上必须高对比 → **近白圆 + 深色「项」字**（收起态保持深圆白字）。
+   * 只用内描边：球正好跟面板圆角相切，圆外像素在 X11 SHAPE 之外会被裁掉（外环/放大都会缺角）。 */
+  background: var(--panel-ball-bg);
+  box-shadow: inset 0 0 0 1px var(--panel-ball-ring);
+  /* [XG-CUSTOM] 展开态球 = 面板的双击/拖动柄（输入药丸的圆帽）：恢复指针事件。
+   * 单击（位移 ≤ 4px）= 收起（等价于点 ✕）；拖（> 4px）= 平移整个面板（主进程 moveOrbBall
+   * 在 panel 态只改 x/y、保持 380×660 尺寸）。命中区由 border-radius:50% 决定（只有圆内算命中），
+   * 所以药丸其它部分 / 工具条 / ✕ 的交互不受影响。 */
+  pointer-events: auto;
+  cursor: grab;
+}
+
+body.pinned #ball {
+  box-shadow: inset 0 0 0 3px var(--pin);
+}
+
+#ball:active {
+  cursor: grabbing;
+}
+
+/* [XG-CUSTOM] 球内默认字形：小而克制的白色内联 SVG（圆环套圆点），不是贴图/大字 */
+#ball-mark {
+  /* [XG-CUSTOM] 球内「项」字（原来是内联 SVG 环点，用户要求写字） */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  color: var(--ball-mark);
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* [XG-CUSTOM] 现在整页没有 drag 区域（自绘拖动），这组 no-drag 只是防御性声明：
+ * 万一以后又给面板/球加 -webkit-app-region: drag，交互控件不会被吞掉。 */
+button,
+select,
+#bot,
+#permission-menu,
+#history-list,
+#transcript,
+#prompt {
+  -webkit-app-region: no-drag;
+}
+
+/* [XG-CUSTOM] TODO 边缘停靠：DOM/CSS 先留着，主进程暂不返回 docked */
+#dock-tab {
+  position: absolute;
+  top: 8px;
+  display: none;
+  width: 6px;
+  height: 72px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0;
+  background: #75757f;
+  box-shadow:
+    0 0 0 6px rgb(117 117 127 / 7%),
+    0 0 0 4px rgb(117 117 127 / 12.5%),
+    0 0 0 2px rgb(117 117 127 / 19.6%);
+  cursor: pointer;
+  animation: dock-tab-breath 1800ms ease-in-out infinite alternate;
+}
+
+@keyframes dock-tab-breath {
+  from {
+    opacity: 0.5;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #dock-tab {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+body.docked-left #dock-tab {
+  left: 0;
+}
+
+body.docked-right #dock-tab {
+  right: 0;
+}
+
+body.docked #dock-tab {
+  display: block;
+}
+
+body.docked #ball,
+body.docked #panel,
+body.docked #stop {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+#stop {
+  /* 输入药丸另一端的 72px 圆帽；14px = (72-44)/2 */
+  position: absolute;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--pin);
+  border-radius: 50%;
+  padding: 0;
+  background: var(--white);
+  cursor: pointer;
+}
+
+#stop::after {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  background: var(--black);
+}
+
+body.expand-left #stop {
+  left: calc(var(--chrome) + 14px);
+}
+
+body.expand-right #stop {
+  right: calc(var(--chrome) + 14px);
+}
+
+body.expand-up #stop {
+  bottom: calc(var(--chrome) + 14px);
+}
+
+body.expand-down #stop {
+  top: calc(var(--chrome) + 14px);
+}
+
+body:not(.expanded) #stop,
+body:not(.running) #stop {
+  display: none;
+}
+
+/* [XG-CUSTOM] 兜底：收起态（body 没有 .expanded）绝不允许画出任何底色/面板。
+   透明窗口里只要有一处铺了背景，整窗就是黑方块（用户实测反馈）。 */
+html,
+body {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+body:not(.expanded) #panel,
+body:not(.expanded) #transcript,
+body:not(.expanded) #history-list,
+body:not(.expanded) #status,
+body:not(.expanded) #composer,
+body:not(.expanded) #stop,
+body:not(.expanded) #dock-tab {
+  display: none !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+body:not(.expanded) {
+  box-shadow: none !important;
+}
+
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * [XG-CUSTOM] 提问卡（补上游被删掉的 #question/.question-card）：agent 在回复里带
+ * fenced JSON 提问块（协议见 orb.js 头部 6)）→ 渲染成这张卡；点选项/提交自定义 = 发一条 user 消息。
+ * 颜色全部走主题 token，浅色/深色都成立。
+ * ───────────────────────────────────────────────────────────────────────── */
+.question-card {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 92%;
+  margin-top: 8px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: var(--input-bg);
+  color: var(--black);
+}
+
+.question-title {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 8px;
+  overflow-wrap: anywhere;
+}
+
+.question-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.question-option {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 5px 12px;
+  background: var(--white);
+  color: var(--black);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.2;
+  cursor: pointer;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.question-option:hover:not(:disabled) {
+  border-color: var(--pin);
+}
+
+.question-option.chosen {
+  /* [XG-CUSTOM] 选中态用内环（外投影会被 X11 SHAPE 裁） */
+  box-shadow: inset 0 0 0 1px var(--pin);
+  border-color: var(--pin);
+}
+
+.question-option:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.question-custom {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.question-custom input {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 6px 10px;
+  background: var(--white);
+  color: var(--black);
+  font: inherit;
+  font-size: 12px;
+}
+
+.question-custom button {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 6px 12px;
+  background: var(--white);
+  color: var(--black);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.question-answered {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--pin);
+}
+
+/* [XG-CUSTOM] 划词工具条（范围内版）：小条、跟随选区、压在面板内容之上 */
+#selection-bar {
+  position: absolute;
+  z-index: 6;
+  display: flex;
+  gap: 4px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 4px;
+  background: var(--white);
+  color: var(--black);
+  box-shadow: none;
+}
+
+/* [XG-CUSTOM] **必须显式写**：作者样式的 `display: flex` 会盖掉 `[hidden]` 的 UA `display:none`，
+ * 否则工具条"隐藏"了却一直贴在左上角（真会把球盖住、elementFromPoint 也变成它）。 */
+#selection-bar[hidden] {
+  display: none !important;
+}
+
+#selection-bar button {
+  border: 0;
+  border-radius: 7px;
+  padding: 4px 8px;
+  background: var(--input-bg);
+  color: var(--black);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+#selection-bar button:hover {
+  box-shadow: inset 0 0 0 1px var(--pin);
+}
+
+/* [XG-CUSTOM] 自定义头像：盖住「项」字；有头像时不再画字形 */
+#ball-avatar {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+}
+
+body.has-avatar #ball-mark {
+  display: none;
+}

@@ -58,7 +58,7 @@ import { reaction } from 'mobx';
 // import { ExpertHandoffBar } from './expert-handoff-bar';
 import type { ExpertHandoffTopic } from '@core/primitives/desktop-host/api/host-contract';
 import { projectAvailabilityUi } from '@core/manifests/browser/project-availability-ui';
-import { openExternal, openXiangwoFloating } from '@core/primitives/desktop-host/browser/host-client';
+import { openExternal } from '@core/primitives/desktop-host/browser/host-client'; // [XG-CUSTOM] 已移除 openXiangwoFloating（浮窗按钮删除）
 import { issueMentionToken, parseIssueMentionToken } from '@core/primitives/issues/api';
 import { resolveIssueMentionSource } from '@core/primitives/issues/api/issue-context';
 import { linkedIssueMentionName, type LinkedIssue } from '@core/primitives/linked-issues/api';
@@ -1024,14 +1024,7 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
 
   return (
     <div ref={rootRef} className="surface-paper relative h-full overflow-hidden bg-(--em-surface)">
-      {/* [XG-CUSTOM] 💬 侧边聊天浮窗按钮：弹出置顶小窗，拖到任意浏览器旁当侧边聊天框 */}
-      <button
-        onClick={() => void openXiangwoFloating()}
-        title="弹出侧边聊天浮窗（置顶小窗，可拖到浏览器旁）"
-        className="absolute right-2 top-2 z-30 flex items-center gap-1 rounded-lg bg-gray-700 px-2.5 py-1.5 text-sm text-white hover:bg-gray-600"
-      >
-        💬 浮窗
-      </button>
+      {/* [XG-CUSTOM] 💬 侧边聊天浮窗按钮已删除：已改为启动常驻的项我球，见 main/host/xiangwo-orb.ts */}
       <ChatTranscript
         context={store.chatContext}
         state={store.chatState}
