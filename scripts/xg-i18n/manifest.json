@@ -1,0 +1,456 @@
+{
+ "generatedFrom": "217a41909",
+ "note": "[XG-CUSTOM] emdash 中文化行级对照表：emdash 上游更新后跑 scripts/xg-i18n/apply.mjs 还原（--check 只体检）",
+ "files": {
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/action-card.tsx": [
+   [
+    "          ? `${selectedCount} file${selectedCount !== 1 ? 's' : ''} selected`",
+    "          ? t('files_selected', { count: selectedCount })"
+   ],
+   [
+    "          : 'All files'}",
+    "          : t('all_files')}"
+   ]
+  ],
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/commit-card.tsx": [
+   [
+    "    { id: 'commit', label: 'Commit', action: () => void doCommit() },",
+    "    { id: 'commit', label: t('commit_label'), action: () => void doCommit() },"
+   ],
+   [
+    "    { id: 'commit-push', label: 'Commit & Push', action: () => void doCommitAndPush() },",
+    "    { id: 'commit-push', label: t('commit_push'), action: () => void doCommitAndPush() },"
+   ],
+   [
+    "        placeholder=\"Commit message\"",
+    "        placeholder={t('commit_message_placeholder')}"
+   ],
+   [
+    "        placeholder=\"Description\"",
+    "        placeholder={t('description_placeholder')}"
+   ],
+   [
+    "        <StatusRow icon={<Loader2 className=\"size-4 animate-spin\" />} label=\"Committing…\" />",
+    "        <StatusRow icon={<Loader2 className=\"size-4 animate-spin\" />} label={t('committing')} />"
+   ],
+   [
+    "        <StatusRow icon={<Loader2 className=\"size-4 animate-spin\" />} label=\"Opening PR…\" />",
+    "        <StatusRow icon={<Loader2 className=\"size-4 animate-spin\" />} label={t('opening_pr')} />"
+   ],
+   [
+    "          label=\"Committed\"",
+    "          label={t('committed')}"
+   ],
+   [
+    "        <StatusRow icon={<Loader2 className=\"size-4 animate-spin\" />} label=\"Pushing…\" />",
+    "        <StatusRow icon={<Loader2 className=\"size-4 animate-spin\" />} label={t('pushing')} />"
+   ],
+   [
+    "          label=\"Pushed\"",
+    "          label={t('pushed')}"
+   ]
+  ],
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/checks-list.tsx": [
+   [
+    "    return <div className=\"px-3 py-2 text-xs text-foreground-passive\">No checks available</div>;",
+    "    return <div className=\"px-3 py-2 text-xs text-foreground-passive\">{t('no_checks_available')}</div>;"
+   ],
+   [
+    "    return <EmptyState label=\"No checks or comments\" description=\"Nothing available yet\" />;",
+    "    return <EmptyState label={t('no_checks_or_comments')} description={t('nothing_available_yet')} />;"
+   ]
+  ],
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/comments-list.tsx": [
+   [
+    "              <span className=\"shrink-0 text-foreground-passive\">Resolved</span>",
+    "              <span className=\"shrink-0 text-foreground-passive\">{t('resolved')}</span>"
+   ],
+   [
+    "    return <div className=\"px-3 py-2 text-xs text-foreground-passive\">Loading comments...</div>;",
+    "    return <div className=\"px-3 py-2 text-xs text-foreground-passive\">{t('loading_comments')}</div>;"
+   ],
+   [
+    "    return <div className=\"px-3 py-2 text-xs text-foreground-passive\">Unable to load comments</div>;",
+    "    return <div className=\"px-3 py-2 text-xs text-foreground-passive\">{t('unable_load_comments')}</div>;"
+   ],
+   [
+    "    return <div className=\"px-3 py-2 text-xs text-foreground-passive\">No comments available</div>;",
+    "    return <div className=\"px-3 py-2 text-xs text-foreground-passive\">{t('no_comments_available')}</div>;"
+   ],
+   [
+    "        <div className=\"px-3 py-2 text-xs text-foreground-passive\">Loading comments...</div>",
+    "        <div className=\"px-3 py-2 text-xs text-foreground-passive\">{t('loading_comments')}</div>"
+   ],
+   [
+    "        <div className=\"px-3 py-2 text-xs text-foreground-passive\">Unable to load comments</div>",
+    "        <div className=\"px-3 py-2 text-xs text-foreground-passive\">{t('unable_load_comments')}</div>"
+   ]
+  ],
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/commits-list.tsx": [
+   [
+    "  label: 'No commits',",
+    "  label: t('no_commits'),"
+   ],
+   [
+    "            {isFetchingNextPage ? 'Loading...' : 'Load more'}",
+    "            {isFetchingNextPage ? t('loading_ellipsis') : t('load_more')}"
+   ],
+   [
+    "    return <div className=\"px-6 py-2 text-xs text-foreground-passive\">Loading files...</div>;",
+    "    return <div className=\"px-6 py-2 text-xs text-foreground-passive\">{t('loading_files')}</div>;"
+   ],
+   [
+    "    return <div className=\"px-6 py-2 text-xs text-foreground-passive\">Unable to load files</div>;",
+    "    return <div className=\"px-6 py-2 text-xs text-foreground-passive\">{t('unable_load_files')}</div>;"
+   ],
+   [
+    "    return <div className=\"px-6 py-2 text-xs text-foreground-passive\">No file changes</div>;",
+    "    return <div className=\"px-6 py-2 text-xs text-foreground-passive\">{t('no_file_changes')}</div>;"
+   ]
+  ],
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/create-pr-modal.tsx": [
+   [
+    "            label=\"Head Branch\"",
+    "            label={t('head_branch')}"
+   ],
+   [
+    "                  <span className=\"text-xs text-foreground-passive\">Target</span>",
+    "                  <span className=\"text-xs text-foreground-passive\">{t('target')}</span>"
+   ],
+   [
+    "                  <span className=\"text-xs text-foreground-passive\">Base Branch</span>",
+    "                  <span className=\"text-xs text-foreground-passive\">{t('base_branch')}</span>"
+   ],
+   [
+    "                    <Combobox.Value placeholder=\"Select a base branch\" />",
+    "                    <Combobox.Value placeholder={t('select_base_branch')} />"
+   ],
+   [
+    "            <Field.Label>Title</Field.Label>",
+    "            <Field.Label>{t('title_label')}</Field.Label>"
+   ],
+   [
+    "              placeholder=\"PR title\"",
+    "              placeholder={t('pr_title_placeholder')}"
+   ],
+   [
+    "            <Field.Label>Description</Field.Label>",
+    "            <Field.Label>{t('description_placeholder')}</Field.Label>"
+   ],
+   [
+    "            actionLabel=\"Creating as\"",
+    "            actionLabel={t('creating_as')}"
+   ],
+   [
+    "            <Alert.Title>Failed to create pull request</Alert.Title>",
+    "            <Alert.Title>{t('failed_create_pr')}</Alert.Title>"
+   ],
+   [
+    "            loadingLabel=\"Creating...\"",
+    "            loadingLabel={t('creating')}"
+   ],
+   [
+    "                label: draft ? 'Create Draft' : 'Create PR',",
+    "                label: draft ? t('create_draft') : t('create_pr'),"
+   ],
+   [
+    "            {isCreating ? 'Creating...' : draft ? 'Create Draft' : 'Create PR'}",
+    "            {isCreating ? t('creating') : draft ? t('create_draft') : t('create_pr')}"
+   ]
+  ],
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/merge-footer.tsx": [
+   [
+    "          <span>Merge without waiting for requirements to be met (bypass rules)</span>",
+    "          <span>{t('merge_bypass_rules')}</span>"
+   ]
+  ],
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/git-status-section.tsx": [
+   [
+    "                    {hostActionReason ?? (isFetching ? 'Fetching...' : 'Fetch changes')}",
+    "                    {hostActionReason ?? (isFetching ? t('fetching') : t('fetch_changes'))}"
+   ],
+   [
+    "                          ? 'Nothing to pull'",
+    "                          ? t('nothing_to_pull')"
+   ],
+   [
+    "                          : 'Pull changes')}",
+    "                          : t('pull_changes'))}"
+   ],
+   [
+    "                          ? 'Nothing to push'",
+    "                          ? t('nothing_to_push')"
+   ],
+   [
+    "                          : 'Push changes')}",
+    "                          : t('push_changes'))}"
+   ],
+   [
+    "                            ? 'Add Remote'",
+    "                            ? t('add_remote')"
+   ],
+   [
+    "                            : 'Publish'}",
+    "                            : t('publish_branch')}"
+   ]
+  ],
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/pr-section.tsx": [
+   [
+    "  label: 'No commits',",
+    "  label: t('no_commits'),"
+   ],
+   [
+    "    sectionLabel: showBranchCommits ? 'Branch Commits' : 'Pull Requests',",
+    "    sectionLabel: showBranchCommits ? t('branch_commits') : t('pull_requests'),"
+   ],
+   [
+    "    { id: 'create-pr', label: 'Create PR', action: () => onCreatePr?.() },",
+    "    { id: 'create-pr', label: t('create_pr'), action: () => onCreatePr?.() },"
+   ],
+   [
+    "    { id: 'create-draft-pr', label: 'Create draft PR', action: () => onCreateDraftPr?.() },",
+    "    { id: 'create-draft-pr', label: t('create_draft_pr'), action: () => onCreateDraftPr?.() },"
+   ],
+   [
+    "        toast.error('Failed to refresh pull requests', { description: message });",
+    "        toast.error(t('failed_refresh_pull_requests'), { description: message });"
+   ],
+   [
+    "      toast.error('Failed to refresh pull requests', {",
+    "      toast.error(t('failed_refresh_pull_requests'), {"
+   ],
+   [
+    "    ? 'Pull requests unavailable'",
+    "    ? t('pull_requests_unavailable')"
+   ],
+   [
+    "        ? 'A pull request is already open'",
+    "        ? t('pull_request_already_open')"
+   ],
+   [
+    "        : 'Create a pull request';",
+    "        : t('create_a_pull_request');"
+   ],
+   [
+    "              label=\"Pull request files\"",
+    "              label={t('pull_request_files')}"
+   ],
+   [
+    "            <Tooltip.Content>{hostActionReason ?? 'Refresh pull requests'}</Tooltip.Content>",
+    "            <Tooltip.Content>{hostActionReason ?? t('refresh_pull_requests')}</Tooltip.Content>"
+   ],
+   [
+    "          label=\"Repository details unavailable\"",
+    "          label={t('repository_details_unavailable')}"
+   ],
+   [
+    "          description=\"Provider repository data has not been observed for this Project yet.\"",
+    "          description={t('repo_data_not_observed')}"
+   ],
+   [
+    "          label=\"Pull requests unavailable\"",
+    "          label={t('pull_requests_unavailable')}"
+   ],
+   [
+    "          description=\"Pull requests are currently available only for configured GitHub remotes.\"",
+    "          description={t('pr_only_github_remotes')}"
+   ],
+   [
+    "          label=\"Pull requests unavailable\"",
+    "          label={t('pull_requests_unavailable')}"
+   ],
+   [
+    "          description=\"Pull request data has not been observed for this Project yet.\"",
+    "          description={t('pr_data_not_observed')}"
+   ],
+   [
+    "          label={syncError ? 'Could not load pull requests' : 'No pull requests'}",
+    "          label={syncError ? t('could_not_load_pull_requests') : t('no_pull_requests')}"
+   ]
+  ],
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/staged-section.tsx": [
+   [
+    "      label=\"Staged\"",
+    "      label={t('staged')}"
+   ],
+   [
+    "      actions={<ChangesViewModeToggle value={viewMode} onChange={setViewMode} label=\"Staged\" />}",
+    "      actions={<ChangesViewModeToggle value={viewMode} onChange={setViewMode} label={t('staged')} />}"
+   ],
+   [
+    "          label=\"Nothing staged\"",
+    "          label={t('nothing_staged')}"
+   ],
+   [
+    "          description=\"Stage files above to include them in a commit.\"",
+    "          description={t('stage_files_hint')}"
+   ],
+   [
+    "                title=\"Unstage selected files\"",
+    "                title={t('unstage_selected_files')}"
+   ],
+   [
+    "                Unstage",
+    "                {t('unstage')}"
+   ],
+   [
+    "                title=\"Unstage all files\"",
+    "                title={t('unstage_all_files')}"
+   ],
+   [
+    "                Unstage all",
+    "                {t('unstage_all')}"
+   ]
+  ],
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/unstaged-section.tsx": [
+   [
+    "      label=\"Changed\"",
+    "      label={t('changed')}"
+   ],
+   [
+    "      actions={<ChangesViewModeToggle value={viewMode} onChange={setViewMode} label=\"Changed\" />}",
+    "      actions={<ChangesViewModeToggle value={viewMode} onChange={setViewMode} label={t('changed')} />}"
+   ],
+   [
+    "        title: 'Discard Files Changes',",
+    "        title: t('discard_files_changes'),"
+   ],
+   [
+    "        title: 'Discard All Changes',",
+    "        title: t('discard_all_changes'),"
+   ],
+   [
+    "        <EmptyState label=\"Working tree clean\" description=\"No uncommitted file changes.\" />",
+    "        <EmptyState label={t('working_tree_clean')} description={t('no_uncommitted_changes')} />"
+   ],
+   [
+    "                title=\"Discard selected files\"",
+    "                title={t('discard_selected_files')}"
+   ],
+   [
+    "                Discard",
+    "                {t('discard')}"
+   ],
+   [
+    "                title=\"Stage selected files\"",
+    "                title={t('stage_selected_files')}"
+   ],
+   [
+    "                Stage",
+    "                {t('stage')}"
+   ],
+   [
+    "                title=\"Discard all changes\"",
+    "                title={t('discard_all_changes')}"
+   ],
+   [
+    "                Discard all",
+    "                {t('discard_all')}"
+   ],
+   [
+    "                title=\"Stage all changes\"",
+    "                title={t('stage_all_changes')}"
+   ],
+   [
+    "                Stage all",
+    "                {t('stage_all')}"
+   ]
+  ],
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/diff-tab-item.tsx": [
+   [
+    "  const fileName = resource.path.split('/').pop() ?? 'Untitled';",
+    "  const fileName = resource.path.split('/').pop() ?? t('untitled');"
+   ],
+   [
+    "  const fileName = resource.path.split('/').pop() ?? 'Untitled';",
+    "  const fileName = resource.path.split('/').pop() ?? t('untitled');"
+   ]
+  ],
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/diff-tab-provider.tsx": [
+   [
+    "      return '(Working Tree)';",
+    "      return t('diff_group_worktree');"
+   ],
+   [
+    "      return '(Index)';",
+    "      return t('diff_group_index');"
+   ]
+  ],
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/main-panel/diff-file-renderer.tsx": [
+   [
+    "        : 'Loading file...';",
+    "        : t('loading_file');"
+   ]
+  ],
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/main-panel/diff-toolbar.tsx": [
+   [
+    "    if (tab.diffGroup === 'staged') return 'Staged';",
+    "    if (tab.diffGroup === 'staged') return t('staged');"
+   ],
+   [
+    "    if (tab.diffGroup === 'disk') return 'Changed';",
+    "    if (tab.diffGroup === 'disk') return t('changed');"
+   ]
+  ],
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/main-panel/image-diff-view.tsx": [
+   [
+    "      return <div className=\"text-xs text-foreground-passive\">Loading…</div>;",
+    "      return <div className=\"text-xs text-foreground-passive\">{t('loading')}</div>;"
+   ],
+   [
+    "      <ImageSidePanel label=\"Original\" state={original} side=\"original\" />",
+    "      <ImageSidePanel label={t('original')} state={original} side=\"original\" />"
+   ],
+   [
+    "      <ImageSidePanel label=\"Modified\" state={modified} side=\"modified\" />",
+    "      <ImageSidePanel label={t('modified')} state={modified} side=\"modified\" />"
+   ]
+  ],
+  "apps/emdash-desktop/src/core/features/source-control/contributions/browser/changes-panel.tsx": [
+   [
+    "      toast('Git repository initialized');",
+    "      toast(t('git_repository_initialized'));"
+   ],
+   [
+    "          label=\"This folder is not a Git repository\"",
+    "          label={t('folder_not_git_repo')}"
+   ],
+   [
+    "          label=\"Git status unavailable\"",
+    "          label={t('git_status_unavailable')}"
+   ]
+  ],
+  "apps/emdash-desktop/src/core/features/tasks/browser/components/activity-badge.tsx": [
+   [
+    "        <span>Activity</span>",
+    "        <span>{t('activity')}</span>"
+   ]
+  ],
+  "apps/emdash-desktop/src/core/features/tasks/browser/task-titlebar.tsx": [
+   [
+    "              <Tooltip.Content>Link to issue</Tooltip.Content>",
+    "              <Tooltip.Content>{t('link_to_issue')}</Tooltip.Content>"
+   ],
+   [
+    "                            {isFetching ? 'Fetching...' : 'Fetch'}",
+    "                            {isFetching ? t('fetching') : 'Fetch'}"
+   ],
+   [
+    "                          {isFetching ? 'Fetching...' : 'Fetch changes'}",
+    "                          {isFetching ? t('fetching') : t('fetch_changes')}"
+   ],
+   [
+    "                              : 'Pull changes'}",
+    "                              : t('pull_changes')}"
+   ],
+   [
+    "                              : 'Push changes'}",
+    "                              : t('push_changes')}"
+   ],
+   [
+    "                          {isPublishing ? 'Publishing...' : 'Publish'}",
+    "                          {isPublishing ? 'Publishing...' : t('publish_branch')}"
+   ]
+  ]
+ }
+}
