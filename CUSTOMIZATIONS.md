@@ -190,3 +190,33 @@ Linux 绝对路径（第 10 节遗留）。
 `@renderer/orb/xiangwo-chat` 会撞 `emdash(core-host-boundaries)`（core 不许 import `@renderer/*`），
 所以要么在该文件里本地实现同一套解析+重试，要么把公共逻辑下沉到 core。
 
+---
+
+## 📒 新版流程：改完代码 → 标记 → 跑 `--gen` 更新台账（2026-09-30 起）
+
+本节只追加，不改上面别人的内容。**定制台账与检查器**（跟版时不用再靠记忆和人工 grep）：
+
+- **台账（机器生成，禁手改）**：`scripts/xg-custom/manifest.json` —— 每个定制文件：标记数 / 行号 /
+  **锚点指纹** / 内容 hash / 首次引入提交 / 最近变更提交 / 一句话说明。生成方式：`--gen`（幂等）。
+- **检查器**：`scripts/xg-custom/check.mjs`
+  ```bash
+  node scripts/xg-custom/check.mjs --gen          # 重新生成台账（改完代码/补完标记就跑它）
+  node scripts/xg-custom/check.mjs --check        # 漏标告警 + 台账时效 + 上游风险（有事项退出码 1）
+  node scripts/xg-custom/check.mjs --list         # 打印台账（按文件分组 + 行号 + 说明）
+  node scripts/xg-custom/check.mjs --after-merge  # 上游合并/rebase 之后跑：定制点丢了没有 + 从哪个提交捞回来
+  ```
+- **正本说明**：`scripts/xg-custom/README.md`（三件套为什么缺一不可、以标记为锚点/hash 只作辅助的取舍、
+  升级上游标准流程、已知历史欠账清单）；运维速查见工作区 `emdash-运行经验-OPS.md` §十二。
+
+**新版流程（写进日常习惯）**：
+
+1. 改 fork 代码时**一边改一边标** `[XG-CUSTOM]`（标记 + 一句话说明为什么改）—— 别攒着后面补；
+2. `node scripts/xg-custom/check.mjs --gen`（新文件入账、标记数更新）；
+3. `node scripts/xg-custom/check.mjs --check`（确认没有新漏标）；
+4. **台账跟代码一起提交**（`git add scripts/xg-custom/manifest.json`）—— 台账和代码分开提交，
+   下一次审计的基准就是错的。
+
+**已知历史欠账**（不阻塞，供分批补）：`--check` 目前报 🔴 8 处「已入账文件里的漏标」+ 🟠 67 个「未入账文件」
+（其中 65 个是中文化批处理时没打标记的组件，`import { t } from '@renderer/lib/i18n'` 是它们唯一的定制证据，
+现在靠 `scripts/xg-i18n/manifest.json` 行级对照表兜着）。补法：在中文化 import 那行补 `// [XG-CUSTOM]` → `--gen`。
+

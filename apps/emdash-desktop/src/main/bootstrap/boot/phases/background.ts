@@ -3,7 +3,7 @@ import { integrationsEvents } from '@core/features/integrations/node/event-host'
 import type { DesktopRuntimes } from '@main/gateway/desktop-runtimes';
 import { log } from '@main/lib/logger';
 import { runInBackground } from '../../core/background';
-import { autostartXiangwoOrb, startXiangwoBrowserRelay, startXiangwoCdpBridge } from '../wiring';
+import { autostartXiangwoOrb, startXiangwoBrowserRelay, startXiangwoCdpBridge } from '../wiring'; // [XG-CUSTOM]
 import { startMainDevPerfInstruments } from './dev-perf';
 import { startPerfVitalsTelemetry } from './perf-vitals';
 import type { ServicesBundle } from './services';

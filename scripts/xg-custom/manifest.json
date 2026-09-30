@@ -1,0 +1,2173 @@
+{
+  "schema": 1,
+  "tool": "scripts/xg-custom/check.mjs --gen",
+  "hint": "标记是锚点，hash 只作辅助：上游 rebase 后 hash/行号必变，判「定制还在不在」看 markers 与 anchors",
+  "upstream": {
+    "ref": "origin/main",
+    "base": "669a24fe673f4af1a507ddc33fc3f3ffe1039348"
+  },
+  "stats": {
+    "files": 108,
+    "markers": 447,
+    "newFiles": 50,
+    "modifiedFiles": 58
+  },
+  "files": {
+    "apps/emdash-desktop/electron-builder.config.ts": {
+      "markers": 2,
+      "lines": [
+        34,
+        126
+      ],
+      "anchors": [
+        "精确收集 emdash-desktop 的直接依赖（electron-builder 在 pnpm workspace 下",
+        "msi: {"
+      ],
+      "hash": "deea0c5636f4b6c2db00fe85ff8f28189a9f029f",
+      "origin": "modified",
+      "firstCommit": "32fb70f94|2026-09-18|fix: 去掉 win azureSignOptions（fork 无 Azure 凭据，签名卡 6h 超时），打 unsigned 包",
+      "lastCommit": "32fb70f94|2026-09-18|fix: 去掉 win azureSignOptions（fork 无 Azure 凭据，签名卡 6h 超时），打 unsigned 包",
+      "note": "打包定制（fork owner / 去签名 / 依赖收集）"
+    },
+    "apps/emdash-desktop/electron.vite.config.ts": {
+      "markers": 3,
+      "lines": [
+        64,
+        91,
+        113
+      ],
+      "anchors": [
+        "// 顶层 external 解析不到 → AppImage 报 Cannot find package 'zod'。bundle 进产物根治。 ⏎ exclude: [...workspacePackages, 'zod', 'electron-updater', 'human-id', 'nbranch'],",
+        "index: resolve('src/renderer/index.html'),"
+      ],
+      "hash": "4bbe5c6274ae78ef44cb919cbd30113e0dcfdb12",
+      "origin": "modified",
+      "firstCommit": "5e2ac9092|2026-09-27|feat: 交接台搜索/新建 + octokit 走 socks5 代理 + 打包依赖收集修复（files 全量收集根治缺包）",
+      "lastCommit": "5e2ac9092|2026-09-27|feat: 交接台搜索/新建 + octokit 走 socks5 代理 + 打包依赖收集修复（files 全量收集根治缺包）",
+      "note": "构建配置（别名 / 外置依赖）"
+    },
+    "apps/emdash-desktop/scripts/xiangwo-orb-chat-harness.mjs": {
+      "markers": 1,
+      "lines": [
+        2
+      ],
+      "anchors": [
+        "import { readFileSync } from 'node:fs';"
+      ],
+      "hash": "f2b496ae8aa000e8ae5e4aa03582aa2e740b1cd7",
+      "origin": "new",
+      "firstCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
+      "lastCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
+      "note": "验收 harness / 打包脚本（xg 定制）"
+    },
+    "apps/emdash-desktop/scripts/xiangwo-orb-images-harness.mjs": {
+      "markers": 1,
+      "lines": [
+        2
+      ],
+      "anchors": [
+        "项我球 **图片网格协议（xiangwo-images）** harness —— 渲染侧断言，跑的是**构建产物**（out/renderer）。"
+      ],
+      "hash": "475fd19d148654a3a49b6019da24d4ba411ac3e5",
+      "origin": "new",
+      "firstCommit": "55a583cd5|2026-09-30|[XG-CUSTOM] 项我球：xiangwo-images 图片网格（侧边 agent 真能发图）",
+      "lastCommit": "55a583cd5|2026-09-30|[XG-CUSTOM] 项我球：xiangwo-images 图片网格（侧边 agent 真能发图）",
+      "note": "验收 harness / 打包脚本（xg 定制）"
+    },
+    "apps/emdash-desktop/scripts/xiangwo-orb-images-realcheck.py": {
+      "markers": 1,
+      "lines": [
+        2
+      ],
+      "anchors": [
+        "真机验证：拿**构建产物**（out/renderer/orb）+ **真实 8901 agent（新代码）**"
+      ],
+      "hash": "70f831af3dbc540de12db2abe9125414ac4ebfb1",
+      "origin": "new",
+      "firstCommit": "55a583cd5|2026-09-30|[XG-CUSTOM] 项我球：xiangwo-images 图片网格（侧边 agent 真能发图）",
+      "lastCommit": "55a583cd5|2026-09-30|[XG-CUSTOM] 项我球：xiangwo-images 图片网格（侧边 agent 真能发图）",
+      "note": "验收 harness / 打包脚本（xg 定制）"
+    },
+    "apps/emdash-desktop/src/core/features/agents/api/browser/components/agent-selector/use-agent-availability.ts": {
+      "markers": 1,
+      "lines": [
+        25
+      ],
+      "anchors": [
+        "const isRemote = Boolean(connectionId);"
+      ],
+      "hash": "c93d668c53f02cf64ef0f0670217ec8e58491135",
+      "origin": "modified",
+      "firstCommit": "a023bd16a|2026-09-20|fix: SSH 远程项目「创建任务」下拉 bot 全灰（hostDependency 检测不支持远程，远程场景跳过检测视为可用）",
+      "lastCommit": "a023bd16a|2026-09-20|fix: SSH 远程项目「创建任务」下拉 bot 全灰（hostDependency 检测不支持远程，远程场景跳过检测视为可用）",
+      "note": "远程场景 bot 可用性（跳过 hostDependency）"
+    },
+    "apps/emdash-desktop/src/core/features/conversations/browser/acp/acp-chat-panel.tsx": {
+      "markers": 14,
+      "lines": [
+        16,
+        18,
+        57,
+        61,
+        81,
+        259,
+        311,
+        316,
+        508,
+        517,
+        659,
+        777,
+        887,
+        1027
+      ],
+      "anchors": [
+        "import { XIANGWO_BOTS, XIANGWO_ROLES, XIANGWO_SUBAGENTS } from './xiangwo-experts';",
+        "import { projectViewDef } from '@core/features/projects/contributions/views';",
+        "import type { ExpertHandoffTopic } from '@core/primitives/desktop-host/api/host-contract';",
+        "import { openExternal } from '@core/primitives/desktop-host/browser/host-client';",
+        "const XIANGWO_PROJECT_BY_KEY: Record<string, string> = {};",
+        "const { navigate } = useNavigate();",
+        "const mentionMatch = value.match(/@([a-zA-Z0-9_-]+|[\\u4e00-\\u9fff]+)/);",
+        "const isBigBot = XIANGWO_BOTS.some((b) => b.id === token || b.name === token);",
+        "const curProvId =",
+        "const q = query.trim();",
+        "const curProviderId =",
+        "{/* <ExpertHandoffBar bot=\"\" session=\"\" /> */} ⏎ </div>",
+        "const handoffHandledRef = useRef<string | null>(null);",
+        "<ChatTranscript"
+      ],
+      "hash": "310b12fcc7f60063a23e052e1c4a7829cc440cc1",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "会话/ACP 定制（专家交接横条、专家表）"
+    },
+    "apps/emdash-desktop/src/core/features/conversations/browser/acp/acp-chat-registry.ts": {
+      "markers": 1,
+      "lines": [
+        41
+      ],
+      "anchors": [
+        "listAll(): Array<{ taskId: string; conversationId: string; store: AcpChatStore }> {"
+      ],
+      "hash": "eab0b01c164800033e63bb3a39973e0050464cf2",
+      "origin": "modified",
+      "firstCommit": "67ccd329e|2026-09-22|feat: 专家交接台升级（wire RPC 修复 + bot/专家二级分组 + 并入对话 Sheet + 横条关闭）",
+      "lastCommit": "67ccd329e|2026-09-22|feat: 专家交接台升级（wire RPC 修复 + bot/专家二级分组 + 并入对话 Sheet + 横条关闭）",
+      "note": "会话/ACP 定制（专家交接横条、专家表）"
+    },
+    "apps/emdash-desktop/src/core/features/conversations/browser/acp/acp-chat-resource-manager.ts": {
+      "markers": 2,
+      "lines": [
+        52,
+        105
+      ],
+      "anchors": [
+        "listEntries(): Array<{ conversationId: string; projectId: string; store: AcpChatStore }> {",
+        "export function listAllAcpChats(): Array<{"
+      ],
+      "hash": "fdc49c3aaf5c4c19feb7a75a330cd925cfec3435",
+      "origin": "modified",
+      "firstCommit": "67ccd329e|2026-09-22|feat: 专家交接台升级（wire RPC 修复 + bot/专家二级分组 + 并入对话 Sheet + 横条关闭）",
+      "lastCommit": "67ccd329e|2026-09-22|feat: 专家交接台升级（wire RPC 修复 + bot/专家二级分组 + 并入对话 Sheet + 横条关闭）",
+      "note": "会话/ACP 定制（专家交接横条、专家表）"
+    },
+    "apps/emdash-desktop/src/core/features/conversations/browser/acp/acp-chat-store.ts": {
+      "markers": 1,
+      "lines": [
+        571
+      ],
+      "anchors": [
+        "const detail = (() => {"
+      ],
+      "hash": "89ceb05bf2e9841f3b47631b554335f1dfc0ad65",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "会话/ACP 定制（专家交接横条、专家表）"
+    },
+    "apps/emdash-desktop/src/core/features/conversations/browser/acp/expert-handoff-bar.tsx": {
+      "markers": 1,
+      "lines": [
+        10
+      ],
+      "anchors": [
+        "export function ExpertHandoffBar({ bot, session }: { bot: string; session: string }) {"
+      ],
+      "hash": "b365a4897d99956c8a6c15a9488558013a8ead8a",
+      "origin": "new",
+      "firstCommit": "3a3aa7b4a|2026-09-22|feat: 专家交接台横条（聊天输入框下方 MCP 卡片样式，接下/删除 + list 桥接）",
+      "lastCommit": "3a3aa7b4a|2026-09-22|feat: 专家交接台横条（聊天输入框下方 MCP 卡片样式，接下/删除 + list 桥接）",
+      "note": "会话/ACP 定制（专家交接横条、专家表）"
+    },
+    "apps/emdash-desktop/src/core/features/conversations/browser/acp/xiangwo-experts.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "export type XiangwoMentionItem = { id: string; name: string; bot: string };"
+      ],
+      "hash": "0d93e03f6f5b79c91e726dbf29f79ca1ed79e353",
+      "origin": "new",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "会话/ACP 定制（专家交接横条、专家表）"
+    },
+    "apps/emdash-desktop/src/core/features/conversations/browser/expert-handoff-modal.tsx": {
+      "markers": 1,
+      "lines": [
+        12
+      ],
+      "anchors": [
+        "export const ExpertHandoffModal = observer(function ExpertHandoffModal({"
+      ],
+      "hash": "baf54616df7775c4a0e1f60655062db4c1098d41",
+      "origin": "new",
+      "firstCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",
+      "lastCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",
+      "note": "会话/ACP 定制（专家交接横条、专家表）"
+    },
+    "apps/emdash-desktop/src/core/features/conversations/contributions/browser.ts": {
+      "markers": 1,
+      "lines": [
+        2
+      ],
+      "anchors": [
+        "import { expertHandoffModal } from '../browser/expert-handoff-modal';"
+      ],
+      "hash": "a07f08cab6c2b983b9643951b0ec5548f78070a8",
+      "origin": "modified",
+      "firstCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",
+      "lastCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",
+      "note": "会话/ACP 定制（专家交接横条、专家表）"
+    },
+    "apps/emdash-desktop/src/core/features/github/node/services/octokit-provider.ts": {
+      "markers": 2,
+      "lines": [
+        4,
+        40
+      ],
+      "anchors": [
+        "import { SocksProxyAgent } from 'socks-proxy-agent';",
+        "const proxyUrl = process.env.XIANGWO_GITHUB_PROXY || process.env.XIANGWO_BROWSER_PROXY;"
+      ],
+      "hash": "652b52eb96bdec2acce5b4e7e79a70466d874392",
+      "origin": "modified",
+      "firstCommit": "5e2ac9092|2026-09-27|feat: 交接台搜索/新建 + octokit 走 socks5 代理 + 打包依赖收集修复（files 全量收集根治缺包）",
+      "lastCommit": "5e2ac9092|2026-09-27|feat: 交接台搜索/新建 + octokit 走 socks5 代理 + 打包依赖收集修复（files 全量收集根治缺包）",
+      "note": "octokit GitHub API 走 socks5 代理"
+    },
+    "apps/emdash-desktop/src/core/features/handoff/browser/handoff-view.tsx": {
+      "markers": 2,
+      "lines": [
+        1,
+        275
+      ],
+      "anchors": [
+        "// 数据走 host 桥接 → python3 expert_handoff.py list/accept/delete/add（与 agent.py 后端共 ⏎ import {",
+        "<Sheet.Root open={showNew} onOpenChange={(open) => !open && setShowNew(false)}>"
+      ],
+      "hash": "8f2a5f4fc70a06a2bff9c3eb9c84464451b6468a",
+      "origin": "new",
+      "firstCommit": "bd2b9657e|2026-09-22|feat: 专家交接台侧边栏导航（handoff view + list 桥接，list 空待后续定位）",
+      "lastCommit": "bd2b9657e|2026-09-22|feat: 专家交接台侧边栏导航（handoff view + list 桥接，list 空待后续定位）",
+      "note": "专家交接台 feature"
+    },
+    "apps/emdash-desktop/src/core/features/handoff/contributions/browser.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { handoffViewRuntime } from '../browser/handoff-view';"
+      ],
+      "hash": "434a5855542dc2e2710d1736e91f429f95f83ee4",
+      "origin": "new",
+      "firstCommit": "bd2b9657e|2026-09-22|feat: 专家交接台侧边栏导航（handoff view + list 桥接，list 空待后续定位）",
+      "lastCommit": "bd2b9657e|2026-09-22|feat: 专家交接台侧边栏导航（handoff view + list 桥接，list 空待后续定位）",
+      "note": "专家交接台 feature"
+    },
+    "apps/emdash-desktop/src/core/features/handoff/contributions/views.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { z } from 'zod';"
+      ],
+      "hash": "e1c251834a8b809d10f3bdfbf76c60ab2051b36c",
+      "origin": "new",
+      "firstCommit": "bd2b9657e|2026-09-22|feat: 专家交接台侧边栏导航（handoff view + list 桥接，list 空待后续定位）",
+      "lastCommit": "bd2b9657e|2026-09-22|feat: 专家交接台侧边栏导航（handoff view + list 桥接，list 空待后续定位）",
+      "note": "专家交接台 feature"
+    },
+    "apps/emdash-desktop/src/core/features/settings/browser/components/IntegrationsCard.tsx": {
+      "markers": 4,
+      "lines": [
+        1,
+        9,
+        116,
+        130
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';",
+        "import { openOpenViking, openT8, openWeKnora } from '@core/primitives/desktop-host/browser/host-client';",
+        "<IntegrationSection title=\"本地工具\">",
+        "{/* [XG-CUSTOM] OpenViking 本地工具卡片 */} ⏎ <button"
+      ],
+      "hash": "d3441a62bd34d2877d1f60043ee7e9e6d0160a18",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
+    },
+    "apps/emdash-desktop/src/core/features/skills/browser/components/SkillsList.tsx": {
+      "markers": 2,
+      "lines": [
+        7,
+        54
+      ],
+      "anchors": [
+        "import { SKILL_CATEGORY } from './skill-categories';",
+        "const groupedRecommended = (() => {"
+      ],
+      "hash": "f542f2970328cf5a8296549f8ef4585c756e2f9f",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "技能库定制（多来源/分类）"
+    },
+    "apps/emdash-desktop/src/core/features/skills/browser/components/skill-categories.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "export const SKILL_CATEGORY: Record<string, string> = {"
+      ],
+      "hash": "00fbbb91261a762dfb746c9726c22e789c9cdb95",
+      "origin": "new",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "技能库定制（多来源/分类）"
+    },
+    "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/action-card.tsx": {
+      "markers": 1,
+      "lines": [
+        4
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "47a6bcc58d3c25633cdcd55a98c3dbfd2d6e0675",
+      "origin": "modified",
+      "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
+    },
+    "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/commit-card.tsx": {
+      "markers": 1,
+      "lines": [
+        19
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "2d089b312b796e9dd48b2fcf9187ace1d6330526",
+      "origin": "modified",
+      "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
+    },
+    "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/checks-list.tsx": {
+      "markers": 1,
+      "lines": [
+        21
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "2ba81eeb8e6671c9092af9aeb477f2df23528d5a",
+      "origin": "modified",
+      "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
+    },
+    "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/comments-list.tsx": {
+      "markers": 1,
+      "lines": [
+        8
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "0580590e67895967562ba2290c4b3e8de09799a9",
+      "origin": "modified",
+      "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
+    },
+    "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/commits-list.tsx": {
+      "markers": 1,
+      "lines": [
+        20
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "3428157a0c7cf4c7d71a6cba574e048b9a28e726",
+      "origin": "modified",
+      "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
+    },
+    "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/create-pr-modal.tsx": {
+      "markers": 1,
+      "lines": [
+        39
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "4e4a028b73a919644ba845540efd0e56bed9b735",
+      "origin": "modified",
+      "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
+    },
+    "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/merge-footer.tsx": {
+      "markers": 1,
+      "lines": [
+        14
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "cbd137c987a7c57607b192fd9b987a0e31aa8fbf",
+      "origin": "modified",
+      "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
+    },
+    "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/git-status-section.tsx": {
+      "markers": 1,
+      "lines": [
+        17
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "14b9ffa6ead988a39e69450e28239d1620503fcd",
+      "origin": "modified",
+      "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
+    },
+    "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/pr-section.tsx": {
+      "markers": 1,
+      "lines": [
+        30
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "f39e9f1412135f59d77c48c42ecc8f85a0a89161",
+      "origin": "modified",
+      "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
+    },
+    "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/staged-section.tsx": {
+      "markers": 1,
+      "lines": [
+        22
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "d24759dfc00ad2ae7f5f80be43572f60525cff91",
+      "origin": "modified",
+      "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
+    },
+    "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/unstaged-section.tsx": {
+      "markers": 1,
+      "lines": [
+        23
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "8c7615cca6eeec309ebdc97f524a71cee8aa155c",
+      "origin": "modified",
+      "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
+    },
+    "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/diff-tab-item.tsx": {
+      "markers": 1,
+      "lines": [
+        14
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "1fd84e2c021a688fc94d696b5a84a9607d2770a1",
+      "origin": "modified",
+      "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
+    },
+    "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/diff-tab-provider.tsx": {
+      "markers": 1,
+      "lines": [
+        18
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "b6e4026d95258eb6dd81afeb6707fd376e01b4a3",
+      "origin": "modified",
+      "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
+    },
+    "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/main-panel/diff-file-renderer.tsx": {
+      "markers": 1,
+      "lines": [
+        38
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "1b3494ba39c597c58f8bdecf74d6575030bb33d0",
+      "origin": "modified",
+      "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
+    },
+    "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/main-panel/diff-toolbar.tsx": {
+      "markers": 1,
+      "lines": [
+        6
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "092cf7ff7a573cff053f87281cd2b88e17e82553",
+      "origin": "modified",
+      "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
+    },
+    "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/main-panel/image-diff-view.tsx": {
+      "markers": 1,
+      "lines": [
+        19
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "726bbbbdd0225b75777a83872bfda66264dffb28",
+      "origin": "modified",
+      "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
+    },
+    "apps/emdash-desktop/src/core/features/source-control/contributions/browser/changes-panel.tsx": {
+      "markers": 1,
+      "lines": [
+        44
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "d3f3f5a85d2f0ab17ce1480f984a14e11d71bdca",
+      "origin": "modified",
+      "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
+    },
+    "apps/emdash-desktop/src/core/features/tasks/browser/components/activity-badge.tsx": {
+      "markers": 1,
+      "lines": [
+        25
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "f1bc6a5b0facd6f601122a17c02613e870bf33d6",
+      "origin": "modified",
+      "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "note": "中文化（任务界面）"
+    },
+    "apps/emdash-desktop/src/core/features/tasks/browser/context-bar/prompt-actions-menu.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "a33d54a3b1143672978b524de3a9e6853050f9d8",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化（任务界面）"
+    },
+    "apps/emdash-desktop/src/core/features/tasks/browser/create-task-modal/create-task-modal.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "efb6a106602b687e5c4f050567b29f54eb30b555",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化（任务界面）"
+    },
+    "apps/emdash-desktop/src/core/features/tasks/browser/create-task-modal/task-name-field.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "5d5d4b746fd550ca7456713e958f7f6c3c5af8c4",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化（任务界面）"
+    },
+    "apps/emdash-desktop/src/core/features/tasks/browser/main-panel.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "f48a534d875a79f4195a05a5b19617af368091f0",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化（任务界面）"
+    },
+    "apps/emdash-desktop/src/core/features/tasks/browser/rename-task-modal.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "fabeed0c7c0ce550e6cfdd325c0b435269f35f43",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化（任务界面）"
+    },
+    "apps/emdash-desktop/src/core/features/tasks/browser/task-titlebar.tsx": {
+      "markers": 1,
+      "lines": [
+        58
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "81e3d999c8977bf64b15797c6517190e721f70bf",
+      "origin": "modified",
+      "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化（任务界面）"
+    },
+    "apps/emdash-desktop/src/core/features/workbench/browser/home-view.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "dbf0ad0a53bdfbfb455a7d7f9326dc713c9aab92",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 项我入口（侧边栏/home）"
+    },
+    "apps/emdash-desktop/src/core/features/workbench/browser/sidebar/left-sidebar.tsx": {
+      "markers": 2,
+      "lines": [
+        3,
+        39
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';",
+        "const openXiangwoMain = async () => {"
+      ],
+      "hash": "1ed49e0cfc851a2a4188b4c47792632e7d7fc63f",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 项我入口（侧边栏/home）"
+    },
+    "apps/emdash-desktop/src/core/features/workbench/browser/sidebar/projects-group-label.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "91039d9dfc6dc5c42f129a4ccac6afd7a4bed347",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 项我入口（侧边栏/home）"
+    },
+    "apps/emdash-desktop/src/core/features/workbench/browser/sidebar/sidebar-search-trigger.tsx": {
+      "markers": 1,
+      "lines": [
+        13
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "cdac97bd5c9c15969c304fbbea33fde0e1dd6e53",
+      "origin": "modified",
+      "firstCommit": "2719dab0d|2026-09-29|[XG-CUSTOM] 侧边栏 Search… 中文化 + 还原器加对照表结构自检",
+      "lastCommit": "2719dab0d|2026-09-29|[XG-CUSTOM] 侧边栏 Search… 中文化 + 还原器加对照表结构自检",
+      "note": "中文化 + 项我入口（侧边栏/home）"
+    },
+    "apps/emdash-desktop/src/core/features/workspaces/contributions/browser/workspace-detail-page.tsx": {
+      "markers": 1,
+      "lines": [
+        292
+      ],
+      "anchors": [
+        "void openTask({ projectId: item.row.projectId, initialWorkspaceId: workspaceId });"
+      ],
+      "hash": "07e2a6c0baca2e78f1a580332f224eb9662e2eb7",
+      "origin": "modified",
+      "firstCommit": "b49be18c5|2026-09-26|chore: 补 [XG-CUSTOM] 标记（telemetry/tsconfig/window/workspace-detail）",
+      "lastCommit": "9df75ff09|2026-09-26|merge: 官方升级 1.2.6 + 适配 xiangwo 定制（acp重构/附件API/i18n去重/插件websiteUrl/tsconfig别名）",
+      "note": "workspace detail 定制（原生化）"
+    },
+    "apps/emdash-desktop/src/core/features/xiangwo/browser/xiangwo-view.tsx": {
+      "markers": 5,
+      "lines": [
+        1,
+        9,
+        14,
+        32,
+        188
+      ],
+      "anchors": [
+        "import { Fragment, useRef, useState } from 'react';",
+        "import { openExternal } from '@core/primitives/desktop-host/browser/host-client';",
+        "function splitUrls(text: string): { type: 'text' | 'url'; value: string }[] {",
+        "function renderText(text: string) {",
+        "<select"
+      ],
+      "hash": "79f357a2e0c29e6395eac9665c36433651785f87",
+      "origin": "new",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "项我主对话 feature（8900 聊天）"
+    },
+    "apps/emdash-desktop/src/core/features/xiangwo/contributions/browser.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { xiangwoViewRuntime } from '../browser/xiangwo-view';"
+      ],
+      "hash": "0ab31d86751e821eb956ecfd9aae09ce444b8450",
+      "origin": "new",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "项我主对话 feature（8900 聊天）"
+    },
+    "apps/emdash-desktop/src/core/features/xiangwo/contributions/views.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { z } from 'zod';"
+      ],
+      "hash": "f73758f32f4c80b84441b436eea2a09cc0e4d4fa",
+      "origin": "new",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "项我主对话 feature（8900 聊天）"
+    },
+    "apps/emdash-desktop/src/core/manifests/browser/view-catalog.ts": {
+      "markers": 2,
+      "lines": [
+        6,
+        11
+      ],
+      "anchors": [
+        "import { xiangwoViewDef } from '@core/features/xiangwo/contributions/views';",
+        "] as const);"
+      ],
+      "hash": "0437a4098ea1caee0a33bad775a0f67dc8f762f3",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "浏览器 manifest 注册（xiangwo/handoff 视图）"
+    },
+    "apps/emdash-desktop/src/core/primitives/desktop-host/api/host-contract.ts": {
+      "markers": 4,
+      "lines": [
+        66,
+        102,
+        111,
+        124
+      ],
+      "anchors": [
+        "export interface ExpertHandoffTopic {",
+        "openOpenViking: procedure({",
+        "expertHandoffByExpert: procedure({",
+        "expertHandoffAdd: procedure({"
+      ],
+      "hash": "b033464494cba1c943512b0512051b125fc1171e",
+      "origin": "modified",
+      "firstCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "desktop-host 契约扩展（宿主新增 API）"
+    },
+    "apps/emdash-desktop/src/core/primitives/desktop-host/browser/host-client.ts": {
+      "markers": 3,
+      "lines": [
+        24,
+        34,
+        47
+      ],
+      "anchors": [
+        "export async function openOpenViking() {",
+        "export async function expertHandoffByExpert(expert: string) {",
+        "export async function expertHandoffAdd(bot: string, expert: string, title: string, summary: string, session: string, context: string) {"
+      ],
+      "hash": "3da799a6eaf95e780e5a5d16929a3651ad1ff836",
+      "origin": "modified",
+      "firstCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "desktop-host 契约扩展（宿主新增 API）"
+    },
+    "apps/emdash-desktop/src/core/primitives/telemetry/api/telemetry.ts": {
+      "markers": 2,
+      "lines": [
+        18,
+        69
+      ],
+      "anchors": [
+        "export type FocusView = 'home' | 'project' | 'task' | 'settings' | 'automations' | 'xiangwo';",
+        "xiangwo_viewed: { from_view: FocusView | null };"
+      ],
+      "hash": "2c99fe1b85b9010e61b323f3fd93218ed35692e4",
+      "origin": "modified",
+      "firstCommit": "b49be18c5|2026-09-26|chore: 补 [XG-CUSTOM] 标记（telemetry/tsconfig/window/workspace-detail）",
+      "lastCommit": "9df75ff09|2026-09-26|merge: 官方升级 1.2.6 + 适配 xiangwo 定制（acp重构/附件API/i18n去重/插件websiteUrl/tsconfig别名）",
+      "note": "遥测默认关闭"
+    },
+    "apps/emdash-desktop/src/entry/preload.ts": {
+      "markers": 8,
+      "lines": [
+        35,
+        37,
+        42,
+        44,
+        54,
+        58,
+        77,
+        82
+      ],
+      "anchors": [
+        "captureCurrentTab: () => ipcRenderer.invoke('xiangwo:capture-current-tab'),",
+        "xiangwoPages: () => ipcRenderer.invoke('xiangwo:pages'),",
+        "isXiangwoFloating: process.argv.includes('--xiangwo-floating'),",
+        "isXiangwoOrb: process.argv.includes('--xiangwo-orb'),",
+        "orbApi: (method: string, args?: unknown) => ipcRenderer.invoke('xiangwo:orb-api', method, args),",
+        "callback: (",
+        "taskSpaceList: () => ipcRenderer.invoke('xiangwo:task-space-list'),",
+        "resolveXiangwoChatUrl: () => ipcRenderer.invoke('xiangwo:resolve-chat-url'),"
+      ],
+      "hash": "3cb03afcf1ed6592022a790ba821e992c95b9fc3",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "preload 桥（xiangwo 相关 API）"
+    },
+    "apps/emdash-desktop/src/main/bootstrap/boot/phases/background.ts": {
+      "markers": 4,
+      "lines": [
+        6,
+        60,
+        65,
+        69
+      ],
+      "anchors": [
+        "import { autostartXiangwoOrb, startXiangwoBrowserRelay, startXiangwoCdpBridge } from '../wiring';",
+        "autostartXiangwoOrb();",
+        "startXiangwoCdpBridge();",
+        "startXiangwoBrowserRelay();"
+      ],
+      "hash": "7182a215702d129317b60420ed6f8d0184c3da14",
+      "origin": "modified",
+      "firstCommit": "6f7b6ca9b|2026-09-29|[XG-CUSTOM] 项我球（orb）：从开源 deepseek-harness-orb 移植球壳 + 接 emdash 后端",
+      "lastCommit": "6f7b6ca9b|2026-09-29|[XG-CUSTOM] 项我球（orb）：从开源 deepseek-harness-orb 移植球壳 + 接 emdash 后端",
+      "note": "启动装配（注入 xiangwo 依赖 / 后台服务）"
+    },
+    "apps/emdash-desktop/src/main/bootstrap/boot/phases/services.ts": {
+      "markers": 4,
+      "lines": [
+        153,
+        348,
+        366,
+        380
+      ],
+      "anchors": [
+        "import { applyNativeTheme, isAppFocused, registerXiangwoChatTarget } from '@main/host/window';",
+        "const forwardManualPreview = async (remotePort: number): Promise<string | null> => {",
+        "const firstRemoteHost = (): { connectionId: string; host: string } | undefined => {",
+        "log.warn('"
+      ],
+      "hash": "7518e782971457525fdcbf5cbd4fb02d49ee744a",
+      "origin": "modified",
+      "firstCommit": "d7996e9ec|2026-09-19|fix(integrations): WeKnora/T8 窗口走 SSH 端口转发，修 Windows 远程项目打不开",
+      "lastCommit": "d7996e9ec|2026-09-19|fix(integrations): WeKnora/T8 窗口走 SSH 端口转发，修 Windows 远程项目打不开",
+      "note": "启动装配（注入 xiangwo 依赖 / 后台服务）"
+    },
+    "apps/emdash-desktop/src/main/bootstrap/boot/wiring.ts": {
+      "markers": 15,
+      "lines": [
+        20,
+        33,
+        62,
+        72,
+        78,
+        80,
+        86,
+        105,
+        116,
+        125,
+        143,
+        146,
+        197,
+        208,
+        213
+      ],
+      "anchors": [
+        "import { XiangwoCdpBridge } from '@main/host/browser/xiangwo-cdp-bridge';",
+        "import { applyNativeTheme, createOpenVikingWindow, createT8Window, createWeKnoraWindow, createXiangwoFloatingWindow, ensureChromeRunning, expertHandoffCall } from '@main/host/window';",
+        "export function autostartXiangwoOrb(delayMs = 1500): void {",
+        "log.info('",
+        "log.warn('",
+        "内嵌浏览器 CDP 桥（agent.py 第②级「iframe 合流」的通道）。",
+        "log: (message, metadata) => log.info(`",
+        "export function startXiangwoBrowserRelay(): void {",
+        "if (relay === null) {",
+        "openOpenViking: async () => {",
+        "expertHandoffByExpert: ({ expert }) => expertHandoffCall('by-expert', expert),",
+        "expertHandoffAdd: ({ bot, expert, title, summary, session, context }) => expertHandoffCall('add', bot, expert, title, summary, session, context),"
+      ],
+      "hash": "7dbff9ebd3e780a466a18f21d4de8fb23bda8b60",
+      "origin": "modified",
+      "firstCommit": "67ccd329e|2026-09-22|feat: 专家交接台升级（wire RPC 修复 + bot/专家二级分组 + 并入对话 Sheet + 横条关闭）",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "启动装配（注入 xiangwo 依赖 / 后台服务）"
+    },
+    "apps/emdash-desktop/src/main/gateway/runtime-broker.ts": {
+      "markers": 1,
+      "lines": [
+        44
+      ],
+      "anchors": [
+        "const connection = await current.runtime.client();"
+      ],
+      "hash": "b6bc592094df5aa62b4dbf4d213513b9aa14c0d5",
+      "origin": "modified",
+      "firstCommit": "2cdb9136d|2026-09-22|fix: 远程 runtime 首次获取 client 等待就绪（高延迟 SSH 下避免立即抛 runtime-unavailable）",
+      "lastCommit": "2cdb9136d|2026-09-22|fix: 远程 runtime 首次获取 client 等待就绪（高延迟 SSH 下避免立即抛 runtime-unavailable）",
+      "note": "gateway 定制（runtime broker / acp 入口）"
+    },
+    "apps/emdash-desktop/src/main/host/browser/browser-profile-session.ts": {
+      "markers": 2,
+      "lines": [
+        16,
+        46
+      ],
+      "anchors": [
+        "import { resolveXiangwoBrowserProxy } from './xiangwo-browser-proxy';",
+        "const browserProxy = resolveXiangwoBrowserProxy({"
+      ],
+      "hash": "88ae6b8318c327cf77d8ba81508a6c4d36abb811",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
+    },
+    "apps/emdash-desktop/src/main/host/browser/browser-webcontents-registry.ts": {
+      "markers": 1,
+      "lines": [
+        161
+      ],
+      "anchors": [
+        "listBoundBrowsers(): Array<{ browserId: string; webContents: WebContents }> {"
+      ],
+      "hash": "8c4971832683990d8fe30038f5657d3887847c2c",
+      "origin": "modified",
+      "firstCommit": "f1dbc7f61|2026-09-30|[XG-CUSTOM] 内嵌浏览器 9223 CDP 桥 + 项我球「网页 N」计数与一键清理",
+      "lastCommit": "f1dbc7f61|2026-09-30|[XG-CUSTOM] 内嵌浏览器 9223 CDP 桥 + 项我球「网页 N」计数与一键清理",
+      "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
+    },
+    "apps/emdash-desktop/src/main/host/browser/xiangwo-browser-proxy.test.ts": {
+      "markers": 1,
+      "lines": [
+        13
+      ],
+      "anchors": [
+        "describe('"
+      ],
+      "hash": "a562d092230a462a185404b9b970983944f5d411",
+      "origin": "new",
+      "firstCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
+      "lastCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
+      "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
+    },
+    "apps/emdash-desktop/src/main/host/browser/xiangwo-browser-proxy.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "内嵌浏览器（per-profile session）的 socks5 代理解析。"
+      ],
+      "hash": "e15c249e2caa72d7cf91060310690227146275c0",
+      "origin": "new",
+      "firstCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
+      "lastCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
+      "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
+    },
+    "apps/emdash-desktop/src/main/host/browser/xiangwo-browser-relay.test.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { describe, expect, it, vi } from 'vitest';"
+      ],
+      "hash": "68531c451d89891b4a058bc0d9c9f43c69b2e3ee",
+      "origin": "new",
+      "firstCommit": "a5fa00d73|2026-09-30|[XG-CUSTOM] 内嵌浏览器反向命令通道（出站 only，抄 HippoBuddy 机制）",
+      "lastCommit": "a5fa00d73|2026-09-30|[XG-CUSTOM] 内嵌浏览器反向命令通道（出站 only，抄 HippoBuddy 机制）",
+      "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
+    },
+    "apps/emdash-desktop/src/main/host/browser/xiangwo-browser-relay.ts": {
+      "markers": 7,
+      "lines": [
+        1,
+        37,
+        39,
+        41,
+        133,
+        155,
+        633
+      ],
+      "anchors": [
+        "内嵌浏览器「反向命令通道」客户端（Windows/Linux 都跑，出站 only）。",
+        "export const XIANGWO_RELAY_LOCAL_CDP_BASE = 'http://127.0.0.1:9223';",
+        "export const XIANGWO_RELAY_DEFAULT_WAIT_SECONDS = 25;",
+        "const BACKOFF_STEPS_MS = [1000, 2000, 5000, 15000];",
+        "export function isLocalAgentBase(baseUrl: string): boolean {",
+        "export class XiangwoBrowserRelay {",
+        "export function createXiangwoBrowserRelay("
+      ],
+      "hash": "746a29b2f7a24a035fdb7ac9b2565d68d26caef2",
+      "origin": "new",
+      "firstCommit": "a5fa00d73|2026-09-30|[XG-CUSTOM] 内嵌浏览器反向命令通道（出站 only，抄 HippoBuddy 机制）",
+      "lastCommit": "a5fa00d73|2026-09-30|[XG-CUSTOM] 内嵌浏览器反向命令通道（出站 only，抄 HippoBuddy 机制）",
+      "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
+    },
+    "apps/emdash-desktop/src/main/host/browser/xiangwo-cdp-bridge.test.ts": {
+      "markers": 7,
+      "lines": [
+        1,
+        228,
+        480,
+        515,
+        606,
+        610,
+        683
+      ],
+      "anchors": [
+        "import { networkInterfaces as osNetworkInterfaces, type NetworkInterfaceInfo } from 'node:os';",
+        "describe('",
+        "function iface(address: string, internal = false, netmask = '255.255.255.0'): NetworkInterfaceInfo {",
+        "const WINDOWS_INTERFACES: XiangwoCdpNetworkInterfaces = {"
+      ],
+      "hash": "924e6bb5b16a345fe3b8f7b31c827aba18042529",
+      "origin": "new",
+      "firstCommit": "f1dbc7f61|2026-09-30|[XG-CUSTOM] 内嵌浏览器 9223 CDP 桥 + 项我球「网页 N」计数与一键清理",
+      "lastCommit": "f1dbc7f61|2026-09-30|[XG-CUSTOM] 内嵌浏览器 9223 CDP 桥 + 项我球「网页 N」计数与一键清理",
+      "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
+    },
+    "apps/emdash-desktop/src/main/host/browser/xiangwo-cdp-bridge.ts": {
+      "markers": 13,
+      "lines": [
+        1,
+        53,
+        56,
+        121,
+        125,
+        127,
+        130,
+        177,
+        302,
+        303,
+        385,
+        453,
+        1088
+      ],
+      "anchors": [
+        "内嵌浏览器 CDP 桥：把 emdash 的 `<webview>` 内嵌浏览器以标准 Chrome DevTools",
+        "export const XIANGWO_CDP_DEFAULT_PORT = 9223;",
+        "export const XIANGWO_CDP_HOST = '127.0.0.1';",
+        "bind?: XiangwoCdpBindMode;",
+        "allowedPeers?: readonly string[];",
+        "networkInterfaces?: () => XiangwoCdpNetworkInterfaces;",
+        "peerAddressOf?: (socket: unknown) => string | undefined;",
+        "export function embeddedTargetId(browserId: string): string {",
+        "private logListenBanner(plan: XiangwoCdpPeerCollectResult): void {",
+        "private handleConnection(socket: Duplex): void {",
+        "listTargetDescriptors(",
+        "function denyPeer(socket: Duplex, peers: readonly XiangwoCdpAllowedPeer[]): void {"
+      ],
+      "hash": "1fccf36f626158eb3d331e3d0dab363657559d23",
+      "origin": "new",
+      "firstCommit": "f1dbc7f61|2026-09-30|[XG-CUSTOM] 内嵌浏览器 9223 CDP 桥 + 项我球「网页 N」计数与一键清理",
+      "lastCommit": "f1dbc7f61|2026-09-30|[XG-CUSTOM] 内嵌浏览器 9223 CDP 桥 + 项我球「网页 N」计数与一键清理",
+      "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
+    },
+    "apps/emdash-desktop/src/main/host/browser/xiangwo-cdp-peers.test.ts": {
+      "markers": 9,
+      "lines": [
+        1,
+        88,
+        105,
+        116,
+        210,
+        247,
+        320,
+        323,
+        376
+      ],
+      "anchors": [
+        "import { createSocket as createUdpSocket } from 'node:dgram';",
+        "describe('",
+        "it('ZeroTier One [8d1c312afafd650c] = 10.239.5.218/24 → 10.239.5.x 放行、10.239.6.x 拒绝', () => {"
+      ],
+      "hash": "adecdb7f88b8c4bf9abc3ba8c983cdb5538a3d04",
+      "origin": "new",
+      "firstCommit": "c1b940dac|2026-09-30|[XG-CUSTOM] 内嵌浏览器 9223 CDP 桥对外监听（ZeroTier/tailscale 来源白名单，免手配 netsh）",
+      "lastCommit": "c1b940dac|2026-09-30|[XG-CUSTOM] 内嵌浏览器 9223 CDP 桥对外监听（ZeroTier/tailscale 来源白名单，免手配 netsh）",
+      "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
+    },
+    "apps/emdash-desktop/src/main/host/browser/xiangwo-cdp-peers.ts": {
+      "markers": 7,
+      "lines": [
+        1,
+        39,
+        65,
+        73,
+        82,
+        112,
+        186
+      ],
+      "anchors": [
+        "内嵌浏览器 CDP 桥的「来源白名单」：本机回环 + 自动探测的虚拟组网网段。",
+        "export type XiangwoCdpBindMode = 'auto' | 'local' | 'off';",
+        "export function resolveXiangwoCdpBindMode(raw: string | undefined): XiangwoCdpBindMode {",
+        "export function parseXiangwoCdpAllowList(raw: string | undefined): string[] {",
+        "export function windowsFirewallHint(platform: NodeJS.Platform = process.platform): string | null {",
+        "export function isPeerAllowed(",
+        "export function collectXiangwoCdpAllowedPeers("
+      ],
+      "hash": "4a6d1f3649380d0eee81e23a0f0dfb4d8ab3721a",
+      "origin": "new",
+      "firstCommit": "c1b940dac|2026-09-30|[XG-CUSTOM] 内嵌浏览器 9223 CDP 桥对外监听（ZeroTier/tailscale 来源白名单，免手配 netsh）",
+      "lastCommit": "c1b940dac|2026-09-30|[XG-CUSTOM] 内嵌浏览器 9223 CDP 桥对外监听（ZeroTier/tailscale 来源白名单，免手配 netsh）",
+      "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
+    },
+    "apps/emdash-desktop/src/main/host/browser/xiangwo-cdp-ws.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { createHash } from 'node:crypto';"
+      ],
+      "hash": "ae89ef48e24a3a4ab68a46a75fb82b1229eb05c1",
+      "origin": "new",
+      "firstCommit": "f1dbc7f61|2026-09-30|[XG-CUSTOM] 内嵌浏览器 9223 CDP 桥 + 项我球「网页 N」计数与一键清理",
+      "lastCommit": "f1dbc7f61|2026-09-30|[XG-CUSTOM] 内嵌浏览器 9223 CDP 桥 + 项我球「网页 N」计数与一键清理",
+      "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
+    },
+    "apps/emdash-desktop/src/main/host/updates/update-service.ts": {
+      "markers": 1,
+      "lines": [
+        77
+      ],
+      "anchors": [
+        "// 否则用户点「更新」会被官方 AppImage 覆盖，中文化全部丢失。 ⏎ return;"
+      ],
+      "hash": "ee7a9b1aa85eb69ecd69b563324dff5060b8c2d0",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "禁用自动更新（fork 不许被上游覆盖）"
+    },
+    "apps/emdash-desktop/src/main/host/window.ts": {
+      "markers": 19,
+      "lines": [
+        16,
+        18,
+        168,
+        172,
+        223,
+        293,
+        325,
+        327,
+        361,
+        367,
+        382,
+        407,
+        415,
+        421,
+        458,
+        465,
+        475,
+        513,
+        551
+      ],
+      "anchors": [
+        "import { createXiangwoOrbWindow } from './xiangwo-orb';",
+        "// [XG-CUSTOM] 项我球/浮窗的聊天地址解析（渲染进程不猜主机；规则见该文件头） ⏎ import {",
+        "let xiangwoFloatingWindow: BrowserWindow | null = null;",
+        "const CDP_BASE = 'http://127.0.0.1:9222';",
+        "type XiangwoPageInfo = { id: string; title: string; url: string };",
+        "ipcMain.handle('xiangwo:pages', async () => listXiangwoPages());",
+        "const TASK_SPACES_MJS =",
+        "const EXPERT_HANDOFF_PY =",
+        "export function expertHandoffCall<T = unknown>(cmd: string, ...args: string[]): Promise<T> {",
+        "let chatTargetRegistered = false;",
+        "// [XG-CUSTOM] 新建交接 ⏎ ipcMain.handle(",
+        "const CHROME_CMD = 'google-chrome-stable';",
+        "if (process.platform !== 'linux') return;",
+        "if (!cdpBridgeRegistered) {",
+        "xiangwoFloatingWindow = createXiangwoOrbWindow(() => {",
+        "let weKnoraWindow: BrowserWindow | null = null;",
+        "let openVikingWindow: BrowserWindow | null = null;",
+        "let t8Window: BrowserWindow | null = null;"
+      ],
+      "hash": "60f7221aeeded3a1371341d505b484d03ef17ff7",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "主窗口 host 桥（taskSpace / expertHandoff / chatUrl）"
+    },
+    "apps/emdash-desktop/src/main/host/xiangwo-chat-target.test.ts": {
+      "markers": 5,
+      "lines": [
+        21,
+        33,
+        46,
+        59,
+        166
+      ],
+      "anchors": [
+        "describe('"
+      ],
+      "hash": "3a41a0a30c316e6f41080a5b402f379aa42c1011",
+      "origin": "new",
+      "firstCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
+      "lastCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
+      "note": "renderer/main 侧定制"
+    },
+    "apps/emdash-desktop/src/main/host/xiangwo-chat-target.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "项我球（orb）/ 旧浮窗的**聊天地址解析**（主进程唯一权威）。"
+      ],
+      "hash": "d300c009fe6c987f6e80baf49f0bf893a1770e2f",
+      "origin": "new",
+      "firstCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
+      "lastCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
+      "note": "renderer/main 侧定制"
+    },
+    "apps/emdash-desktop/src/main/host/xiangwo-orb-api.ts": {
+      "markers": 9,
+      "lines": [
+        1,
+        45,
+        167,
+        171,
+        221,
+        240,
+        250,
+        270,
+        286
+      ],
+      "anchors": [
+        "import { Menu, app, ipcMain, shell, type BrowserWindow } from 'electron';",
+        "const ORB_AVATAR_META_FILE = 'xiangwo-orb-avatar.json';",
+        "export type OrbContextMenuAction = 'open-main' | 'toggle-panel' | 'quit';",
+        "function popupOrbContextMenu(win: BrowserWindow | null): Promise<OrbContextMenuAction | null> {",
+        "// [XG-CUSTOM][TEMP-TRACE] 渲染进程来的三条尺寸相关路径，入参原样记录（查\"窗口被撑大\"） ⏎ log.warn('[xiangwo-orb-trace] main-api', { method: name, args: payload });",
+        "case 'debug.trace': {",
+        "return { ok: true, docked: null };",
+        "return orbOverlayModel();",
+        "case 'host.openExternal': {"
+      ],
+      "hash": "14fa14532a8f7acf0e602627fa2dc36b2e713b22",
+      "origin": "new",
+      "firstCommit": "6f7b6ca9b|2026-09-29|[XG-CUSTOM] 项我球（orb）：从开源 deepseek-harness-orb 移植球壳 + 接 emdash 后端",
+      "lastCommit": "6f7b6ca9b|2026-09-29|[XG-CUSTOM] 项我球（orb）：从开源 deepseek-harness-orb 移植球壳 + 接 emdash 后端",
+      "note": "项我球主进程服务（窗口/脚本/聊天目标）"
+    },
+    "apps/emdash-desktop/src/main/host/xiangwo-orb.ts": {
+      "markers": 34,
+      "lines": [
+        1,
+        12,
+        28,
+        32,
+        43,
+        47,
+        150,
+        189,
+        195,
+        222,
+        238,
+        245,
+        261,
+        370,
+        378,
+        450,
+        470,
+        481,
+        483,
+        501,
+        532,
+        557,
+        577,
+        588,
+        619,
+        644,
+        677,
+        701,
+        704,
+        707,
+        716,
+        720,
+        723,
+        746
+      ],
+      "anchors": [
+        "import { BrowserWindow, app, ipcMain, screen } from 'electron';",
+        "const PANEL_RADIUS = 36;",
+        "const ORB_EDGE_MARGIN = 8;",
+        "let panelDirection: OrbDirection | undefined;",
+        "function orbTrace(event: string, detail: Record<string, unknown> = {}): void {",
+        "function ballAnchorFor(",
+        "let applyingBounds = false;",
+        "function setOrbBounds(win: BrowserWindow, bounds: Rect, source: string): void {",
+        "function repaintOrbWindow(win: BrowserWindow): void {",
+        "function sameDirection(a: OrbDirection | undefined, b: OrbDirection | undefined): boolean {",
+        "function ballOriginFromWindow(win: BrowserWindow): { x: number; y: number } {",
+        "X11 SHAPE 塑形（setShape）",
+        "function panelShape(): ShapeRect[] {",
+        "const bounds = win !== null && !win.isDestroyed() ? win.getBounds() : undefined;",
+        "orbMode === 'panel' ? 'panel' : 'ball',",
+        "// 磁盘值（loadBallOrigin）只在建窗时用一次，收起时会把实际位置写回去。 ⏎ const ball = ballOriginFromWindow(win);",
+        "applyOrbShape(mode);",
+        "// [XG-CUSTOM] 改尺寸后强制整窗重绘（否则底部那条可能留旧像素：球/药丸看不见） ⏎ repaintOrbWindow(win);",
+        "function moveOrbBall(x: number, y: number): OrbBallPoint | undefined {",
+        "const nextDirection = orbDirection(ball, workAreaFor(ball));",
+        "// [XG-CUSTOM] 移动后强制整窗重绘：真机\"球/药丸整条消失\"就是这么治的 ⏎ repaintOrbWindow(win);",
+        "orbTrace('main-moveBall', { mode: 'ball', requested, landed: ball });",
+        "if (orbMode === 'panel') return moveOrbBall(ball.x, ball.y);",
+        "ipcMain.handle('xiangwo:orb-drag', (_e, x: number, y: number) => {",
+        "registerXiangwoOrbApi({",
+        "backgroundColor: '#00000000',",
+        "orbWindow.setBackgroundColor('#00000000');",
+        "// [XG-CUSTOM] 建窗即塑成球态（这台机器没有合成器，透明无效 → 只能靠 X Shape 抠出圆） ⏎ applyOrbShape('ball');",
+        "const query = '?xiangwo-floating=1&xiangwo-orb=1';",
+        "// [XG-CUSTOM] 第一次真正上屏前再塑一次（某些平台是 map 之后才认 shape） ⏎ applyOrbShape(orbMode);",
+        "orbWindow.on('resize', () => {",
+        "orbWindow.webContents.on('did-finish-load', () => {"
+      ],
+      "hash": "604d5243d73689a6bf5aa09b73d7bee6fa2bb57a",
+      "origin": "new",
+      "firstCommit": "6f7b6ca9b|2026-09-29|[XG-CUSTOM] 项我球（orb）：从开源 deepseek-harness-orb 移植球壳 + 接 emdash 后端",
+      "lastCommit": "6f7b6ca9b|2026-09-29|[XG-CUSTOM] 项我球（orb）：从开源 deepseek-harness-orb 移植球壳 + 接 emdash 后端",
+      "note": "项我球主进程服务（窗口/脚本/聊天目标）"
+    },
+    "apps/emdash-desktop/src/main/host/xiangwo-script-runner.test.ts": {
+      "markers": 4,
+      "lines": [
+        32,
+        40,
+        89,
+        150
+      ],
+      "anchors": [
+        "describe('"
+      ],
+      "hash": "e4d1ba922f24498bb39e442356eb2fd169add622",
+      "origin": "new",
+      "firstCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
+      "lastCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
+      "note": "renderer/main 侧定制"
+    },
+    "apps/emdash-desktop/src/main/host/xiangwo-script-runner.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "主机感知的\"项我 CLI\"执行器（侧边交接台 / 专家交接台等）。"
+      ],
+      "hash": "a0da8ca0bc75fdb64aa8d39c958f7d58aec51022",
+      "origin": "new",
+      "firstCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
+      "lastCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
+      "note": "renderer/main 侧定制"
+    },
+    "apps/emdash-desktop/src/renderer/XiangwoFloatingPanel.tsx": {
+      "markers": 7,
+      "lines": [
+        1,
+        40,
+        51,
+        65,
+        67,
+        69,
+        188
+      ],
+      "anchors": [
+        "import { useEffect, useRef, useState } from 'react';",
+        "isXiangwoOrb?: boolean;",
+        "resolveXiangwoChatUrl?: () => Promise<unknown>;",
+        "const chatTargetRef = useRef<XiangwoChatTargetView | null>(null);",
+        "const [retryNote, setRetryNote] = useState('');",
+        "const isOrb = electronAPI.isXiangwoOrb === true;",
+        "if (isOrb && orbMode === 'ball') {"
+      ],
+      "hash": "7839200350ce7990522407fea9ec9e5d56271017",
+      "origin": "new",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "旧浮窗（与球共用聊天通道）"
+    },
+    "apps/emdash-desktop/src/renderer/lib/i18n/index.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import i18n from 'i18next';"
+      ],
+      "hash": "cef83b8b5233c662f58685d1ca294f4029b8886c",
+      "origin": "new",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化语言包（zh/en 双包）"
+    },
+    "apps/emdash-desktop/src/renderer/lib/i18n/locales.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "export const zh = {"
+      ],
+      "hash": "0c7880073eeb1ca3ce4365eb0a74bcec504666dc",
+      "origin": "new",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化语言包（zh/en 双包）"
+    },
+    "apps/emdash-desktop/src/renderer/main.tsx": {
+      "markers": 5,
+      "lines": [
+        1,
+        40,
+        78,
+        82,
+        85
+      ],
+      "anchors": [
+        "import './lib/i18n';",
+        "import { XiangwoFloatingPanel } from './XiangwoFloatingPanel';",
+        "if ((window as unknown as { electronAPI?: { isXiangwoFloating?: boolean } }).electronAPI?.isXiangwoFloating) {",
+        "document.getElementById('boot-splash')?.classList.add('boot-splash-done');",
+        "const showErr = (msg: string) => {"
+      ],
+      "hash": "7d1f83ea3f4a17ab7300ca316415ce6910ace3f4",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "renderer 入口（挂球/浮窗/i18n）"
+    },
+    "apps/emdash-desktop/src/renderer/orb/orb.css": {
+      "markers": 40,
+      "lines": [
+        2,
+        15,
+        27,
+        32,
+        36,
+        39,
+        45,
+        47,
+        56,
+        102,
+        110,
+        127,
+        185,
+        191,
+        257,
+        386,
+        569,
+        584,
+        595,
+        600,
+        607,
+        655,
+        660,
+        676,
+        678,
+        693,
+        705,
+        801,
+        825,
+        874,
+        921,
+        968,
+        981,
+        1028,
+        1042,
+        1064,
+        1081,
+        1104,
+        1111,
+        1156
+      ],
+      "anchors": [
+        "*/ ⏎ :root {",
+        "color-scheme: light;",
+        "--toolbar-pad: 70px;",
+        "--border: rgba(0, 0, 0, 0.12);",
+        "/* [XG-CUSTOM] 球的\"核\"色：跟着主题的 --black 走会在暗色主题里变成近白，所以单列一个变量 */ ⏎ --ball-core: #111111;",
+        "* 形状外的像素一律被裁 → 外投影没了，改用内描边收边。 */ ⏎ --ball-ring: rgba(255, 255, 255, 0.16);",
+        "/* [XG-CUSTOM] 外投影一律被 X11 SHAPE 裁掉 → 面板边界只靠 1px 内描边 */ ⏎ --panel-shadow: none;",
+        "--panel-ball-bg: #111111;",
+        "@media (prefers-color-scheme: dark) {",
+        "/* [XG-CUSTOM] 强制全透明：收起态窗口里除了球不能有任何底色（否则四角是黑的） */ ⏎ background: transparent !important;",
+        "#panel {",
+        "isolation: isolate;",
+        "* 只把 1px 描边提亮/加深一档。（原先是 3px **外**环 —— 被 X11 SHAPE 裁掉，等于没画。） */ ⏎ border-color: var(--pin);",
+        "/* [XG-CUSTOM] 工具条（第一行：历史 / 截图 / 交接 / 权限 / 新对话 / 关闭） */ ⏎ #history,",
+        "#options {",
+        ".transcript-row {",
+        "#ball {",
+        "box-shadow: inset 0 0 0 1px var(--ball-ring);",
+        "body.expanded #ball-mark {",
+        "body.expanded #ball:hover {",
+        "#ball-hint {",
+        "background: var(--panel-ball-bg);",
+        "* 所以药丸其它部分 / 工具条 / ✕ 的交互不受影响。 */ ⏎ pointer-events: auto;",
+        "#ball-mark {",
+        "/* [XG-CUSTOM] 球内「项」字（原来是内联 SVG 环点，用户要求写字） */ ⏎ display: flex;",
+        "#bot,",
+        "/* [XG-CUSTOM] TODO 边缘停靠：DOM/CSS 先留着，主进程暂不返回 docked */ ⏎ #dock-tab {",
+        "html, ⏎ body {",
+        ".question-card {",
+        "/* [XG-CUSTOM] 选中态用内环（外投影会被 X11 SHAPE 裁） */ ⏎ box-shadow: inset 0 0 0 1px var(--pin);",
+        ".image-grid-wrap {",
+        "/* [XG-CUSTOM] 选中态用内环（外投影会被 X11 SHAPE 裁），和提问卡一致 */ ⏎ border-color: var(--pin);",
+        ".image-thumb[hidden] {",
+        "#selection-bar {",
+        "#selection-bar[hidden] {",
+        "#ball-avatar {",
+        "#image,",
+        "body.drop-active #panel {",
+        "#pages {",
+        "#pages-menu[hidden] {"
+      ],
+      "hash": "43109d96f609ce24ce9f8f49496ac2b4cf55ca51",
+      "origin": "new",
+      "firstCommit": "6f7b6ca9b|2026-09-29|[XG-CUSTOM] 项我球（orb）：从开源 deepseek-harness-orb 移植球壳 + 接 emdash 后端",
+      "lastCommit": "6f7b6ca9b|2026-09-29|[XG-CUSTOM] 项我球（orb）：从开源 deepseek-harness-orb 移植球壳 + 接 emdash 后端",
+      "note": "项我球 orb（球壳 + 聊天/图片网格渲染）"
+    },
+    "apps/emdash-desktop/src/renderer/orb/orb.html": {
+      "markers": 11,
+      "lines": [
+        3,
+        55,
+        57,
+        60,
+        65,
+        70,
+        95,
+        97,
+        99,
+        103,
+        109
+      ],
+      "anchors": [
+        "<html lang=\"zh-CN\">",
+        "<button id=\"close\" type=\"button\" title=\"关闭面板\">✕</button>",
+        "<div id=\"options\">",
+        "<button id=\"image\" type=\"button\" title=\"发图（图片走 image_url）\">🖼️</button>",
+        "<button id=\"pages\" type=\"button\" title=\"agent 打开的网页（只列/只关外部网页）\" hidden>",
+        "<div id=\"pages-menu\" hidden role=\"menu\" aria-label=\"agent 网页\">",
+        "<span id=\"ball-mark\" aria-hidden=\"true\">项</span>",
+        "<span id=\"ball-hint\" aria-hidden=\"true\">⤡</span>",
+        "<img id=\"ball-avatar\" alt=\"\" hidden />",
+        "<div id=\"selection-bar\" hidden role=\"toolbar\" aria-label=\"划词操作\">",
+        "<button id=\"dock-tab\" type=\"button\" hidden aria-hidden=\"true\"></button>"
+      ],
+      "hash": "d41d92c9ca706cc1f3bfa635f3a172349734697e",
+      "origin": "new",
+      "firstCommit": "6f7b6ca9b|2026-09-29|[XG-CUSTOM] 项我球（orb）：从开源 deepseek-harness-orb 移植球壳 + 接 emdash 后端",
+      "lastCommit": "6f7b6ca9b|2026-09-29|[XG-CUSTOM] 项我球（orb）：从开源 deepseek-harness-orb 移植球壳 + 接 emdash 后端",
+      "note": "项我球 orb（球壳 + 聊天/图片网格渲染）"
+    },
+    "apps/emdash-desktop/src/renderer/orb/orb.js": {
+      "markers": 75,
+      "lines": [
+        1,
+        11,
+        19,
+        29,
+        42,
+        45,
+        59,
+        74,
+        81,
+        87,
+        102,
+        143,
+        173,
+        187,
+        206,
+        241,
+        268,
+        295,
+        313,
+        359,
+        371,
+        410,
+        444,
+        498,
+        504,
+        515,
+        521,
+        525,
+        527,
+        539,
+        544,
+        546,
+        558,
+        600,
+        601,
+        628,
+        694,
+        716,
+        731,
+        734,
+        754,
+        796,
+        840,
+        856,
+        867,
+        901,
+        903,
+        916,
+        1025,
+        1051,
+        1095,
+        1108,
+        1116,
+        1128,
+        1193,
+        1310,
+        1369,
+        1457,
+        1487,
+        1493,
+        1565,
+        1575,
+        1600,
+        1625,
+        1630,
+        1647,
+        1665,
+        1692,
+        1728,
+        1730,
+        1743,
+        1746,
+        1768,
+        1774,
+        1788
+      ],
+      "anchors": [
+        "项我控制球面板 —— 移植自开源项目 mini-yifan/deepseek-harness-orb（MIT）",
+        "地址不再写死：由主进程解析、preload 暴露（`resolveXiangwoChatUrl()`），",
+        "import {",
+        "const CLICK_MAX_PX = 8;",
+        "const DOUBLE_CLICK_GUARD_MS = 400;",
+        "const SYSTEM_PREFIX = '[XIANGWO_ROUTE=R0][XIANGWO_SOURCE=sidebar]';",
+        "const BOT_OPTIONS = [",
+        "contextMenu: () => orbApi('floating.contextMenu', {}),",
+        "function trace(event, detail = {}) {",
+        "function ballDebug() {",
+        "ballDisplay: style.display,",
+        "function parseQuestionBlock(text) {",
+        "function normalizeImagesPayload(raw) {",
+        "function parseImagesBlock(text) {",
+        "function compactImagesBlock(text) {",
+        "const STORE_KEY_PREFIX = 'xiangwo-orb-conversations';",
+        "const STORE_IMAGES_MAX = 24;",
+        "function migrateLegacyConversations() {",
+        "function findConversationAcrossBots(id) {",
+        "botSelect.addEventListener('change', () => {",
+        "let expandWanted = false;",
+        "let pointer;",
+        "let lastBallToggleAt = 0;",
+        "let lastScreenUnit = 1;",
+        "let currentBotId = botSelect.value;",
+        "botId: currentBotId,",
+        "text: compactImagesBlock(message.text),",
+        "...(typeof message.answer === 'string' && message.answer !== ''",
+        "async function switchBot(nextBotId) {",
+        "const withImages =",
+        "function renderQuestionCard(message, question) {",
+        "function renderImageGrid(payload) {",
+        "function renderImageCell(item) {",
+        "image.setAttribute('loading', 'lazy');",
+        "image.setAttribute('referrerpolicy', 'no-referrer');",
+        "image.style.display = 'none';",
+        "const itemBotId = typeof item.botId === 'string' ? item.botId : DEFAULT_BOT_ID;",
+        "function mountPanel() {",
+        "function panelVisible() {",
+        "async function panelOpenState() {",
+        "trace('panel-open-done', { direction: state, ...ballDebug() });",
+        "// [XG-CUSTOM] 面板打开时刷新\"网页 N\"，并开启 5s 轻量轮询（收起时停掉） ⏎ void refreshPages();",
+        "async function openPanel() {",
+        "const files = [...(event.clipboardData?.files ?? [])];",
+        "let chatTarget;",
+        "if (!target.reachable && target.hint !== '') status.textContent = target.hint;",
+        "onRetry: (attempt) => {",
+        "chatTarget = undefined;",
+        "// [XG-CUSTOM] 聊完/停止后刷新 agent 网页计数（agent 可能在回答里开了新页面） ⏎ void refreshPages();",
+        "let pagesPollTimer;",
+        "async function handleIncomingFiles(files) {",
+        "function wireSelectionBar() {",
+        "pagesButton?.addEventListener('click', () => setPagesMenuOpen(pagesMenu?.hidden === true));",
+        "function detectScreenUnit(event) {",
+        "// （否则被 lostpointercapture/pointercancel 收尾的那次拖动会把紧随其后的**下一次**单击吃掉。） ⏎ suppressOpen = false;",
+        "unit: 1,",
+        "detectScreenUnit(event);",
+        "const gesture = pointer;",
+        "const totalDip =",
+        "const { open, source } = await panelOpenState();",
+        "const now = Date.now();",
+        "ball.addEventListener('contextmenu', (event) => {",
+        "if (direction !== undefined && direction !== null) applyDirection(direction);",
+        "if (mode !== 'panel' && expanded) {",
+        "const migrated = migrateLegacyConversations();",
+        "// 会用\"迁移前那份空列表\"把迁移结果覆盖掉（升级路径会丢历史 —— 自检 ④-h 抓到的真 bug） ⏎ conversations = loadBucket(currentBotId);",
+        "// [XG-CUSTOM] 启动即保证收起态：面板不挂载 = display:none，窗口里只有球（其余 100% 透明）。 ⏎ unmountPanel();",
+        "// userData/xiangwo-orb-avatar.{png,gif,webp} 或 xiangwo-orb-avatar.json 读；没有就用内置 ⏎ try {",
+        "// 只在启动时确认一次后端状态，失败也不卡 UI（发消息时会自然报错）。 ⏎ try {"
+      ],
+      "hash": "88cd575a2a3ffbcbec13f76f9d91caee8f24fa2f",
+      "origin": "new",
+      "firstCommit": "6f7b6ca9b|2026-09-29|[XG-CUSTOM] 项我球（orb）：从开源 deepseek-harness-orb 移植球壳 + 接 emdash 后端",
+      "lastCommit": "6f7b6ca9b|2026-09-29|[XG-CUSTOM] 项我球（orb）：从开源 deepseek-harness-orb 移植球壳 + 接 emdash 后端",
+      "note": "项我球 orb（球壳 + 聊天/图片网格渲染）"
+    },
+    "apps/emdash-desktop/src/renderer/orb/xiangwo-chat.test.ts": {
+      "markers": 4,
+      "lines": [
+        25,
+        77,
+        88,
+        182
+      ],
+      "anchors": [
+        "describe('"
+      ],
+      "hash": "2f48d1d4854946619805290fbcc565f04504f703",
+      "origin": "new",
+      "firstCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
+      "lastCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
+      "note": "项我球 orb（球壳 + 聊天/图片网格渲染）"
+    },
+    "apps/emdash-desktop/src/renderer/orb/xiangwo-chat.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "export const XIANGWO_FALLBACK_CHAT_URL = 'http://127.0.0.1:8900/v1/chat/completions';"
+      ],
+      "hash": "5f85b424b87749d8ebcc9700174894f9943fbd52",
+      "origin": "new",
+      "firstCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
+      "lastCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
+      "note": "项我球 orb（球壳 + 聊天/图片网格渲染）"
+    },
+    "apps/emdash-desktop/tsconfig.node.json": {
+      "markers": 1,
+      "lines": [
+        17
+      ],
+      "anchors": [
+        "中文化在 shared/api 层用了 @renderer/lib/i18n，node 配置需此别名"
+      ],
+      "hash": "169bd3341466ae600db4ad8f841f84e0015389bb",
+      "origin": "modified",
+      "firstCommit": "b49be18c5|2026-09-26|chore: 补 [XG-CUSTOM] 标记（telemetry/tsconfig/window/workspace-detail）",
+      "lastCommit": "9df75ff09|2026-09-26|merge: 官方升级 1.2.6 + 适配 xiangwo 定制（acp重构/附件API/i18n去重/插件websiteUrl/tsconfig别名）",
+      "note": "TS 工程配置（别名/类型）"
+    },
+    "apps/workspace-server/scripts/package.ts": {
+      "markers": 4,
+      "lines": [
+        58,
+        154,
+        556,
+        559
+      ],
+      "anchors": [
+        "const artifactsDirectory = join(appDirectory, 'dist-artifacts');",
+        "await buildLinuxRuntimeDependencies(nodeDistributionDirectory, temporaryDirectory);",
+        "async function buildLinuxRuntimeDependencies("
+      ],
+      "hash": "8570eddc30bbaaeed5e60c5e9cec99d20147ac31",
+      "origin": "modified",
+      "firstCommit": "501f2b81c|2026-09-28|fix(workspace-server): 恢复无 Docker 本地编译 native 依赖的 [XG-CUSTOM] 补丁",
+      "lastCommit": "501f2b81c|2026-09-28|fix(workspace-server): 恢复无 Docker 本地编译 native 依赖的 [XG-CUSTOM] 补丁",
+      "note": "workspace-server fork 运行时（无 Docker 本地编译补丁）"
+    },
+    "packages/core/src/runtimes/agent-config/node/runtime/skills.ts": {
+      "markers": 3,
+      "lines": [
+        20,
+        149,
+        185
+      ],
+      "anchors": [
+        "const USER_SKILLS_ROOT = process.env.EMDASH_USER_SKILLS_ROOT ?? `${homedir()}/.agents`;",
+        "// Paths（中央库，最低）→ User（~/.agents/skills）→ Local（.agentskills，最高） ⏎ await collectFromRoot(",
+        "const record = provenance?.[entry];"
+      ],
+      "hash": "62f542216b76a764e641dfaccbadc68f115777e6",
+      "origin": "modified",
+      "firstCommit": "6f24dc51a|2026-09-21|feat: 中央技能库多来源接入（Local > User > Paths 同名覆盖，Grok Build 原方式）",
+      "lastCommit": "6f24dc51a|2026-09-21|feat: 中央技能库多来源接入（Local > User > Paths 同名覆盖，Grok Build 原方式）",
+      "note": "中央技能库多来源接入"
+    },
+    "packages/core/src/runtimes/workspace-registry/node/persistence/payload-codecs.ts": {
+      "markers": 2,
+      "lines": [
+        94,
+        205
+      ],
+      "anchors": [
+        "// upcast 透传即可兼容官方写入的 version '3' 数据，避免 future-version 崩溃。 ⏎ .version('3', z.object({ version: z.literal('3'), value: workspaceLifecycleSchema }), (prev) => ({",
+        "console.error(`[XG-DEBUG] future-version label=${label} version=${(result as any).version} order=${JSON.stringify((schema as any).order)}`);"
+      ],
+      "hash": "6366e64178d200370d97853e3db599eba9c33624",
+      "origin": "modified",
+      "firstCommit": "6f41e068a|2026-09-21|fix: workspace-registry lifecycle schema 加 v3 兼容（官方 09-16 b995f4ac 升 v3，避免 future-version 崩溃）+ 更新定制清单",
+      "lastCommit": "6f41e068a|2026-09-21|fix: workspace-registry lifecycle schema 加 v3 兼容（官方 09-16 b995f4ac 升 v3，避免 future-version 崩溃）+ 更新定制清单",
+      "note": "lifecycle schema v3 兼容（future-version 根治）"
+    },
+    "packages/plugins/src/agents/impl/xiangwo-babado/index.ts": {
+      "markers": 4,
+      "lines": [
+        1,
+        19,
+        27,
+        35
+      ],
+      "anchors": [
+        "import { definePlugin, registerPluginBehavior } from '@emdash/core/services/agent-plugins/api/plugins';",
+        "mcp: { kind: 'supported', scope: 'global', supportedTransports: ['stdio', 'http'] },",
+        "mcp: passthroughMcpAdapter('.xiangwo/mcp.json'),",
+        "enrich: enrichXiangwoUpdate,"
+      ],
+      "hash": "d2e3d29f18881d9665b0ecd343aad4124a165449",
+      "origin": "new",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "项我 agent plugin（CLI 桥 8900）"
+    },
+    "packages/plugins/src/agents/impl/xiangwo-caiwuzongguan/index.ts": {
+      "markers": 4,
+      "lines": [
+        1,
+        19,
+        27,
+        35
+      ],
+      "anchors": [
+        "import { definePlugin, registerPluginBehavior } from '@emdash/core/services/agent-plugins/api/plugins';",
+        "mcp: { kind: 'supported', scope: 'global', supportedTransports: ['stdio', 'http'] },",
+        "mcp: passthroughMcpAdapter('.xiangwo/mcp.json'),",
+        "enrich: enrichXiangwoUpdate,"
+      ],
+      "hash": "4d273cf02b384e58668b562411866f4a99b368c5",
+      "origin": "new",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "项我 agent plugin（CLI 桥 8900）"
+    },
+    "packages/plugins/src/agents/impl/xiangwo-ceo/index.ts": {
+      "markers": 4,
+      "lines": [
+        1,
+        19,
+        27,
+        35
+      ],
+      "anchors": [
+        "import { definePlugin, registerPluginBehavior } from '@emdash/core/services/agent-plugins/api/plugins';",
+        "mcp: { kind: 'supported', scope: 'global', supportedTransports: ['stdio', 'http'] },",
+        "mcp: passthroughMcpAdapter('.xiangwo/mcp.json'),",
+        "enrich: enrichXiangwoUpdate,"
+      ],
+      "hash": "423b10e34563429ddc3caf151c3b249dc652e4ef",
+      "origin": "new",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "项我 agent plugin（CLI 桥 8900）"
+    },
+    "packages/plugins/src/agents/impl/xiangwo-chief-engineer/index.ts": {
+      "markers": 4,
+      "lines": [
+        1,
+        19,
+        27,
+        35
+      ],
+      "anchors": [
+        "import { definePlugin, registerPluginBehavior } from '@emdash/core/services/agent-plugins/api/plugins';",
+        "mcp: { kind: 'supported', scope: 'global', supportedTransports: ['stdio', 'http'] },",
+        "mcp: passthroughMcpAdapter('.xiangwo/mcp.json'),",
+        "enrich: enrichXiangwoUpdate,"
+      ],
+      "hash": "3b99b5155bb39b074aff673e44f83f5ad79882f2",
+      "origin": "new",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "项我 agent plugin（CLI 桥 8900）"
+    },
+    "packages/plugins/src/agents/impl/xiangwo-dayi/index.ts": {
+      "markers": 4,
+      "lines": [
+        1,
+        19,
+        27,
+        35
+      ],
+      "anchors": [
+        "import { definePlugin, registerPluginBehavior } from '@emdash/core/services/agent-plugins/api/plugins';",
+        "mcp: { kind: 'supported', scope: 'global', supportedTransports: ['stdio', 'http'] },",
+        "mcp: passthroughMcpAdapter('.xiangwo/mcp.json'),",
+        "enrich: enrichXiangwoUpdate,"
+      ],
+      "hash": "db7a6f0f73a9169e7310fac9e16f16e487d27ccb",
+      "origin": "new",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "项我 agent plugin（CLI 桥 8900）"
+    },
+    "packages/plugins/src/agents/impl/xiangwo-shangcha/index.ts": {
+      "markers": 4,
+      "lines": [
+        1,
+        19,
+        27,
+        35
+      ],
+      "anchors": [
+        "import { definePlugin, registerPluginBehavior } from '@emdash/core/services/agent-plugins/api/plugins';",
+        "mcp: { kind: 'supported', scope: 'global', supportedTransports: ['stdio', 'http'] },",
+        "mcp: passthroughMcpAdapter('.xiangwo/mcp.json'),",
+        "enrich: enrichXiangwoUpdate,"
+      ],
+      "hash": "9f87a23b6d54851b39ca0700a8737cd4f14be449",
+      "origin": "new",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "项我 agent plugin（CLI 桥 8900）"
+    },
+    "packages/plugins/src/agents/impl/xiangwo-shuobo/index.ts": {
+      "markers": 4,
+      "lines": [
+        1,
+        19,
+        27,
+        35
+      ],
+      "anchors": [
+        "import { definePlugin, registerPluginBehavior } from '@emdash/core/services/agent-plugins/api/plugins';",
+        "mcp: { kind: 'supported', scope: 'global', supportedTransports: ['stdio', 'http'] },",
+        "mcp: passthroughMcpAdapter('.xiangwo/mcp.json'),",
+        "enrich: enrichXiangwoUpdate,"
+      ],
+      "hash": "e40044dd18f98fae5a4aa5574ec101c9815c936e",
+      "origin": "new",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "项我 agent plugin（CLI 桥 8900）"
+    },
+    "packages/plugins/src/agents/impl/xiangwo-sxsj/index.ts": {
+      "markers": 4,
+      "lines": [
+        1,
+        19,
+        27,
+        35
+      ],
+      "anchors": [
+        "import { definePlugin, registerPluginBehavior } from '@emdash/core/services/agent-plugins/api/plugins';",
+        "mcp: { kind: 'supported', scope: 'global', supportedTransports: ['stdio', 'http'] },",
+        "mcp: passthroughMcpAdapter('.xiangwo/mcp.json'),",
+        "enrich: enrichXiangwoUpdate,"
+      ],
+      "hash": "bbec7f6cca4c4d867872eab8092653a1579bb76c",
+      "origin": "new",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "项我 agent plugin（CLI 桥 8900）"
+    },
+    "packages/plugins/src/agents/impl/xiangwo-yunyou/index.ts": {
+      "markers": 4,
+      "lines": [
+        1,
+        19,
+        27,
+        35
+      ],
+      "anchors": [
+        "import { definePlugin, registerPluginBehavior } from '@emdash/core/services/agent-plugins/api/plugins';",
+        "mcp: { kind: 'supported', scope: 'global', supportedTransports: ['stdio', 'http'] },",
+        "mcp: passthroughMcpAdapter('.xiangwo/mcp.json'),",
+        "enrich: enrichXiangwoUpdate,"
+      ],
+      "hash": "9faef1a13dad6efcdc8760edf3ba27f9fef367a7",
+      "origin": "new",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "项我 agent plugin（CLI 桥 8900）"
+    },
+    "packages/plugins/src/agents/impl/xiangwo/acp-transform.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import type { SessionUpdate } from '@agentclientprotocol/sdk';"
+      ],
+      "hash": "a9f9c0f663f5cceef478d5edfed7c4aa2c5d2b67",
+      "origin": "new",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "项我 agent plugin（CLI 桥 8900）"
+    },
+    "packages/plugins/src/agents/impl/xiangwo/icon.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import type { PluginIconAsset } from '@emdash/shared/plugins';"
+      ],
+      "hash": "11e8e4474f9a435e7c0df653cef119d757437d73",
+      "origin": "new",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "项我 agent plugin（CLI 桥 8900）"
+    },
+    "packages/plugins/src/agents/impl/xiangwo/index.ts": {
+      "markers": 3,
+      "lines": [
+        1,
+        27,
+        45
+      ],
+      "anchors": [
+        "import {",
+        "hostDependency: {",
+        "enrich: enrichXiangwoUpdate,"
+      ],
+      "hash": "b1d7eedadd7334109f64a04a3da02714e53d12ac",
+      "origin": "new",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "项我 agent plugin（CLI 桥 8900）"
+    },
+    "scripts/xg-i18n/apply.mjs": {
+      "markers": 2,
+      "lines": [
+        2,
+        25
+      ],
+      "anchors": [
+        "import { readFileSync, writeFileSync, existsSync } from 'node:fs';",
+        "const IMPORT_LINE = \"import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "0c6e74c3693c649d28897f88bedfb37a4845c92f",
+      "origin": "new",
+      "firstCommit": "411c4b07e|2026-09-29|[XG-CUSTOM] 中文化标记 + 体检/还原器（上游更新后可一键找回）",
+      "lastCommit": "411c4b07e|2026-09-29|[XG-CUSTOM] 中文化标记 + 体检/还原器（上游更新后可一键找回）",
+      "note": "中文化台账 + 还原器 apply.mjs"
+    },
+    "scripts/xg-i18n/manifest.json": {
+      "markers": 1,
+      "lines": [
+        3
+      ],
+      "anchors": [
+        "\"files\": {"
+      ],
+      "hash": "d89fd2a3f618301ee7be7422bd68fb26bb95c270",
+      "origin": "new",
+      "firstCommit": "411c4b07e|2026-09-29|[XG-CUSTOM] 中文化标记 + 体检/还原器（上游更新后可一键找回）",
+      "lastCommit": "411c4b07e|2026-09-29|[XG-CUSTOM] 中文化标记 + 体检/还原器（上游更新后可一键找回）",
+      "note": "中文化台账 + 还原器 apply.mjs"
+    }
+  }
+}

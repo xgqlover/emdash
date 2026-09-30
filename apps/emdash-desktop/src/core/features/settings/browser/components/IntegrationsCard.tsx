@@ -1,4 +1,4 @@
-import { t } from '@renderer/lib/i18n';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 import type { PluginIconAsset } from '@emdash/shared/plugins';
 import { Sheet, Tooltip } from '@emdash/ui/react/primitives';
 import React, { useState } from 'react';
@@ -6,7 +6,7 @@ import { isIssueIntegration } from '@core/features/integrations/api/browser/inte
 import { useIntegrationsContext } from '@core/features/integrations/contributions/browser/integrations-provider';
 import { supportsIntegrationReconnect } from '@core/manifests/browser/integration-auth-contributions';
 import { useOpenModal } from '@core/manifests/browser/modal-api';
-import { openOpenViking, openT8, openWeKnora } from '@core/primitives/desktop-host/browser/host-client';
+import { openOpenViking, openT8, openWeKnora } from '@core/primitives/desktop-host/browser/host-client'; // [XG-CUSTOM]
 import type { ConnectionStatus, IssueProviderType } from '@core/primitives/issue-providers/api';
 import { IntegrationDetailSidebar } from './IntegrationDetailSidebar';
 import { IntegrationGridCard } from './IntegrationGridCard';

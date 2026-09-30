@@ -17,7 +17,7 @@ import type { DesktopRuntimes } from '@main/gateway/desktop-runtimes';
 import { setBrowserCorsRelaxationSettings } from '@main/host/browser/browser-profile-session';
 import { browserWebContentsRegistry } from '@main/host/browser/browser-webcontents-registry';
 import { browserOperations } from '@main/host/browser/controller';
-import { XiangwoCdpBridge } from '@main/host/browser/xiangwo-cdp-bridge';
+import { XiangwoCdpBridge } from '@main/host/browser/xiangwo-cdp-bridge'; // [XG-CUSTOM]
 import {
   parseXiangwoCdpAllowList,
   resolveXiangwoCdpBindMode,
@@ -30,7 +30,7 @@ import { createDevPerfOperations } from '@main/host/dev-perf/controller-operatio
 import { writeRendererLogEntry } from '@main/host/file-logger';
 import { setTrayVisible } from '@main/host/tray';
 import { updateOperations } from '@main/host/updates/controller-operations';
-import { applyNativeTheme, createOpenVikingWindow, createT8Window, createWeKnoraWindow, createXiangwoFloatingWindow, ensureChromeRunning, expertHandoffCall } from '@main/host/window';
+import { applyNativeTheme, createOpenVikingWindow, createT8Window, createWeKnoraWindow, createXiangwoFloatingWindow, ensureChromeRunning, expertHandoffCall } from '@main/host/window'; // [XG-CUSTOM]
 import { resolveXiangwoChatTarget } from '@main/host/xiangwo-chat-target';
 import { log } from '@main/lib/logger';
 import { telemetryService } from '@main/lib/telemetry';
