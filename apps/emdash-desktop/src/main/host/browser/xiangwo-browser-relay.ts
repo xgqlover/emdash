@@ -1,0 +1,609 @@
+// [XG-CUSTOM] 内嵌浏览器「反向命令通道」客户端（Windows/Linux 都跑，出站 only）。
+//
+// ── 为什么要有它（HippoBuddy 机制的事实 + 我们要抄的核心）────────────────────────
+// HippoBuddy 在 Windows 上能「Linux 端说打开网页 → Windows 打开并同步」，靠的是**只做出站连接**：
+//   · Windows 侧 HippoBuddy 主动连 Linux 的模型服务（`config-远程项我.yaml` 的 base_url）
+//   · 命令搭在**这条既有出站连接的响应体**里（`[XG-PREVIEW]url[/XG-PREVIEW]` 标记，
+//     见 HippoBuddy/src/main/resources/static/js/markdown-renderer.js:206）
+//   ⇒ 不需要在 Windows 上开入站端口、不写防火墙规则、不做来源白名单。
+//
+// 本模块把同一件事做成**双向可用**：emdash 主进程启动时向 Linux agent 的 8900
+// （就是它本来就在连的那个地址，见 main/host/xiangwo-chat-target.ts）发一条**长轮询**，
+// 收到命令 → 在本机执行 → 结果沿同一条出站通道回传。
+//
+// ── 为什么是长轮询而不是 WSS ───────────────────────────────────────────────────
+// 长轮询只需要 `fetch`（Electron 主进程原生有），**不引入任何新依赖**，穿 HTTP 代理/NAT 最稳；
+// 单条命令的往返延迟 = 对面 poll 的驻留时间（几乎为 0，对面一直挂在 poll 里）。
+// HippoBuddy 的 `[XG-PREVIEW]` 标记通路本质也是 HTTP。
+//
+// ── 执行边界（和 9223 桥逐字一致，绝不放大）─────────────────────────────────────
+// 命令**全部**转发给本机 `127.0.0.1:9223`（xiangwo-cdp-bridge.ts）。那里只 attach 经
+// `BrowserWebContentsRegistry.bindWebContents` 绑定过的**内嵌浏览器**；主窗口/对话页
+// 既不出现在 `/json`，也无法按 target id 附加。所以本通道最坏情况也只能操作内嵌浏览器。
+// 本模块**自己不开监听、不碰 webContents**，只做"出站拨号 + 本地回环转发"。
+//
+// ── 失败行为 ─────────────────────────────────────────────────────────────────
+// 对面没起 / 网不通 / 地址解析不出来 → 指数退避（1s→2s→5s→15s 封顶）重试，只打日志，
+// 绝不影响主窗口启动，也绝不 hang（每次 fetch 都带 AbortSignal.timeout）。
+//
+// 开关（都不设 = 默认启用，因为它是跨机主路径）：
+//   XIANGWO_BROWSER_RELAY=0            关闭（回到"只靠本机 9223"）
+//   XIANGWO_BROWSER_RELAY_URL=...      显式指定 Linux agent 基址（缺省走 resolveXiangwoChatTarget）
+//   XIANGWO_EMDASH_RELAY_TOKEN=...     静态 token（两端设同一个；不设 = 不校验）
+//   XIANGWO_BROWSER_RELAY_WAIT=25      长轮询单次挂起秒数（缺省 25）
+//   XIANGWO_EMDASH_CDP_BASE=...        本机 CDP 基址覆盖（缺省 http://127.0.0.1:9223，单测用）
+import { randomUUID } from 'node:crypto';
+
+/** [XG-CUSTOM] 默认：命令一律落到本机 9223 白名单桥 */
+export const XIANGWO_RELAY_LOCAL_CDP_BASE = 'http://127.0.0.1:9223';
+/** [XG-CUSTOM] 缺省长轮询挂起秒数（服务端上限 25s） */
+export const XIANGWO_RELAY_DEFAULT_WAIT_SECONDS = 25;
+/** [XG-CUSTOM] 退避阶梯（网络不通时不要刷屏/不要耗电） */
+const BACKOFF_STEPS_MS = [1000, 2000, 5000, 15000];
+/** 单条 WS 打开超时 / 单次 CDP 往返超时 */
+const WS_OPEN_TIMEOUT_MS = 8000;
+const CDP_ONCE_TIMEOUT_MS = 8000;
+
+/** 与浏览器 `WebSocket` 兼容的最小子集（单测注入假的） */
+export type RelayWebSocket = {
+  send(data: string): void;
+  close(code?: number, reason?: string): void;
+  onopen: ((event: unknown) => void) | null;
+  onmessage: ((event: { data: unknown }) => void) | null;
+  onerror: ((event: unknown) => void) | null;
+  onclose: ((event: unknown) => void) | null;
+};
+
+export type RelayCommand = {
+  id: number;
+  kind: string;
+  [key: string]: unknown;
+};
+
+export type XiangwoBrowserRelayOptions = {
+  /** Linux agent 基址（无尾斜杠），例如 http://10.239.5.174:8900 */
+  resolveBaseUrl: () => Promise<string | null>;
+  /** 本机 CDP 基址（缺省 http://127.0.0.1:9223） */
+  localCdpBase?: string;
+  /** 长轮询挂起秒数（缺省 25） */
+  pollWaitSeconds?: number;
+  /** 静态 token（缺省读 XIANGWO_EMDASH_RELAY_TOKEN） */
+  token?: string;
+  /** 注入点（单测）：fetch / WebSocket 构造器 / 日志 / 时钟 */
+  fetchImpl?: typeof fetch;
+  webSocketFactory?: (url: string) => RelayWebSocket;
+  log?: (message: string, metadata?: Record<string, unknown>) => void;
+  /** 退避阶梯覆盖（单测用；缺省 1s→2s→5s→15s） */
+  backoffStepsMs?: readonly number[];
+};
+
+type RelaySession = {
+  sid: string;
+  ws: RelayWebSocket;
+  buffer: string[];
+  flushing: boolean;
+  closed: boolean;
+};
+
+export type XiangwoBrowserRelayStatus = {
+  enabled: boolean;
+  baseUrl: string;
+  peerId: string;
+  parked: boolean;
+  commands: number;
+  errors: number;
+  sessions: number;
+  lastError: string;
+};
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+function parseWaitSeconds(raw: string | undefined): number {
+  const value = Number.parseInt(raw ?? '', 10);
+  if (!Number.isFinite(value) || value <= 0) return XIANGWO_RELAY_DEFAULT_WAIT_SECONDS;
+  return Math.min(value, XIANGWO_RELAY_DEFAULT_WAIT_SECONDS);
+}
+
+/** 开关：显式 0/off/false/no = 关闭；其它（含未设）= 开启 */
+export function relayEnabledFromEnv(raw: string | undefined): boolean {
+  return !['0', 'off', 'false', 'no'].includes((raw ?? '').trim().toLowerCase());
+}
+
+/** `http://127.0.0.1:9223` → `ws://127.0.0.1:9223`（端口缺省补 9223） */
+export function localWsBaseOf(localCdpBase: string): string {
+  try {
+    const url = new URL(localCdpBase);
+    const port = url.port !== '' ? url.port : '9223';
+    return `ws://${url.hostname}:${port}`;
+  } catch {
+    return 'ws://127.0.0.1:9223';
+  }
+}
+
+/**
+ * [XG-CUSTOM] 反向命令通道客户端。
+ *
+ * 生命周期：`start()` 幂等启动后台循环；`stop()` 之后不再发任何请求。
+ */
+export class XiangwoBrowserRelay {
+  private readonly resolveBaseUrl: () => Promise<string | null>;
+  private readonly localCdpBase: string;
+  /** 本机 9223 的 ws 基址（由 localCdpBase 推导，端口缺省 9223） */
+  private readonly localWsBase: string;
+  private readonly pollWaitSeconds: number;
+  private readonly token: string;
+  private readonly fetchImpl: typeof fetch;
+  private readonly webSocketFactory: (url: string) => RelayWebSocket;
+  private readonly log: (message: string, metadata?: Record<string, unknown>) => void;
+  private readonly backoffStepsMs: readonly number[];
+
+  /** 稳定的 peer id（同一次运行内复用，便于对面日志认人） */
+  readonly peerId = randomUUID();
+  private readonly sessions = new Map<string, RelaySession>();
+  private baseUrl = '';
+  private running = false;
+  private parked = false;
+  private stopped = false;
+  private backoffIndex = 0;
+  private commandCount = 0;
+  private errorCount = 0;
+  private lastError = '';
+
+  constructor(options: XiangwoBrowserRelayOptions) {
+    this.resolveBaseUrl = options.resolveBaseUrl;
+    this.localCdpBase = (options.localCdpBase ?? XIANGWO_RELAY_LOCAL_CDP_BASE).replace(/\/+$/, '');
+    this.localWsBase = localWsBaseOf(this.localCdpBase);
+    this.pollWaitSeconds = options.pollWaitSeconds ?? XIANGWO_RELAY_DEFAULT_WAIT_SECONDS;
+    this.token = (options.token ?? process.env.XIANGWO_EMDASH_RELAY_TOKEN ?? '').trim();
+    this.fetchImpl = options.fetchImpl ?? fetch;
+    this.webSocketFactory =
+      options.webSocketFactory ??
+      ((url: string) => new WebSocket(url) as unknown as RelayWebSocket);
+    this.log = options.log ?? (() => {});
+    this.backoffStepsMs = options.backoffStepsMs ?? BACKOFF_STEPS_MS;
+  }
+
+  status(): XiangwoBrowserRelayStatus {
+    return {
+      enabled: this.running,
+      baseUrl: this.baseUrl,
+      peerId: this.peerId,
+      parked: this.parked,
+      commands: this.commandCount,
+      errors: this.errorCount,
+      sessions: this.sessions.size,
+      lastError: this.lastError,
+    };
+  }
+
+  /** 启动后台循环（幂等）。失败只打日志，绝不抛给启动链。 */
+  start(): void {
+    if (this.running || this.stopped) return;
+    this.running = true;
+    void this.loop();
+  }
+
+  /** 停止：不再发请求 + 关掉所有隧道里的 WS。 */
+  stop(): void {
+    this.stopped = true;
+    this.running = false;
+    for (const session of this.sessions.values()) {
+      try {
+        session.ws.close();
+      } catch {
+        // 关闭失败无所谓
+      }
+    }
+    this.sessions.clear();
+  }
+
+  // ── 主循环 ───────────────────────────────────────────────────────────────
+
+  private async loop(): Promise<void> {
+    while (!this.stopped) {
+      try {
+        if (this.baseUrl === '') {
+          const resolved = await this.resolveBaseUrl();
+          if (resolved === null || resolved.trim() === '') {
+            this.noteError('解析不出 Linux agent 地址（XIANGWO_BROWSER_RELAY_URL / SSH 主机都没拿到）');
+            await this.backoff();
+            continue;
+          }
+          this.baseUrl = resolved.trim().replace(/\/+$/, '');
+          this.log(`内嵌浏览器反向通道已启用：出站连 ${this.baseUrl}（不开入站端口）`, {
+            peerId: this.peerId,
+            localCdpBase: this.localCdpBase,
+          });
+        }
+        const command = await this.pollOnce();
+        this.backoffIndex = 0;
+        if (command === null) continue;
+        await this.dispatch(command);
+      } catch (error) {
+        this.noteError(String(error));
+        await this.backoff();
+      }
+    }
+  }
+
+  private async backoff(): Promise<void> {
+    const step =
+      this.backoffStepsMs[Math.min(this.backoffIndex, this.backoffStepsMs.length - 1)] ?? 15000;
+    this.backoffIndex += 1;
+    await sleep(step);
+  }
+
+  private noteError(message: string): void {
+    this.errorCount += 1;
+    if (this.lastError === message) return; // 同一个错别刷屏
+    this.lastError = message;
+    this.log(`内嵌浏览器反向通道：${message}`, { peerId: this.peerId, baseUrl: this.baseUrl });
+  }
+
+  private headers(): Record<string, string> {
+    const headers: Record<string, string> = { Accept: 'application/json' };
+    if (this.token !== '') headers['X-Xiangwo-Relay-Token'] = this.token;
+    return headers;
+  }
+
+  /** 一次长轮询：拿到命令 → 命令对象；204 → null（没命令）。 */
+  private async pollOnce(): Promise<RelayCommand | null> {
+    const url =
+      `${this.baseUrl}/api/emdash-browser/poll?peer=${encodeURIComponent(this.peerId)}` +
+      `&wait=${String(this.pollWaitSeconds)}&label=${encodeURIComponent('emdash-relay')}`;
+    this.parked = true;
+    let response: Response;
+    try {
+      response = await this.fetchImpl(url, {
+        headers: this.headers(),
+        signal: AbortSignal.timeout((this.pollWaitSeconds + 15) * 1000),
+      });
+    } finally {
+      this.parked = false;
+    }
+    if (response.status === 204) return null;
+    if (!response.ok) {
+      const text = await response.text().catch(() => '');
+      throw new Error(`poll 返回 ${String(response.status)} ${text.slice(0, 160)}`);
+    }
+    const data = (await response.json()) as unknown;
+    if (typeof data !== 'object' || data === null) return null;
+    const command = data as RelayCommand;
+    if (typeof command.id !== 'number' || typeof command.kind !== 'string') return null;
+    return command;
+  }
+
+  private async postJson(path: string, body: unknown): Promise<void> {
+    await this.fetchImpl(`${this.baseUrl}${path}`, {
+      method: 'POST',
+      headers: { ...this.headers(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(10000),
+    });
+  }
+
+  private async result(id: number, ok: boolean, payload?: unknown, error?: string): Promise<void> {
+    try {
+      await this.postJson('/api/emdash-browser/result', {
+        peer: this.peerId,
+        id,
+        ok,
+        payload: payload ?? null,
+        error: error ?? '',
+      });
+    } catch (e) {
+      this.noteError(`回传结果失败：${String(e)}`);
+    }
+  }
+
+  private async dispatch(command: RelayCommand): Promise<void> {
+    this.commandCount += 1;
+    const kind = command.kind;
+    try {
+      if (kind === 'ping') {
+        await this.result(command.id, true, { pong: Date.now() });
+        return;
+      }
+      if (kind === 'http') {
+        await this.handleHttp(command);
+        return;
+      }
+      if (kind === 'ws-open') {
+        await this.handleWsOpen(command);
+        return;
+      }
+      if (kind === 'ws-send') {
+        await this.handleWsSend(command);
+        return;
+      }
+      if (kind === 'ws-close') {
+        await this.handleWsClose(command);
+        return;
+      }
+      if (kind === 'open') {
+        await this.handleOpen(command);
+        return;
+      }
+      await this.result(command.id, false, null, `未知命令 ${kind}`);
+    } catch (error) {
+      await this.result(command.id, false, null, String(error));
+    }
+  }
+
+  // ── http：把对面要的 9223 路径打过来，原样把响应体带回去 ────────────────
+
+  private async handleHttp(command: RelayCommand): Promise<void> {
+    const method = typeof command.method === 'string' ? command.method : 'GET';
+    const path = typeof command.path === 'string' ? command.path : '/';
+    if (!path.startsWith('/')) {
+      await this.result(command.id, false, null, `非法路径 ${path}`);
+      return;
+    }
+    const response = await this.fetchImpl(`${this.localCdpBase}${path}`, {
+      method,
+      signal: AbortSignal.timeout(8000),
+    });
+    const body = await response.text();
+    await this.result(command.id, true, {
+      status: response.status,
+      body,
+      content_type: response.headers.get('content-type') ?? 'application/json',
+    });
+  }
+
+  // ── ws：把对面的 CDP WebSocket 会话桥到本机 9223 的同名路径 ─────────────
+
+  private async handleWsOpen(command: RelayCommand): Promise<void> {
+    const sid = String(command.sid ?? '');
+    const path = String(command.path ?? '');
+    if (sid === '' || !path.startsWith('/')) {
+      await this.result(command.id, false, null, 'ws-open 缺少 sid/path');
+      return;
+    }
+    await new Promise<void>((resolve) => {
+      let settled = false;
+      let ws: RelayWebSocket;
+      try {
+        ws = this.webSocketFactory(`${this.localWsBase}${path}`);
+      } catch (error) {
+        void this.result(command.id, false, null, `连本机 9223 失败：${String(error)}`).then(() =>
+          resolve()
+        );
+        return;
+      }
+      const timer = setTimeout(() => {
+        if (settled) return;
+        settled = true;
+        try {
+          ws.close();
+        } catch {
+          // 忽略
+        }
+        void this.result(command.id, false, null, `打开本机 9223 WS 超时（${path}）`).then(() => resolve());
+      }, WS_OPEN_TIMEOUT_MS);
+
+      ws.onopen = () => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        this.sessions.set(sid, { sid, ws, buffer: [], flushing: false, closed: false });
+        ws.onmessage = (event) => {
+          const data = typeof event.data === 'string' ? event.data : String(event.data);
+          this.bufferFrame(sid, data);
+        };
+        ws.onclose = () => {
+          this.sessions.delete(sid);
+          void this.postJson('/api/emdash-browser/event', {
+            peer: this.peerId,
+            kind: 'ws-closed',
+            sid,
+          }).catch(() => undefined);
+        };
+        ws.onerror = () => undefined;
+        void this.result(command.id, true, { sid }).then(() => resolve());
+      };
+      ws.onerror = () => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        void this.result(command.id, false, null, '连本机 9223 WS 出错').then(() => resolve());
+      };
+    });
+  }
+
+  private async handleWsSend(command: RelayCommand): Promise<void> {
+    const sid = String(command.sid ?? '');
+    const session = this.sessions.get(sid);
+    if (session === undefined) {
+      await this.result(command.id, false, null, `会话 ${sid} 不存在（对面 9223 可能已断开）`);
+      return;
+    }
+    const data = typeof command.data === 'string' ? command.data : '';
+    try {
+      session.ws.send(data);
+      await this.result(command.id, true, { sent: data.length });
+    } catch (error) {
+      await this.result(command.id, false, null, `发送失败：${String(error)}`);
+    }
+  }
+
+  private async handleWsClose(command: RelayCommand): Promise<void> {
+    const sid = String(command.sid ?? '');
+    const session = this.sessions.get(sid);
+    this.sessions.delete(sid);
+    if (session !== undefined && !session.closed) {
+      session.closed = true;
+      try {
+        session.ws.close();
+      } catch {
+        // 忽略
+      }
+    }
+    await this.result(command.id, true, { closed: sid });
+  }
+
+  /** CDP 帧回传：串行化 + 微合批，保证顺序又少开 POST */
+  private bufferFrame(sid: string, frame: string): void {
+    const session = this.sessions.get(sid);
+    if (session === undefined || session.closed) return;
+    session.buffer.push(frame);
+    if (session.flushing) return;
+    session.flushing = true;
+    void (async () => {
+      while (session.buffer.length > 0) {
+        const frames = session.buffer.splice(0, session.buffer.length);
+        try {
+          await this.postJson('/api/emdash-browser/event', {
+            peer: this.peerId,
+            kind: 'ws-msg',
+            sid,
+            frames,
+          });
+        } catch {
+          // 对面暂时不通：丢掉这几帧（CDP 客户端自己会超时报错），不阻塞其它会话
+        }
+      }
+      session.flushing = false;
+    })();
+  }
+
+  // ── open：让"说打开什么网页就打开什么"在跨机场景也成立 ───────────────────
+  //
+  // 先列本机 9223 上白名单里的内嵌浏览器：有就 Page.navigate 过去（用户肉眼可见）；
+  // 一个都没有 → 回一句能照做的人话（**不偷偷去操作别的浏览器**，这是 agent.py 里
+  // 反复强调的"错浏览器"坑）。
+
+  private async handleOpen(command: RelayCommand): Promise<void> {
+    const url = String(command.url ?? '').trim();
+    if (url === '') {
+      await this.result(command.id, false, null, 'open 缺少 url');
+      return;
+    }
+    const fragment = String(command.fragment ?? '').trim();
+    const targets = await this.listLocalTargets();
+    if (targets.length === 0) {
+      await this.result(command.id, false, null,
+        'emdash 里当前没有打开的内嵌浏览器标签页（先在 emdash 主窗口开一个浏览器标签，' +
+        '再让 agent 操作；这不是配置，是页面）');
+      return;
+    }
+    const target =
+      (fragment === '' ? undefined : targets.find((t) => t.url.includes(fragment))) ?? targets[0];
+    if (target === undefined || target.webSocketDebuggerUrl === '') {
+      await this.result(command.id, false, null, '内嵌浏览器 target 没有 CDP 地址');
+      return;
+    }
+    const before = target.url;
+    await cdpCallOnce(this.webSocketFactory, target.webSocketDebuggerUrl, 'Page.navigate', { url });
+    await this.result(command.id, true, {
+      url,
+      requested: url,
+      target_id: target.id,
+      before_url: before,
+      title: target.title,
+    });
+  }
+
+  private async listLocalTargets(): Promise<
+    Array<{ id: string; url: string; title: string; webSocketDebuggerUrl: string }>
+  > {
+    const response = await this.fetchImpl(`${this.localCdpBase}/json/list`, {
+      signal: AbortSignal.timeout(4000),
+    });
+    if (!response.ok) throw new Error(`本机 9223 /json/list 返回 ${String(response.status)}`);
+    const raw = (await response.json()) as unknown;
+    if (!Array.isArray(raw)) return [];
+    return raw
+      .filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null)
+      .map((item) => ({
+        id: String(item.id ?? ''),
+        url: String(item.url ?? ''),
+        title: String(item.title ?? ''),
+        webSocketDebuggerUrl: String(item.webSocketDebuggerUrl ?? ''),
+      }))
+      .filter((item) => item.id !== '');
+  }
+}
+
+/** 一次性 CDP 调用（开 WS → 发一条 → 收结果 → 关）。超时只抛错，绝不 hang。 */
+export function cdpCallOnce(
+  factory: (url: string) => RelayWebSocket,
+  wsUrl: string,
+  method: string,
+  params?: Record<string, unknown>
+): Promise<unknown> {
+  return new Promise((resolve, reject) => {
+    let ws: RelayWebSocket;
+    try {
+      ws = factory(wsUrl);
+    } catch (error) {
+      reject(new Error(`连 CDP 失败：${String(error)}`));
+      return;
+    }
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      try {
+        ws.close();
+      } catch {
+        // 忽略
+      }
+      reject(new Error('CDP 超时'));
+    }, CDP_ONCE_TIMEOUT_MS);
+    ws.onopen = () => {
+      try {
+        ws.send(JSON.stringify({ id: 1, method, params: params ?? {} }));
+      } catch (error) {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        reject(new Error(`CDP 发送失败：${String(error)}`));
+      }
+    };
+    ws.onmessage = (event) => {
+      if (settled) return;
+      let message: { id?: number; result?: unknown; error?: { message?: string } };
+      try {
+        message = JSON.parse(String(event.data)) as typeof message;
+      } catch {
+        return;
+      }
+      if (message.id !== 1) return;
+      settled = true;
+      clearTimeout(timer);
+      try {
+        ws.close();
+      } catch {
+        // 忽略
+      }
+      if (message.error !== undefined) reject(new Error(message.error.message ?? 'CDP error'));
+      else resolve(message.result);
+    };
+    ws.onerror = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      reject(new Error('CDP WS 出错'));
+    };
+  });
+}
+
+/** [XG-CUSTOM] 从环境变量造一个 relay（wiring 用；单测直接 new）。 */
+export function createXiangwoBrowserRelay(
+  resolveBaseUrl: () => Promise<string | null>,
+  log: (message: string, metadata?: Record<string, unknown>) => void
+): XiangwoBrowserRelay | null {
+  if (!relayEnabledFromEnv(process.env.XIANGWO_BROWSER_RELAY)) return null;
+  const explicit = (process.env.XIANGWO_BROWSER_RELAY_URL ?? '').trim();
+  return new XiangwoBrowserRelay({
+    resolveBaseUrl: async () => (explicit !== '' ? explicit : await resolveBaseUrl()),
+    localCdpBase: (process.env.XIANGWO_EMDASH_CDP_BASE ?? '').trim() || XIANGWO_RELAY_LOCAL_CDP_BASE,
+    pollWaitSeconds: parseWaitSeconds(process.env.XIANGWO_BROWSER_RELAY_WAIT),
+    log,
+  });
+}

@@ -22,11 +22,16 @@ import {
   parseXiangwoCdpAllowList,
   resolveXiangwoCdpBindMode,
 } from '@main/host/browser/xiangwo-cdp-peers';
+import {
+  createXiangwoBrowserRelay,
+  type XiangwoBrowserRelay,
+} from '@main/host/browser/xiangwo-browser-relay';
 import { createDevPerfOperations } from '@main/host/dev-perf/controller-operations';
 import { writeRendererLogEntry } from '@main/host/file-logger';
 import { setTrayVisible } from '@main/host/tray';
 import { updateOperations } from '@main/host/updates/controller-operations';
 import { applyNativeTheme, createOpenVikingWindow, createT8Window, createWeKnoraWindow, createXiangwoFloatingWindow, ensureChromeRunning, expertHandoffCall } from '@main/host/window';
+import { resolveXiangwoChatTarget } from '@main/host/xiangwo-chat-target';
 import { log } from '@main/lib/logger';
 import { telemetryService } from '@main/lib/telemetry';
 import type { DatabaseBundle } from './phases/database';
@@ -115,6 +120,37 @@ export function startXiangwoCdpBridge(): void {
 }
 
 let xiangwoCdpBridge: XiangwoCdpBridge | null = null;
+
+/**
+ * [XG-CUSTOM] 内嵌浏览器「反向命令通道」：**出站 only**，跨机主路径。
+ *
+ * 与上面那台 9223 桥的分工（两者都保留，互不冲突）：
+ *   · 9223 桥 = **入站**（谁在网内谁来连 `http://<本机>:9223`），本机 agent 与"懒人网段"用它；
+ *   · 本通道 = **出站**（emdash 主动拨回 Linux agent 的 8900 长轮询），跨机用它 ——
+ *     **对面不需要开任何入站端口、不写防火墙规则、不做来源白名单**（抄 HippoBuddy 的机制）。
+ * 执行面完全复用 9223 桥（命令一律转发到 `127.0.0.1:9223`），所以白名单边界不变：
+ * 只能操作内嵌浏览器，主窗口永远不可附加。
+ *
+ * - 地址：`XIANGWO_BROWSER_RELAY_URL` > `resolveXiangwoChatTarget()`（球面板同一套解析：
+ *   本机 127.0.0.1:8900 / SSH 转发 / 主机地址直连）
+ * - 逃生开关：`XIANGWO_BROWSER_RELAY=0`
+ * - 失败只打日志 + 指数退避，绝不影响主窗口启动
+ */
+export function startXiangwoBrowserRelay(): void {
+  if (xiangwoBrowserRelay !== null) return;
+  const relay = createXiangwoBrowserRelay(
+    async () => (await resolveXiangwoChatTarget()).baseUrl,
+    (message, metadata) => log.info(`[XG-CUSTOM] ${message}`, metadata)
+  );
+  if (relay === null) {
+    log.info('[XG-CUSTOM] 内嵌浏览器反向通道已关闭（XIANGWO_BROWSER_RELAY=0）');
+    return;
+  }
+  xiangwoBrowserRelay = relay;
+  relay.start();
+}
+
+let xiangwoBrowserRelay: XiangwoBrowserRelay | null = null;
 
 export function createDesktopWireOptions(
   database: DatabaseBundle,
