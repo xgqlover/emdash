@@ -75,4 +75,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   taskSpaceHandoff: (id: string) => ipcRenderer.invoke('xiangwo:task-space-handoff', id),
   taskSpaceTakeover: (id: string) => ipcRenderer.invoke('xiangwo:task-space-takeover', id),
   taskSpaceComplete: (id: string, keep: boolean) => ipcRenderer.invoke('xiangwo:task-space-complete', id, keep),
+  // [XG-CUSTOM] 项我球 / 旧浮窗的聊天地址：由主进程解析（本机 / 远程主机 / 复用 SSH 端口转发 /
+  // XIANGWO_AGENT_URL 覆盖 / 异常回落 127.0.0.1），渲染进程**不猜主机**。
+  // 规则与兜底见 main/host/xiangwo-chat-target.ts，注册见 main/host/window.ts。
+  resolveXiangwoChatUrl: () => ipcRenderer.invoke('xiangwo:resolve-chat-url'),
 });

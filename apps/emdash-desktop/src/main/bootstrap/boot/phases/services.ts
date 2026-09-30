@@ -8,6 +8,7 @@ import { integrationPluginRegistry } from '@emdash/plugins/integrations';
 import { err, ok } from '@emdash/shared';
 import { runWithTimeout } from '@emdash/shared/scheduling';
 import { peek } from '@emdash/wire/state';
+import { desc } from 'drizzle-orm';
 import { app, powerMonitor } from 'electron';
 import { providerTokenRegistry } from '@core/features/account/api/node/provider-token-registry';
 import { AccountAuthServerClient } from '@core/features/account/node/services/account-auth-server-client';
@@ -99,6 +100,7 @@ import { startPeriodicSweep } from '@core/primitives/periodic-sweep/node/periodi
 import { DEFAULT_AGENT_GIT_CREDENTIALS } from '@core/primitives/project-settings/api';
 import type { HostReachabilityProbe } from '@core/primitives/ssh/api';
 import { AppDbKeyValueStore } from '@core/services/app-db/node/key-value-store';
+import { sshConnections } from '@core/services/app-db/node/schema';
 import { createNotificationService } from '@core/services/notifications/node';
 import { LegacyAccountImports } from '@core/services/provider-accounts/node/migrations/legacy-account-imports';
 import { listProviderAccountSummaries } from '@core/services/provider-accounts/node/provider-account-service';
@@ -148,7 +150,8 @@ import { encryptedAppSecretsStore } from '@main/host/secrets/encrypted-app-secre
 import { toPlaintextSecretStore } from '@main/host/secrets/plaintext-secret-store';
 import { setTrayVisible } from '@main/host/tray';
 import { installUpdateNotifications } from '@main/host/updates/update-notifications';
-import { applyNativeTheme, isAppFocused } from '@main/host/window';
+import { applyNativeTheme, isAppFocused, registerXiangwoChatTarget } from '@main/host/window';
+import { configureXiangwoScriptRunner } from '@main/host/xiangwo-script-runner';
 import { log } from '@main/lib/logger';
 import { telemetryService } from '@main/lib/telemetry';
 import { appScope } from '../../core/app-scope';
@@ -360,6 +363,52 @@ export async function bootServices(
       return null;
     }
   };
+  // [XG-CUSTOM] 项我球 / 旧浮窗的**聊天地址解析**依赖（host/xiangwo-chat-target.ts）
+  // 与**主机感知 CLI 执行**依赖（host/xiangwo-script-runner.ts）。
+  // "当前主机"口径与上面的 forwardManualPreview 一致：第一条 SSH 连接（球的转发窗口/交接台
+  // 用的是同一台主机）。读 DB 失败一律按"没有远程主机"处理 → 回落本机，绝不把本机搞坏。
+  const firstRemoteHost = (): { connectionId: string; host: string } | undefined => {
+    try {
+      const row = db
+        .select({ id: sshConnections.id, host: sshConnections.host })
+        .from(sshConnections)
+        .orderBy(desc(sshConnections.updatedAt))
+        .limit(1)
+        .get();
+      return row === undefined ? undefined : { connectionId: row.id, host: row.host };
+    } catch (error) {
+      log.warn('[XG-CUSTOM] 读取 SSH 远程主机失败（按本机处理）', { error: String(error) });
+      return undefined;
+    }
+  };
+  registerXiangwoChatTarget({
+    activeRemoteHost: firstRemoteHost,
+    forwardRemotePort: (remotePort) => forwardManualPreview(remotePort),
+    log: (message, metadata) => {
+      log.info(`[xiangwo-chat] ${message}`, metadata);
+    },
+  });
+  configureXiangwoScriptRunner({
+    activeRemoteHost: firstRemoteHost,
+    execRemote: async (connectionId, command, args) => {
+      const proxy = infrastructure.ssh.manager.getProxy(connectionId);
+      if (!proxy || !proxy.isConnected) {
+        throw new Error(`SSH 连接 ${connectionId} 未就绪`);
+      }
+      return await proxy.exec({ command, args });
+    },
+    // 解释器不在主机 PATH 里时（例如 nvm 装的 node）走 shell：PATH → 兜底绝对路径 → exit 127
+    execRemoteScript: async (connectionId, script) => {
+      const proxy = infrastructure.ssh.manager.getProxy(connectionId);
+      if (!proxy || !proxy.isConnected) {
+        throw new Error(`SSH 连接 ${connectionId} 未就绪`);
+      }
+      return await proxy.execScript(script);
+    },
+    log: (message, metadata) => {
+      log.info(`[xiangwo-cli] ${message}`, metadata);
+    },
+  });
   const projectSettingsService = new ProjectSettingsService({
     db,
     projects: projectManager,

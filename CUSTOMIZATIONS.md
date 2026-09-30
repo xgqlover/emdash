@@ -92,3 +92,101 @@
 - **为什么必须自己编**：远程(SSH)项目的 bot 列表来自**主机端 runtime 的插件注册表**（`useAgents(host)` → `agentConfig.agents.list` live model）。官方频道下发的 runtime 不含 `packages/plugins/src/agents/impl/xiangwo*` → 列表空 → **SSH 连上也不能聊天**
 - 协议版本必须与桌面端 `packages/core/src/workspace-server/versions/index.ts` 的 `PROTOCOL_VERSION` **同 major**（当前 `11.0.0`）；fork runtime 版本号要**大于官方频道版本**，否则会被频道指针降级覆盖
 - 构建/部署/校验命令见 `emdash-运行经验-OPS.md`「workspace-server fork 版重编实做」节；配套探针在仓库外工作区：`scripts/workspace-server-wire-probe.ts`（协议/agent 列表/单 bot 依赖）、`scripts/acp-chat-probe.ts`（起停测试 ACP 会话）
+
+
+### 10. [XG-CUSTOM] 桥接跟随主机（远端感知，09-29）
+
+**问题**：`window.ts` 里的 `[XG-CUSTOM]` 桥接都是**主进程本地 spawn + 写死 Linux 路径**（`/usr/bin/python3`、`/persistent/home/xgqlover/...`）。
+在 Linux 桌面上好用，在 **Windows 客户端**上必然失败 —— 典型表现：交接台显示 `读取交接台失败 检查 expert_handoff.py 桥接`（该文案是 UI 的 `errorSlot` 兜底，不是 Python 报错）。
+
+**改法（恒定规则）**：桥接命令属于**被连接的那台主机**，不属于跑 UI 的机器。
+
+- `kind === 'local'` → 本地 spawn（不要无脑走 ssh）
+- `kind === 'remote'` → `ssh -o BatchMode=yes <user>@<host> "<bin> <转义后的参数...>"`
+- 参数一律 shell 单引号转义（中文/空格/引号）
+- **永远保留 `child.on('error', reject)`**，失败只能 reject，不能崩主进程
+- 任何 `/persistent/home/xgqlover/...` 不许直接写进 spawn
+
+统一走一个 `hostAwareSpawn(bin, args)` 执行器（实现见 `emdash-运行经验-OPS.md` 的「🌐 [XG-CUSTOM] 桥接必须跟着主机走」一节）。
+
+**受影响**：
+
+| 位置 | 桥接 | 状态 |
+|---|---|---|
+| `window.ts` 231/235 | 侧边交接台 `task-spaces.mjs` | ✅ 已改（2026-09-30，见第 11 节） |
+| `window.ts` 265/270 | 专家交接台 `expert_handoff.py` | ✅ 已改（2026-09-30，见第 11 节） |
+| `window.ts` 310/311 | Chrome / CDP | 已加 error 监听防崩，待统一 |
+
+**验收**：Linux 桌面 + Windows 客户端**两边**都能读/新建/删除交接主题，且共用同一份 `xiangwo-agent/expert_topics.json`。
+
+**改动文件**：`apps/emdash-desktop/src/main/host/window.ts`（改完按第十二节 SOP 重打 Windows 包）
+
+---
+
+## ⛔ 方向更正(2026-09-29 用户拍板)· 不要在 Windows 上改 emdash
+
+> 用户原话:「win 上面的 emdash 的版本还是**半成品还在改进**的,所有改了 win 上的是**没用的**」
+
+**因此,本文档中凡出现「重打 Win 包」「改 Win 客户端」「在 Win 上 patch app.asar / 加转发器」的做法,
+一律作废。**正确落点只有一条:
+
+| 项 | 正确做法 |
+|---|---|
+| 桥接 / 功能修复 | 改 **Linux 源码** `emdash/apps/emdash-desktop/src/main/host/window.ts`(及同类 `[XG-CUSTOM]` 处) |
+| 出包 | 由 **Linux 侧正常打包流程**出包;**不为 Win 单独打补丁包** |
+| Win 侧允许的改动 | 仅 OS 层面:网卡省电、SSH config、ZeroTier 客户端 —— **不碰 emdash 本体** |
+| 禁止 | patch `app.asar`、改 Win 客户端配置、造 `C:\usr\bin\python3.exe` 之类的"补路径"垫片 |
+
+**「hostAwareSpawn(桥接跟随主机)」这条方法本身仍然成立**,它描述的是**源码该怎么写**;
+变的是**落点** —— 写在 Linux 仓库里,而不是改 Windows 上的产物。
+
+(本条由 agent 于 20260929-235941 追加;原文未删除,保留作为排查记录。)
+
+---
+
+### 11. [XG-CUSTOM] 项我球（orb）远程主机三个断点（2026-09-30）
+
+**问题**：球面板 / 旧浮窗把聊天地址写死 `http://127.0.0.1:8900`，Windows 客户端（远程主机）必然
+`Failed to fetch`；8900 由 herdr 守护、重启有 ~15 秒空窗，用户只看到一句失败；交接台桥接写死
+Linux 绝对路径（第 10 节遗留）。
+
+**改动（全部 `[XG-CUSTOM]` 标记）**：
+
+| 文件 | 作用 |
+|---|---|
+| `src/main/host/xiangwo-chat-target.ts`（新） | 聊天地址解析：`XIANGWO_AGENT_URL` → 本机 → SSH 端口转发 → 主机直连 → 不可达信号 → 异常回落 127.0.0.1；60s 缓存 + 并发去重 |
+| `src/main/host/xiangwo-script-runner.ts`（新） | 主机感知 CLI 执行器（本机 spawn / 远程 `SshClientProxy.exec`）+ 人话错误 |
+| `src/main/host/window.ts` | `taskSpaceCall` / `expertHandoffCall` 改用 runner；注册 `xiangwo:resolve-chat-url` |
+| `src/bootstrap/boot/phases/services.ts` | 注入真实依赖（`sshConnections` 第一条 + `forwardManualPreview` + `ssh.manager.getProxy`） |
+| `src/entry/preload.ts` | `electronAPI.resolveXiangwoChatUrl()` |
+| `src/renderer/orb/xiangwo-chat.ts`（新） | 球/浮窗共用的地址解析 + 失败重试（1.5s/3s/5s，最多 3 次；4xx 与用户中止不重试）+ 文案 |
+| `src/renderer/orb/orb.js` | 用解析地址替代写死常量；接重试与「后端启动中…（第 N 次重试）」 |
+| `src/renderer/XiangwoFloatingPanel.tsx` | 同上（旧浮窗） |
+| `src/main/host/browser/xiangwo-browser-proxy.ts`（新） | 内嵌浏览器代理解析：env → `userData/xiangwo-browser-proxy.json` → 非 Linux 缺省 `socks5://100.125.4.119:1080`；`off` 可关；坏值只记日志不崩 |
+| `scripts/xiangwo-orb-chat-harness.mjs`（新） | 假桥 harness：跑**构建产物** `out/renderer`，断言地址来源/回落/重试/4xx/中止 |
+
+**Windows 侧要配的两件事**（详见仓库根 `外地Windows连接emdash-操作指南.md`）：
+
+1. 聊天地址：**不用配**（默认跟着 emdash 里那条 SSH 主机走；要覆盖就设 `XIANGWO_AGENT_URL`）。
+2. 内嵌浏览器代理：优先 `XIANGWO_BROWSER_PROXY=socks5://100.125.4.119:1080`（启动项里设）；
+   或干脆在 emdash 的 `userData` 放 `xiangwo-browser-proxy.json`：`{"proxy":"socks5://100.125.4.119:1080"}`
+   （Windows = `%APPDATA%\Emdash\xiangwo-browser-proxy.json`；不用改快捷方式；`{"proxy":"off"}` = 直连）。
+   非 Linux 客户端不配也有缺省值。**不需要改打包脚本**：打包产物本身不用带这个文件，可选项。
+
+**验收**：`apps/emdash-desktop` 的 `pnpm run typecheck`（tsgo 三 project）EXIT=0、
+`node --check src/renderer/orb/orb.js` EXIT=0、`npx oxlint` 无**新增** error（本 checkout 基线本来就是
+104 error/25 warn：94 个来自缺失的 `tooling/oxlint/allowlists/core-boundaries.json`，其余为上游既有）；
+`node scripts/xiangwo-orb-chat-harness.mjs` 15 项断言全过（跑构建产物 `out/renderer`）；
+新增单测 48 项（`xiangwo-chat` / `xiangwo-chat-target` / `xiangwo-script-runner` / `xiangwo-browser-proxy`）。
+
+**远程跑 node 的坑（已处理）**：主机的 node 是 nvm 装的，sshd 的非交互 `exec` 没有 nvm 的 PATH →
+直接 `node <脚本>` 会 exit 127。runner 在「有 `remoteSearchPaths`」时改用 `execScript` 跑一段
+小 shell（`command -v` → `"$HOME"/.nvm/versions/node/*/bin/node` → `/usr/local/bin/node` → `/usr/bin/node`
+→ 都没有就 exit 127 + 人话错误）；argv 用 `quoteArg(posix)` 转义。已用干净 PATH 实测：
+`env -i HOME=/home/xgqlover PATH=/usr/local/bin:/usr/bin:/bin /bin/sh <脚本>` → 正常返回交接台 JSON。
+
+**同类遗留（本次未改，供后续决定）**：`src/core/features/xiangwo/browser/xiangwo-view.tsx:106` 还写死
+`http://localhost:8900/v1/chat/completions`（项我主对话视图）。它属于 `src/core`，直接 import
+`@renderer/orb/xiangwo-chat` 会撞 `emdash(core-host-boundaries)`（core 不许 import `@renderer/*`），
+所以要么在该文件里本地实现同一套解析+重试，要么把公共逻辑下沉到 core。
+

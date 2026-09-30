@@ -8,6 +8,9 @@
 //   2) 聊天通道：上游走 dsh 的 `.dsh/remote-stream` 事件流 + session/create|prompt|list，
 //      这里换成我们现成的 OpenAI 格式直答：POST http://127.0.0.1:8900/v1/chat/completions
 //      （照 renderer/XiangwoFloatingPanel.tsx 的 body 结构），回复直接渲染成消息气泡。
+//      [XG-CUSTOM] 地址不再写死：由主进程解析、preload 暴露（`resolveXiangwoChatUrl()`），
+//      渲染进程不猜主机 —— 远程主机（Windows 客户端连 Linux 主机）时才是对的地址；
+//      解析不到就回落 127.0.0.1。失败自动重试见 ./xiangwo-chat.ts（盖住 8900 重启空窗）。
 //   3) 删掉：iframe 转录（dsh-app://app/index.html?surface=overlay）、OVERLAY_SESSION_MESSAGE_TYPE
 //      postMessage 协议、user-questions 事件流 / 提问卡、TCC（macOS 授权）门、选区芯片、
 //      模型目录（session/selectModel）、macOS 停靠条的 JS（DOM/CSS 留着，停靠是 TODO）。
@@ -39,6 +42,17 @@
 //      - hover 只给视觉反馈、不展开；拖动是**自绘指针拖动**（原生 -webkit-app-region: drag 会吞掉 click，
 //        导致"点不开面板"，所以不用它）。**两种状态下球都可拖**：收起态移动球、展开态平移整个面板
 //      - 历史**按 bot 分桶**（见文件里的 STORE_KEY_PREFIX / botStoreKey）
+//
+// [XG-CUSTOM] 聊天通道工具（地址解析 + 失败重试）在 ./xiangwo-chat.ts 里 —— 球和旧浮窗共用一份，
+// 并且能被 vitest 直接单测；构建后会被打进本 bundle（harness 断言跑的就是产物）。
+import {
+  failureText,
+  replyTextOf,
+  resolveXiangwoChatUrl,
+  retryStatusText,
+  sendXiangwoChat,
+} from './xiangwo-chat';
+
 const bridge = window.electronAPI ?? {};
 
 /** 位移超过这个 DIP 数才开始"跟手拖动"（响应性阈值） */
@@ -56,7 +70,6 @@ const CLICK_MAX_PX = 8;
  * 第一次单击**立即**执行、不做延迟，所以单击零延迟、不卡手。
  */
 const DOUBLE_CLICK_GUARD_MS = 400;
-const CHAT_URL = 'http://127.0.0.1:8900/v1/chat/completions';
 /**
  * [XG-CUSTOM] 系统前缀。除了路由/来源，还带上**权限档**（D-1：让权限芯片真的生效）。
  * 说明：8900 后端目前**不解析**该字段（它只认 messages 里的 text），所以我们只保证"发出去"，
@@ -845,6 +858,19 @@ async function main() {
     return current.messages.map((message) => ({ role: message.role, content: message.text }));
   }
 
+  /**
+   * [XG-CUSTOM] 聊天地址（主进程解析，preload 暴露）。
+   * - 懒解析：第一条消息才问主进程（球常驻，没必要启动就 IPC）。
+   * - 每次**失败后作废**（见 send 的 catch）：主机换了 / 隧道断了 / 8900 刚重启，
+   *   下一条消息会重新解析，不会一直卡在过期的地址上。
+   */
+  let chatTarget;
+
+  async function chatEndpoint() {
+    if (chatTarget === undefined) chatTarget = await resolveXiangwoChatUrl(bridge);
+    return chatTarget;
+  }
+
   async function send(text, image) {
     const instruction = text.trim();
     if (sending) return;
@@ -876,26 +902,33 @@ async function main() {
     const controller = new AbortController();
     sendAbort = controller;
     try {
-      const response = await fetch(CHAT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const target = await chatEndpoint();
+      // [XG-CUSTOM] 主进程判定地址不可达（远程主机 + 没法转发）→ 先把人话提示摆出来，
+      // 请求照发（万一网络其实通），失败文案仍然照旧。
+      if (!target.reachable && target.hint !== '') status.textContent = target.hint;
+      const data = await sendXiangwoChat({
+        url: target.url,
+        signal: controller.signal,
+        body: {
           messages: [
             { role: 'system', content: systemPrefixFor(permission) },
             ...prior,
             { role: 'user', content: userContent },
           ],
-        }),
-        signal: controller.signal,
+        },
+        // [XG-CUSTOM] 重试期间给反馈（别静默等 15 秒空窗）
+        onRetry: (attempt) => {
+          status.textContent = retryStatusText(attempt);
+        },
       });
-      if (!response.ok) throw new Error(`HTTP ${String(response.status)}`);
-      const data = await response.json();
-      const reply = data?.choices?.[0]?.message?.content ?? '（无回答）';
-      current.messages.push({ role: 'assistant', text: reply });
+      status.textContent = '';
+      current.messages.push({ role: 'assistant', text: replyTextOf(data) });
     } catch (cause) {
+      // [XG-CUSTOM] 地址可能过期（主机/隧道变了）→ 作废缓存，下一条重新解析
+      chatTarget = undefined;
       current.messages.push({
         role: 'assistant',
-        text: controller.signal.aborted ? '（已停止）' : `调用失败: ${describeError(cause)}`,
+        text: controller.signal.aborted ? '（已停止）' : failureText(cause),
       });
     } finally {
       if (sendAbort === controller) sendAbort = undefined;

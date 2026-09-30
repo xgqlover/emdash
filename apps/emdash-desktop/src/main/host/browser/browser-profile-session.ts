@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { app, session, type Session } from 'electron';
 import type { AppSettings } from '@core/services/settings/api';
 import { log } from '@main/lib/logger';
@@ -11,6 +13,8 @@ import {
   isGoogleAuthUrl,
   stripEmbeddedBrowserTokens,
 } from './browser-user-agent';
+// [XG-CUSTOM] 内嵌浏览器代理解析（env → 配置文件 → 非 Linux 缺省；见该文件头）
+import { resolveXiangwoBrowserProxy } from './xiangwo-browser-proxy';
 
 // Web permissions the embedded browser may use without asking. Everything else
 // (camera, microphone, geolocation, notifications, USB/HID/serial, …) is denied:
@@ -39,14 +43,32 @@ export function configureBrowserProfileSession(partition: string): Session {
   if (configuredPartitions.has(partition)) return ses;
   configuredPartitions.add(partition);
 
-  // [XG-CUSTOM] 内嵌浏览器走 socks5 代理上外网（Windows 端连 Linux 的 socks5-proxy.py）。
-  // 通过环境变量 XIANGWO_BROWSER_PROXY 配置，格式 socks5://10.239.5.174:1080；
-  // 不设则保持原行为（浏览器直连本机网络）。只影响浏览器 partition session，
-  // 不影响 emdash 主连接（ZeroTier 连 agent.py）。
-  const browserProxy = process.env.XIANGWO_BROWSER_PROXY;
-  if (browserProxy) {
-    ses.setProxy({ proxyRules: browserProxy });
-    log.info('Browser proxy enabled', { proxy: browserProxy });
+  // [XG-CUSTOM] 内嵌浏览器走 socks5 代理上外网（Windows 客户端连 Linux 主机的 socks5-proxy.py）。
+  // 取值优先级：环境变量 XIANGWO_BROWSER_PROXY → userData/xiangwo-browser-proxy.json →
+  // 非 Linux 客户端缺省 socks5://100.125.4.119:1080（Windows 打包版照旧能配，见
+  // host/browser/xiangwo-browser-proxy.ts 的文件头）。任何异常/缺值都只是"不用代理"，
+  // **绝不因为变量缺失而崩**。只影响浏览器 partition session，不影响 emdash 主连接。
+  const browserProxy = resolveXiangwoBrowserProxy({
+    readConfigFile: (fileName) => readFileSync(join(app.getPath('userData'), fileName), 'utf8'),
+    log: (message, metadata) => {
+      log.warn(`[xiangwo-browser-proxy] ${message}`, metadata);
+    },
+  });
+  if (browserProxy?.proxy !== undefined) {
+    const proxy = browserProxy.proxy;
+    ses
+      .setProxy({ proxyRules: proxy })
+      .then(() => {
+        log.info('Browser proxy enabled', { proxy, source: browserProxy.source });
+      })
+      .catch((error: unknown) => {
+        log.warn('Browser proxy setup failed (keeping direct connection)', {
+          proxy,
+          error: String(error),
+        });
+      });
+  } else if (browserProxy !== undefined) {
+    log.info('Browser proxy disabled by configuration', { source: browserProxy.source });
   }
 
   ses.setUserAgent(stripEmbeddedBrowserTokens(ses.getUserAgent(), app.getName()));

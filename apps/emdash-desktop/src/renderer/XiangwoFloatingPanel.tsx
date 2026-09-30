@@ -1,9 +1,19 @@
 // [XG-CUSTOM] 项我侧边聊天浮窗 —— 独立置顶小窗，拖到任意浏览器旁当「侧边聊天框」。
-// 后端直接 fetch 8900（[XIANGWO_SOURCE=sidebar] 侧边 suagent 轻量直答）。
+// 后端聊天地址由主进程解析、preload 暴露（electronAPI.resolveXiangwoChatUrl()）：
+// 本机 = 127.0.0.1:8900，远程主机 = 主机的地址 / SSH 转发地址，解析不到回落 127.0.0.1。
+// 失败自动重试（网络错误 / 5xx，最多 3 次，间隔 1.5s/3s/5s）见 ./orb/xiangwo-chat.ts。
 // 功能：分 bot 下拉、发图（🖼️）、发文件（📎）、截图当前网页（📷，CDP 桥接）、交接台（📤）。
 // 一键组合：主进程 openXiangwoFloating 会同时拉起真实 Chrome（wego-lite CDP）。
 import { useEffect, useRef, useState } from 'react';
 import type { ComposerAgentOption } from '@emdash/ui/react/components';
+import {
+  failureText,
+  replyTextOf,
+  resolveXiangwoChatUrl,
+  retryStatusText,
+  sendXiangwoChat,
+  type XiangwoChatTargetView,
+} from './orb/xiangwo-chat';
 
 type DisplayMsg = { role: 'user' | 'assistant'; text: string; img?: string };
 type HistoryMsg = { role: 'user' | 'assistant'; content: unknown };
@@ -38,6 +48,8 @@ type HostBridge = {
   orbQuit?: () => Promise<unknown>;
   getOrbMode?: () => Promise<[string, boolean]>;
   onOrbMode?: (cb: (mode: 'ball' | 'panel', pinned: boolean) => void) => () => void;
+  /** [XG-CUSTOM] 主进程解析出的聊天地址（见 main/host/xiangwo-chat-target.ts） */
+  resolveXiangwoChatUrl?: () => Promise<unknown>;
 };
 const electronAPI = (window as unknown as { electronAPI?: HostBridge }).electronAPI ?? {};
 
@@ -50,6 +62,10 @@ export function XiangwoFloatingPanel() {
   const [input, setInput] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imgInputRef = useRef<HTMLInputElement>(null);
+  // [XG-CUSTOM] 聊天地址缓存（主进程解析；失败后作废，下次重新解析）
+  const chatTargetRef = useRef<XiangwoChatTargetView | null>(null);
+  // [XG-CUSTOM] 重试中的状态文案（覆盖"项我思考中..."，让 15 秒空窗有反馈）
+  const [retryNote, setRetryNote] = useState('');
   // [XG-CUSTOM] 球态：ball = 一颗球；panel = 展开面板。由主进程驱动（悬停展开/离开收起/点击固定）
   const isOrb = electronAPI.isXiangwoOrb === true;
   const [orbMode, setOrbMode] = useState<'ball' | 'panel'>(isOrb ? 'ball' : 'panel');
@@ -69,6 +85,13 @@ export function XiangwoFloatingPanel() {
     return off;
   }, [isOrb]);
 
+  async function chatTarget(): Promise<XiangwoChatTargetView> {
+    if (chatTargetRef.current === null) {
+      chatTargetRef.current = await resolveXiangwoChatUrl(electronAPI);
+    }
+    return chatTargetRef.current;
+  }
+
   async function send(text: string, imgDataUrl?: string) {
     if ((!text.trim() && !imgDataUrl) || loading) return;
     setLoading(true);
@@ -83,20 +106,28 @@ export function XiangwoFloatingPanel() {
         ? [{ type: 'text', text: fullText }, { type: 'image_url', image_url: { url: imgDataUrl } }]
         : fullText;
       const newHistory: HistoryMsg[] = [...history, { role: 'user', content: userContent }];
-      const res = await fetch('http://127.0.0.1:8900/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [{ role: 'system', content: '[XIANGWO_ROUTE=R0][XIANGWO_SOURCE=sidebar]' }, ...newHistory],
-        }),
+      const target = await chatTarget();
+      if (!target.reachable && target.hint !== '') setRetryNote(target.hint);
+      const data = await sendXiangwoChat({
+        url: target.url,
+        body: {
+          messages: [
+            { role: 'system', content: '[XIANGWO_ROUTE=R0][XIANGWO_SOURCE=sidebar]' },
+            ...newHistory,
+          ],
+        },
+        onRetry: (attempt) => setRetryNote(retryStatusText(attempt)),
       });
-      const data = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-      const reply = data.choices?.[0]?.message?.content ?? '（无回答）';
+      setRetryNote('');
+      const reply = replyTextOf(data);
       setDisplay((d) => [...d, { role: 'assistant', text: reply }]);
       setHistory([...newHistory, { role: 'assistant', content: reply }]);
       setInput('');
     } catch (e) {
-      setDisplay((d) => [...d, { role: 'assistant', text: '调用失败: ' + (e as Error).message }]);
+      // 地址可能过期（主机/隧道变了）→ 作废，下次重新解析
+      chatTargetRef.current = null;
+      setRetryNote('');
+      setDisplay((d) => [...d, { role: 'assistant', text: failureText(e) }]);
     } finally {
       setLoading(false);
     }
@@ -243,7 +274,7 @@ export function XiangwoFloatingPanel() {
             )}
           </div>
         ))}
-        {loading && <div style={{ color: '#888', fontSize: 12 }}>项我思考中...</div>}
+        {loading && <div style={{ color: '#888', fontSize: 12 }}>{retryNote !== '' ? retryNote : '项我思考中...'}</div>}
       </div>
       {attachUrl && (
         <div style={{ padding: '0 12px 4px', fontSize: 11, color: '#6b8afd', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

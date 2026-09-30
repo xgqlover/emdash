@@ -15,6 +15,13 @@ import {
 import { browserWebContentsRegistry } from '@main/host/browser/browser-webcontents-registry';
 // [XG-CUSTOM] 项我控制球（球/面板两态 + 悬停展开 + 位置记忆）
 import { createXiangwoOrbWindow } from './xiangwo-orb';
+// [XG-CUSTOM] 项我球/浮窗的聊天地址解析（渲染进程不猜主机；规则见该文件头）
+import {
+  configureXiangwoChatTargetDeps,
+  resolveXiangwoChatTarget,
+  type XiangwoChatTargetDeps,
+} from './xiangwo-chat-target';
+import { runXiangwoScript } from './xiangwo-script-runner';
 import {
   hardenBrowserWebviewPreferences,
   stripBrowserWebviewParams,
@@ -227,28 +234,31 @@ export function registerXiangwoCdpBridge(): void {
   });
 }
 
-// [XG-CUSTOM] 交接台桥接：subprocess 调 wego-lite/task-spaces.mjs（Node CLI，输出 JSON）。
+// [XG-CUSTOM] 交接台桥接：调 wego-lite/task-spaces.mjs（Node CLI，输出 JSON）。
 // 命令：list / handoff <id> / takeover <id> / complete <id> <keep>。
+// [XG-CUSTOM] 原来把 Linux 绝对路径写死并直接 spawn —— Windows 客户端（远程主机）上必然 ENOENT。
+// 现在交给主机感知的 runXiangwoScript：本机 = 本地 spawn、远程 = 走 SSH 在主机上跑，
+// 失败给人话错误（见 main/host/xiangwo-script-runner.ts）。
 const TASK_SPACES_MJS =
   '/persistent/home/xgqlover/天天项上/五层四维记忆系统/wego-lite/task-spaces/task-spaces.mjs';
 
 function taskSpaceCall<T = unknown>(cmd: string, ...args: string[]): Promise<T> {
-  return new Promise((resolve, reject) => {
-    const child = spawn('node', [TASK_SPACES_MJS, cmd, ...args]);
-    let out = '';
-    child.stdout.on('data', (d) => {
-      out += d.toString();
-    });
-    child.on('error', (e) => reject(e));
-    child.on('close', (code) => {
-      if (code !== 0) return reject(new Error(`task-spaces exit ${code}`));
-      try {
-        resolve(JSON.parse(out));
-      } catch {
-        resolve(out as T);
-      }
-    });
-  });
+  return runXiangwoScript({
+    label: '侧边交接台',
+    interpreter: {
+      local: 'node',
+      remote: 'node',
+      // 这台主机的 node 是 nvm 装的（sshd 非交互 exec 里没有 nvm 的 PATH）→ 给兜底绝对路径
+      remoteSearchPaths: [
+        '"$HOME"/.nvm/versions/node/*/bin/node',
+        '/usr/local/bin/node',
+        '/usr/bin/node',
+      ],
+    },
+    scriptPath: TASK_SPACES_MJS,
+    envVar: 'XIANGWO_TASK_SPACES_MJS',
+    args: [cmd, ...args],
+  }) as Promise<T>;
 }
 
 export function registerXiangwoTaskSpaces(): void {
@@ -260,7 +270,7 @@ export function registerXiangwoTaskSpaces(): void {
   );
 }
 
-// [XG-CUSTOM] 专家交接平台桥接：subprocess 调 xiangwo-agent/expert_handoff.py（session 隔离版 CLI，输出 JSON）。
+// [XG-CUSTOM] 专家交接平台桥接：调 xiangwo-agent/expert_handoff.py（session 隔离版 CLI，输出 JSON）。
 // 与 agent.py 后端共用同一模块 + 同一数据文件，保证 session 隔离逻辑只有一份。
 // 命令：by-expert <expert> [session] / accept <id> / delete <id>。
 const EXPERT_HANDOFF_PY =
@@ -268,22 +278,29 @@ const EXPERT_HANDOFF_PY =
 
 // [XG-CUSTOM] 专家交接台 CLI 调用（泛型返回，适配 ProcedureDef 具体类型）
 export function expertHandoffCall<T = unknown>(cmd: string, ...args: string[]): Promise<T> {
-  return new Promise((resolve, reject) => {
-    const child = spawn('/usr/bin/python3', [EXPERT_HANDOFF_PY, cmd, ...args]);
-    let out = '';
-    child.stdout.on('data', (d) => {
-      out += d.toString();
-    });
-    child.on('error', (e) => reject(e));
-    child.on('close', (code) => {
-      if (code !== 0) return reject(new Error(`expert-handoff exit ${code}`));
-      try {
-        resolve(JSON.parse(out));
-      } catch {
-        resolve(out as T);
-      }
-    });
-  });
+  return runXiangwoScript({
+    label: '专家交接台',
+    interpreter: {
+      local: '/usr/bin/python3',
+      remote: 'python3',
+      remoteSearchPaths: ['/usr/bin/python3', '/usr/local/bin/python3'],
+    },
+    scriptPath: EXPERT_HANDOFF_PY,
+    envVar: 'XIANGWO_EXPERT_HANDOFF_PY',
+    args: [cmd, ...args],
+  }) as Promise<T>;
+}
+
+// [XG-CUSTOM] 项我球 / 旧浮窗的聊天地址：注册 `xiangwo:resolve-chat-url`
+// （preload: electronAPI.resolveXiangwoChatUrl）。解析规则/依赖注入见 main/host/xiangwo-chat-target.ts，
+// 真实依赖（db 里的 SSH 主机 + services.forwardManualPreview）在 boot 时注入。
+let chatTargetRegistered = false;
+
+export function registerXiangwoChatTarget(deps: XiangwoChatTargetDeps): void {
+  configureXiangwoChatTargetDeps(deps);
+  if (chatTargetRegistered) return;
+  chatTargetRegistered = true;
+  ipcMain.handle('xiangwo:resolve-chat-url', () => resolveXiangwoChatTarget());
 }
 
 export function registerXiangwoExpertHandoff(): void {
