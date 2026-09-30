@@ -20,7 +20,11 @@ import {
   type XiangwoCdpDebugger,
   type XiangwoCdpWebContents,
 } from './xiangwo-cdp-bridge';
-import { isTailscaleAddress, type XiangwoCdpNetworkInterfaces } from './xiangwo-cdp-peers';
+import {
+  detectDefaultRouteAddress,
+  isTailscaleAddress,
+  type XiangwoCdpNetworkInterfaces,
+} from './xiangwo-cdp-peers';
 
 type FakeTarget = EmbeddedBrowserTarget & {
   fake: FakeWebContents;
@@ -595,6 +599,84 @@ describe('[XG-CUSTOM] CDP 桥来源 IP 过滤（对外监听的安全边界）',
       });
       expect((await fetch(`${base}/json/list`)).status, `来源 ${peer}`).toBe(allowed ? 200 : 403);
     }
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// [XG-CUSTOM] Windows 真机名形态 + 地址兜底 + 网卡清单日志
+// （2026-09-30 真机反馈「Windows 上 ZeroTier 来源被拒」的直接回归）
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('[XG-CUSTOM] Windows 真机名形态与排障日志', () => {
+  const WINDOWS_INTERFACES: XiangwoCdpNetworkInterfaces = {
+    'ZeroTier One [8d1c312afafd650c]': [iface('10.239.5.218')],
+    Tailscale: [iface('100.87.205.39', false, '255.255.255.255')],
+  };
+
+  it('ZeroTier One [8d1c312afafd650c] / Tailscale 都进白名单，且真机来源 10.239.5.x 能连上', async () => {
+    const logs: string[] = [];
+    const { base } = await startBridge(() => [fakeTarget('task-win')], 500, {
+      networkInterfaces: () => WINDOWS_INTERFACES,
+      peerAddressOf: () => '10.239.5.174',
+      log: (message) => logs.push(message),
+    });
+
+    const banner = logs.find((line) => line.includes('对外监听'));
+    expect(banner).toContain('10.239.5.0/24(ZeroTier One [8d1c312afafd650c])');
+    expect(banner).toContain('100.64.0.0/10(Tailscale)');
+    // 真机来源（ZeroTier 网段里的另一台机器）必须能连上
+    expect((await fetch(`${base}/json/version`)).status).toBe(200);
+  });
+
+  it('启动日志打出每个网卡的判定明细（这次真机排障缺的就是它）', async () => {
+    const logs: string[] = [];
+    await startBridge(() => [fakeTarget('task-inventory')], 500, {
+      networkInterfaces: () => ({
+        ...WINDOWS_INTERFACES,
+        '以太网 3': [iface('192.168.1.20')],
+      }),
+      log: (message) => logs.push(message),
+    });
+
+    expect(logs.some((line) => line.includes('网卡清单'))).toBe(true);
+    const zerotierLine = logs.find((line) =>
+      line.includes('命中: ZeroTier One [8d1c312afafd650c]')
+    );
+    expect(zerotierLine).toContain('10.239.5.218/255.255.255.0');
+    expect(zerotierLine).toContain('匹配:zerotier(名字)');
+    // 未命中的网卡也要在日志里（名字/地址都能看到，便于判断"是不是名字没匹配上"）
+    expect(
+      logs.some(
+        (line) => line.includes('未命中（未进白名单）') && line.includes('以太网 3=192.168.1.20')
+      )
+    ).toBe(true);
+    // 未匹配的私有网段 → 直接给出可粘贴的自救命令（候选一行、命令一行）
+    expect(
+      logs.some(
+        (line) =>
+          line.includes('未匹配的候选网段') &&
+          line.includes('以太网 3=192.168.1.20(192.168.1.0/24)')
+      )
+    ).toBe(true);
+    expect(logs.some((line) => line.includes('请设 XIANGWO_CDP_ALLOW=192.168.1.0/24'))).toBe(true);
+  });
+
+  it('地址兜底（用真机默认路由判定）：名字不认识但地址在 10/8 时仍然放行', async (ctx) => {
+    const defaultRoute = await detectDefaultRouteAddress(1000);
+    if (defaultRoute === null || defaultRoute.startsWith('10.')) {
+      ctx.skip(); // 这台机器的默认路由就在 10/8 → 兜底规则按设计不生效
+    }
+    const logs: string[] = [];
+    const { base } = await startBridge(() => [fakeTarget('task-fallback')], 500, {
+      networkInterfaces: () => ({ '以太网 3': [iface('10.239.5.218')] }),
+      peerAddressOf: () => '10.239.5.174',
+      log: (message) => logs.push(message),
+    });
+
+    const banner = logs.find((line) => line.includes('对外监听'));
+    expect(banner).toContain('10.239.5.0/24(以太网 3(地址兜底:10/8))');
+    expect(logs.some((line) => line.includes('启用地址兜底'))).toBe(true);
+    expect((await fetch(`${base}/json/version`)).status).toBe(200);
   });
 });
 

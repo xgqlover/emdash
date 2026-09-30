@@ -36,6 +36,7 @@ import { createServer, type IncomingMessage, type Server, type ServerResponse } 
 import type { Duplex } from 'node:stream';
 import {
   collectXiangwoCdpAllowedPeers,
+  detectDefaultRouteAddress,
   formatAllowedPeers,
   isPeerAllowed,
   preferredRemoteAddress,
@@ -45,6 +46,7 @@ import {
   type XiangwoCdpAllowedPeer,
   type XiangwoCdpBindMode,
   type XiangwoCdpNetworkInterfaces,
+  type XiangwoCdpPeerCollectResult,
 } from './xiangwo-cdp-peers';
 import { acceptXiangwoWebSocket, type XiangwoWsConnection } from './xiangwo-cdp-ws';
 
@@ -244,12 +246,24 @@ export class XiangwoCdpBridge {
       return false;
     }
 
-    const plan =
+    // 默认路由网卡的地址（UDP connect 本地查表，不发包/不要管理员）：只用于"名字没命中时的
+    // 地址兜底"判定（见 xiangwo-cdp-peers.ts）。local 模式不做过滤，不必查。
+    const defaultRouteAddress = this.bind === 'local' ? null : await detectDefaultRouteAddress();
+    const plan: XiangwoCdpPeerCollectResult =
       this.bind === 'local'
-        ? { allowed: [...XIANGWO_CDP_LOOPBACK_PEERS], addresses: [], warnings: [] }
+        ? {
+            allowed: [...XIANGWO_CDP_LOOPBACK_PEERS],
+            virtual: [],
+            addresses: [],
+            warnings: [],
+            notes: [],
+            report: [],
+            candidates: [],
+          }
         : collectXiangwoCdpAllowedPeers({
             ...(this.networkInterfaces ? { interfaces: this.networkInterfaces() } : {}),
             allowOverride: this.allowedPeers,
+            defaultRouteAddress,
           });
     this.peers = plan.allowed;
     const preferred = preferredRemoteAddress(plan.addresses);
@@ -280,23 +294,20 @@ export class XiangwoCdpBridge {
     }
     this.server = server;
     this.started = true;
-    this.logListenBanner(plan.addresses, plan.warnings);
+    this.logListenBanner(plan);
     return true;
   }
 
   /**
-   * [XG-CUSTOM] 启动横幅：必须让用户/我们一眼看懂"听在哪、谁连得上、远端该填什么地址"。
-   * 成功那行的原文（`[XG-CUSTOM] ` 前缀由 wiring.ts 的 log 包装补上）：
+   * [XG-CUSTOM] 启动横幅：必须让用户/我们一眼看懂"听在哪、谁连得上、远端该填什么地址、
+   * 没匹配上的网卡叫什么名字"。成功那行的原文（`[XG-CUSTOM] ` 前缀由 wiring.ts 的 log 包装补上）：
    *   `内嵌浏览器 CDP 桥对外监听 0.0.0.0:9223；允许来源: 127.0.0.1/8, ::1, 10.239.5.0/24(ztu7tmyt7w), 100.64.0.0/10(tailscale0)`
+   *
+   * 后面还会打：每个网卡的判定明细（名字/地址/掩码/mac/结果）、未匹配的候选网段 +
+   * 可直接粘贴的 `XIANGWO_CDP_ALLOW=…` 提示 —— 2026-09-30 真机反馈「Windows 上
+   * ZeroTier 来源被拒」时，缺的就是这份明细。
    */
-  private logListenBanner(
-    addresses: ReadonlyArray<{
-      interfaceName: string;
-      address: string;
-      kind: 'zerotier' | 'tailscale';
-    }>,
-    warnings: readonly string[]
-  ): void {
+  private logListenBanner(plan: XiangwoCdpPeerCollectResult): void {
     if (this.bind === 'local') {
       this.log(`内嵌浏览器 CDP 桥仅监听 ${this.host}:${this.port}（XIANGWO_CDP_BIND=local）`, {
         allowed: formatAllowedPeers(this.peers),
@@ -307,17 +318,65 @@ export class XiangwoCdpBridge {
       `内嵌浏览器 CDP 桥对外监听 ${this.host}:${this.port}；允许来源: ${formatAllowedPeers(this.peers)}`,
       { endpoint: this.endpoint, allowed: this.peers.map((peer) => peer.cidr) }
     );
-    for (const warning of warnings) this.log(warning);
-    if (addresses.length > 0) {
-      const detail = addresses.map((item) => `${item.interfaceName}=${item.address}`).join('、');
-      const preferred = preferredRemoteAddress(addresses);
+
+    // 网卡清单：命中/未命中分开打，IPv6 只记条数（完整明细在 metadata 里，便于 grep 排障）
+    if (plan.report.length > 0) {
+      const ipv4Rows = plan.report.filter((entry) => entry.family === 'IPv4');
+      const matchedRows = ipv4Rows.filter((entry) => entry.cidr !== undefined);
+      const otherRows = ipv4Rows.filter((entry) => entry.cidr === undefined);
+      this.log(
+        `网卡清单（判定来源白名单用）：IPv4/回环 ${ipv4Rows.length} 条，` +
+          `另有 IPv6 ${plan.report.length - ipv4Rows.length} 条已略`,
+        { interfaces: plan.report }
+      );
+      for (const entry of matchedRows) {
+        this.log(
+          `  命中: ${entry.interfaceName} | ${entry.address}/${entry.netmask} | ` +
+            `mac=${entry.mac} | internal=${String(entry.internal)} → ${entry.verdict}`
+        );
+      }
+      if (otherRows.length > 0) {
+        const detail = otherRows
+          .map(
+            (entry) => `${entry.interfaceName}=${entry.address}${entry.internal ? '[回环]' : ''}`
+          )
+          .join(', ');
+        this.log(`  未命中（未进白名单）: ${detail}`);
+      }
+    }
+
+    for (const warning of plan.warnings) this.log(warning);
+    for (const note of plan.notes) this.log(note);
+
+    if (plan.addresses.length > 0) {
+      const detail = plan.addresses
+        .map((item) => `${item.interfaceName}=${item.address}`)
+        .join('、');
+      const preferred = preferredRemoteAddress(plan.addresses);
       const authority = preferred !== null ? `${preferred}:${this.port}` : this.advertisedAuthority;
       this.log(
         `探测到的组网地址：${detail} → 远端(/Linux agent)填 ` +
           `XIANGWO_WEBVIEW_CDP_URL=http://${authority}`,
-        { addresses }
+        { addresses: plan.addresses }
       );
     }
+
+    // 名字没命中的候选网段 → 明确给出"该怎么自救"，避免再猜一轮
+    if (plan.candidates.length > 0) {
+      const detail = plan.candidates
+        .map((item) => `${item.interfaceName}=${item.address}(${item.cidr})`)
+        .join('、');
+      const suggestion = [...new Set(plan.candidates.map((item) => item.cidr))].join(',');
+      this.log(`未匹配的候选网段（${plan.candidates.length} 条）：${detail}`);
+      this.log(
+        `若上面白名单里没有你的组网网段，请设 XIANGWO_CDP_ALLOW=${suggestion} 后重启 emdash`
+      );
+    } else if (plan.addresses.length === 0) {
+      this.log(
+        '若上面白名单里没有你的组网网段，请设 XIANGWO_CDP_ALLOW=<你的组网网段> 后重启 emdash'
+      );
+    }
+
     const firewall = windowsFirewallHint();
     if (firewall !== null) this.log(firewall);
   }

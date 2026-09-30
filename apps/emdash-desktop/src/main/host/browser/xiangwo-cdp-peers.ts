@@ -8,11 +8,21 @@
 // （见 xiangwo-cdp-bridge.ts 的 handleConnection）：
 //   - 永远放行本机回环 `127.0.0.0/8` + `::1`（本机 agent 完全不受影响）
 //   - 自动放行「虚拟组网」接口的网段：
-//       ZeroTier  = 接口名 `^zt`（Linux `ztu7tmyt7w`）/ 含 `zerotier`（Windows
-//                   `ZeroTier One [xxxxxxxx]`）→ 用 `地址 & 掩码` 算出 CIDR（如 10.239.5.0/24）
-//       tailscale = 地址落在 `100.64.0.0/10` → 固定放行 **整个 /10**
-//         （tailnet 是 /10 大网段；用网卡自带的 /32 掩码只会放行本机自己，等于没用）
+//       ZeroTier  = 接口名（**先转小写**）`^zt` / 含 `zerotier` / 含 `zero tier`
+//                   （Linux `ztu7tmyt7w`、Windows `ZeroTier One [xxxxxxxx]`、`ZTN…`）
+//                   → 用 `地址 & 掩码` 算出 CIDR（如 10.239.5.0/24）
+//       tailscale = 接口名含 `tailscale`/`tail scale`，**或地址**落在 `100.64.0.0/10`
+//                   → 固定放行 **整个 /10**
+//                   （tailnet 是 /10 大网段；用网卡自带的 /32 掩码只会放行本机自己，等于没用）
+//   - **地址兜底**（名字全不命中时的最后一道，见下方 collectXiangwoCdpAllowedPeers）
 //   - 可用 `XIANGWO_CDP_ALLOW`（逗号分隔 CIDR）**整体覆盖**自动探测，便于换网段/临时收紧
+//   - 探测明细（每个网卡的名字/地址/掩码/mac/判定）一律进 `report`，由桥打进启动日志 ——
+//     2026-09-30 真机反馈「Windows 上 ZeroTier 来源被拒」时就是因为缺这份日志没法一眼定位。
+//
+// ── 为什么不能靠 MAC 认 ZeroTier ─────────────────────────────────────────────
+// ZeroTier 自己的 `node/MAC.hpp` 里，虚拟网卡 MAC 的第一个字节是 `(nwid & 0xfe) | 0x02`
+// —— 只有"本地管理位"是固定的，**没有固定 OUI**，还跟 Docker(02:42:…)、各种虚拟网卡撞位。
+// 所以 MAC 只作为日志证据（`report[].mac`），不参与放行判断。
 //
 // ── 故意不做的两件事（别当遗漏）──────────────────────────────────────────────
 // 1) 不自动放行组网接口上的 IPv6：ZeroTier/tailscale 的实际连通地址都是 IPv4，
@@ -20,6 +30,7 @@
 //    属于"顺手把门开大"，不做。`::1` 单独字面量放行。
 // 2) 不支持在 `XIANGWO_CDP_ALLOW` 里写 IPv6 CIDR（只解析 IPv4 CIDR + 字面量 `::1`）；
 //    真需要时再按 BigInt 补齐地址比较。
+import { createSocket as createUdpSocket } from 'node:dgram';
 import { networkInterfaces as osNetworkInterfaces, type NetworkInterfaceInfo } from 'node:os';
 
 /** `os.networkInterfaces()` 的形状（单测注入用） */
@@ -79,7 +90,16 @@ export function windowsFirewallHint(platform: NodeJS.Platform = process.platform
 
 /** ZeroTier / tailscale 的网卡名（Linux `ztu7tmyt7w`/`tailscale0`，Windows `ZeroTier One [..]`/`Tailscale`） */
 export function isVirtualNetworkInterface(name: string): boolean {
-  return /^zt/i.test(name) || /zerotier/i.test(name) || /tailscale/i.test(name);
+  return virtualInterfaceKind(name) !== null;
+}
+
+/** 命中的是哪一种组网（`null` = 名字不像组网网卡） */
+export function virtualInterfaceKind(name: string): 'zerotier' | 'tailscale' | null {
+  const lower = name.toLowerCase();
+  if (lower.includes('tailscale') || lower.includes('tail scale')) return 'tailscale';
+  if (lower.includes('zerotier') || lower.includes('zero tier')) return 'zerotier';
+  if (/^zt/.test(lower)) return 'zerotier'; // Linux ztu7tmyt7w / Windows 可能的 ZT… / ZTN…
+  return null;
 }
 
 /** IPv4 是否落在 tailscale 的 100.64.0.0/10 里 */
@@ -128,7 +148,39 @@ export type XiangwoCdpPeerCollectResult = {
   addresses: Array<{ interfaceName: string; address: string; kind: 'zerotier' | 'tailscale' }>;
   /** 给人看的提示：非法 CIDR / 一个组网接口都没探测到 */
   warnings: string[];
+  /** 给人看但不算问题的说明（如"启用了地址兜底"） */
+  notes: string[];
+  /** **每个网卡的判定明细**（名字/地址/掩码/mac/是否回环/判定结果）—— 排障就靠它 */
+  report: XiangwoCdpInterfaceReport[];
+  /** 名字没命中、但地址像私有网的"候选网段"（用于提示用户设 XIANGWO_CDP_ALLOW） */
+  candidates: XiangwoCdpCandidate[];
 };
+
+/** 一个网卡的判定明细（只作日志/排障，不参与放行判断） */
+export type XiangwoCdpInterfaceReport = {
+  interfaceName: string;
+  family: string;
+  address: string;
+  netmask: string;
+  mac: string;
+  internal: boolean;
+  /** 人话判定：`匹配:zerotier(名字) → 10.239.5.0/24` / `跳过（回环）` / `不匹配（物理/其它网卡）` */
+  verdict: string;
+  /** 命中并进入白名单时的 CIDR */
+  cidr?: string;
+};
+
+/** 没匹配上、但地址在私有网段里的接口（提示 `XIANGWO_CDP_ALLOW` 用） */
+export type XiangwoCdpCandidate = { interfaceName: string; address: string; cidr: string };
+
+/** 判定为"组网候选"的私有网段（只用于日志提示，不自动放行） */
+function isPrivateIpv4(value: number): boolean {
+  return (
+    value >>> 24 === 10 || // 10/8
+    value >>> 20 === 0xac1 || // 172.16/12
+    value >>> 16 === 0xc0a8 // 192.168/16
+  );
+}
 
 /**
  * [XG-CUSTOM] 算"实际生效的允许来源"。
@@ -136,16 +188,25 @@ export type XiangwoCdpPeerCollectResult = {
  * `allowOverride` 非空（= 用户设了 `XIANGWO_CDP_ALLOW` 且至少有一项合法）时**只用它**，
  * 不再自动探测 —— 便于换网段/临时收紧；本机回环永远附加在后面（本机 agent 不能被锁死）。
  * 若 `XIANGWO_CDP_ALLOW` 一项都不合法 → 记 warning 并回退自动探测（不把用户锁在门外）。
+ *
+ * `defaultRouteAddress`（默认路由网卡地址，见 `detectDefaultRouteAddress`）只用于**地址兜底**：
+ * 一个接口名字都没命中时，如果默认路由网卡**不在 10/8**，就把其它 10/8 接口的网段也放行
+ * （ZeroTier 网卡名在部分 Windows 上可能是本地化/改名过的，光靠名字会漏 —— 见文件头）。
  */
 export function collectXiangwoCdpAllowedPeers(
   options: {
     interfaces?: XiangwoCdpNetworkInterfaces;
     allowOverride?: readonly string[];
+    defaultRouteAddress?: string | null;
   } = {}
 ): XiangwoCdpPeerCollectResult {
   const warnings: string[] = [];
+  const notes: string[] = [];
   const virtual: XiangwoCdpAllowedPeer[] = [];
   const addresses: XiangwoCdpPeerCollectResult['addresses'] = [];
+  const report: XiangwoCdpInterfaceReport[] = [];
+  const candidates: XiangwoCdpCandidate[] = [];
+  let nameMatched = false;
 
   const override = (options.allowOverride ?? []).map((item) => item.trim()).filter((item) => item);
   if (override.length > 0) {
@@ -168,24 +229,83 @@ export function collectXiangwoCdpAllowedPeers(
     for (const [interfaceName, infos] of Object.entries(interfaces)) {
       for (const info of infos ?? []) {
         // 回环单独由 LOOPBACK_PEERS 覆盖；只认 IPv4（理由见文件头第 1 条）
-        if (info.internal || !isIpv4Family(info.family)) continue;
+        if (info.internal) {
+          report.push(reportEntry(interfaceName, info, '跳过（回环/内部网卡）'));
+          continue;
+        }
+        if (!isIpv4Family(info.family)) {
+          report.push(reportEntry(interfaceName, info, '跳过（非 IPv4）'));
+          continue;
+        }
         const tailnet = isTailscaleAddress(info.address);
-        if (!tailnet && !isVirtualNetworkInterface(interfaceName)) continue;
-        const kind: 'zerotier' | 'tailscale' = tailnet ? 'tailscale' : 'zerotier';
+        const nameKind = virtualInterfaceKind(interfaceName);
+        if (!tailnet && nameKind === null) {
+          const value = ipv4ToInt(info.address);
+          const candidateCidr = cidrOfIpv4(info.address, info.netmask);
+          if (value !== null && isPrivateIpv4(value) && candidateCidr !== null) {
+            candidates.push({ interfaceName, address: info.address, cidr: candidateCidr });
+          }
+          report.push(reportEntry(interfaceName, info, '不匹配（物理/其它网卡）'));
+          continue;
+        }
+        const kind: 'zerotier' | 'tailscale' = tailnet ? 'tailscale' : (nameKind ?? 'zerotier');
         // tailnet 一律放行整个 /10；其余组网接口用 地址 & 掩码 算它自己的网段
         const cidr = tailnet ? XIANGWO_CDP_TAILSCALE_CIDR : cidrOfIpv4(info.address, info.netmask);
         if (cidr === null) {
           warnings.push(
             `${interfaceName} 的掩码 ${info.netmask} 不是连续掩码（跳过 ${info.address}）`
           );
+          report.push(reportEntry(interfaceName, info, `跳过（掩码 ${info.netmask} 不连续）`));
           continue;
         }
+        if (nameKind !== null) nameMatched = true;
         if (!virtual.some((peer) => peer.cidr === cidr)) {
           virtual.push({ cidr, family: 'IPv4', label: interfaceName });
         }
         addresses.push({ interfaceName, address: info.address, kind });
+        report.push(
+          reportEntry(
+            interfaceName,
+            info,
+            `匹配:${kind}(${tailnet ? '地址 100.64/10' : '名字'}) → ${cidr}`,
+            cidr
+          )
+        );
       }
     }
+
+    // ── 地址兜底（只在"名字一个都没命中"时启用）─────────────────────────────
+    // 为什么需要：Windows 上 ZeroTier 的适配器名是系统给的友好名，可能是本地化/被改过的
+    // （名字匹配会漏），而地址规则（100.64/10）只覆盖 tailscale。用户要求"装完即用"，
+    // 所以给一条**有边界**的兜底：只在名字全不命中 + 默认路由网卡不在 10/8 时，
+    // 放行其它 10/8 接口的网段（ZeroTier 网络绝大多数配在 10.x；家里/公司网段若是 10.x，
+    // 这条规则不生效 → 宁可走日志提示 + XIANGWO_CDP_ALLOW，也不冒然放宽）。
+    const defaultRoute = options.defaultRouteAddress ?? null;
+    const defaultRouteValue = defaultRoute === null ? null : ipv4ToInt(defaultRoute);
+    const fallbackActive =
+      !nameMatched &&
+      defaultRouteValue !== null &&
+      defaultRouteValue >>> 24 !== 10 && // 默认路由（通常是物理网卡/局域网）不在 10/8
+      virtual.length >= 0;
+    if (fallbackActive) {
+      for (const entry of report) {
+        if (entry.internal || entry.family !== 'IPv4' || entry.cidr !== undefined) continue;
+        const value = ipv4ToInt(entry.address);
+        if (value === null || value >>> 24 !== 10) continue;
+        const cidr = cidrOfIpv4(entry.address, entry.netmask);
+        if (cidr === null || virtual.some((peer) => peer.cidr === cidr)) continue;
+        virtual.push({ cidr, family: 'IPv4', label: `${entry.interfaceName}(地址兜底:10/8)` });
+        entry.cidr = cidr;
+        entry.verdict = '地址兜底:10/8 → ' + cidr;
+      }
+      if (virtual.length > 0) {
+        notes.push(
+          `组网网卡一个都没按名字命中 → 启用地址兜底：放行 10.0.0.0/8 接口的网段` +
+            `（默认路由网卡 ${defaultRoute} 不在 10/8，所以这些 10.x 接口不可能是主用局域网）`
+        );
+      }
+    }
+
     if (virtual.length === 0) {
       warnings.push(
         '未探测到 ZeroTier/tailscale 组网接口 —— 远端将连不上，请检查 ZeroTier/tailscale 是否在线' +
@@ -199,7 +319,65 @@ export function collectXiangwoCdpAllowedPeers(
   for (const peer of orderedVirtual) {
     if (!allowed.some((existing) => existing.cidr === peer.cidr)) allowed.push(peer);
   }
-  return { allowed, virtual: orderedVirtual, addresses, warnings };
+  return { allowed, virtual: orderedVirtual, addresses, warnings, notes, report, candidates };
+}
+
+function reportEntry(
+  interfaceName: string,
+  info: NetworkInterfaceInfo,
+  verdict: string,
+  cidr?: string
+): XiangwoCdpInterfaceReport {
+  return {
+    interfaceName,
+    family: String(info.family),
+    address: info.address,
+    netmask: info.netmask,
+    mac: info.mac ?? '',
+    internal: info.internal === true,
+    verdict,
+    ...(cidr === undefined ? {} : { cidr }),
+  };
+}
+
+/**
+ * 默认路由网卡的地址（用来判断"哪个接口是主用局域网"）。
+ *
+ * 做法是 UDP `connect()` 查一次路由表：**不发任何包**，纯本地查表，不需要管理员权限、
+ * 不碰注册表、不调 netsh。拿不到（离线/无默认路由）→ `null`（此时不做地址兜底，更安全）。
+ */
+export function detectDefaultRouteAddress(timeoutMs = 400): Promise<string | null> {
+  return new Promise((resolve) => {
+    let settled = false;
+    let socket: ReturnType<typeof createUdpSocket> | null = null;
+    const finish = (value: string | null): void => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      try {
+        socket?.close();
+      } catch {
+        // 已经关了/还没建好：忽略
+      }
+      resolve(value);
+    };
+    const timer = setTimeout(() => finish(null), timeoutMs);
+    try {
+      // 必须显式传 'udp4'：不带参数的 createSocket() 会抛（曾经因此静默退化成"永远拿不到默认路由"，
+      // 表现就是"地址兜底永远不生效"）
+      socket = createUdpSocket('udp4');
+      socket.once('error', () => finish(null));
+      socket.connect(53, '8.8.8.8', () => {
+        try {
+          finish(socket?.address().address ?? null);
+        } catch {
+          finish(null);
+        }
+      });
+    } catch {
+      finish(null);
+    }
+  });
 }
 
 /**
