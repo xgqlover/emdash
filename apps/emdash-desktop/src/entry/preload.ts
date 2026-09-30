@@ -34,6 +34,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   // [XG-CUSTOM] CDP 桥接：截图当前浏览器标签页 / 拿当前标签页 URL（浮窗 📷 用）。
   captureCurrentTab: () => ipcRenderer.invoke('xiangwo:capture-current-tab'),
+  // [XG-CUSTOM] agent 网页清单 / 关页面（球面板的"网页 N"控件；见 main/host/window.ts 的 CDP 桥）
+  xiangwoPages: () => ipcRenderer.invoke('xiangwo:pages'),
+  xiangwoClosePages: (args: { ids?: string[]; all?: boolean }) =>
+    ipcRenderer.invoke('xiangwo:close-pages', args),
   getCurrentTabUrl: () => ipcRenderer.invoke('xiangwo:get-current-tab-url'),
   // [XG-CUSTOM] 浮窗标志：主进程 additionalArguments 传入（不依赖 URL）。
   isXiangwoFloating: process.argv.includes('--xiangwo-floating'),

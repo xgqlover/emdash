@@ -16,6 +16,7 @@ import { legacyPortOperations } from '@main/db/legacy-port/controller';
 import type { DesktopRuntimes } from '@main/gateway/desktop-runtimes';
 import { setBrowserCorsRelaxationSettings } from '@main/host/browser/browser-profile-session';
 import { browserWebContentsRegistry } from '@main/host/browser/browser-webcontents-registry';
+import { XiangwoCdpBridge } from '@main/host/browser/xiangwo-cdp-bridge';
 import { browserOperations } from '@main/host/browser/controller';
 import { createDevPerfOperations } from '@main/host/dev-perf/controller-operations';
 import { writeRendererLogEntry } from '@main/host/file-logger';
@@ -71,6 +72,36 @@ export function autostartXiangwoOrb(delayMs = 1500): void {
     }
   }, delayMs);
 }
+
+/**
+ * [XG-CUSTOM] 内嵌浏览器 CDP 桥（agent.py 第②级「iframe 合流」的通道）。
+ *
+ * wego-lite/browser_use_bridge.py 连的是 `http://localhost:9223`，而 emdash 从没在 9223 上
+ * 监听任何东西 —— 这条链路一直是断的。这里在 boot 完成后把桥拉起来：只用
+ * `browserWebContentsRegistry.listBoundBrowsers()` 当白名单（拿得到 browserId 的内嵌浏览器），
+ * 主窗口/对话页不可附加。
+ *
+ * - 端口：`XIANGWO_CDP_PORT`（缺省 9223，与 browser_use_bridge 对齐）
+ * - 逃生开关：`XIANGWO_CDP_BRIDGE=0`（不启动桥；第②级会像以前一样落回 9222 有头 Chrome）
+ * - 失败只打日志：端口被占用/页面异常绝不影响主窗口启动
+ */
+export function startXiangwoCdpBridge(): void {
+  if (['0', 'off', 'false', 'no'].includes((process.env.XIANGWO_CDP_BRIDGE ?? '').toLowerCase())) {
+    log.info('[XG-CUSTOM] 内嵌浏览器 CDP 桥已关闭（XIANGWO_CDP_BRIDGE=0）');
+    return;
+  }
+  if (xiangwoCdpBridge !== null) return;
+  const configuredPort = Number.parseInt(process.env.XIANGWO_CDP_PORT ?? '', 10);
+  const bridge = new XiangwoCdpBridge({
+    listTargets: () => browserWebContentsRegistry.listBoundBrowsers(),
+    ...(Number.isFinite(configuredPort) && configuredPort > 0 ? { port: configuredPort } : {}),
+    log: (message, metadata) => log.info(`[XG-CUSTOM] ${message}`, metadata),
+  });
+  xiangwoCdpBridge = bridge;
+  void bridge.start();
+}
+
+let xiangwoCdpBridge: XiangwoCdpBridge | null = null;
 
 export function createDesktopWireOptions(
   database: DatabaseBundle,

@@ -3,7 +3,7 @@ import { integrationsEvents } from '@core/features/integrations/node/event-host'
 import type { DesktopRuntimes } from '@main/gateway/desktop-runtimes';
 import { log } from '@main/lib/logger';
 import { runInBackground } from '../../core/background';
-import { autostartXiangwoOrb } from '../wiring';
+import { autostartXiangwoOrb, startXiangwoCdpBridge } from '../wiring';
 import { startMainDevPerfInstruments } from './dev-perf';
 import { startPerfVitalsTelemetry } from './perf-vitals';
 import type { ServicesBundle } from './services';
@@ -61,4 +61,8 @@ export function bootBackground(services: ServicesBundle, runtimes: DesktopRuntim
   // 之后运行，所以不会和窗口初始化竞争。开关 XIANGWO_ORB_AUTOSTART=0 与失败兜底都在
   // wiring.ts 的 autostartXiangwoOrb（失败只打日志，绝不影响主窗口启动）。
   autostartXiangwoOrb();
+
+  // [XG-CUSTOM] 内嵌浏览器 CDP 桥（agent.py 第②级「iframe 合流」，localhost:9223）。
+  // 和球一样放在 boot 最后：此时 service/wire 阶段都完成，browserWebContentsRegistry 可用。
+  startXiangwoCdpBridge();
 }

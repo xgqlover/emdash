@@ -390,6 +390,12 @@ async function main() {
   const prompt = document.querySelector('#prompt');
   const composer = document.querySelector('#composer');
   const stop = document.querySelector('#stop');
+  const pagesButton = document.querySelector('#pages');
+  const pagesCount = document.querySelector('#pages-count');
+  const pagesMenu = document.querySelector('#pages-menu');
+  const pagesMenuList = document.querySelector('#pages-menu-list');
+  const pagesMenuHint = document.querySelector('#pages-menu-hint');
+  const pagesCloseAll = document.querySelector('#pages-close-all');
   const imageButton = document.querySelector('#image');
   const imageInput = document.querySelector('#image-input');
   const fileButton = document.querySelector('#file');
@@ -715,12 +721,16 @@ async function main() {
       stop.hidden = !running;
       // [XG-CUSTOM][TEMP-TRACE] 展开成型后的现场：球的位置/命中/形状相关事实（真机排查用）
       trace('panel-open-done', { direction: state, ...ballDebug() });
+      // [XG-CUSTOM] 面板打开时刷新"网页 N"，并开启 5s 轻量轮询（收起时停掉）
+      void refreshPages();
+      syncPagesPolling();
       return;
     }
     expandWanted = false;
     expanded = false;
     stop.hidden = true;
     unmountPanel();
+    syncPagesPolling();
     await api.floating.setExpanded(false);
   }
 
@@ -936,6 +946,8 @@ async function main() {
       persistConversations();
       renderTranscript();
       setRunning(false);
+      // [XG-CUSTOM] 聊完/停止后刷新 agent 网页计数（agent 可能在回答里开了新页面）
+      void refreshPages();
     }
   }
 
@@ -996,6 +1008,123 @@ async function main() {
     renderTranscript();
     await api.floating.setSessionId(current.id);
     await api.floating.onCreateSession();
+  }
+
+  /**
+   * [XG-CUSTOM] agent 网页计数 + 一键清理。
+   *
+   * 痛点：浏览器 page 开太多会把机器拖死（用户这台被 Chrome 一堆 page + swap 满卡过）。
+   * 主进程 `xiangwo:pages` 走 CDP（127.0.0.1:9222）列页面，**只列"非本地/非 chrome://"的外部网页**
+   * （无法可靠区分"谁开的"，所以保守处理：平台页/本地页永不列出、永不关；UI 上也写明"只关外部网页"）。
+   * CDP 不可达 → 主进程返回 `{ok:false,error}`，这里显示人话提示，不崩、不报错。
+   *
+   * 刷新时机：面板打开时、每次聊完/停止后、以及自己动作之后；展开态每 5s 轻量轮询一次。
+   */
+  let pagesPollTimer;
+  let pagesSnapshot = [];
+
+  async function refreshPages() {
+    if (pagesButton === null || pagesCount === null) return;
+    let result;
+    try {
+      result = await bridge.xiangwoPages?.();
+    } catch (cause) {
+      result = { ok: false, error: describeError(cause) };
+    }
+    if (result === undefined || result === null) {
+      pagesButton.hidden = true;
+      return;
+    }
+    if (result.ok === false) {
+      // CDP 不可达：按钮藏起来，菜单里给人话提示（不抛错、不崩）
+      pagesButton.hidden = true;
+      pagesSnapshot = [];
+      pagesMenuHint.textContent = String(result.error ?? '读不到 agent 网页');
+      if (pagesMenu !== null && !pagesMenu.hidden) renderPagesMenu();
+      return;
+    }
+    pagesSnapshot = Array.isArray(result.pages) ? result.pages : [];
+    pagesButton.hidden = pagesSnapshot.length === 0; // 0 个就隐藏（不占地方）
+    pagesCount.textContent = String(pagesSnapshot.length);
+    pagesMenuHint.textContent = '';
+    if (pagesMenu !== null && !pagesMenu.hidden) renderPagesMenu();
+  }
+
+  function renderPagesMenu() {
+    if (pagesMenuList === null) return;
+    pagesMenuList.replaceChildren();
+    if (pagesSnapshot.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'pages-empty';
+      empty.textContent = pagesMenuHint.textContent === '' ? '当前没有 agent 打开的网页' : pagesMenuHint.textContent;
+      pagesMenuList.append(empty);
+      if (pagesCloseAll !== null) pagesCloseAll.disabled = true;
+      return;
+    }
+    if (pagesCloseAll !== null) pagesCloseAll.disabled = false;
+    for (const page of pagesSnapshot.slice(0, 8)) {
+      const row = document.createElement('div');
+      row.className = 'pages-row';
+      const label = document.createElement('div');
+      label.className = 'pages-label';
+      const title = document.createElement('div');
+      title.className = 'pages-title';
+      title.textContent = page.title;
+      const url = document.createElement('div');
+      url.className = 'pages-url';
+      let host = page.url;
+      try {
+        host = new URL(page.url).host;
+      } catch {
+        /* 保留原串 */
+      }
+      url.textContent = host;
+      label.append(title, url);
+      const close = document.createElement('button');
+      close.type = 'button';
+      close.className = 'pages-close';
+      close.title = '关掉这个网页';
+      close.textContent = '✕';
+      close.addEventListener('click', () => void closePages({ ids: [page.id] }));
+      row.append(label, close);
+      pagesMenuList.append(row);
+    }
+    if (pagesSnapshot.length > 8) {
+      const more = document.createElement('div');
+      more.className = 'pages-empty';
+      more.textContent = `还有 ${pagesSnapshot.length - 8} 个，用「关闭全部」一次清理`;
+      pagesMenuList.append(more);
+    }
+  }
+
+  async function closePages(args) {
+    try {
+      await bridge.xiangwoClosePages?.(args);
+    } catch (cause) {
+      status.textContent = `关网页失败: ${describeError(cause)}`;
+    }
+    await refreshPages();
+  }
+
+  function setPagesMenuOpen(next) {
+    if (pagesMenu === null) return;
+    pagesMenu.hidden = !next;
+    if (next) {
+      renderPagesMenu();
+      void refreshPages();
+    }
+  }
+
+  /** 只在面板展开时每 5s 轻量刷新一次计数 */
+  function syncPagesPolling() {
+    const shouldPoll = expanded;
+    if (shouldPoll && pagesPollTimer === undefined) {
+      pagesPollTimer = setInterval(() => void refreshPages(), 5000);
+    } else if (!shouldPoll && pagesPollTimer !== undefined) {
+      clearInterval(pagesPollTimer);
+      pagesPollTimer = undefined;
+      setPagesMenuOpen(false);
+    }
   }
 
   /**
@@ -1147,6 +1276,13 @@ async function main() {
     void captureCurrentTab();
   });
   // [XG-CUSTOM] 🖼️/📎：按钮点开隐藏 input；change 后要走完整条发图/发文件路径并清空 value
+  pagesButton?.addEventListener('click', () => setPagesMenuOpen(pagesMenu?.hidden === true));
+  pagesCloseAll?.addEventListener('click', () => void closePages({ all: true }));
+  document.addEventListener('pointerdown', (event) => {
+    if (pagesMenu === null || pagesMenu.hidden) return;
+    if (pagesMenu.contains(event.target) || pagesButton?.contains(event.target) === true) return;
+    setPagesMenuOpen(false);
+  });
   imageButton?.addEventListener('click', () => imageInput?.click());
   fileButton?.addEventListener('click', () => fileInput?.click());
   imageInput?.addEventListener('change', () => {

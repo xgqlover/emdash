@@ -997,3 +997,149 @@ body.has-avatar #ball-mark {
 body.drop-active #panel {
   box-shadow: inset 0 0 0 2px var(--pin);
 }
+
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * [XG-CUSTOM] agent 网页计数 + 清理菜单（浏览器 page 开太多会把机器拖死）。
+ * 计数按钮跟 🖼️/📎 同观感，但带文字所以宽一点；菜单是面板内的自绘 DOM。
+ * ───────────────────────────────────────────────────────────────────────── */
+#pages {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+  height: 28px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 10px;
+  color: var(--black);
+  background: var(--input-bg);
+  font: inherit;
+  font-size: 11px;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+#pages:hover {
+  box-shadow: inset 0 0 0 1px var(--pin);
+}
+
+#pages-close-all:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+#pages-menu {
+  position: absolute;
+  z-index: 7;
+  /* 挂在第二行下方、面板左侧（第二行 top:46 + 高度 28 + 间距） */
+  top: 80px;
+  left: 12px;
+  right: 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px;
+  background: var(--white);
+  color: var(--black);
+}
+
+/* [XG-CUSTOM] 同 #selection-bar：作者样式的 display 会盖掉 [hidden] 的 UA display:none */
+#pages-menu[hidden] {
+  display: none !important;
+}
+
+#pages-menu-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+#pages-menu-title {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+#pages-close-all {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px 8px;
+  background: var(--input-bg);
+  color: var(--black);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+#pages-menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.pages-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pages-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.pages-title {
+  font-size: 12px;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pages-url {
+  font-size: 10px;
+  color: var(--pin);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pages-close {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 0;
+  background: var(--input-bg);
+  color: var(--black);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.pages-close:hover {
+  box-shadow: inset 0 0 0 1px var(--pin);
+}
+
+.pages-empty {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--pin);
+}
+
+#pages-menu-hint:empty {
+  display: none;
+}
+
+#pages-menu-hint {
+  margin-top: 6px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--pin);
+}

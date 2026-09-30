@@ -157,6 +157,19 @@ export class BrowserWebContentsRegistry {
     return this.activeBrowserId;
   }
 
+  /**
+   * [XG-CUSTOM] 内嵌浏览器 CDP 桥（main/host/browser/xiangwo-cdp-bridge.ts）的白名单来源：
+   * 只返回已通过 bindWebContents 绑定过 browserId 的内嵌浏览器 webContents —— 也就是
+   * "拿得到 browserId 的那个内嵌浏览器"。主窗口/其它 webContents 永远不会从这里出去。
+   */
+  listBoundBrowsers(): Array<{ browserId: string; webContents: WebContents }> {
+    const bound: Array<{ browserId: string; webContents: WebContents }> = [];
+    for (const [browserId, webContents] of this.webContentsByBrowserId) {
+      if (!webContents.isDestroyed()) bound.push({ browserId, webContents });
+    }
+    return bound;
+  }
+
   openDevTools(browserId: string): boolean {
     const webContents = this.webContentsByBrowserId.get(browserId);
     if (!webContents || webContents.isDestroyed()) return false;

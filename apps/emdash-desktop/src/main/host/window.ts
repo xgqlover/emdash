@@ -219,7 +219,95 @@ function cdpCall(wsUrl: string, method: string, params?: unknown): Promise<unkno
   });
 }
 
+/**
+ * [XG-CUSTOM] 页面清理：agent 打开的网页太多会把机器拖死（用户这台已经被 Chrome 一堆 page + swap
+ * 满卡过），所以球面板要能"看见 + 一键关掉"。
+ *
+ * **过滤规则**：CDP `/json` 里同时有平台自己的页面（127.0.0.1/localhost 的 emdash/wego-lite 页面、
+ * chrome:// 内部页、扩展页）和 agent 真正打开的外网页。无法 100% 可靠区分"谁开的"，
+ * 所以这里采用保守规则：**只把"非本地、非 chrome://、非扩展"的 http(s) 页面算作 agent 网页**
+ * （注释与 UI 都写明"只列/只关外部网页"），绝不误关平台页或用户自己开的本地页。
+ */
+type XiangwoPageInfo = { id: string; title: string; url: string };
+
+function isLocallyOwnedUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return true;
+    const host = parsed.hostname;
+    return (
+      host === '127.0.0.1' ||
+      host === 'localhost' ||
+      host === '::1' ||
+      host.endsWith('.localhost') ||
+      host === '0.0.0.0'
+    );
+  } catch {
+    return true; // 解析不出来的（about:blank / chrome:// / devtools:// 等）一律不当成 agent 网页
+  }
+}
+
+/** 列 agent 网页（CDP 不可达 → ok:false + 人话提示，绝不抛错崩溃） */
+async function listXiangwoPages(): Promise<
+  { ok: true; pages: XiangwoPageInfo[] } | { ok: false; error: string }
+> {
+  try {
+    const res = await fetch(`${CDP_BASE}/json`);
+    if (!res.ok) return { ok: false, error: `浏览器调试端口返回 ${res.status}` };
+    const raw = (await res.json()) as Array<{ id?: string; title?: string; url?: string; type?: string }>;
+    const pages = raw
+      .filter((t) => (t.type ?? 'page') === 'page')
+      .filter((t) => typeof t.url === 'string' && !isLocallyOwnedUrl(t.url))
+      .slice(0, 50)
+      .map((t) => ({
+        id: String(t.id ?? ''),
+        title: (t.title ?? '').trim() === '' ? '(无标题)' : String(t.title).slice(0, 120),
+        url: String(t.url ?? '').slice(0, 300),
+      }))
+      .filter((t) => t.id !== '');
+    return { ok: true, pages };
+  } catch {
+    return { ok: false, error: '连不上浏览器调试端口（Chrome/wego-lite 没在跑），暂时看不到 agent 网页' };
+  }
+}
+
+/** 关页面：走 HTTP `/json/close/<id>`（比开 WS 发 Target.closeTarget 轻，也不用管连接生命周期） */
+async function closeXiangwoPages(
+  ids: string[]
+): Promise<{ ok: true; closed: string[]; failed: string[] }> {
+  const closed: string[] = [];
+  const failed: string[] = [];
+  for (const id of ids) {
+    try {
+      const res = await fetch(`${CDP_BASE}/json/close/${encodeURIComponent(id)}`);
+      if (res.ok) closed.push(id);
+      else failed.push(id);
+    } catch {
+      failed.push(id);
+    }
+  }
+  return { ok: true, closed, failed };
+}
+
 export function registerXiangwoCdpBridge(): void {
+  // [XG-CUSTOM] 列/关 agent 网页（球面板的"网页 N"控件用）
+  ipcMain.handle('xiangwo:pages', async () => listXiangwoPages());
+  ipcMain.handle(
+    'xiangwo:close-pages',
+    async (_event, args: { ids?: unknown; all?: unknown } | undefined) => {
+      const all = args?.all === true;
+      const ids = Array.isArray(args?.ids)
+        ? args.ids.filter((id): id is string => typeof id === 'string' && id !== '')
+        : [];
+      if (!all && ids.length === 0) return { ok: true, closed: [], failed: [] };
+      // all → 先列一遍（只关"外部网页"，平台页/本地页不动）
+      const targets = all ? (await listXiangwoPages()) : undefined;
+      if (all && targets !== undefined && targets.ok === false) return { ok: true, closed: [], failed: [] };
+      const list = all ? (targets as { ok: true; pages: XiangwoPageInfo[] }).pages : undefined;
+      const toClose = list !== undefined ? list.map((p) => p.id) : ids;
+      return closeXiangwoPages(toClose);
+    }
+  );
   ipcMain.handle('xiangwo:capture-current-tab', async () => {
     const tab = await getCurrentTab();
     if (!tab?.webSocketDebuggerUrl) throw new Error('没有可用的浏览器页面标签');
@@ -383,56 +471,6 @@ export function createXiangwoFloatingWindow(): BrowserWindow {
   return xiangwoFloatingWindow;
 }
 
-function legacyFloatingWindow(): BrowserWindow {
-  xiangwoFloatingWindow = new BrowserWindow({
-    width: 360,
-    height: 640,
-    minWidth: 280,
-    minHeight: 320,
-    title: '项我侧边聊天',
-    alwaysOnTop: true,
-    backgroundColor: nativeTheme.shouldUseDarkColors ? '#111111' : '#fcfcfc',
-    ...(import.meta.env.DEV && { icon: devIcon }),
-    webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
-      sandbox: false,
-      webviewTag: true,
-      // [XG-CUSTOM] 浮窗标志：renderer 通过 process.argv 读到它，直接走浮窗渲染。
-      // 不依赖 URL（app:// 协议下 query/hash 都会被 net.fetch(file://) 吞掉）。
-      additionalArguments: ['--xiangwo-floating'],
-      preload: join(app.getAppPath(), 'out', 'preload', 'index.mjs'),
-    },
-    ...(process.platform === 'linux' ? { frame: false } : {}),
-    show: false,
-  });
-  if (process.platform !== 'darwin') {
-    xiangwoFloatingWindow.setMenuBarVisibility(false);
-  }
-  xiangwoFloatingWindow.setAlwaysOnTop(true, 'floating');
-  if (import.meta.env.DEV) {
-    void xiangwoFloatingWindow.loadURL(`${process.env.ELECTRON_RENDERER_URL!}?xiangwo-floating=1`);
-  } else {
-    void xiangwoFloatingWindow.loadURL(`${APP_ORIGIN}/index.html?xiangwo-floating=1`);
-  }
-  xiangwoFloatingWindow.once('ready-to-show', () => {
-    xiangwoFloatingWindow?.show();
-    xiangwoFloatingWindow?.focus();
-  });
-  xiangwoFloatingWindow.show();
-  xiangwoFloatingWindow.focus();
-  // [XG-CUSTOM] 浮窗加载完成后直接移除 boot-splash（不依赖 renderer 的 classList 时序）。
-  // splash 是 z-index 2147483647 的全屏覆盖层，不 remove 会盖住浮窗且挡住交互。
-  xiangwoFloatingWindow.webContents.on('did-finish-load', () => {
-    xiangwoFloatingWindow?.webContents
-      .executeJavaScript("document.getElementById('boot-splash')?.remove();")
-      .catch(() => {});
-  });
-  xiangwoFloatingWindow.on('closed', () => {
-    xiangwoFloatingWindow = null;
-  });
-  return xiangwoFloatingWindow;
-}
 
 // [XG-CUSTOM] WeKnora 窗口：本地知识库/资料加工台（WeKnora 前端 9037，后端 API 9035）。
 // ⚠️ 3010 是 AFFiNE（不是 WeKnora）；9036 是孤儿 nginx 容器（502 弃用），9037 是宿主机 nginx 代理。
