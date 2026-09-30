@@ -75,6 +75,11 @@ export type XiangwoBrowserRelayOptions = {
   log?: (message: string, metadata?: Record<string, unknown>) => void;
   /** 退避阶梯覆盖（单测用；缺省 1s→2s→5s→15s） */
   backoffStepsMs?: readonly number[];
+  /**
+   * 解析出的基址是"本机 8900"时自动停用（缺省 true）。
+   * 只有**自动解析**（没显式给 XIANGWO_BROWSER_RELAY_URL）时才该为 true —— 见 createXiangwoBrowserRelay。
+   */
+  skipLocalAgentBase?: boolean;
 };
 
 type RelaySession = {
@@ -125,6 +130,28 @@ export function localWsBaseOf(localCdpBase: string): string {
 }
 
 /**
+ * [XG-CUSTOM] 这个基址是不是"agent 就跑在本机 8900"？
+ *
+ * 为什么要判它：家里那台 Linux 上**同时**跑着 agent(8900) 和 emdash(9223)。
+ * 那台 emdash 的 relay 若也拨回来，就会和 Windows 抢"谁是被操作的浏览器"
+ * （agent.py 反复强调的"错浏览器"坑），而且是白多一跳。
+ * 本机 emdash 用本机 9223 链路本来就够用 → 这台不用拨。
+ *
+ * 注意：**SSH 转发**场景下 Windows 拿到的也是回环地址（`http://127.0.0.1:<转发端口>`），
+ * 但端口不是 8900，所以不会被误判 —— 只有"回环 + 正好 8900"才算本机。
+ */
+export function isLocalAgentBase(baseUrl: string): boolean {
+  try {
+    const url = new URL(baseUrl);
+    const host = url.hostname.toLowerCase().replace(/^\[|\]$/g, '');
+    const loopback = host === 'localhost' || host === '::1' || /^127\./.test(host);
+    return loopback && url.port === '8900';
+  } catch {
+    return false;
+  }
+}
+
+/**
  * [XG-CUSTOM] 反向命令通道客户端。
  *
  * 生命周期：`start()` 幂等启动后台循环；`stop()` 之后不再发任何请求。
@@ -140,6 +167,7 @@ export class XiangwoBrowserRelay {
   private readonly webSocketFactory: (url: string) => RelayWebSocket;
   private readonly log: (message: string, metadata?: Record<string, unknown>) => void;
   private readonly backoffStepsMs: readonly number[];
+  private readonly skipLocalAgentBase: boolean;
 
   /** 稳定的 peer id（同一次运行内复用，便于对面日志认人） */
   readonly peerId = randomUUID();
@@ -165,6 +193,7 @@ export class XiangwoBrowserRelay {
       ((url: string) => new WebSocket(url) as unknown as RelayWebSocket);
     this.log = options.log ?? (() => {});
     this.backoffStepsMs = options.backoffStepsMs ?? BACKOFF_STEPS_MS;
+    this.skipLocalAgentBase = options.skipLocalAgentBase ?? true;
   }
 
   status(): XiangwoBrowserRelayStatus {
@@ -214,6 +243,14 @@ export class XiangwoBrowserRelay {
             continue;
           }
           this.baseUrl = resolved.trim().replace(/\/+$/, '');
+          if (this.skipLocalAgentBase && isLocalAgentBase(this.baseUrl)) {
+            this.log(
+              '内嵌浏览器反向通道：agent 就在本机（127.0.0.1:8900）→ 本机 9223 桥已经够用，这台不拨' +
+                '（要强制开：设 XIANGWO_BROWSER_RELAY_URL 显式指定地址）'
+            );
+            this.stop();
+            return;
+          }
           this.log(`内嵌浏览器反向通道已启用：出站连 ${this.baseUrl}（不开入站端口）`, {
             peerId: this.peerId,
             localCdpBase: this.localCdpBase,
@@ -604,6 +641,8 @@ export function createXiangwoBrowserRelay(
     resolveBaseUrl: async () => (explicit !== '' ? explicit : await resolveBaseUrl()),
     localCdpBase: (process.env.XIANGWO_EMDASH_CDP_BASE ?? '').trim() || XIANGWO_RELAY_LOCAL_CDP_BASE,
     pollWaitSeconds: parseWaitSeconds(process.env.XIANGWO_BROWSER_RELAY_WAIT),
+    // 只有"自动解析"时才允许因"本机就是 agent"而自我停用；显式给了地址就照跑（自测/强制场景）
+    skipLocalAgentBase: explicit === '',
     log,
   });
 }

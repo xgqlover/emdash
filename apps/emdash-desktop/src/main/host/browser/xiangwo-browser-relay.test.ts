@@ -3,6 +3,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   cdpCallOnce,
+  isLocalAgentBase,
   localWsBaseOf,
   relayEnabledFromEnv,
   XiangwoBrowserRelay,
@@ -106,6 +107,19 @@ describe('xiangwo-browser-relay 开关与小工具', () => {
     expect(localWsBaseOf('http://127.0.0.1')).toBe('ws://127.0.0.1:9223');
     expect(localWsBaseOf('garbage')).toBe('ws://127.0.0.1:9223');
   });
+
+  it('isLocalAgentBase 只认"回环 + 正好 8900"（SSH 转发端口不算）', () => {
+    // 家里那台 Linux：agent 与本机 emdash 同机 → 本机 emdash 不该再拨回来
+    expect(isLocalAgentBase('http://127.0.0.1:8900')).toBe(true);
+    expect(isLocalAgentBase('http://localhost:8900')).toBe(true);
+    expect(isLocalAgentBase('http://[::1]:8900/')).toBe(true);
+    // Windows 各种情形：SSH 转发的回环端口 / 组网地址 → 都要拨
+    expect(isLocalAgentBase('http://127.0.0.1:51234')).toBe(false);
+    expect(isLocalAgentBase('http://10.239.5.174:8900')).toBe(false);
+    expect(isLocalAgentBase('http://100.125.4.119:8900')).toBe(false);
+    expect(isLocalAgentBase('http://127.0.0.1')).toBe(false);
+    expect(isLocalAgentBase('garbage')).toBe(false);
+  });
 });
 
 describe('xiangwo-browser-relay 命令往返', () => {
@@ -195,6 +209,38 @@ describe('xiangwo-browser-relay 命令往返', () => {
     expect(first.frames[0]).toContain('"id":1');
     // 对面发来的 CDP 命令确实写进了本机 9223 的 WS
     expect(sockets[0]?.sent).toContain('{"id":1}');
+  });
+
+  it('解析出的地址是"本机 8900"（agent 与本机 emdash 同机）→ 自我停用，不发请求', async () => {
+    const { impl, calls } = makeFetch(() => json({}));
+    const logs: string[] = [];
+    const relay = new XiangwoBrowserRelay({
+      resolveBaseUrl: async () => 'http://127.0.0.1:8900',
+      fetchImpl: impl,
+      backoffStepsMs: [1],
+      log: (message) => logs.push(message),
+    });
+    relay.start();
+    await tick(4);
+    expect(calls).toHaveLength(0);
+    expect(relay.status().enabled).toBe(false);
+    expect(logs.join('\n')).toContain('agent 就在本机');
+  });
+
+  it('显式给了地址（skipLocalAgentBase=false）→ 就算指向 127.0.0.1:8900 也照拨（自测/强制场景）', async () => {
+    const { impl, calls } = makeFetch((url) =>
+      url.startsWith(POLL) ? new Response(null, { status: 204 }) : json({})
+    );
+    const relay = new XiangwoBrowserRelay({
+      resolveBaseUrl: async () => 'http://127.0.0.1:8900',
+      fetchImpl: impl,
+      skipLocalAgentBase: false,
+      log: () => undefined,
+    });
+    relay.start();
+    await tick(4);
+    relay.stop();
+    expect(calls.length).toBeGreaterThan(0);
   });
 
   it('对面没起来（poll 报错）→ 只记错误 + 退避，不抛异常', async () => {
