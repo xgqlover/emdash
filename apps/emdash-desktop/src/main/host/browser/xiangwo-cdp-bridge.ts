@@ -21,20 +21,37 @@
 //   - 每条命令都有超时（默认 10s）：页面没加载/卡死时**快速失败并给人话**，绝不 hang。
 //
 // 隔离边界（明确写清楚）：
-//   - 只监听 127.0.0.1（不对外网卡暴露；远程/Windows 要连请自己用 socat/ZeroTier 转发 9223）。
+//   - 监听模式由 `XIANGWO_CDP_BIND` 决定，缺省 **auto = 0.0.0.0:9223 + 来源 IP 过滤**：
+//     只放行本机回环（127.0.0.0/8、::1）与自动探测到的 ZeroTier/tailscale 组网网段；
+//     其它来源在**连接层**直接回 403 并断开（记一条日志，见 handleConnection）。
+//     这就是"装完即用"：对面 Linux 上的 agent 直接连 `http://<本机组网IP>:9223`，
+//     不需要用户手工 `netsh portproxy` + 防火墙规则。`local` = 只 127.0.0.1；`off` = 不监听。
+//     （来源白名单细则/可覆盖项见 xiangwo-cdp-peers.ts）
 //   - 不创建窗口、不 loadURL、不碰 partition / app:// session；只对已绑定的 guest webContents
 //     执行 CDP，所以内嵌页自己的 profile 与 emdash 的 app session 不会混。
-//   - 不做鉴权（与 Chrome 自带 DevTools 端口一致）：本机任何进程都能操作**内嵌浏览器**，
-//     但拿不到主窗口。
+//   - 不做鉴权（与 Chrome 自带 DevTools 端口一致）：**白名单来源内**的任何进程都能操作
+//     **内嵌浏览器**，但拿不到主窗口。
 import { createHash, randomBytes } from 'node:crypto';
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import type { Duplex } from 'node:stream';
+import {
+  collectXiangwoCdpAllowedPeers,
+  formatAllowedPeers,
+  isPeerAllowed,
+  preferredRemoteAddress,
+  windowsFirewallHint,
+  XIANGWO_CDP_ANY_HOST,
+  XIANGWO_CDP_LOOPBACK_PEERS,
+  type XiangwoCdpAllowedPeer,
+  type XiangwoCdpBindMode,
+  type XiangwoCdpNetworkInterfaces,
+} from './xiangwo-cdp-peers';
 import { acceptXiangwoWebSocket, type XiangwoWsConnection } from './xiangwo-cdp-ws';
 
 /** [XG-CUSTOM] 默认端口：与 wego-lite/browser_use_bridge.py 的 `http://localhost:9223` 对齐 */
 export const XIANGWO_CDP_DEFAULT_PORT = 9223;
 
-/** [XG-CUSTOM] 只监听回环地址（隔离边界的一部分，别改成 0.0.0.0） */
+/** [XG-CUSTOM] 只监听回环地址（`XIANGWO_CDP_BIND=local`，或 options.host 显式覆盖） */
 export const XIANGWO_CDP_HOST = '127.0.0.1';
 
 /** 单条 CDP 命令超时：页面卡死/未加载时快速失败，避免 agent 侧 hang */
@@ -85,6 +102,12 @@ export type EmbeddedBrowserTarget = {
   webContents: XiangwoCdpWebContents;
 };
 
+/** 只要能读出对端地址的 socket（`net.Socket`/`Duplex` 就长这样；单测可注入任意对象） */
+export function peerAddressOfSocket(socket: unknown): string | undefined {
+  const value = (socket as { remoteAddress?: unknown } | null | undefined)?.remoteAddress;
+  return typeof value === 'string' ? value : undefined;
+}
+
 export type XiangwoCdpBridgeOptions = {
   /** 白名单来源：已绑定 browserId 的内嵌浏览器（接 browserWebContentsRegistry.listBoundBrowsers） */
   listTargets: () => EmbeddedBrowserTarget[];
@@ -92,6 +115,20 @@ export type XiangwoCdpBridgeOptions = {
   host?: string;
   commandTimeoutMs?: number;
   log?: (message: string, metadata?: Record<string, unknown>) => void;
+  /**
+   * [XG-CUSTOM] 监听模式（缺省 `auto` = 0.0.0.0 + 来源 IP 过滤）。
+   * `XIANGWO_CDP_BIND` 的解析在 `resolveXiangwoCdpBindMode`（xiangwo-cdp-peers.ts）。
+   */
+  bind?: XiangwoCdpBindMode;
+  /** [XG-CUSTOM] 允许来源 CIDR 覆盖（`XIANGWO_CDP_ALLOW`，逗号分隔）；空/不传 → 自动探测组网网段 */
+  allowedPeers?: readonly string[];
+  /** [XG-CUSTOM] 网卡枚举（单测注入；缺省 `os.networkInterfaces()`） */
+  networkInterfaces?: () => XiangwoCdpNetworkInterfaces;
+  /**
+   * [XG-CUSTOM] 取对端地址（缺省 `socket.remoteAddress`）。
+   * 单测注入它来模拟「tailscale / ZeroTier / 公网」来源 —— 回环连接没法在真机上伪造源地址。
+   */
+  peerAddressOf?: (socket: unknown) => string | undefined;
 };
 
 type Attachment = {
@@ -150,6 +187,14 @@ export class XiangwoCdpBridge {
   private readonly host: string;
   private readonly commandTimeoutMs: number;
   private readonly log: (message: string, metadata?: Record<string, unknown>) => void;
+  private readonly bind: XiangwoCdpBindMode;
+  private readonly allowedPeers: readonly string[];
+  private readonly networkInterfaces: (() => XiangwoCdpNetworkInterfaces) | null;
+  private readonly peerAddressOf: (socket: unknown) => string | undefined;
+  /** 实际生效的来源白名单（start() 时算好；连接层每条连接都查它） */
+  private peers: readonly XiangwoCdpAllowedPeer[] = XIANGWO_CDP_LOOPBACK_PEERS;
+  /** 没带 Host 头的请求（HTTP/1.0）回填 ws 地址用的 authority */
+  private advertisedAuthority: string;
   private server: Server | null = null;
   private readonly attachments = new Map<string, Attachment>();
   private readonly clients = new Map<number, Client>();
@@ -161,9 +206,15 @@ export class XiangwoCdpBridge {
   constructor(options: XiangwoCdpBridgeOptions) {
     this.listTargets = options.listTargets;
     this.port = options.port ?? XIANGWO_CDP_DEFAULT_PORT;
-    this.host = options.host ?? XIANGWO_CDP_HOST;
+    this.bind = options.bind ?? 'auto';
+    this.host = options.host ?? (this.bind === 'local' ? XIANGWO_CDP_HOST : XIANGWO_CDP_ANY_HOST);
     this.commandTimeoutMs = options.commandTimeoutMs ?? XIANGWO_CDP_COMMAND_TIMEOUT_MS;
+    this.allowedPeers = options.allowedPeers ?? [];
+    this.networkInterfaces = options.networkInterfaces ?? null;
+    this.peerAddressOf = options.peerAddressOf ?? peerAddressOfSocket;
     this.log = options.log ?? (() => {});
+    const advertisedHost = this.host === XIANGWO_CDP_ANY_HOST ? XIANGWO_CDP_HOST : this.host;
+    this.advertisedAuthority = `${advertisedHost}:${this.port}`;
   }
 
   /**
@@ -188,8 +239,27 @@ export class XiangwoCdpBridge {
   /** 启动 HTTP/WS 端点。绑定失败只打日志返回 false（绝不影响主窗口启动）。 */
   async start(): Promise<boolean> {
     if (this.started) return true;
+    if (this.bind === 'off') {
+      this.log('内嵌浏览器 CDP 桥已关闭（XIANGWO_CDP_BIND=off；第②级会落回有头 Chrome）');
+      return false;
+    }
+
+    const plan =
+      this.bind === 'local'
+        ? { allowed: [...XIANGWO_CDP_LOOPBACK_PEERS], addresses: [], warnings: [] }
+        : collectXiangwoCdpAllowedPeers({
+            ...(this.networkInterfaces ? { interfaces: this.networkInterfaces() } : {}),
+            allowOverride: this.allowedPeers,
+          });
+    this.peers = plan.allowed;
+    const preferred = preferredRemoteAddress(plan.addresses);
+    const advertisedHost = this.host === XIANGWO_CDP_ANY_HOST ? XIANGWO_CDP_HOST : this.host;
+    this.advertisedAuthority = `${preferred ?? advertisedHost}:${this.port}`;
+
     const server = createServer((req, res) => this.handleHttp(req, res));
     server.on('upgrade', (req: IncomingMessage, socket: Duplex) => this.handleUpgrade(req, socket));
+    // 来源过滤放在连接层：HTTP 与 WebSocket 一条路径收口（见 handleConnection）
+    server.on('connection', (socket: Duplex) => this.handleConnection(socket));
     const listening = await new Promise<boolean>((resolve) => {
       const onError = (error: Error): void => {
         this.log('内嵌浏览器 CDP 桥监听失败（端口可能被占用，第②级会落回有头 Chrome）', {
@@ -210,11 +280,64 @@ export class XiangwoCdpBridge {
     }
     this.server = server;
     this.started = true;
-    this.log('内嵌浏览器 CDP 桥已启动', {
-      endpoint: this.endpoint,
-      hint: 'agent.py 第②级（browser_use_bridge，localhost:9223）连这里',
-    });
+    this.logListenBanner(plan.addresses, plan.warnings);
     return true;
+  }
+
+  /**
+   * [XG-CUSTOM] 启动横幅：必须让用户/我们一眼看懂"听在哪、谁连得上、远端该填什么地址"。
+   * 成功那行的原文（`[XG-CUSTOM] ` 前缀由 wiring.ts 的 log 包装补上）：
+   *   `内嵌浏览器 CDP 桥对外监听 0.0.0.0:9223；允许来源: 127.0.0.1/8, ::1, 10.239.5.0/24(ztu7tmyt7w), 100.64.0.0/10(tailscale0)`
+   */
+  private logListenBanner(
+    addresses: ReadonlyArray<{
+      interfaceName: string;
+      address: string;
+      kind: 'zerotier' | 'tailscale';
+    }>,
+    warnings: readonly string[]
+  ): void {
+    if (this.bind === 'local') {
+      this.log(`内嵌浏览器 CDP 桥仅监听 ${this.host}:${this.port}（XIANGWO_CDP_BIND=local）`, {
+        allowed: formatAllowedPeers(this.peers),
+      });
+      return;
+    }
+    this.log(
+      `内嵌浏览器 CDP 桥对外监听 ${this.host}:${this.port}；允许来源: ${formatAllowedPeers(this.peers)}`,
+      { endpoint: this.endpoint, allowed: this.peers.map((peer) => peer.cidr) }
+    );
+    for (const warning of warnings) this.log(warning);
+    if (addresses.length > 0) {
+      const detail = addresses.map((item) => `${item.interfaceName}=${item.address}`).join('、');
+      const preferred = preferredRemoteAddress(addresses);
+      const authority = preferred !== null ? `${preferred}:${this.port}` : this.advertisedAuthority;
+      this.log(
+        `探测到的组网地址：${detail} → 远端(/Linux agent)填 ` +
+          `XIANGWO_WEBVIEW_CDP_URL=http://${authority}`,
+        { addresses }
+      );
+    }
+    const firewall = windowsFirewallHint();
+    if (firewall !== null) this.log(firewall);
+  }
+
+  /**
+   * [XG-CUSTOM] 连接层来源过滤：只放行本机回环 + 组网网段（tailscale / ZeroTier）。
+   * 其它来源回一条 HTTP 403（WS 客户端会握手失败）+ 记日志，然后断开 —— 不静默丢包，
+   * 便于用户/我们一眼看出"是被拒了"而不是"防火墙拦了/服务没起"。
+   */
+  private handleConnection(socket: Duplex): void {
+    const address = this.peerAddressOf(socket);
+    if (isPeerAllowed(address, this.peers)) return;
+    this.log(
+      '拒绝非本机/非组网来源的 CDP 连接（只放行 127.0.0.1/8、::1 与 ZeroTier/tailscale 网段）',
+      {
+        remoteAddress: address ?? '(未知)',
+        allowed: formatAllowedPeers(this.peers),
+      }
+    );
+    denyPeer(socket, this.peers);
   }
 
   stop(): void {
@@ -231,6 +354,9 @@ export class XiangwoCdpBridge {
   // ── HTTP：/json、/json/list、/json/version（Chrome DevTools 端口最小兼容面）────
   private handleHttp(req: IncomingMessage, res: ServerResponse): void {
     const path = (req.url ?? '/').split('?')[0] ?? '/';
+    // 对外监听时不能把 `ws://0.0.0.0:9223/...` 回给客户端（对面机器连 0.0.0.0 是它自己的回环）。
+    // 用请求自带的 Host 头回填：远端从 100.x 连过来就回 100.x，本机连就回 127.0.0.1。
+    const authority = this.advertisedAuthorityOf(req);
     if (path === '/json/version') {
       this.writeJson(res, {
         Browser: `Chrome/${process.versions.chrome ?? '0'} (emdash embedded-browser bridge)`,
@@ -238,12 +364,12 @@ export class XiangwoCdpBridge {
         'User-Agent': `emdash-xiangwo-cdp-bridge/${process.versions.electron ?? '0'}`,
         'V8-Version': process.versions.v8 ?? '0',
         'WebKit-Version': '0',
-        webSocketDebuggerUrl: this.browserSocketUrl(),
+        webSocketDebuggerUrl: `ws://${authority}/devtools/browser/${BROWSER_TARGET_ID}`,
       });
       return;
     }
     if (path === '/json' || path === '/json/list') {
-      this.writeJson(res, this.listTargetDescriptors());
+      this.writeJson(res, this.listTargetDescriptors(authority));
       return;
     }
     res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
@@ -253,17 +379,22 @@ export class XiangwoCdpBridge {
     );
   }
 
+  /** 请求里的 authority（`host:port`）；没有 Host 头（HTTP/1.0）时用缺省 */
+  private advertisedAuthorityOf(req: IncomingMessage): string {
+    const host = req.headers.host;
+    if (typeof host === 'string' && host.trim() !== '') return host.trim();
+    return this.advertisedAuthority;
+  }
+
   private writeJson(res: ServerResponse, payload: unknown): void {
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(JSON.stringify(payload));
   }
 
-  private browserSocketUrl(): string {
-    return `ws://${this.host}:${this.port}/devtools/browser/${BROWSER_TARGET_ID}`;
-  }
-
   /** [XG-CUSTOM] 目标清单：每次从白名单现读，URL/标题总是最新 */
-  listTargetDescriptors(): Array<Record<string, unknown>> {
+  listTargetDescriptors(
+    authority: string = this.advertisedAuthority
+  ): Array<Record<string, unknown>> {
     return this.liveTargets().map((target) => {
       const targetId = embeddedTargetId(target.browserId);
       return {
@@ -272,8 +403,8 @@ export class XiangwoCdpBridge {
         title: safeTitle(target.webContents),
         url: safeUrl(target.webContents),
         description: '',
-        devtoolsFrontendUrl: `devtools://devtools/bundled/inspector.html?ws=${this.host}:${this.port}/devtools/page/${targetId}`,
-        webSocketDebuggerUrl: `ws://${this.host}:${this.port}/devtools/page/${targetId}`,
+        devtoolsFrontendUrl: `devtools://devtools/bundled/inspector.html?ws=${authority}/devtools/page/${targetId}`,
+        webSocketDebuggerUrl: `ws://${authority}/devtools/page/${targetId}`,
         browserId: target.browserId,
       };
     });
@@ -891,6 +1022,30 @@ function safeTitle(webContents: XiangwoCdpWebContents): string {
     return webContents.isDestroyed() ? '' : webContents.getTitle();
   } catch {
     return '';
+  }
+}
+
+/**
+ * [XG-CUSTOM] 拒掉一个不在白名单里的来源：回一条 HTTP 403（人话写清允许来源与怎么改），
+ * 然后断开。WebSocket 客户端会看到握手失败（连不上），HTTP 客户端能直接读到这句话。
+ */
+function denyPeer(socket: Duplex, peers: readonly XiangwoCdpAllowedPeer[]): void {
+  const body =
+    'emdash 内嵌浏览器 CDP 桥：此来源不在允许列表内（只放行本机与 ZeroTier/tailscale 组网网段）。\n' +
+    `当前允许来源: ${formatAllowedPeers(peers)}\n` +
+    '如需调整：在 emdash 所在机器上设 XIANGWO_CDP_ALLOW=10.0.0.0/24,100.64.0.0/10 后重启 emdash。\n';
+  const payload = Buffer.from(body, 'utf8');
+  socket.once('error', () => socket.destroy());
+  try {
+    socket.end(
+      `HTTP/1.1 403 Forbidden\r\n` +
+        `Content-Type: text/plain; charset=utf-8\r\n` +
+        `Content-Length: ${payload.length}\r\n` +
+        `Connection: close\r\n\r\n` +
+        body
+    );
+  } catch {
+    socket.destroy();
   }
 }
 

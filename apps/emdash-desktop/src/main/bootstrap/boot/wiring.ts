@@ -16,8 +16,12 @@ import { legacyPortOperations } from '@main/db/legacy-port/controller';
 import type { DesktopRuntimes } from '@main/gateway/desktop-runtimes';
 import { setBrowserCorsRelaxationSettings } from '@main/host/browser/browser-profile-session';
 import { browserWebContentsRegistry } from '@main/host/browser/browser-webcontents-registry';
-import { XiangwoCdpBridge } from '@main/host/browser/xiangwo-cdp-bridge';
 import { browserOperations } from '@main/host/browser/controller';
+import { XiangwoCdpBridge } from '@main/host/browser/xiangwo-cdp-bridge';
+import {
+  parseXiangwoCdpAllowList,
+  resolveXiangwoCdpBindMode,
+} from '@main/host/browser/xiangwo-cdp-peers';
 import { createDevPerfOperations } from '@main/host/dev-perf/controller-operations';
 import { writeRendererLogEntry } from '@main/host/file-logger';
 import { setTrayVisible } from '@main/host/tray';
@@ -82,6 +86,12 @@ export function autostartXiangwoOrb(delayMs = 1500): void {
  * 主窗口/对话页不可附加。
  *
  * - 端口：`XIANGWO_CDP_PORT`（缺省 9223，与 browser_use_bridge 对齐）
+ * - 监听模式：`XIANGWO_CDP_BIND` = `auto`（缺省）/`local`/`off`
+ *   缺省 auto = 听 `0.0.0.0:9223`（**装完即用**：另一台机器上的 agent 直接连
+ *   `http://<本机组网IP>:9223`，不再需要手工 netsh portproxy + 防火墙规则），
+ *   但连接层只放行本机回环 + 自动探测到的 ZeroTier/tailscale 组网网段（见 xiangwo-cdp-peers.ts）
+ * - 来源白名单覆盖：`XIANGWO_CDP_ALLOW`（逗号分隔 CIDR，例如 `10.239.5.0/24,100.64.0.0/10`），
+ *   设了就只用它（+ 本机回环），不再自动探测
  * - 逃生开关：`XIANGWO_CDP_BRIDGE=0`（不启动桥；第②级会像以前一样落回 9222 有头 Chrome）
  * - 失败只打日志：端口被占用/页面异常绝不影响主窗口启动
  */
@@ -92,9 +102,12 @@ export function startXiangwoCdpBridge(): void {
   }
   if (xiangwoCdpBridge !== null) return;
   const configuredPort = Number.parseInt(process.env.XIANGWO_CDP_PORT ?? '', 10);
+  const allowedPeers = parseXiangwoCdpAllowList(process.env.XIANGWO_CDP_ALLOW);
   const bridge = new XiangwoCdpBridge({
     listTargets: () => browserWebContentsRegistry.listBoundBrowsers(),
     ...(Number.isFinite(configuredPort) && configuredPort > 0 ? { port: configuredPort } : {}),
+    bind: resolveXiangwoCdpBindMode(process.env.XIANGWO_CDP_BIND),
+    ...(allowedPeers.length > 0 ? { allowedPeers } : {}),
     log: (message, metadata) => log.info(`[XG-CUSTOM] ${message}`, metadata),
   });
   xiangwoCdpBridge = bridge;

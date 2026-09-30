@@ -8,14 +8,19 @@
 //   - 命令超时 → 人话错误（不 hang）
 //   - 大消息（走 64 位长度 / 掩码帧）双向都通
 //   - 后来才绑定的内嵌浏览器会被自动 attach 推给已连接的客户端
+//   - 对外监听（0.0.0.0）+ 来源 IP 过滤：只放行本机回环与 ZeroTier/tailscale 组网网段
+//   - XIANGWO_CDP_BIND=local/off、XIANGWO_CDP_ALLOW 覆盖、启动横幅日志
+import { networkInterfaces as osNetworkInterfaces, type NetworkInterfaceInfo } from 'node:os';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
   embeddedTargetId,
   XiangwoCdpBridge,
   type EmbeddedBrowserTarget,
+  type XiangwoCdpBridgeOptions,
   type XiangwoCdpDebugger,
   type XiangwoCdpWebContents,
 } from './xiangwo-cdp-bridge';
+import { isTailscaleAddress, type XiangwoCdpNetworkInterfaces } from './xiangwo-cdp-peers';
 
 type FakeTarget = EmbeddedBrowserTarget & {
   fake: FakeWebContents;
@@ -173,15 +178,42 @@ class CdpTestClient {
 
 const running: XiangwoCdpBridge[] = [];
 
+// 一个测试里可能同时活着好几个桥（来源过滤那几节），随机端口要**避免撞车**：
+// 撞了就是 start() 返回 false（EADDRINUSE），看起来像"功能坏了"，其实是测试自己踩自己。
+const usedPorts = new Set<number>();
+
+function pickPort(): number {
+  for (let attempt = 0; attempt < 500; attempt += 1) {
+    const port = 19300 + Math.floor(Math.random() * 1500);
+    if (!usedPorts.has(port)) {
+      usedPorts.add(port);
+      return port;
+    }
+  }
+  return 20800 + usedPorts.size;
+}
+
 async function startBridge(
   listTargets: () => EmbeddedBrowserTarget[],
-  commandTimeoutMs = 500
+  commandTimeoutMs = 500,
+  options: Partial<XiangwoCdpBridgeOptions> = {}
 ): Promise<{ bridge: XiangwoCdpBridge; base: string }> {
-  const port = 19300 + Math.floor(Math.random() * 200);
-  const bridge = new XiangwoCdpBridge({ listTargets, port, commandTimeoutMs });
+  const port = pickPort();
+  const startLogs: string[] = [];
+  const userLog = options.log;
+  const bridge = new XiangwoCdpBridge({
+    listTargets,
+    port,
+    commandTimeoutMs,
+    ...options,
+    log: (message, metadata) => {
+      startLogs.push(`${message} ${JSON.stringify(metadata ?? {})}`);
+      userLog?.(message, metadata);
+    },
+  });
   running.push(bridge);
   const started = await bridge.start();
-  expect(started).toBe(true);
+  expect(started, `端口 ${port} 启动失败：${startLogs.join(' | ')}`).toBe(true);
   return { bridge, base: `http://127.0.0.1:${port}` };
 }
 
@@ -437,5 +469,187 @@ describe('[XG-CUSTOM] XiangwoCdpBridge', () => {
     expect(await second.start()).toBe(false);
     first.stop();
     second.stop();
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// [XG-CUSTOM] 对外监听 + 来源 IP 过滤（这一节是"装完即用"的安全收口，别删）
+// ─────────────────────────────────────────────────────────────────────────────
+
+function iface(address: string, internal = false, netmask = '255.255.255.0'): NetworkInterfaceInfo {
+  return { address, netmask, family: 'IPv4', mac: '00:00:00:00:00:00', internal, cidr: null };
+}
+
+/** 现场：ZeroTier `ztu7tmyt7w` = 10.239.5.174/24（用户主力）+ tailscale 100.125.4.119/32 */
+const MOCK_INTERFACES: XiangwoCdpNetworkInterfaces = {
+  lo: [iface('127.0.0.1', true, '255.0.0.0')],
+  ztu7tmyt7w: [iface('10.239.5.174')],
+  tailscale0: [iface('100.125.4.119', false, '255.255.255.255')],
+};
+
+/** 本机真实网卡上的 LAN / ZeroTier / tailscale 地址（各取第一个，测试机上没有就是 null） */
+function realAddresses(): {
+  lan: string | null;
+  zerotier: string | null;
+  tailscale: string | null;
+} {
+  let lan: string | null = null;
+  let zerotier: string | null = null;
+  let tailscale: string | null = null;
+  for (const [name, infos] of Object.entries(osNetworkInterfaces())) {
+    for (const info of infos ?? []) {
+      if (info.family !== 'IPv4' || info.internal) continue;
+      if (/^zt|zerotier/i.test(name)) zerotier ??= info.address;
+      else if (/tailscale/i.test(name) || isTailscaleAddress(info.address))
+        tailscale ??= info.address;
+      else lan ??= info.address;
+    }
+  }
+  return { lan, zerotier, tailscale };
+}
+
+describe('[XG-CUSTOM] CDP 桥来源 IP 过滤（对外监听的安全边界）', () => {
+  it('启动横幅打出"实际生效的允许来源"（含 ZeroTier 网段）与远端该填的地址', async () => {
+    const logs: string[] = [];
+    await startBridge(() => [fakeTarget('task-banner')], 500, {
+      networkInterfaces: () => MOCK_INTERFACES,
+      log: (message, metadata) =>
+        logs.push(`${message}${metadata === undefined ? '' : ` ${JSON.stringify(metadata)}`}`),
+    });
+
+    const banner = logs.find((line) => line.includes('对外监听'));
+    expect(banner).toBeDefined();
+    expect(banner).toContain('对外监听 0.0.0.0:');
+    expect(banner).toContain(
+      '允许来源: 127.0.0.1/8, ::1, 10.239.5.0/24(ztu7tmyt7w), 100.64.0.0/10(tailscale0)'
+    );
+    // 远端（Linux agent）该填的地址也要直接打出来
+    expect(logs.some((line) => line.includes('XIANGWO_WEBVIEW_CDP_URL=http://10.239.5.174:'))).toBe(
+      true
+    );
+  });
+
+  it('来源放行/拒绝：回环 + tailnet + ZeroTier 放行，同 /16 别的 /24、局域网、公网拒绝', async () => {
+    const cases: Array<[string, boolean]> = [
+      ['127.0.0.1', true],
+      ['100.125.9.9', true], // tailscale 100.64.0.0/10
+      ['10.239.5.9', true], // ZeroTier 10.239.5.0/24
+      ['10.239.6.9', false], // 同 /16 的另一个 /24 → 不在 ZeroTier 网络里
+      ['192.168.1.5', false],
+      ['8.8.8.8', false],
+    ];
+    for (const [peer, allowed] of cases) {
+      const logs: string[] = [];
+      const { base } = await startBridge(() => [fakeTarget(`task-peer-${peer}`)], 500, {
+        networkInterfaces: () => MOCK_INTERFACES,
+        peerAddressOf: () => peer,
+        log: (message) => logs.push(message),
+      });
+      const res = await fetch(`${base}/json/version`);
+      expect(res.status, `来源 ${peer}`).toBe(allowed ? 200 : 403);
+      if (allowed) {
+        const body = (await res.json()) as Record<string, string>;
+        expect(body['webSocketDebuggerUrl']).toContain('/devtools/browser/');
+      } else {
+        expect(await res.text()).toContain('不在允许列表内');
+        expect(logs.some((line) => line.includes('拒绝非本机/非组网来源'))).toBe(true);
+      }
+    }
+  });
+
+  it('被拒来源连 WebSocket 也连不上（握手失败），且不会被登记成 CDP 客户端', async () => {
+    const logs: string[] = [];
+    const { base } = await startBridge(() => [fakeTarget('task-ws-deny')], 500, {
+      networkInterfaces: () => MOCK_INTERFACES,
+      peerAddressOf: () => '8.8.8.8',
+      log: (message) => logs.push(message),
+    });
+    const port = new URL(base).port;
+    const outcome = await new Promise<string>((resolve) => {
+      const timer = setTimeout(() => resolve('timeout'), 3000);
+      const done = (value: string): void => {
+        clearTimeout(timer);
+        resolve(value);
+      };
+      const socket = new WebSocket(`ws://127.0.0.1:${port}/devtools/browser/XG-EMBEDDED-BROWSER`);
+      socket.addEventListener('error', () => done('error'));
+      socket.addEventListener('close', () => done('close'));
+    });
+    expect(['error', 'close']).toContain(outcome);
+    expect(logs.some((line) => line.includes('拒绝非本机/非组网来源'))).toBe(true);
+    expect(logs.some((line) => line.includes('CDP 客户端已连接'))).toBe(false);
+  });
+
+  it('XIANGWO_CDP_ALLOW 覆盖：只有指定网段 + 本机回环放行', async () => {
+    const cases: Array<[string, boolean]> = [
+      ['10.239.5.9', true],
+      ['127.0.0.1', true],
+      ['100.125.9.9', false], // 覆盖后 tailscale 不再自动放行
+      ['10.239.6.9', false],
+    ];
+    for (const [peer, allowed] of cases) {
+      const { base } = await startBridge(() => [fakeTarget('task-allow')], 500, {
+        networkInterfaces: () => MOCK_INTERFACES,
+        allowedPeers: ['10.239.5.0/24'],
+        peerAddressOf: () => peer,
+      });
+      expect((await fetch(`${base}/json/list`)).status, `来源 ${peer}`).toBe(allowed ? 200 : 403);
+    }
+  });
+});
+
+describe('[XG-CUSTOM] CDP 桥监听模式与真实网卡（不 mock）', () => {
+  it('bind=local：只 127.0.0.1 能连，非回环地址连不上', async () => {
+    const { base } = await startBridge(() => [fakeTarget('task-local')], 500, { bind: 'local' });
+    expect((await fetch(`${base}/json/list`)).status).toBe(200);
+    const { lan } = realAddresses();
+    if (lan === null) return; // 这台机器没有非回环 IPv4 → 没法验，跳过（CI 场景）
+    const port = new URL(base).port;
+    await expect(fetch(`http://${lan}:${port}/json/list`)).rejects.toThrow();
+  });
+
+  it('bind=off：不监听（start() 返回 false，端口不通）', async () => {
+    const port = pickPort();
+    const logs: string[] = [];
+    const bridge = new XiangwoCdpBridge({
+      listTargets: () => [],
+      port,
+      bind: 'off',
+      log: (message) => logs.push(message),
+    });
+    running.push(bridge);
+    expect(await bridge.start()).toBe(false);
+    expect(logs.join(' ')).toContain('XIANGWO_CDP_BIND=off');
+    await expect(fetch(`http://127.0.0.1:${port}/json/list`)).rejects.toThrow();
+  });
+
+  it('真实网卡：LAN 地址被拒、ZeroTier/tailscale 地址放行，且 ws 地址回填成客户端连的那个地址', async (ctx) => {
+    const target = fakeTarget('task-real');
+    const { base } = await startBridge(() => [target]);
+    const port = new URL(base).port;
+    const { lan, zerotier, tailscale } = realAddresses();
+
+    if (lan !== null) {
+      expect((await fetch(`http://${lan}:${port}/json/list`)).status, `LAN ${lan}`).toBe(403);
+    }
+    const groupAddresses = [zerotier, tailscale].filter((item): item is string => item !== null);
+    if (groupAddresses.length === 0) ctx.skip(); // 这台机器没装 ZeroTier/tailscale
+
+    for (const address of groupAddresses) {
+      const version = await fetch(`http://${address}:${port}/json/version`);
+      expect(version.status, `组网地址 ${address}`).toBe(200);
+      expect(await version.text()).toContain(`ws://${address}:${port}/devtools/browser/`);
+
+      const listRes = await fetch(`http://${address}:${port}/json/list`);
+      expect(listRes.status, `组网地址 ${address}`).toBe(200);
+      const list = (await listRes.json()) as Array<Record<string, string>>;
+      // 只含内嵌浏览器，主窗口不在其中（白名单隔离不变）
+      expect(list).toHaveLength(1);
+      expect(list[0]?.['id']).toBe(embeddedTargetId('task-real'));
+      expect(JSON.stringify(list)).not.toContain('EMDASH-MAIN-WINDOW');
+      expect(list[0]?.['webSocketDebuggerUrl']).toContain(
+        `ws://${address}:${port}/devtools/page/${embeddedTargetId('task-real')}`
+      );
+    }
   });
 });

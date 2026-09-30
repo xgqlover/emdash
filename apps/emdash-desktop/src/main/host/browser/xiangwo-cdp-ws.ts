@@ -7,7 +7,9 @@
 //   - ping → 自动回 pong；对端 close → 回 close 并断开
 // 不做扩展协商（permessage-deflate）——CDP 客户端不会要求。
 //
-// 安全边界：调用方（xiangwo-cdp-bridge.ts）只监听 127.0.0.1。
+// 安全边界：来源 IP 过滤不在这里做 —— 调用方（xiangwo-cdp-bridge.ts）缺省对外监听
+// 0.0.0.0，但在**连接层**就把非本机/非组网（ZeroTier/tailscale）来源回 403 断开，
+// 所以这里的握手只会收到白名单内的连接。
 import { createHash } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
 import type { Duplex } from 'node:stream';
