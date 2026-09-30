@@ -44,8 +44,15 @@
 //      （Linux 需要 xdotool/xclip + 全局快捷键，属系统级依赖，先不做）。
 //   8) [XG-CUSTOM] 明确**不做**（写明原因，避免以后当成漏做）：
 //      - 上游的 `dsh-app://` 自定义协议 / iframe 嵌 dsh 转录 → 我们直接用 8900 直连 + 自己渲染气泡；
-//      - 上游 `backend.subscribe` 流式 → 我们 8900 是非流式（一次返回），不需要；
 //      - 上游的选区芯片 / macOS TCC 授权门 → macOS/Win 专属，Linux 无此概念（主进程侧保持 no-op）。
+//   9) [XG-CUSTOM 2026-10-05] **SSE 流式接收 + 放宽耐心**（治 `调用失败: Failed to fetch`）：
+//      8900 一轮可能 69 秒（LLM 慢 + 工具循环 + 交接台 15 秒超时）且**期间零字节**，旧代码
+//      "总共 10 秒重试窗口"盖不住 → 连接被中间层掐断 → 用户只看到 Failed to fetch。
+//      现在：请求带 `stream:true`，`streamXiangwoChat`（./xiangwo-chat.ts）逐块解析 SSE、
+//      **边收边渲染**（delta.content 直接追加到当前 assistant 气泡，见 paintStreamingBubble）、
+//      delta.status/空 content 心跳进状态区；耐心改成"首字节 20 秒 + 流内空闲 90 秒"；
+//      非 SSE 响应 → 整段渲染；中途断流 → 保留部分内容 + 标注；只有 0 字节才算失败。
+//      重试**只**发生在连接建立阶段（首字节之前），进流之后绝不整轮重发（避免重复开网页/重复点按钮）。
 //   5) 交互模型（用户实测后定的）：
 //      - **单击球 = 切换开/关**（收起态 → 打开并保持；展开态 → 收起，等价于点面板右上 ✕）
 //      - **双击球 = 打开 emdash 主窗口**（400ms 窗口；第二次零位移单击 → 撤销第一次那下切换 + orbOpenMain，
@@ -56,14 +63,16 @@
 //        导致"点不开面板"，所以不用它）。**两种状态下球都可拖**：收起态移动球、展开态平移整个面板
 //      - 历史**按 bot 分桶**（见文件里的 STORE_KEY_PREFIX / botStoreKey）
 //
-// [XG-CUSTOM] 聊天通道工具（地址解析 + 失败重试）在 ./xiangwo-chat.ts 里 —— 球和旧浮窗共用一份，
+// [XG-CUSTOM] 聊天通道工具（地址解析 + SSE 流式接收）在 ./xiangwo-chat.ts 里 —— 球和旧浮窗共用一份，
 // 并且能被 vitest 直接单测；构建后会被打进本 bundle（harness 断言跑的就是产物）。
 import {
-  failureText,
-  replyTextOf,
+  interruptedNoteText,
   resolveXiangwoChatUrl,
   retryStatusText,
-  sendXiangwoChat,
+  streamFailureText,
+  streamXiangwoChat,
+  waitingStatusText,
+  XIANGWO_HEARTBEAT_STATUS,
 } from './xiangwo-chat';
 
 const bridge = window.electronAPI ?? {};
@@ -607,7 +616,7 @@ async function main() {
         message.role === 'assistant'
           ? parseQuestionBlock(withImages.text)
           : { text: withImages.text };
-      if (parsed.text !== '') {
+      if (parsed.text !== '' || message.streaming === true) {
         const bubble = document.createElement('div');
         bubble.className = 'transcript-bubble';
         bubble.textContent = parsed.text;
@@ -1060,6 +1069,59 @@ async function main() {
     return chatTarget;
   }
 
+  /**
+   * [XG-CUSTOM] 流式的**当前** assistant 气泡（最后一条 assistant 行里的气泡）。
+   * 流式增量只改它，不整段重渲染：避免闪烁，也保住提问卡/图片网格已答状态。
+   * @returns {HTMLElement | null} 气泡元素（还没渲染出来 → null）
+   */
+  function streamingBubble() {
+    const rows = transcript.querySelectorAll('.transcript-row.assistant');
+    const row = rows.length > 0 ? rows[rows.length - 1] : undefined;
+    return row === undefined || row === null ? null : row.querySelector('.transcript-bubble');
+  }
+
+  /**
+   * [XG-CUSTOM] 边收边渲染：一个 delta 就更新一次气泡文字（不整段重渲染）。
+   * 气泡不在（空文本被跳过等）→ 退化成整段重渲染，**绝不丢内容**。
+   * @param {{ text: string }} message 正在流式写入的那条 assistant 消息
+   */
+  function paintStreamingBubble(message) {
+    const bubble = streamingBubble();
+    if (bubble === null) {
+      renderTranscript();
+      return;
+    }
+    bubble.textContent = message.text;
+    transcript.scrollTop = transcript.scrollHeight;
+  }
+
+  /**
+   * [XG-CUSTOM] 流式收尾：把 `streaming` 标记摘掉、内容定格、标注中断/停止原因。
+   * 规则（对应 xiangwo-chat.ts 的 XiangwoStreamResult）：
+   * - 正常结束 → 原样（文本已经在气泡里了）
+   * - 中途断流 → **保留已收内容** + 下方标注「（连接中断，已显示部分内容）」
+   * - 用户点停止 → 保留已收内容 + 「（已停止）」
+   * - 一个字都没有 → 给一句人话（不留空气泡）
+   * @param {{ text: string, streaming?: boolean }} message 流式消息
+   * @param {object} result streamXiangwoChat 的返回值
+   */
+  function settleStreamingMessage(message, result) {
+    delete message.streaming;
+    const text = typeof result.text === 'string' ? result.text : message.text;
+    const note =
+      result.aborted === true
+        ? '（已停止）'
+        : result.interrupted === true
+          ? interruptedNoteText(result.idleMs ?? 0, result.interruptedReason ?? 'network')
+          : '';
+    if (text === '') {
+      // 一个字都没渲染出来（还没收到正文就断了/停了）→ 至少留一句人话
+      message.text = note === '' ? '（无回答）' : note;
+      return;
+    }
+    message.text = note === '' ? text : `${text}\n${note}`;
+  }
+
   async function send(text, image) {
     const instruction = text.trim();
     if (sending) return;
@@ -1090,36 +1152,63 @@ async function main() {
           ];
     const controller = new AbortController();
     sendAbort = controller;
+    // [XG-CUSTOM] 流式：先把**空** assistant 气泡挂出来（message.streaming → renderTranscript 不跳过空文本），
+    // 之后每个 delta 只改这个气泡（见 paintStreamingBubble）；结束/中断再定格标注。
+    const assistant = { role: 'assistant', text: '', streaming: true };
+    current.messages.push(assistant);
+    renderTranscript();
     try {
       const target = await chatEndpoint();
       // [XG-CUSTOM] 主进程判定地址不可达（远程主机 + 没法转发）→ 先把人话提示摆出来，
       // 请求照发（万一网络其实通），失败文案仍然照旧。
       if (!target.reachable && target.hint !== '') status.textContent = target.hint;
-      const data = await sendXiangwoChat({
+      const result = await streamXiangwoChat({
         url: target.url,
         signal: controller.signal,
         body: {
+          // [XG-CUSTOM] 要 SSE（协议见文件头 9)；服务端不支持就退化成整段 JSON）
+          stream: true,
           messages: [
             { role: 'system', content: systemPrefixFor(permission) },
             ...prior,
             { role: 'user', content: userContent },
           ],
         },
-        // [XG-CUSTOM] 重试期间给反馈（别静默等 15 秒空窗）
+        // [XG-CUSTOM] 重试只发生在**连接建立阶段**（首字节之前），文案沿用「后端启动中…」
         onRetry: (attempt) => {
           status.textContent = retryStatusText(attempt);
         },
+        // [XG-CUSTOM] 服务端状态/心跳 → 状态区（长工具循环里告诉用户"agent 还在干活"）
+        onStatus: (line) => {
+          status.textContent = line;
+        },
+        onHeartbeat: () => {
+          status.textContent = XIANGWO_HEARTBEAT_STATUS;
+        },
+        onIdle: (idleMs) => {
+          status.textContent = waitingStatusText(idleMs);
+        },
+        // [XG-CUSTOM] 边收边渲染：追加到当前气泡（不等整段）
+        onDelta: (delta) => {
+          assistant.text += delta;
+          status.textContent = '';
+          paintStreamingBubble(assistant);
+        },
       });
-      status.textContent = '';
-      current.messages.push({ role: 'assistant', text: replyTextOf(data) });
+      settleStreamingMessage(assistant, result);
+      status.textContent = result.aborted === true ? '已停止' : '';
     } catch (cause) {
       // [XG-CUSTOM] 地址可能过期（主机/隧道变了）→ 作废缓存，下一条重新解析
       chatTarget = undefined;
-      current.messages.push({
-        role: 'assistant',
-        text: controller.signal.aborted ? '（已停止）' : failureText(cause),
-      });
+      if (controller.signal.aborted) {
+        settleStreamingMessage(assistant, { text: assistant.text, aborted: true });
+      } else {
+        // 只有「一个字节都没收到」才走到这里（见 streamXiangwoChat）→ 人话文案，不再徒留 Failed to fetch
+        delete assistant.streaming;
+        assistant.text = streamFailureText(cause);
+      }
     } finally {
+      delete assistant.streaming;
       if (sendAbort === controller) sendAbort = undefined;
       sending = false;
       persistConversations();
@@ -1138,7 +1227,10 @@ async function main() {
   });
 
   stop.addEventListener('click', () => {
-    sendAbort?.abort();
+    // [XG-CUSTOM] 流式下「停止」= abort 这次 fetch（见 streamXiangwoChat）；已经收到的内容保留在气泡里
+    if (sendAbort === undefined) return;
+    status.textContent = '正在停止…';
+    sendAbort.abort();
   });
 
   // ---------- 我们的动作：📷 截图 / 📤 交接 / 新对话 / 打开主窗 ----------

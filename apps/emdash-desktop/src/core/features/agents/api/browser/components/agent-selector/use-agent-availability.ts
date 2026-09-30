@@ -39,6 +39,7 @@ export function useAgentAvailability({
   }, [statuses]);
 
   const installedAgents = useMemo(
+  // [XG-CUSTOM] 项我：可用性判定（原上游此处为普通回调，我们加了口径）
     () => {
       if (isRemote) {
         // 远程 host：只对 xiangwo 的 bot 跳过检测视为可用；官方 agent 保持原样。

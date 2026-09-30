@@ -100,6 +100,7 @@ export const LeftSidebar: React.FC = observer(function LeftSidebar() {
         <SidebarContent className="flex flex-col">
           <SidebarPinnedTaskList />
           <SidebarGroup className="mb-0 flex min-h-0 flex-1 flex-col">
+            {/* [XG-CUSTOM] 项我：侧边栏入口按钮 */}
             <button
               type="button"
               onClick={() => void openXiangwoMain()}
