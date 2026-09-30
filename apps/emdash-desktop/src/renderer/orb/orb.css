@@ -917,6 +917,114 @@ body:not(.expanded) {
   color: var(--pin);
 }
 
+/* ─────────────────────────────────────────────────────────────────────────
+ * [XG-CUSTOM] 图片网格（xiangwo-images 协议 → 球面板图片墙，协议见 orb.js 头部 6.1)）：
+ * agent 图搜/素材工具产出结构化图片列表，这里渲染成网格；点格子开**原图**（host.openExternal）；
+ * 加载失败显示占位 + 原链接。颜色全部走主题 token，浅色默认 / 深色跟随。
+ * ───────────────────────────────────────────────────────────────────────── */
+.image-grid-wrap {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  margin-top: 8px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px;
+  background: var(--input-bg);
+  color: var(--black);
+}
+
+.image-grid-title {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 8px;
+  overflow-wrap: anywhere;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 6px;
+}
+
+.image-cell {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--white);
+  color: var(--black);
+  font: inherit;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.image-cell:hover {
+  /* [XG-CUSTOM] 选中态用内环（外投影会被 X11 SHAPE 裁），和提问卡一致 */
+  border-color: var(--pin);
+  box-shadow: inset 0 0 0 1px var(--pin);
+}
+
+.image-thumb {
+  display: block;
+  width: 100%;
+  height: 72px;
+  object-fit: cover;
+  background: transparent;
+}
+
+/* [XG-CUSTOM] 加载失败时 JS 会设内联 display:none；这里再兜一层（防内联被别处覆盖） */
+.image-thumb[hidden] {
+  display: none;
+}
+
+.image-fallback {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  width: 100%;
+  height: 72px;
+  padding: 4px 6px;
+  overflow: hidden;
+  text-align: left;
+}
+
+.image-fallback-text {
+  font-size: 11px;
+  color: var(--pin);
+}
+
+.image-fallback-url {
+  font-size: 10px;
+  line-height: 1.3;
+  color: var(--pin);
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.image-caption {
+  padding: 0 6px 5px;
+  font-size: 10px;
+  line-height: 1.3;
+  color: var(--pin);
+  text-align: left;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 /* [XG-CUSTOM] 划词工具条（范围内版）：小条、跟随选区、压在面板内容之上 */
 #selection-bar {
   position: absolute;
