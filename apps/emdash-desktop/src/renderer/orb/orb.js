@@ -377,6 +377,10 @@ async function main() {
   const prompt = document.querySelector('#prompt');
   const composer = document.querySelector('#composer');
   const stop = document.querySelector('#stop');
+  const imageButton = document.querySelector('#image');
+  const imageInput = document.querySelector('#image-input');
+  const fileButton = document.querySelector('#file');
+  const fileInput = document.querySelector('#file-input');
   const ballAvatar = document.querySelector('#ball-avatar');
   const selectionBar = document.querySelector('#selection-bar');
 
@@ -816,6 +820,12 @@ async function main() {
   });
   prompt.addEventListener('paste', (event) => {
     event.preventDefault();
+    // [XG-CUSTOM] 粘贴的图片：走发图路径（旧浮窗只处理 text/plain，图片会被丢掉）
+    const files = [...(event.clipboardData?.files ?? [])];
+    if (files.some((file) => file.type.startsWith('image/'))) {
+      void handleIncomingFiles(files);
+      return;
+    }
     insertPlainText(prompt, event.clipboardData?.getData('text/plain') ?? '');
     syncComposerHeight();
   });
@@ -956,6 +966,65 @@ async function main() {
   }
 
   /**
+   * [XG-CUSTOM] 发图 / 发文件（照旧浮窗 `XiangwoFloatingPanel.tsx` 的实现搬过来）：
+   * - 图片：`FileReader.readAsDataURL` → `send('', dataUrl)` → 请求体里是 image_url 结构；
+   *   **dataURL 不落盘**：`persistConversations()` 只保留 role/text/answer（图片只在内存里）。
+   * - 其它文件：`readAsText` → `send('[文件 <name>]\n' + 前 8000 字)`。
+   * @param {File[]} files 待处理文件（来自 file input / paste / drop）
+   */
+  async function handleIncomingFiles(files) {
+    for (const file of files) {
+      try {
+        if (file.type.startsWith('image/')) {
+          const dataUrl = await readFileAsDataUrl(file);
+          if (typeof dataUrl === 'string' && dataUrl !== '') await send('', dataUrl);
+          continue;
+        }
+        const text = await readFileAsText(file);
+        await send(`[文件 ${file.name}]\n${text.slice(0, 8000)}`);
+      } catch (cause) {
+        status.textContent = `读取文件失败: ${describeError(cause)}`;
+      }
+    }
+  }
+
+  function readFileAsDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : '');
+      reader.onerror = () => reject(reader.error ?? new Error('读取失败'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function readFileAsText(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : '');
+      reader.onerror = () => reject(reader.error ?? new Error('读取失败'));
+      reader.readAsText(file);
+    });
+  }
+
+  /** 拖拽文件到面板：图片走发图、其它走发文件（dragover 必须 preventDefault，否则浏览器不认 drop） */
+  function wireDropTarget() {
+    if (panel === null) return;
+    panel.addEventListener('dragover', (event) => {
+      event.preventDefault();
+      document.body.classList.add('drop-active');
+    });
+    panel.addEventListener('dragleave', () => {
+      document.body.classList.remove('drop-active');
+    });
+    panel.addEventListener('drop', (event) => {
+      event.preventDefault();
+      document.body.classList.remove('drop-active');
+      const files = [...(event.dataTransfer?.files ?? [])];
+      if (files.length > 0) void handleIncomingFiles(files);
+    });
+  }
+
+  /**
    * [XG-CUSTOM] 划词工具条（**范围内版**）：只在球面板的转录区里选中文字时弹出，
    * 提供「搜索 / 翻译 / 发给项我」。零系统依赖、不碰全局快捷键。
    *
@@ -1043,6 +1112,19 @@ async function main() {
   });
   captureButton.addEventListener('click', () => {
     void captureCurrentTab();
+  });
+  // [XG-CUSTOM] 🖼️/📎：按钮点开隐藏 input；change 后要走完整条发图/发文件路径并清空 value
+  imageButton?.addEventListener('click', () => imageInput?.click());
+  fileButton?.addEventListener('click', () => fileInput?.click());
+  imageInput?.addEventListener('change', () => {
+    const files = [...(imageInput.files ?? [])];
+    imageInput.value = '';
+    if (files.length > 0) void handleIncomingFiles(files);
+  });
+  fileInput?.addEventListener('change', () => {
+    const files = [...(fileInput.files ?? [])];
+    fileInput.value = '';
+    if (files.length > 0) void handleIncomingFiles(files);
   });
   handoffButton.addEventListener('click', () => {
     void handoff();
@@ -1354,6 +1436,7 @@ async function main() {
     /* 读不到头像就保持内置「项」 */
   }
   wireSelectionBar();
+  wireDropTarget();
   // [XG-CUSTOM] 上游这里用 backend.subscribe 等 dsh 就绪；我们的 8900 通道是直连，
   // 只在启动时确认一次后端状态，失败也不卡 UI（发消息时会自然报错）。
   try {

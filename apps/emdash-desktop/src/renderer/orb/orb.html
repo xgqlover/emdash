@@ -57,6 +57,11 @@
       <!-- [XG-CUSTOM] 第二行：bot 选择（原来的 #pin 固定按钮已去掉：新模型下"打开即保持"） -->
       <div id="options">
         <select id="bot" title="选择 bot"></select>
+        <!-- [XG-CUSTOM] 旧浮窗已有的两个输入入口（球之前缺）：🖼️ 发图 / 📎 发文件 -->
+        <button id="image" type="button" title="发图（图片走 image_url）">🖼️</button>
+        <button id="file" type="button" title="发文件（读前 8000 字）">📎</button>
+        <input id="image-input" type="file" accept="image/*" hidden />
+        <input id="file-input" type="file" hidden />
       </div>
       <div id="transcript" role="log" aria-live="polite"></div>
       <div id="history-list" role="listbox" hidden></div>

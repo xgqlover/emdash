@@ -968,3 +968,32 @@ body:not(.expanded) {
 body.has-avatar #ball-mark {
   display: none;
 }
+
+
+/* [XG-CUSTOM] 第二行里的 🖼️/📎：跟第一行工具条按钮同观感，但**不做绝对定位**
+ * （它们跟着 #options 的 flex 排；第一行那批是 absolute 定位所以不能一起写）。 */
+#image,
+#file {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0;
+  color: var(--black);
+  background: var(--input-bg);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+#image:hover,
+#file:hover {
+  box-shadow: inset 0 0 0 1px var(--pin);
+}
+
+/* [XG-CUSTOM] 拖拽文件到面板时的高亮（drop 目标） */
+body.drop-active #panel {
+  box-shadow: inset 0 0 0 2px var(--pin);
+}
