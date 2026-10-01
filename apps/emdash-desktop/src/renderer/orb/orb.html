@@ -62,6 +62,9 @@
         <button id="file" type="button" title="发文件（读前 8000 字）">📎</button>
         <input id="image-input" type="file" accept="image/*" hidden />
         <input id="file-input" type="file" hidden />
+        <!-- [XG-CUSTOM] 工作区只读芯片：文本 = 工作区 basename，title = 全路径（见 orb.js renderWorkspaceChip）。
+             拿不到路径就保持 hidden，不会显示空芯片。 -->
+        <span id="workspace-chip" hidden></span>
         <!-- [XG-CUSTOM] agent 网页计数 + 一键清理（浏览器 page 开太多会把机器拖死） -->
         <button id="pages" type="button" title="agent 打开的网页（只列/只关外部网页）" hidden>
           网页 <span id="pages-count">0</span>

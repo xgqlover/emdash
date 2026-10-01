@@ -1270,6 +1270,29 @@ body.has-avatar #ball-mark {
   cursor: pointer;
 }
 
+/* [XG-CUSTOM] 工作区只读芯片（orb.js 的 renderWorkspaceChip 填 basename + title 全路径）。
+ * 只读：不可点、不抢焦点，太长就省略号（全路径在 title 里）。 */
+#workspace-chip {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 130px;
+  height: 22px;
+  border-radius: 999px;
+  padding: 0 8px;
+  color: var(--pin);
+  background: var(--input-bg);
+  font-size: 10px;
+  line-height: 22px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  user-select: none;
+}
+
+#workspace-chip[hidden] {
+  display: none;
+}
+
 #image:hover,
 #file:hover {
   box-shadow: inset 0 0 0 1px var(--pin);

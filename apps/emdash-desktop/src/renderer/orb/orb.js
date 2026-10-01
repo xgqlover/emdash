@@ -170,13 +170,21 @@ const api = {
     setOverlayPermission: (preset, sessionId) =>
       orbApi('floating.setOverlayPermission', { preset, sessionId }),
     overlayModel: () => orbApi('floating.overlayModel', {}),
+    // [XG-CUSTOM] 模型目录：启动时读一次拿 `current`（send() 带进请求体）。
+    // 目录里 `supported:false`（实测 8900 不支持选模型）—— 渲染侧只**读**不写，
+    // 写入口在右键菜单的主进程侧（选项 disabled）。
+    modelCatalog: () => orbApi('floating.modelCatalog', {}),
     avatarUrl: () => orbApi('floating.avatarUrl', {}),
+    // [XG-CUSTOM] 划词工具条开关（落盘布尔，默认开 = 与现状一致）：启动时读一次决定
+    // 要不要 wireSelectionBar()。改它只走右键菜单（主进程落盘后回传新值）。
+    selectionToolbar: () => orbApi('floating.selectionToolbar', {}),
     orbWorkspacePath: () => orbApi('floating.orbWorkspacePath', {}),
     relaunch: () => orbApi('floating.relaunch', {}),
     tccStatus: () => orbApi('floating.tccStatus', {}),
     openTcc: (right) => orbApi('floating.openTcc', { right }),
-    // [XG-CUSTOM] 右键菜单：主进程弹原生菜单，返回被点中的动作（'open-main'|'toggle-panel'|'quit'|null）
-    contextMenu: () => orbApi('floating.contextMenu', {}),
+    // [XG-CUSTOM] 右键菜单：主进程弹原生菜单，返回 `{action, avatarChanged?, message?, selectionEnabled?}`。
+    // 带上 editState（焦点是否可编辑 + 剪贴板动作可用性）→ 主进程在菜单顶部插 cut/copy/paste。
+    contextMenu: (editState) => orbApi('floating.contextMenu', editState ?? {}),
     onCreateSession: () => orbApi('floating.onCreateSession', {}),
     // 订阅类：我们不做选区工具条，返回空订阅（保持与上游同样的调用形状）。
     onSelectionPrompt: () => () => {},
@@ -603,6 +611,8 @@ async function main() {
   const fileInput = document.querySelector('#file-input');
   const ballAvatar = document.querySelector('#ball-avatar');
   const selectionBar = document.querySelector('#selection-bar');
+  // [XG-CUSTOM] 面板选项行的「工作区只读芯片」（只显示 basename，title 给全路径）
+  const workspaceChip = document.querySelector('#workspace-chip');
   // [XG-CUSTOM] 边缘停靠的 6px 细条（orb.html 里自带 hidden，停靠时点亮）
   const dockTab = document.querySelector('#dock-tab');
 
@@ -622,6 +632,12 @@ async function main() {
   });
 
   let expanded = false;
+  // [XG-CUSTOM] 当前真实路由标识（`floating.overlayModel()`；启动时读一次，send() 带进请求体）。
+  // 空串 = 还没读到，请求体里就不放 model 字段（不为空值瞎填）。
+  let overlayModelLabel = '';
+  // [XG-CUSTOM] 划词工具条开关（主进程落盘布尔；启动时读一次，决定要不要 wireSelectionBar）。
+  // 默认 true = 与老行为一致（读不到开关就不改变现状）。
+  let selectionToolbarEnabled = true;
   // [XG-CUSTOM] 期望态：打开路径设 true，关闭路径设 false。防止「等 IPC 期间用户已点关闭」
   // 导致主进程展开、渲染进程还挂着大面板的错位。
   let expandWanted = false;
@@ -1677,6 +1693,11 @@ async function main() {
         body: {
           // [XG-CUSTOM] 要 SSE（协议见文件头 9)；服务端不支持就退化成整段 JSON）
           stream: true,
+          // [XG-CUSTOM] 带上真实路由标识（XIANGWO_MODEL ?? 'xiangwo-8900'）。
+          // **实测 8900 不支持用 model 选模型**（见主进程 xiangwo-orb-api.ts 的 orbModelCatalog：
+          // 服务端只把这字段回显到响应体，未知名字也不报错），所以这里纯粹是"请求自述"，
+          // 不产生任何"能切换"的 UI 承诺。没有 reasoningEffort：8900 不支持该入参。
+          ...(overlayModelLabel === '' ? {} : { model: overlayModelLabel }),
           messages: [
             { role: 'system', content: systemPrefixFor(permission) },
             ...prior,
@@ -2425,18 +2446,77 @@ async function main() {
       domVisible: panelVisible(),
       ...ballDebug(),
     });
-    void runOrbContextMenu();
+    void runOrbContextMenu(event.target);
   });
 
-  async function runOrbContextMenu() {
-    let action = null;
+  // [XG-CUSTOM] 面板里也要能右键：cut/copy/paste 只有在**可编辑的地方**才有意义，
+  // 而球本身永远不可编辑 —— 只挂球的话这三项永远出不来（实测：右键球之后
+  // document.activeElement 变成 #ball，按"焦点"判定必然是 false）。
+  // 上游的 overlay 菜单覆盖整个浮窗，这里对齐：面板任意位置右键都弹同一个原生菜单。
+  // 编辑态按**右键命中的元素**算（Electron 的 isEditable 也是这个语义，不是 activeElement）。
+  panel.addEventListener('contextmenu', (event) => {
+    event.preventDefault();
+    trace('panel-contextmenu', { target: event.target?.id ?? event.target?.tagName ?? null });
+    void runOrbContextMenu(event.target);
+  });
+
+  /**
+   * [XG-CUSTOM] 报给主进程的「右键命中的地方可编辑吗」+ 剪贴板动作可用性
+   * （照上游 FloatingContextEditState）。
+   *
+   * 关键：用**右键命中的元素**（`target`），不是 `document.activeElement` ——
+   * Chrome 在非编辑区右键 mousedown 时会把焦点挪过去（球是 `<button>`，右键后
+   * activeElement 就变成球了），按焦点判定的话这三项永远出不来。
+   * 语义照 Electron：`canCopy` 只要有选区就行（转录区选中文字也该能复制）；
+   * `canCut`/`canPaste` 要求命中的地方真的可编辑。剪贴板内容读不到（没有同步 API），
+   * 所以 paste 只看"可编辑"。
+   * @param {EventTarget|null} target 右键命中的元素
+   * @returns {{ editable: boolean, editFlags: { canCut: boolean, canCopy: boolean, canPaste: boolean } }}
+   */
+  function editState(target) {
+    const element = target instanceof Element ? target : null;
+    const field = element === null ? null : element.closest('input, textarea, [contenteditable="true"]');
+    const editable =
+      field !== null &&
+      (field.isContentEditable === true ||
+        field instanceof HTMLInputElement ||
+        field instanceof HTMLTextAreaElement);
+    let hasSelection = false;
+    if (field !== null && typeof field.selectionStart === 'number') {
+      // <input>/<textarea>：选区在控件自己的 selectionStart/End 上
+      hasSelection = field.selectionStart !== field.selectionEnd;
+    }
+    if (!hasSelection) {
+      // contenteditable / 转录区：选区在 window.getSelection() 上（右键不会折叠它）
+      const selection = window.getSelection();
+      hasSelection = selection !== null && selection.toString().trim() !== '';
+    }
+    return {
+      editable,
+      editFlags: { canCut: editable && hasSelection, canCopy: hasSelection, canPaste: editable },
+    };
+  }
+
+  async function runOrbContextMenu(target = null) {
+    let result = null;
     try {
-      action = await api.floating.contextMenu();
+      result = await api.floating.contextMenu(editState(target));
     } catch (cause) {
       trace('contextmenu-error', { error: describeError(cause) });
       return;
     }
+    // [XG-CUSTOM] 主进程现在回的是 `{action, avatarChanged?, message?, selectionEnabled?}`；
+    // 兼容老形状（纯字符串 action），避免主/渲染两侧版本错位时彻底没反应。
+    const action = typeof result === 'string' ? result : (result?.action ?? null);
     trace('contextmenu-action', { action });
+    if (result !== null && typeof result === 'object') {
+      if (result.avatarChanged === true) await refreshAvatar();
+      if (typeof result.message === 'string' && result.message !== '') status.textContent = result.message;
+      if (typeof result.selectionEnabled === 'boolean') {
+        selectionToolbarEnabled = result.selectionEnabled;
+        status.textContent = result.selectionEnabled ? '划词工具条：已启用' : '划词工具条：已停用';
+      }
+    }
     if (action === 'open-main') void bridge.orbOpenMain?.();
     else if (action === 'toggle-panel') {
       const { open } = await panelOpenState();
@@ -2492,25 +2572,79 @@ async function main() {
   } catch {
     /* 读不到就用默认「完全访问」 */
   }
+  /**
+   * [XG-CUSTOM] 刷新球的头像（上游 orb-avatar.ts 的等价物）。
+   *
+   * 主进程从 `userData/xiangwo-orb-avatar.{png,gif,webp}` 或 `xiangwo-orb-avatar.json` 读
+   * （字节文件已过 magic bytes 校验）；没有就返回空串 → 摘掉 `has-avatar`、藏起 `<img>`，
+   * 球回退到内置的「项」字（不是空白）。换头像/恢复默认之后都要再调一次。
+   * @returns {Promise<void>}
+   */
+  async function refreshAvatar() {
+    try {
+      const avatarUrl = await api.floating.avatarUrl();
+      const has = typeof avatarUrl === 'string' && avatarUrl !== '';
+      if (has) ballAvatar.src = avatarUrl;
+      else ballAvatar.removeAttribute('src');
+      ballAvatar.hidden = !has;
+      document.body.classList.toggle('has-avatar', has);
+    } catch {
+      /* 读不到头像就保持内置「项」 */
+    }
+  }
+
+  /**
+   * [XG-CUSTOM] 面板选项行的「工作区只读芯片」：显示 `floating.orbWorkspacePath()` 的 basename，
+   * `title` 给全路径（点不开、只读，纯粹让用户知道当前活落在哪个目录）。
+   * 这是 `orbWorkspacePath` 这个 API 的第一个真实调用点（此前只有实现没有调用方）。
+   */
+  async function renderWorkspaceChip() {
+    if (workspaceChip === null) return;
+    let full = '';
+    try {
+      const value = await api.floating.orbWorkspacePath();
+      if (typeof value === 'string') full = value.trim();
+    } catch {
+      /* 拿不到就整颗芯片不显示 */
+    }
+    if (full === '') {
+      workspaceChip.hidden = true;
+      return;
+    }
+    // 主进程给的是本机路径，用 node:path 的语义拆（两种分隔符都认，兼容 Windows 工作区）
+    const parts = full.split(/[\\/]/).filter((part) => part !== '');
+    workspaceChip.textContent = parts.length === 0 ? full : parts[parts.length - 1];
+    workspaceChip.title = `工作区：${full}`;
+    workspaceChip.hidden = false;
+  }
+
   // [XG-CUSTOM] 启动即保证收起态：面板不挂载 = display:none，窗口里只有球（其余 100% 透明）。
   unmountPanel();
   renderTranscript();
   renderHistory();
   renderPermission();
   applyPinned(false);
-  // [XG-CUSTOM] 自定义头像（上游 orb-avatar.ts 的等价物）：主进程从
-  // userData/xiangwo-orb-avatar.{png,gif,webp} 或 xiangwo-orb-avatar.json 读；没有就用内置「项」。
+  await refreshAvatar();
+  // [XG-CUSTOM] 当前真实路由标识（send() 带进请求体）+ 工作区芯片。
+  // 取的是**模型目录的 current**（而不是那个硬编码的 overlayModel）：目录里带着
+  // `supported:false` 这个实测结论，渲染侧拿到的就是主进程认证过的真实值。
   try {
-    const avatarUrl = await api.floating.avatarUrl();
-    if (typeof avatarUrl === 'string' && avatarUrl !== '') {
-      ballAvatar.src = avatarUrl;
-      ballAvatar.hidden = false;
-      document.body.classList.add('has-avatar');
-    }
+    const catalog = await api.floating.modelCatalog();
+    const model = catalog?.current?.model;
+    if (typeof model === 'string') overlayModelLabel = model.trim();
   } catch {
-    /* 读不到头像就保持内置「项」 */
+    /* 读不到就不带 model 字段 */
   }
-  wireSelectionBar();
+  await renderWorkspaceChip();
+  // [XG-CUSTOM] 划词工具条开关（主进程落盘布尔，默认开）。**关掉时连 wireSelectionBar 都不调**，
+  // 从源头上不监听 selectionchange / 不弹条（而不是弹出来再隐藏）。
+  try {
+    const enabled = await api.floating.selectionToolbar();
+    if (typeof enabled === 'boolean') selectionToolbarEnabled = enabled;
+  } catch {
+    /* 读不到开关就保持默认「启用」 */
+  }
+  if (selectionToolbarEnabled) wireSelectionBar();
   wireDropTarget();
   // [XG-CUSTOM] 上游这里用 backend.subscribe 等 dsh 就绪；我们的 8900 通道是直连，
   // 只在启动时确认一次后端状态，失败也不卡 UI（发消息时会自然报错）。
