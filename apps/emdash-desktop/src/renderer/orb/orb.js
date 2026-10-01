@@ -16,16 +16,29 @@
 //      模型目录（session/selectModel）、macOS 停靠条的 JS（DOM/CSS 留着，停靠是 TODO）。
 //   4) 新增：📷 截图（captureCurrentTab）、📤 交接（taskSpaceList/Handoff）、bot 选择、
 //      本地历史（localStorage）、#stop 用 AbortController 真的能中断请求。
-//   6) [XG-CUSTOM] **提问卡协议**（补上游被删掉的 `#question`/`.question-card`）：
+//   6) [XG-CUSTOM] **提问卡协议 xiangwo-question**（补上游被删掉的 `#question`/`.question-card`
+//      + `question-pager`，语义照 floating.js renderQuestion/chooseOption/submitPending）：
 //      我们的 8900 通道是 OpenAI 兼容纯文本，没有结构化提问消息，所以约定一个 fenced JSON 块。
-//      agent 只要在回复里带上（单独成段）：
+//      agent 只要在回复里带上（单独成段）——**v2（多问分页 / 多选 / 富选项，推荐用法）**：
+//        ```xiangwo-question
+//        {"questions":[
+//          {"id":"q1","header":"站点","question":"要打开哪个站？","detail":"可多选","multiSelect":true,
+//           "options":[{"label":"日亚","description":"日本亚马逊"},{"label":"美亚（推荐）"}]}
+//        ],"allowCustom":true}
+//        ```
+//      **v1（老格式，仍然支持，内部归一化成单问）**：
 //        ```xiangwo-question
 //        {"title":"要打开哪个站？","options":["日亚","美亚","其他"],"allowCustom":true}
 //        ```
-//      渲染进程就把它渲染成一张选项卡（标题 + 选项按钮 + 可自定义输入），
-//      用户点选/输入后**作为一条 user 消息发回去**（卡片变灰不可再点）。
-//      字段：title 必填；options 选填（≤12 个，每个 ≤120 字）；allowCustom 选填（默认 true）。
-//      解析失败就整段当普通文本渲染（绝不吞消息）。
+//      渲染成一张选项卡：header 小标题 / question 主文案 / detail 副文案 / 选项
+//      （多选=checkbox 语义 + `aria-checked` + ✓；单选=radio 语义；`(推荐)`/`（推荐）` 剥成徽标；
+//      `description` 小字）/ 自定义输入 / 底部「提交 · 跳过 · 取消」/ 多问时「第 N/M 问 + 上一步/下一步 + 进度」。
+//      提交前校验：有没答完的问就跳过去 + 出一句提示（**绝不静默**）。
+//      用户答完（或取消）后卡片置为已答态、禁用交互，并把**答案文本**作为一条 user 消息发回去。
+//      字段上限：questions ≤8 问；每问 options ≤12 个、每项文字 ≤120 字（问句/副文案 ≤200）；
+//      header/question 至少给一个；allowCustom 选填（默认 true）；multiSelect 选填（默认单选）。
+//      解析失败 / 坏 JSON / 一问都没有 → 整段当普通文本渲染（绝不吞消息）。
+//      落盘只有 `message.answer` 那段**文本**（没有 DOM、没有草稿结构，见 persistConversations）。
 //   6.1) [XG-CUSTOM] **图片协议 xiangwo-images**（治「agent 说已推到侧边栏、用户什么都看不到」）：
 //      图搜/素材工具原来只回 `[XG-PREVIEW]<文件服务>?path=/tmp/xxx.html`，而球面板**没有**该预览器、
 //      那个 9090 文件服务（HippoBuddy 内置 Java）也没在跑 → 球里永远什么都不显示。
@@ -259,28 +272,112 @@ function newId() {
   return `orb-${String(Date.now())}-${Math.random().toString(16).slice(2)}`;
 }
 
+// [XG-CUSTOM] 提问卡协议 v2 的硬上限（与 agent 侧 xiangwo_question_block 一致）
+const QUESTION_MAX_QUESTIONS = 8;
+const QUESTION_MAX_OPTIONS = 12;
+const QUESTION_TEXT_MAX = 200; // question / detail / title
+const QUESTION_ITEM_MAX = 120; // header / 选项文字 / 选项说明
+const QUESTION_ID_MAX = 40;
+
+// 「(推荐)」后缀正则 —— **照抄上游** floating.js:9 的 RECOMMENDED_SUFFIX
+// （半角 `(推荐)`/`(recommended)` 与全角 `（推荐）`/`（recommended）` 都认，只认结尾）。
+const RECOMMENDED_SUFFIX = /\s*(?:\((?:recommended|推荐)\)|（(?:recommended|推荐)）)\s*$/i;
+
+/**
+ * [XG-CUSTOM] 「(推荐)」后缀 → 徽标（上游 floating.js:76 parseRecommendedLabel 的等价物）。
+ * @param {string} label 原始选项文字
+ * @returns {{ label: string, recommended: boolean }} 剥掉后缀的文字 + 是否推荐
+ */
+function parseRecommendedLabel(label) {
+  const text = typeof label === 'string' ? label : '';
+  return RECOMMENDED_SUFFIX.test(text)
+    ? { label: text.replace(RECOMMENDED_SUFFIX, '').trim(), recommended: true }
+    : { label: text, recommended: false };
+}
+
+/**
+ * [XG-CUSTOM] 归一化一个选项：字符串或 `{label, description}`。
+ * 没有有效文字 → undefined（调用方丢掉这一项）。
+ * @param {unknown} raw 原始选项
+ * @returns {{ label: string, recommended: boolean, description: string } | undefined}
+ */
+function normalizeQuestionOption(raw) {
+  const rawLabel = typeof raw === 'string' ? raw : typeof raw?.label === 'string' ? raw.label : '';
+  const label = rawLabel.trim();
+  if (label === '') return undefined;
+  const display = parseRecommendedLabel(label.slice(0, QUESTION_ITEM_MAX));
+  const rawDescription = typeof raw?.description === 'string' ? raw.description : '';
+  return {
+    label: display.label,
+    recommended: display.recommended,
+    description: rawDescription.trim().slice(0, QUESTION_ITEM_MAX),
+  };
+}
+
+/**
+ * [XG-CUSTOM] 归一化一问（`header` / `question` 至少有一个，否则 undefined）。
+ * @param {unknown} raw 原始一问
+ * @param {number} index 序号（补 `id` 用）
+ * @returns {{ id: string, header: string, question: string, detail: string, multiSelect: boolean,
+ *            options: Array<{label: string, recommended: boolean, description: string}> } | undefined}
+ */
+function normalizeQuestion(raw, index) {
+  if (raw === null || typeof raw !== 'object') return undefined;
+  const header = (typeof raw.header === 'string' ? raw.header.trim() : '').slice(0, QUESTION_ITEM_MAX);
+  const question = (typeof raw.question === 'string' ? raw.question.trim() : '').slice(0, QUESTION_TEXT_MAX);
+  if (header === '' && question === '') return undefined;
+  const detail = (typeof raw.detail === 'string' ? raw.detail.trim() : '').slice(0, QUESTION_TEXT_MAX);
+  const rawId = typeof raw.id === 'string' ? raw.id.trim() : '';
+  const options = [];
+  if (Array.isArray(raw.options)) {
+    for (const candidate of raw.options) {
+      const option = normalizeQuestionOption(candidate);
+      if (option === undefined) continue;
+      options.push(option);
+      if (options.length >= QUESTION_MAX_OPTIONS) break;
+    }
+  }
+  return {
+    id: rawId === '' ? `q${String(index + 1)}` : rawId.slice(0, QUESTION_ID_MAX),
+    header,
+    // `question` 是主文案；只给了 header 时用它顶（否则卡上会一片空）
+    question: question === '' ? header : question,
+    detail,
+    multiSelect: raw.multiSelect === true,
+    options,
+  };
+}
+
 /**
  * [XG-CUSTOM] 解析回复里的提问块（协议见文件头 6)）。
- * 找不到/JSON 坏了 → 原样返回文本、question = undefined（绝不吞消息）。
+ * 新格式 `{questions:[...], allowCustom?}`；老格式 `{title, options:[string]}` 归一化成"单问"。
+ * 找不到 / JSON 坏了 / 一问都没有 → 原样返回文本、question = undefined（绝不吞消息）。
  * @param {string} text 助手回复原文
- * @returns {{ text: string, question?: { title: string, options: string[], allowCustom: boolean } }}
+ * @returns {{ text: string, question?: { questions: Array<object>, allowCustom: boolean } }}
  */
 function parseQuestionBlock(text) {
   const match = /```xiangwo-question\s*([\s\S]*?)```/.exec(text);
   if (match === null) return { text };
   try {
     const raw = JSON.parse(match[1].trim());
-    const title = typeof raw?.title === 'string' ? raw.title.trim() : '';
-    if (title === '') return { text };
-    const options = Array.isArray(raw.options)
-      ? raw.options
-          .filter((o) => typeof o === 'string' && o.trim() !== '')
-          .slice(0, 12)
-          .map((o) => o.trim().slice(0, 120))
-      : [];
-    const allowCustom = raw.allowCustom !== false;
+    const allowCustom = raw?.allowCustom !== false;
+    const questions = [];
+    if (Array.isArray(raw?.questions)) {
+      for (const item of raw.questions) {
+        const question = normalizeQuestion(item, questions.length);
+        if (question === undefined) continue;
+        questions.push(question);
+        if (questions.length >= QUESTION_MAX_QUESTIONS) break;
+      }
+    }
+    if (questions.length === 0) {
+      // 老格式（v1）：{title, options:[string]} —— 内部归一化成单问，渲染路径只有一条
+      const legacy = normalizeQuestion({ question: raw?.title, options: raw?.options }, 0);
+      if (legacy === undefined) return { text };
+      questions.push(legacy);
+    }
     const cleaned = text.replace(match[0], '').trim();
-    return { text: cleaned, question: { title: title.slice(0, 200), options, allowCustom } };
+    return { text: cleaned, question: { questions, allowCustom } };
   } catch {
     return { text };
   }
@@ -660,68 +757,319 @@ async function main() {
   }
 
   /**
-   * [XG-CUSTOM] 渲染一张选项卡（上游 `#question`/`.question-card` 的等价物）。
-   * 点选项/提交自定义输入 → 作为一条 user 消息发回去；卡片随即置为已答（灰掉）。
-   * @param {object} message 所属助手消息（`message.answer` 记录已答内容，随历史落盘）
-   * @param {{title: string, options: string[], allowCustom: boolean}} question 解析出来的提问
+   * [XG-CUSTOM] 提问卡的临时草稿（一问一条：选中项 / 自定义输入 / 是否跳过）。
+   * **不落盘**：DOM 每次重渲染都会重建，草稿挂回消息对象（WeakMap）才不会丢；
+   * 落盘的只有最终那条 `message.answer` 文本（见 persistConversations）。
+   */
+  const questionDrafts = new WeakMap();
+
+  /** 取（没有就建）某条助手消息的草稿数组；问题数变了就重建（协议变了/历史重载） */
+  function draftState(message, questions) {
+    let drafts = questionDrafts.get(message);
+    if (!Array.isArray(drafts) || drafts.length !== questions.length) {
+      drafts = questions.map(() => ({ selected: [], custom: '', skipped: false }));
+      questionDrafts.set(message, drafts);
+    }
+    return drafts;
+  }
+
+  /** 这一问答了吗（选了选项 或 自己写了答案）—— `asking()` 与提交校验共用 */
+  function draftAnswered(draft) {
+    return draft.selected.length > 0 || draft.custom.trim() !== '';
+  }
+
+  /** 这一问算"处理过了"吗（答了 或 跳过了）—— 提交校验用 */
+  function draftCompleted(draft) {
+    return draftAnswered(draft) || draft.skipped;
+  }
+
+  /**
+   * [XG-CUSTOM] 把草稿拼成**一条 user 消息文本**（落盘的也只有这段文字，没有 DOM/结构）。
+   * 单问（含老格式 v1）：答案就是选项文字，保持「已答：日亚」的老行为。
+   * 多问：一行一问 `标题：答案`，多选用 `、` 连接，跳过写「（跳过）」。
+   * @param {Array<object>} questions 归一化后的问题
+   * @param {Array<{selected: string[], custom: string, skipped: boolean}>} drafts 草稿
+   * @returns {string} 要发出去（并落盘）的答案文本
+   */
+  function composeQuestionAnswer(questions, drafts) {
+    const values = questions.map((item, index) => {
+      const draft = drafts[index];
+      if (draft.skipped) return '（跳过）';
+      const parts = [...draft.selected];
+      const custom = draft.custom.trim();
+      if (custom !== '') parts.push(custom);
+      return parts.length === 0 ? '（跳过）' : parts.join('、');
+    });
+    if (questions.length === 1) return values[0];
+    return questions
+      .map((item, index) => {
+        // 有 header 用 header；没有就用问句本身（去掉结尾的问号/冒号，别拼出「…？：」）
+        const label = item.header !== '' ? item.header : item.question.replace(/[？?：:]\s*$/, '');
+        return `${label}：${values[index]}`;
+      })
+      .join('\n');
+  }
+
+  /**
+   * [XG-CUSTOM] 渲染一张选项卡（上游 `#question`/`.question-card` + `question-pager` 的等价物）。
+   *
+   * 交互（照上游 floating.js renderQuestion / chooseOption / submitPending / skipQuestion / cancelQuestion）：
+   * - 选项：单选=radio 语义（点了自动翻到下一问）；多选=checkbox 语义（`aria-checked` + ✓ 可反复勾/取消）
+   * - 分页：第 N/M 问 + 上一步/下一步 + 进度条（只有一问时整条隐藏）
+   * - 底部：提交 / 跳过 / 取消。**未答完就提交** → 跳到缺的那一问 + 出校验提示（绝不静默）
+   * - 答完（或取消）→ 卡片置为已答态：所有交互禁用 + 一行「已答：…」，并把答案文本落进历史
+   *
+   * @param {object} message 所属助手消息（`message.answer` 记录已答文本，随历史落盘）
+   * @param {{questions: Array<object>, allowCustom: boolean}} question 解析/归一化出来的提问
    * @returns {HTMLElement} 卡片元素
    */
   function renderQuestionCard(message, question) {
     const card = document.createElement('div');
     card.className = 'question-card';
-    const title = document.createElement('div');
-    title.className = 'question-title';
-    title.textContent = question.title;
-    card.append(title);
-
+    const questions = question.questions;
     const answered = typeof message.answer === 'string' && message.answer !== '';
-    const answer = (value) => {
+    const answeredText = answered ? message.answer : '';
+    const drafts = answered
+      ? questions.map(() => ({ selected: [], custom: '', skipped: true }))
+      : draftState(message, questions);
+    let index = 0; // 当前第几问（多问分页）
+    let error = ''; // 校验提示（未答完提交时出人话）
+
+    /** 收尾：写答案文本（**只落文本**）→ 重渲染成已答态；skipSend=true 用于「取消」 */
+    const commit = (value, skipSend) => {
       if (answered) return;
-      const text = value.trim();
-      if (text === '') return;
-      message.answer = text;
+      message.answer = value;
       persistConversations();
       renderTranscript();
-      void send(text);
+      if (skipSend !== true) void send(value);
     };
 
-    if (question.options.length > 0) {
-      const list = document.createElement('div');
-      list.className = 'question-options';
-      for (const option of question.options) {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className =
-          answered && message.answer === option ? 'question-option chosen' : 'question-option';
-        button.textContent = option;
-        button.disabled = answered;
-        button.addEventListener('click', () => answer(option));
-        list.append(button);
+    /** 提交：先校验"每一问都答了或跳过了"，缺就跳过去 + 出提示（绝不静默） */
+    const submitAll = () => {
+      const missing = drafts.findIndex((draft) => !draftCompleted(draft));
+      if (missing >= 0) {
+        index = missing;
+        error = `第 ${String(missing + 1)} 问还没回答（选一个选项，或点「跳过」）`;
+        paint();
+        return;
       }
-      card.append(list);
+      const text = composeQuestionAnswer(questions, drafts);
+      trace('question-submit', { count: questions.length, text });
+      commit(text, false);
+    };
+
+    /** 把"第 index 问"的画到卡里。interactive=false = 已答态（全部禁用） */
+    const appendQuestion = (item, draft, interactive) => {
+      if (item.header !== '') {
+        const header = document.createElement('div');
+        header.className = 'question-header';
+        header.textContent = item.header;
+        card.append(header);
+      }
+      const title = document.createElement('div');
+      title.className = 'question-title';
+      title.textContent = item.question;
+      card.append(title);
+      if (item.detail !== '') {
+        const detail = document.createElement('div');
+        detail.className = 'question-detail';
+        detail.textContent = item.detail;
+        card.append(detail);
+      }
+      if (item.options.length > 0) {
+        const list = document.createElement('div');
+        list.className = 'question-options';
+        list.setAttribute('role', item.multiSelect ? 'group' : 'radiogroup');
+        for (const [optionIndex, option] of item.options.entries()) {
+          const chosen = interactive
+            ? draft.selected.includes(option.label)
+            : answeredText.includes(option.label);
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = chosen ? 'question-option chosen' : 'question-option';
+          button.setAttribute('role', item.multiSelect ? 'checkbox' : 'radio');
+          button.setAttribute('aria-checked', String(chosen));
+          button.setAttribute('aria-label', option.label);
+          button.disabled = !interactive;
+          const copy = document.createElement('span');
+          copy.className = 'question-option-copy';
+          const label = document.createElement('span');
+          label.className = 'question-option-label';
+          label.textContent = option.label;
+          copy.append(label);
+          if (option.recommended) {
+            const badge = document.createElement('span');
+            badge.className = 'question-recommended';
+            badge.textContent = '推荐';
+            copy.append(badge);
+          }
+          if (option.description !== '') {
+            const description = document.createElement('span');
+            description.className = 'question-option-description';
+            description.textContent = option.description;
+            copy.append(description);
+          }
+          // [XG-CUSTOM] 多选（或分页多问）才把序号/✓ 画出来；单问单选保持 v1 的纯文字 chip
+          const showMark = item.multiSelect || questions.length > 1;
+          if (showMark) {
+            const mark = document.createElement('span');
+            mark.className = 'question-option-mark';
+            mark.textContent = item.multiSelect ? (chosen ? '✓' : '') : String(optionIndex + 1);
+            button.append(mark);
+          }
+          button.append(copy);
+          if (interactive) {
+            button.addEventListener('click', () => {
+              if (item.multiSelect) {
+                draft.selected = chosen
+                  ? draft.selected.filter((entry) => entry !== option.label)
+                  : [...draft.selected, option.label];
+              } else {
+                draft.selected = [option.label];
+                draft.custom = '';
+                // [XG-CUSTOM] 单选：还有下一问就自动翻过去（照上游 chooseOption）；
+                // **只有一问**时直接收（v1 老行为：点选项 = 答完，用户不用再点提交，
+                // 否则老格式会退化成"点了没反应"）。
+                if (index < questions.length - 1) index += 1;
+              }
+              draft.skipped = false;
+              error = '';
+              paint();
+              if (!item.multiSelect && questions.length === 1) submitAll();
+            });
+          }
+          list.append(button);
+        }
+        card.append(list);
+      }
+      // 自定义输入：只画当前问（照上游的单个 question-custom）
+      if (interactive && question.allowCustom) {
+        const wrap = document.createElement('div');
+        wrap.className = 'question-custom';
+        const input = document.createElement('textarea');
+        input.className = 'question-custom-input';
+        input.rows = 1;
+        input.placeholder = '或者自己写一个答案…';
+        input.value = draft.custom;
+        input.addEventListener('input', () => {
+          draft.custom = input.value;
+          draft.skipped = false;
+          if (error !== '') {
+            error = '';
+            paint();
+          }
+        });
+        input.addEventListener('keydown', (event) => {
+          if (event.key !== 'Enter' || event.shiftKey) return;
+          event.preventDefault();
+          if (questions.length === 1) submitAll();
+        });
+        wrap.append(input);
+        card.append(wrap);
+      }
+    };
+
+    /** 重画整张卡（清空重来；index/error/drafts 都在闭包里，重画不丢） */
+    function paint() {
+      card.replaceChildren();
+      const interactive = !answered;
+      const shown = interactive ? [index] : questions.map((_, i) => i);
+      for (const questionIndex of shown) {
+        appendQuestion(questions[questionIndex], drafts[questionIndex], interactive);
+      }
+      if (error !== '') {
+        const line = document.createElement('p');
+        line.className = 'question-error';
+        line.setAttribute('role', 'status');
+        line.textContent = error;
+        card.append(line);
+      }
+      if (!interactive) {
+        const done = document.createElement('div');
+        done.className = 'question-answered';
+        done.textContent = `已答：${answeredText}`;
+        card.append(done);
+        return;
+      }
+      const footer = document.createElement('footer');
+      footer.className = 'question-footer';
+      if (questions.length > 1) {
+        const pager = document.createElement('div');
+        pager.className = 'question-pager';
+        const prev = document.createElement('button');
+        prev.type = 'button';
+        prev.className = 'question-nav question-prev';
+        prev.setAttribute('aria-label', '上一问');
+        prev.textContent = '上一步';
+        prev.disabled = index === 0;
+        prev.addEventListener('click', () => {
+          if (index === 0) return;
+          index -= 1;
+          error = '';
+          paint();
+        });
+        const progress = document.createElement('span');
+        progress.className = 'question-progress';
+        progress.textContent = `${String(index + 1)} / ${String(questions.length)}`;
+        const next = document.createElement('button');
+        next.type = 'button';
+        next.className = 'question-nav question-next';
+        next.setAttribute('aria-label', '下一问');
+        next.textContent = '下一步';
+        next.disabled = index === questions.length - 1;
+        next.addEventListener('click', () => {
+          if (index >= questions.length - 1) return;
+          index += 1;
+          error = '';
+          paint();
+        });
+        const track = document.createElement('div');
+        track.className = 'question-progress-track';
+        const fill = document.createElement('div');
+        fill.className = 'question-progress-fill';
+        fill.style.width = `${String(Math.round(((index + 1) / questions.length) * 100))}%`;
+        track.append(fill);
+        pager.append(prev, progress, next, track);
+        footer.append(pager);
+      }
+      const actions = document.createElement('div');
+      actions.className = 'question-actions';
+      const cancel = document.createElement('button');
+      cancel.type = 'button';
+      cancel.className = 'question-action question-cancel';
+      cancel.textContent = '取消';
+      cancel.addEventListener('click', () => {
+        trace('question-cancel', { count: questions.length });
+        // [XG-CUSTOM] 取消 = 这张卡作废（不发消息给模型，避免把"取消"当成回答）
+        commit('（已取消）', true);
+      });
+      const skip = document.createElement('button');
+      skip.type = 'button';
+      skip.className = 'question-action question-skip';
+      skip.textContent = '跳过';
+      skip.addEventListener('click', () => {
+        drafts[index] = { selected: [], custom: '', skipped: true };
+        error = '';
+        if (index < questions.length - 1) {
+          index += 1;
+          paint();
+          return;
+        }
+        submitAll();
+      });
+      const submit = document.createElement('button');
+      submit.type = 'button';
+      submit.className = 'question-action question-submit';
+      submit.textContent = '提交';
+      submit.addEventListener('click', () => {
+        submitAll();
+      });
+      actions.append(cancel, skip, submit);
+      footer.append(actions);
+      card.append(footer);
     }
 
-    if (question.allowCustom && !answered) {
-      const form = document.createElement('form');
-      form.className = 'question-custom';
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.placeholder = '或者自己写一个答案…';
-      const submit = document.createElement('button');
-      submit.type = 'submit';
-      submit.textContent = '发送';
-      form.append(input, submit);
-      form.addEventListener('submit', (event) => {
-        event.preventDefault();
-        answer(input.value);
-      });
-      card.append(form);
-    } else if (answered) {
-      const done = document.createElement('div');
-      done.className = 'question-answered';
-      done.textContent = `已答：${message.answer}`;
-      card.append(done);
-    }
+    paint();
     return card;
   }
 
@@ -882,15 +1230,23 @@ async function main() {
 
   /**
    * [XG-CUSTOM] 提问卡待答态（上游 `asking()` 的等价物）：当前会话最后一条助手消息里
-   * 有提问块、且还没答过。待答时不许停靠 —— 否则用户看不到还等着他回答的那张卡。
+   * 有提问块、且**还有没答的问题**。待答时不许停靠 —— 否则用户看不到还等着他回答的那张卡。
+   *
+   * [XG-CUSTOM] v2 适配：一次回复可以是**多问**（`questions` 数组，一问一页）。
+   * 判定语义 = 「任一问还没答（没选选项、也没自己写答案）就算待答」——
+   * 多选/分页都只是"怎么答"，不改变"有没有答完"。
+   * 老格式 `{title,options}` 被归一化成单问，走的是同一条路（等价于 v1 行为）。
    * @returns {boolean} 有待答的提问卡
    */
   function asking() {
     const last = current.messages[current.messages.length - 1];
     if (last === undefined || last.role !== 'assistant') return false;
+    // 已答/已取消/已跳过：整张卡都作废了（`answer` 是唯一的落盘标记）
     if (typeof last.answer === 'string' && last.answer !== '') return false;
     const parsed = parseQuestionBlock(parseImagesBlock(last.text ?? '').text);
-    return parsed.question !== undefined;
+    if (parsed.question === undefined) return false;
+    const drafts = draftState(last, parsed.question.questions);
+    return parsed.question.questions.some((_, index) => !draftAnswered(drafts[index]));
   }
 
   /** [XG-CUSTOM] 现在允许吸边吗（与主进程的 running 护栏叠加，见 dockAllowed） */
