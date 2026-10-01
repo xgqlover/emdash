@@ -18,14 +18,31 @@ export type OrbDirection = { horizontal: 'left' | 'right'; vertical: 'up' | 'dow
 /** 球原点（屏幕坐标，球本身左上角） */
 export type OrbBallPoint = { x: number; y: number };
 
+/**
+ * [XG-CUSTOM] 停靠侧 = 球吸在屏幕哪一条边（照上游 FloatingDockSide）。
+ * 停靠的语义：窗口滑出屏幕外，只在屏内留一条 ORB_DOCK_TAB_WIDTH 的细条。
+ */
+export type OrbDockSide = 'left' | 'right';
+
+/** [XG-CUSTOM] 停靠态：侧别 + 球顶 y（细条对齐到球原来的高度） */
+export type OrbDock = { side: OrbDockSide; y: number };
+
+/**
+ * [XG-CUSTOM] 一次 move/clamp/unsnap 的结果。
+ * `docked` 必须**透传给渲染进程**（orb.js 靠它切 body.docked-* + 点亮/熄灭 #dock-tab）。
+ */
+export type OrbBallOutcome = { ball?: OrbBallPoint; docked: OrbDockSide | null };
+
 /** 本模块需要球壳提供的能力（见 xiangwo-orb.ts） */
 export type OrbApiDeps = {
   /** 展开/收起球窗口，返回展开方向（收起时返回值被渲染进程忽略） */
   applyMode: (mode: 'ball' | 'panel') => OrbDirection;
-  /** 把球原点移到 (x, y)（夹回工作区），返回落点 */
-  moveBall: (x: number, y: number) => OrbBallPoint | undefined;
-  /** 把球夹回当前工作区，返回落点 */
-  clampBall: () => OrbBallPoint | undefined;
+  /** 把球原点移到 (x, y)，返回落点 + 当前停靠侧 */
+  moveBall: (x: number, y: number) => OrbBallOutcome;
+  /** 松手/夹回：允许停靠就吸边，否则夹回工作区；返回落点 + 停靠侧 */
+  clampBall: (canDock: boolean) => Promise<OrbBallOutcome> | OrbBallOutcome;
+  /** 从停靠细条滑回球态（没停靠就是 no-op）；返回 `{ docked: null }` */
+  unsnapBall: () => Promise<OrbBallOutcome> | OrbBallOutcome;
   /** 球窗口（原生右键菜单的宿主窗口） */
   getWindow: () => BrowserWindow | null;
 };
@@ -98,6 +115,16 @@ function writeSession(patch: OrbSessionState): OrbSessionState {
   if (next.running !== undefined) out.running = next.running;
   writeJsonObject(orbFile(ORB_SESSION_FILE), out);
   return next;
+}
+
+/**
+ * [XG-CUSTOM] 球会话是不是正在跑（`floating.setSessionRunning` 落的盘）。
+ * 用途：边缘停靠的**运行时护栏** —— 上游 `canDock = !(running || asking())`，
+ * `asking()`（提问卡待答）在渲染进程；主进程只能看到 running，所以两边各守一层。
+ * @returns 正在跑 = true
+ */
+export function orbSessionRunning(): boolean {
+  return readSession().running === true;
 }
 
 /** 读持久化的权限档（缺省 = 完全访问，跟 Orb 一致） */
@@ -202,17 +229,24 @@ function popupOrbContextMenu(win: BrowserWindow | null): Promise<OrbContextMenuA
 /**
  * 按 method 路由一次球 API 调用。
  *
- * 已实现：floating.setExpanded / move / clamp / contextMenu / sessionId / setSessionId /
+ * 已实现：floating.setExpanded / move / clamp / unsnap / contextMenu / sessionId / setSessionId /
  * setSessionRunning / overlayPermission / setOverlayPermission / overlayModel / avatarUrl /
  * orbWorkspacePath / relaunch / onCreateSession，backend.status / subscribe。
- * no-op（Linux/Windows 无此概念，返回不报错的值）：floating.unsnap / tccStatus / openTcc /
+ * no-op（Linux/Windows 无此概念，返回不报错的值）：tccStatus / openTcc /
  * onSelectionPrompt / onSelectionAttach。
+ *
+ * [XG-CUSTOM] floating.move / clamp / unsnap 都会带回 `docked`（'left' | 'right' | null）；
+ * clamp 还会叠加主进程的 running 护栏（正在跑会话时**不许停靠**）。
  * @param deps 球壳注入的能力
  * @param method floating.* / backend.* 方法名
  * @param args 方法参数
  * @returns 方法结果（结构化克隆友好）
  */
-export function routeOrbApi(deps: OrbApiDeps, method: unknown, args: unknown): unknown {
+export async function routeOrbApi(
+  deps: OrbApiDeps,
+  method: unknown,
+  args: unknown
+): Promise<unknown> {
   const name = typeof method === 'string' ? method : '';
   const payload = asRecord(args);
   switch (name) {
@@ -227,13 +261,14 @@ export function routeOrbApi(deps: OrbApiDeps, method: unknown, args: unknown): u
       const y = asFiniteNumber(payload.y);
       log.warn('[xiangwo-orb-trace] main-api', { method: name, args: payload });
       if (x === undefined || y === undefined) return { docked: null };
-      const ball = deps.moveBall(x, y);
-      return { x: ball?.x, y: ball?.y, docked: null };
+      const moved = deps.moveBall(x, y);
+      return { x: moved.ball?.x, y: moved.ball?.y, docked: moved.docked };
     }
     case 'floating.clamp': {
       log.warn('[xiangwo-orb-trace] main-api', { method: name, args: payload });
-      const ball = deps.clampBall();
-      return { x: ball?.x, y: ball?.y, docked: null };
+      // [XG-CUSTOM] canDock = 渲染进程的 !(running || asking()) && 主进程的 !running
+      const clamped = await deps.clampBall(payload.canDock !== false && !orbSessionRunning());
+      return { x: clamped.ball?.x, y: clamped.ball?.y, docked: clamped.docked };
     }
     case 'floating.contextMenu':
       return popupOrbContextMenu(deps.getWindow());
@@ -247,9 +282,11 @@ export function routeOrbApi(deps: OrbApiDeps, method: unknown, args: unknown): u
       }
       return true;
     }
-    // [XG-CUSTOM] TODO 边缘停靠：先 no-op（见 xiangwo-orb.ts 的 moved 处理里同样的 TODO）
-    case 'floating.unsnap':
-      return { ok: true, docked: null };
+    // [XG-CUSTOM] 边缘停靠：细条滑回球态（主进程做 300ms easeOutCubic 动画 + 重抠球形状 + 落盘）
+    case 'floating.unsnap': {
+      const unsnapped = await deps.unsnapBall();
+      return { ok: true, docked: unsnapped.docked };
+    }
     case 'floating.sessionId':
       return readSession().sessionId ?? null;
     case 'floating.setSessionId': {

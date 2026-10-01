@@ -16,7 +16,15 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { log } from '@main/lib/logger';
 import { APP_ORIGIN } from './protocol';
-import { registerXiangwoOrbApi, type OrbBallPoint, type OrbDirection } from './xiangwo-orb-api';
+import {
+  orbSessionRunning,
+  registerXiangwoOrbApi,
+  type OrbBallOutcome,
+  type OrbBallPoint,
+  type OrbDock,
+  type OrbDockSide,
+  type OrbDirection,
+} from './xiangwo-orb-api';
 
 /** 球直径（px） */
 export const ORB_BALL_SIZE = 72;
@@ -32,8 +40,44 @@ const BELOW_CENTER = 0.08;
 /** [XG-CUSTOM] 默认落点离屏幕边缘留 8 DIP，别让球贴着边（实测贴边看着像被切） */
 const ORB_EDGE_MARGIN = 8;
 
+// ---------------------------------------------------------------------------
+// [XG-CUSTOM] 边缘停靠（dock）常量 —— 整组照开源项目 mini-yifan/deepseek-harness-orb（MIT）
+// 的 floating-window.ts 搬过来（去掉了 systemPreferences / setContentProtection / CU guard）。
+// 语义：拖动松手时球（收起态）压住屏幕左/右边缘 ≥ ORB_DOCK_OVERLAP → 吸边；
+// 窗口滑出屏幕外，只留 ORB_DOCK_TAB_WIDTH 的细条；悬停细条 → 滑回。
+// ---------------------------------------------------------------------------
+
+/** [XG-CUSTOM] 球宽 1/5（72/5 → 14 DIP）越过屏幕左/右边缘就吸边（上游 FLOATING_DOCK_OVERLAP） */
+export const ORB_DOCK_OVERLAP = Math.round(ORB_BALL_SIZE / 5);
+/** [XG-CUSTOM] 拖着细条向内移超过这么多 DIP 就解锁（上游 FLOATING_DOCK_DRAG_OFF = 72/3 = 24） */
+export const ORB_DOCK_DRAG_OFF = Math.round(ORB_BALL_SIZE / 3);
+/** [XG-CUSTOM] 停靠后露在屏幕内的细条宽度（上游 FLOATING_DOCK_TAB_WIDTH） */
+export const ORB_DOCK_TAB_WIDTH = 6;
+/** [XG-CUSTOM] 细条高度 = 球直径（上游 FLOATING_DOCK_TAB_HEIGHT） */
+export const ORB_DOCK_TAB_HEIGHT = ORB_BALL_SIZE;
+/** [XG-CUSTOM] 吸边（球滑出屏幕）动画时长，easeInOutCubic（上游 FLOATING_DOCK_SLIDE_OFF_MS） */
+export const ORB_DOCK_SLIDE_OFF_MS = 250;
+/** [XG-CUSTOM] 滑回（球回到屏幕内）动画时长，easeOutCubic（上游 FLOATING_DOCK_SLIDE_IN_MS） */
+export const ORB_DOCK_SLIDE_IN_MS = 300;
+/** [XG-CUSTOM] 球完全滑出屏幕时的额外余量（上游 FLOATING_DOCK_OFF_GAP） */
+export const ORB_DOCK_OFF_GAP = 2;
+/** [XG-CUSTOM] 解锁后球离屏幕边缘的内缩（上游 FLOATING_DOCK_IN_PAD） */
+export const ORB_DOCK_IN_PAD = 5;
+/**
+ * [XG-CUSTOM] 停靠窗口尺寸 = 细条本身（6×72）。
+ *
+ * 上游的命中区是 34×88（细条 6 + 内发光 8 + 20 DIP 悬停余量），多出来的是"透明但可命中"的窗口区域。
+ * 这台机器没有合成器（X11 无 alpha），窗口里**没被形状覆盖**的像素是黑的 → 形状必须等于画出来的细条：
+ * 细条就是窗口、窗口就是细条。代价：悬停目标只有 6 DIP 宽（见交付说明「已知限制」）。
+ */
+export const ORB_DOCK_HIT_WIDTH = ORB_DOCK_TAB_WIDTH;
+/** [XG-CUSTOM] 停靠窗口高度 = 细条高度 */
+export const ORB_DOCK_HIT_HEIGHT = ORB_DOCK_TAB_HEIGHT;
+
 type Rect = { x: number; y: number; width: number; height: number };
 type OrbMode = 'ball' | 'panel';
+/** [XG-CUSTOM] 窗口当前该长什么样：球 / 面板 / 停靠细条（SHAPE 抠形与尺寸护栏都按它算） */
+type OrbVisualMode = OrbMode | 'docked';
 
 let orbWindow: BrowserWindow | null = null;
 let orbMode: OrbMode = 'ball';
@@ -42,6 +86,15 @@ let openMainHandler: (() => void) | undefined;
 let ipcRegistered = false;
 /** [XG-CUSTOM] 展开方向（panelShape 要把"球所在那个角"的圆并进形状，见 panelShape 注释） */
 let panelDirection: OrbDirection | undefined;
+/** [XG-CUSTOM] 当前停靠态（undefined = 没停靠）；是渲染进程 body.docked-* 的唯一来源 */
+let orbDocked: OrbDock | undefined;
+/**
+ * [XG-CUSTOM] 吸边/滑回动画的"代次"。动画是 await 的，期间用户可能又拖了一次
+ * （cancelOrbAnim 会 resolve 掉旧动画）—— 用代次号判断"我这一趟还算不算数"。
+ */
+let orbDockToken = 0;
+/** [XG-CUSTOM] 正在跑的窗口动画（同一时刻只允许一个） */
+let orbAnim: { cancelled: boolean; resolve: () => void } | undefined;
 
 /**
  * [XG-CUSTOM][TEMP-TRACE] 球交互排查日志（真机「展开态点球没反应」专用）。
@@ -56,23 +109,46 @@ function orbTrace(event: string, detail: Record<string, unknown> = {}): void {
 
 const clamp = (v: number, lo: number, hi: number): number => Math.min(Math.max(v, lo), Math.max(lo, hi));
 
+/**
+ * [XG-CUSTOM] 落盘的位置记忆（userData/xiangwo-orb.json）。
+ * 兼容旧格式：`ball` 字段名与含义不变（老版本只写它），`dock` 是停靠态新增字段
+ * （`{ side: 'left'|'right', y }`，y = 球顶，用来把 6px 细条对齐到球原来的高度）。
+ * 停靠时 **两个都写**：`ball` 存"解锁后球该回到哪"，`dock` 存"现在停在哪一边"。
+ */
+type OrbSavedState = { ball?: { x: number; y: number }; dock?: OrbDock };
+
 function boundsFile(): string {
   return join(app.getPath('userData'), 'xiangwo-orb.json');
 }
 
-function loadBallOrigin(): { x: number; y: number } | undefined {
+function readSavedState(): OrbSavedState {
   try {
-    const raw = JSON.parse(readFileSync(boundsFile(), 'utf8')) as { ball?: { x: number; y: number } };
-    if (raw?.ball && Number.isFinite(raw.ball.x) && Number.isFinite(raw.ball.y)) return raw.ball;
+    const raw = JSON.parse(readFileSync(boundsFile(), 'utf8')) as {
+      ball?: { x: number; y: number };
+      dock?: { side?: unknown; y?: unknown };
+    };
+    const out: OrbSavedState = {};
+    if (raw?.ball && Number.isFinite(raw.ball.x) && Number.isFinite(raw.ball.y)) {
+      out.ball = { x: raw.ball.x, y: raw.ball.y };
+    }
+    const side = raw?.dock?.side;
+    const y = raw?.dock?.y;
+    if ((side === 'left' || side === 'right') && typeof y === 'number' && Number.isFinite(y)) {
+      out.dock = { side, y };
+    }
+    return out;
   } catch {
-    /* 没存过就用默认位置 */
+    /* 没存过 / 写坏了就当没存过 */
+    return {};
   }
-  return undefined;
 }
 
-function saveBallOrigin(ball: { x: number; y: number }): void {
+function saveOrbState(state: OrbSavedState): void {
   try {
-    writeFileSync(boundsFile(), `${JSON.stringify({ ball }, null, 2)}\n`, 'utf8');
+    const out: Record<string, unknown> = {};
+    if (state.ball !== undefined) out.ball = state.ball;
+    if (state.dock !== undefined) out.dock = { side: state.dock.side, y: state.dock.y };
+    writeFileSync(boundsFile(), `${JSON.stringify(out, null, 2)}\n`, 'utf8');
   } catch {
     /* 写失败不影响使用 */
   }
@@ -80,6 +156,16 @@ function saveBallOrigin(ball: { x: number; y: number }): void {
 
 function workAreaFor(point: { x: number; y: number }): Rect {
   return screen.getDisplayNearestPoint(point).workArea;
+}
+
+/** [XG-CUSTOM] 屏幕边缘（不是 work-area）：细条要贴在**真正的屏幕边**上（跟上游一样用 display.bounds） */
+function screenBoundsFor(point: { x: number; y: number }): Rect {
+  return screen.getDisplayNearestPoint(point).bounds;
+}
+
+function displayForPoint(point: { x: number; y: number }): { bounds: Rect; workArea: Rect } {
+  const display = screen.getDisplayNearestPoint(point);
+  return { bounds: display.bounds, workArea: display.workArea };
 }
 
 function clampBall(ball: { x: number; y: number }, area: Rect): { x: number; y: number } {
@@ -111,6 +197,258 @@ function collapsedBounds(ball: { x: number; y: number }): Rect {
     width: BALL_WINDOW_SIZE,
     height: BALL_WINDOW_SIZE,
   };
+}
+
+// ---------------------------------------------------------------------------
+// [XG-CUSTOM] 边缘停靠（dock）几何 + 动画
+//
+// 搬自上游 floating-window.ts（MIT）：dockSideForBallOrigin / dockedTabBounds /
+// offScreenBallOrigin / insideBallOrigin / animateOverlayBounds / snapToEdge / unsnapDockedBall。
+// 去掉的：systemPreferences（prefersReducedMotion）、setContentProtection、CU/overlay guard。
+//
+// 我们的差异（必须记住，否则会踩黑块/被裁）：
+// 1) 停靠窗口 = 细条本身（6×72），不是上游的 34×88 命中区 —— 没有合成器就没有"透明但可命中"。
+// 2) 停靠态必须重新 setShape（X11 SHAPE 抠形）：球态是圆、停靠态是胶囊，不重抠就是一块黑或细条被裁掉。
+// 3) 停靠侧别用 work-area，用屏幕边缘（display.bounds）：细条贴在真正的屏幕边上。
+// ---------------------------------------------------------------------------
+
+/** [XG-CUSTOM] 停靠细条的垂直位置：细条（72 高）贴着球原来的高度，夹进屏幕内 */
+function clampBallY(ballY: number, bounds: Rect): number {
+  return Math.round(clamp(ballY, bounds.y, bounds.y + bounds.height - ORB_DOCK_TAB_HEIGHT));
+}
+
+/**
+ * [XG-CUSTOM] 球已经压住哪一侧屏幕边缘（压住 ≥ ORB_DOCK_OVERLAP 才算；上下边永不吸）。
+ * 停靠不是拖动过程中发生的，而是松手时由 clampOrbBall 提交。
+ * @param ball 球左上角（屏幕 DIP）
+ * @param bounds 所在显示器的**屏幕**矩形（display.bounds，不是 workArea）
+ * @returns 'left' / 'right'，压得不够（< 球宽 1/5）则 undefined
+ */
+export function dockSideForBallOrigin(
+  ball: { readonly x: number; readonly y: number },
+  bounds: Rect
+): OrbDockSide | undefined {
+  const leftOverlap = bounds.x - ball.x;
+  const rightOverlap = ball.x + ORB_BALL_SIZE - (bounds.x + bounds.width);
+  if (leftOverlap >= ORB_DOCK_OVERLAP && leftOverlap >= rightOverlap) return 'left';
+  if (rightOverlap >= ORB_DOCK_OVERLAP) return 'right';
+  return undefined;
+}
+
+/**
+ * [XG-CUSTOM] 停靠细条在屏幕上的矩形。窗口 = 细条，所以这就是窗口 bounds。
+ * 左停靠贴显示屏左沿、右停靠贴右沿内侧 ORB_DOCK_TAB_WIDTH —— 露在屏幕内的可见部分正好 6 DIP。
+ * @param side 左/右屏边
+ * @param ballY 球原来的顶边（用来把细条对到同一高度）
+ * @param bounds 所在显示器的屏幕矩形
+ */
+export function dockedTabBounds(side: OrbDockSide, ballY: number, bounds: Rect): Rect {
+  return {
+    x: side === 'left' ? bounds.x : bounds.x + bounds.width - ORB_DOCK_TAB_WIDTH,
+    y: clampBallY(ballY, bounds),
+    width: ORB_DOCK_TAB_WIDTH,
+    height: ORB_DOCK_TAB_HEIGHT,
+  };
+}
+
+/** [XG-CUSTOM] 吸边动画的终点：球整个滑到屏幕外（再多留 ORB_DOCK_OFF_GAP） */
+function offScreenBallOrigin(side: OrbDockSide, ballY: number, bounds: Rect): { x: number; y: number } {
+  return {
+    x:
+      side === 'left'
+        ? bounds.x - ORB_BALL_SIZE - ORB_DOCK_OFF_GAP
+        : bounds.x + bounds.width + ORB_DOCK_OFF_GAP,
+    y: clamp(Math.round(ballY), bounds.y, bounds.y + bounds.height - ORB_BALL_SIZE),
+  };
+}
+
+/** [XG-CUSTOM] 解锁后球回到屏内的位置：左/右各内缩 ORB_DOCK_IN_PAD，y 夹进工作区 */
+function insideBallOrigin(
+  side: OrbDockSide,
+  ballY: number,
+  display: { readonly bounds: Rect; readonly workArea: Rect }
+): { x: number; y: number } {
+  return {
+    x:
+      side === 'left'
+        ? display.bounds.x + ORB_DOCK_IN_PAD
+        : display.bounds.x + display.bounds.width - ORB_BALL_SIZE - ORB_DOCK_IN_PAD,
+    y: clamp(
+      Math.round(ballY),
+      display.workArea.y,
+      display.workArea.y + display.workArea.height - ORB_BALL_SIZE
+    ),
+  };
+}
+
+const easeInOutCubic = (t: number): number =>
+  t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
+
+const easeOutCubic = (t: number): number => 1 - (1 - t) ** 3;
+
+function lerpRect(start: Rect, end: Rect, t: number): Rect {
+  return {
+    x: Math.round(start.x + (end.x - start.x) * t),
+    y: Math.round(start.y + (end.y - start.y) * t),
+    width: Math.round(start.width + (end.width - start.width) * t),
+    height: Math.round(start.height + (end.height - start.height) * t),
+  };
+}
+
+/** [XG-CUSTOM] 取消在跑的窗口动画（新一次吸边/滑回/拖动会打断旧的） */
+function cancelOrbAnim(): void {
+  const anim = orbAnim;
+  if (anim === undefined) return;
+  anim.cancelled = true;
+  orbAnim = undefined;
+  anim.resolve();
+}
+
+/**
+ * [XG-CUSTOM] 逐帧把窗口 bounds 从当前位置插值到 end（16ms 一帧）。
+ * 只用于**尺寸不变**的球态位移（吸边/滑回），所以直接 setBounds、不走 setOrbBounds（免得每帧记 trace）。
+ * @param win 球窗口
+ * @param end 目标 bounds
+ * @param durationMs 时长（0 = 直接就位）
+ * @param ease 缓动函数
+ */
+function animateOrbBounds(
+  win: BrowserWindow,
+  end: Rect,
+  durationMs: number,
+  ease: (t: number) => number
+): Promise<void> {
+  cancelOrbAnim();
+  const start = win.getBounds();
+  if (durationMs <= 0 || win.isDestroyed()) {
+    if (!win.isDestroyed()) win.setBounds(end);
+    return Promise.resolve();
+  }
+  return new Promise<void>((resolve) => {
+    const anim = { cancelled: false, resolve };
+    orbAnim = anim;
+    const t0 = Date.now();
+    const tick = (): void => {
+      if (anim.cancelled) return;
+      if (win.isDestroyed()) {
+        if (orbAnim === anim) orbAnim = undefined;
+        resolve();
+        return;
+      }
+      const t = Math.min(1, (Date.now() - t0) / durationMs);
+      win.setBounds(lerpRect(start, end, ease(t)));
+      if (t < 1) {
+        setTimeout(tick, 16);
+        return;
+      }
+      if (orbAnim === anim) orbAnim = undefined;
+      resolve();
+    };
+    setTimeout(tick, 16);
+  });
+}
+
+/** [XG-CUSTOM] 窗口当前"该长什么样"：停靠 > 面板 > 球（SHAPE 与尺寸护栏都按它算） */
+function visualMode(): OrbVisualMode {
+  return orbDocked !== undefined ? 'docked' : orbMode;
+}
+
+/** 球窗口中心（用来找它落在哪块屏上；停靠时窗口是细条，所以按细条尺寸算） */
+function orbWindowCenter(): { x: number; y: number } {
+  const win = orbWindow;
+  if (win === null || win.isDestroyed()) return { x: 0, y: 0 };
+  const b = win.getBounds();
+  return { x: b.x + b.width / 2, y: b.y + b.height / 2 };
+}
+
+/**
+ * [XG-CUSTOM] 把窗口直接设成停靠细条（不带动画）并记下停靠态 + 落盘。
+ * 顺序很重要：**先** orbDocked、再 setBounds —— 否则 resize 护栏（按 visualMode 算应有尺寸）
+ * 会把刚设好的 6×72 又拉回 96×96。
+ * @param win 球窗口
+ * @param side 左/右屏边
+ * @param ballY 球顶（细条对齐用）
+ * @param bounds 所在显示器的屏幕矩形
+ * @returns 实际停靠的侧别
+ */
+function applyDockedTab(win: BrowserWindow, side: OrbDockSide, ballY: number, bounds: Rect): OrbDockSide {
+  const y = clampBallY(ballY, bounds);
+  orbDocked = { side, y };
+  cancelOrbAnim();
+  setOrbBounds(win, dockedTabBounds(side, y, bounds), 'dockedTab');
+  // [XG-CUSTOM] 停靠态也必须重抠形状（6×72 胶囊）—— 不重抠就是黑块或细条被裁
+  applyOrbShape('docked');
+  repaintOrbWindow(win);
+  const ball = insideBallOrigin(side, y, displayForPoint(orbWindowCenter()));
+  saveOrbState({ ball, dock: orbDocked });
+  orbTrace('main-dock', { side, y, bounds: win.getBounds(), ball });
+  return side;
+}
+
+/**
+ * [XG-CUSTOM] 吸边（上游 `snapToEdge`）：球（收起态）滑出屏幕外
+ * （ORB_DOCK_SLIDE_OFF_MS / easeInOutCubic）→ 收成 ORB_DOCK_TAB_WIDTH 的细条
+ * + 重抠形状（X11 SHAPE）+ 落盘 + 通知渲染进程。
+ * 动画期间用户又拖了一次（orbDockToken 变了）就放弃这一趟。
+ * @param side 目标屏边
+ * @param ballY 球顶
+ * @param bounds 所在显示器的屏幕矩形
+ * @returns 实际停靠的侧别；中途被打断则返回当前状态
+ */
+export async function snapToEdge(
+  side: OrbDockSide,
+  ballY: number,
+  bounds: Rect
+): Promise<OrbDockSide | undefined> {
+  const win = orbWindow;
+  if (win === null || win.isDestroyed()) return undefined;
+  const token = ++orbDockToken;
+  await animateOrbBounds(
+    win,
+    collapsedBounds(offScreenBallOrigin(side, ballY, bounds)),
+    ORB_DOCK_SLIDE_OFF_MS,
+    easeInOutCubic
+  );
+  if (win.isDestroyed() || token !== orbDockToken) return orbDocked?.side;
+  return applyDockedTab(win, side, ballY, bounds);
+}
+
+/**
+ * [XG-CUSTOM] 解锁：细条滑出后球滑回屏内（ORB_DOCK_SLIDE_IN_MS / easeOutCubic）+ 重抠球形状 + 落盘。
+ * 不是停靠态就是 no-op（返回 `{ docked: null }`）。
+ * @returns 落点 + docked:null
+ */
+export async function unsnapDockedBall(): Promise<OrbBallOutcome> {
+  const win = orbWindow;
+  const dock = orbDocked;
+  if (win === null || win.isDestroyed() || dock === undefined) return { docked: null };
+  const token = ++orbDockToken;
+  const display = displayForPoint(orbWindowCenter());
+  const start = offScreenBallOrigin(dock.side, dock.y, display.bounds);
+  const end = insideBallOrigin(dock.side, dock.y, display);
+  // 先清停靠态：下面这次 setBounds 会把窗口从 6×72 变回 96×96，
+  // resize 护栏必须已经知道"现在是球态"，否则它会把尺寸又拉回细条。
+  orbDocked = undefined;
+  cancelOrbAnim();
+  setOrbBounds(win, collapsedBounds(start), 'unsnap:start');
+  applyOrbShape('ball');
+  repaintOrbWindow(win);
+  notifyMode();
+  await animateOrbBounds(win, collapsedBounds(end), ORB_DOCK_SLIDE_IN_MS, easeOutCubic);
+  if (win.isDestroyed() || token !== orbDockToken) return { docked: null };
+  const ball = clampBall(end, display.workArea);
+  setOrbBounds(win, collapsedBounds(ball), 'unsnap:end');
+  applyOrbShape('ball');
+  repaintOrbWindow(win);
+  saveOrbState({ ball });
+  notifyMode();
+  orbTrace('main-unsnap', { side: dock.side, ball, bounds: win.getBounds() });
+  return { ball, docked: null };
+}
+
+/** [XG-CUSTOM] 渲染进程说的 canDock + 主进程自己的运行时护栏（running 不许停靠） */
+function dockAllowed(rendererCanDock: unknown): boolean {
+  return rendererCanDock !== false && !orbSessionRunning();
 }
 
 /** 球相对工作区的展开方向：面板往哪边长（渲染进程据此加 expand-left/right/up/down 类） */
@@ -211,8 +549,9 @@ function setOrbBounds(win: BrowserWindow, bounds: Rect, source: string): void {
   });
 }
 
-/** 各模式应有的尺寸（球态 96×96、面板态 380×660）——"窗口该多大"由应用说了算，WM 不许改 */
-function sizeForMode(mode: OrbMode): { width: number; height: number } {
+/** [XG-CUSTOM] 各形态应有的尺寸（球态 96×96、面板态 380×660、停靠态 6×72）——"窗口该多大"由应用说了算，WM 不许改 */
+function sizeForMode(mode: OrbVisualMode): { width: number; height: number } {
+  if (mode === 'docked') return { width: ORB_DOCK_HIT_WIDTH, height: ORB_DOCK_HIT_HEIGHT };
   return mode === 'panel'
     ? { width: PANEL_SIZE.width, height: PANEL_SIZE.height }
     : { width: BALL_WINDOW_SIZE, height: BALL_WINDOW_SIZE };
@@ -245,10 +584,16 @@ function sameDirection(a: OrbDirection | undefined, b: OrbDirection | undefined)
  * [XG-CUSTOM] 球原点（从窗口 bounds 反推）。
  * 收起态：窗口就是球外面套了一圈 chrome → 原点 + inset（夹回工作区）。
  * 展开态：窗口是 380×660 的面板，球贴在某个角 → 原点 + 该方向的锚点偏移。
+ * 停靠态：窗口是 6×72 的细条 → 原点取"解锁后球会回到哪"（insideBallOrigin），
+ * 这样从停靠态展开面板/落盘位置都拿到一个屏内的球原点。
  * @param win 球窗口
  */
 function ballOriginFromWindow(win: BrowserWindow): { x: number; y: number } {
   const b = win.getBounds();
+  const dock = orbDocked;
+  if (dock !== undefined) {
+    return insideBallOrigin(dock.side, dock.y, displayForPoint(orbWindowCenter()));
+  }
   if (orbMode === 'panel') {
     const anchor = orbBallAnchor();
     return { x: b.x + anchor.x, y: b.y + anchor.y };
@@ -417,12 +762,27 @@ function scaleShape(rects: ShapeRect[], scale: number): ShapeRect[] {
 }
 
 /**
- * 给球窗口套上 X11 SHAPE（球态=圆、面板态=圆角矩形）。
+ * [XG-CUSTOM] 停靠态：窗口就是那条 6×72 的细条，抠成一个胶囊（radius = 3 = 6/2）。
+ * 用 `tight`（严格落在细条内）—— 这台机器没有合成器，形状比画出来的大 1px 就是一条黑边。
+ * **停靠态必须重抠**：球态形状是 96×96 里的一个圆，窗口缩成 6×72 之后照旧用球形状的话，
+ * 细条整条都在形状之外 → 被 SHAPE 裁掉（屏幕上什么都没有），而且指针事件也漏到桌面。
+ */
+function dockShape(): ShapeRect[] {
+  return roundedRectShape(
+    { x: 0, y: 0, width: ORB_DOCK_TAB_WIDTH, height: ORB_DOCK_TAB_HEIGHT },
+    ORB_DOCK_TAB_WIDTH / 2,
+    SHAPE_SLICE_STEP,
+    'tight'
+  );
+}
+
+/**
+ * 给球窗口套上 X11 SHAPE（球态=圆、面板态=圆角矩形、停靠态=6×72 胶囊）。
  * 只有 win32/linux 有 setShape；缺失或抛错就静默退回默认行为（矩形窗口），绝不因此崩。
  * 塑形后形状外的像素不画、鼠标事件也会穿透到桌面。
- * @param mode 当前态
+ * @param mode 当前形态（停靠态也必须重抠：细条在球形状之外，照旧用球形状会被整条裁掉）
  */
-function applyOrbShape(mode: OrbMode): void {
+function applyOrbShape(mode: OrbVisualMode): void {
   if (!SHAPE_ENABLED) return;
   const win = orbWindow;
   if (!win || win.isDestroyed()) return;
@@ -431,7 +791,9 @@ function applyOrbShape(mode: OrbMode): void {
     const scale = SHAPE_UNIT_IS_DIP
       ? 1
       : screen.getDisplayNearestPoint(win.getBounds()).scaleFactor || 1;
-    win.setShape(scaleShape(mode === 'panel' ? panelShape() : ballShape(), scale));
+    const shape =
+      mode === 'docked' ? dockShape() : mode === 'panel' ? panelShape() : ballShape();
+    win.setShape(scaleShape(shape, scale));
   } catch {
     /* 塑形失败：保持矩形窗口（就是塑形之前的表现） */
   }
@@ -449,16 +811,20 @@ function presentOverlay(win: BrowserWindow): void {
 function notifyMode(): void {
   // [XG-CUSTOM] 除了"态"和 pin，还把**展开方向**带过去：移动会让方向变（球跑到屏幕另一半），
   // 渲染进程必须跟着换 expand-* 类，否则页面画的球和主进程形状里的球圆不在同一个角。
+  // 第四个参数是**停靠侧**（'left' | 'right' | null）：渲染进程靠它切 body.docked-* + 点亮 #dock-tab。
   orbWindow?.webContents.send(
     'xiangwo:orb-mode',
     orbMode === 'panel' ? 'panel' : 'ball',
     pinned,
-    orbMode === 'panel' ? panelDirection ?? null : null
+    orbMode === 'panel' ? panelDirection ?? null : null,
+    orbDocked?.side ?? null
   );
 }
 
 /**
  * 切换球/面板两态：设置窗口 bounds 并通知渲染进程。
+ * [XG-CUSTOM] 展开会**清掉停靠**（照上游 setFloatingExpanded：展开态不吸边）；
+ * 从停靠态展开时，球原点是"解锁后球会回到哪"（见 ballOriginFromWindow），不会跳到屏幕外。
  * @param mode 目标态
  * @returns 展开方向（收起时渲染进程忽略；`floating.setExpanded` 会把它回给 orb.js）
  */
@@ -470,11 +836,17 @@ function applyMode(mode: OrbMode): OrbDirection {
   // [XG-CUSTOM] 球原点以**窗口当前实际位置**为准，不再读磁盘：
   // 窗口可能被拖过却没落盘（拖动中途被取消/异常退出/被 WM 挪动），或磁盘值来自更早的会话；
   // 用过期的球原点展开，球会在屏幕上"跳"一下 —— 用户按老位置点球就点空了（真机反馈过）。
-  // 磁盘值（loadBallOrigin）只在建窗时用一次，收起时会把实际位置写回去。
+  // 磁盘值（readSavedState）只在建窗时用一次，收起时会把实际位置写回去。
   const ball = ballOriginFromWindow(win);
   const area = workAreaFor({ x: ball.x, y: ball.y });
   const direction = orbDirection(ball, area);
   orbMode = mode;
+  if (mode === 'panel' && orbDocked !== undefined) {
+    // 展开态不吸边：清停靠（也打断在跑的吸边/滑回动画）
+    orbDocked = undefined;
+    orbDockToken += 1;
+    cancelOrbAnim();
+  }
   const target = mode === 'panel' ? expandedBounds(ball, area, direction) : collapsedBounds(ball);
   panelDirection = mode === 'panel' ? direction : undefined;
   setOrbBounds(win, target, `applyMode:${mode}`);
@@ -482,7 +854,7 @@ function applyMode(mode: OrbMode): OrbDirection {
   applyOrbShape(mode);
   // [XG-CUSTOM] 改尺寸后强制整窗重绘（否则底部那条可能留旧像素：球/药丸看不见）
   repaintOrbWindow(win);
-  if (mode === 'ball') saveBallOrigin(ball);
+  if (mode === 'ball') saveOrbState({ ball });
   notifyMode();
   orbTrace('main-applyMode', {
     mode,
@@ -568,27 +940,71 @@ function moveOrbBall(x: number, y: number): OrbBallPoint | undefined {
     });
     return ball;
   }
-  const area = workAreaFor(requested);
-  const ball = clampBall(requested, area);
+  // [XG-CUSTOM] 收起态：**故意不夹回工作区** —— 边缘停靠要求球在松手前能压住屏幕边
+  // （压住 ≥ ORB_DOCK_OVERLAP 才吸边，见 dockSideForBallOrigin）。真正的收尾在松手时：
+  // orb-drag-end → clampOrbBall()（吸边 或 夹回工作区），所以球不会丢在屏幕外。
+  const ball = requested;
+  // 停靠态下被拖动 = 解锁（不会出现"细条跟着球跑"的错位）
+  if (orbDocked !== undefined) {
+    orbDocked = undefined;
+    orbDockToken += 1;
+    cancelOrbAnim();
+  }
   setOrbBounds(win, collapsedBounds(ball), 'moveOrbBall:ball');
   // 收起态形状是常量（球恒在 (12,12)），但移动后重抠一次更保险（X11 上移动偶发丢 shape）
   applyOrbShape('ball');
   repaintOrbWindow(win);
-  // [XG-CUSTOM] TODO 边缘停靠（照 Orb 常量：拖出屏幕边缘超过球宽 1/5 = Math.round(72/5)px →
-  // 收起成 6px 细条；指针靠近边缘 20px 内滑回）。P1 只做位置记忆：orbDragEnd 时落盘。
   orbTrace('main-moveBall', { mode: 'ball', requested, landed: ball });
   return ball;
 }
 
-/** 把球夹回当前工作区，返回落点 */
-function clampOrbBall(): OrbBallPoint | undefined {
+/**
+ * [XG-CUSTOM] 松手/夹回：球贴住屏幕左/右边缘（压住 ≥ ORB_DOCK_OVERLAP）就**吸边**成 6px 细条，
+ * 否则把球夹回工作区。停靠态下再夹 = 重新对齐细条（保持停靠）。
+ *
+ * `canDock = false`（正在跑会话 / 提问卡待答）时**绝不进入**停靠；如果本来停靠着，这里会直接解锁
+ * （上游只保证"不进入"，我们多做一步：运行中不许**保持**停靠，否则细条就没人管了）。
+ * @param canDock 是否允许停靠（渲染进程的 running/asking + 主进程的 running 护栏，见 dockAllowed）
+ * @returns 落点 + 停靠侧（docked 要透传给渲染进程）
+ */
+async function clampOrbBall(canDock = true): Promise<OrbBallOutcome> {
   const win = orbWindow;
-  if (!win || win.isDestroyed()) return undefined;
-  const ball = ballOriginFromWindow(win);
+  if (!win || win.isDestroyed()) return { docked: null };
   // [XG-CUSTOM] 展开态夹的是"整个面板"：只平移、尺寸不变（绝不能 setBounds(collapsedBounds) 缩回球态）
-  if (orbMode === 'panel') return moveOrbBall(ball.x, ball.y);
+  if (orbMode === 'panel') {
+    const ball = moveOrbBall(ballOriginFromWindow(win).x, ballOriginFromWindow(win).y);
+    return { ball, docked: null };
+  }
+  if (orbDocked !== undefined) {
+    if (!canDock) return unsnapDockedBall();
+    const dock = orbDocked;
+    const bounds = displayForPoint(orbWindowCenter()).bounds;
+    applyDockedTab(win, dock.side, dock.y, bounds);
+    notifyMode();
+    return { ball: ballOriginFromWindow(win), docked: dock.side };
+  }
+  const current = win.getBounds();
+  const display = displayForPoint({
+    x: current.x + ORB_BALL_SIZE / 2,
+    y: current.y + ORB_BALL_SIZE / 2,
+  });
+  const origin = { x: current.x + ORB_CHROME_INSET, y: current.y + ORB_CHROME_INSET };
+  if (canDock) {
+    const side = dockSideForBallOrigin(origin, display.bounds);
+    if (side !== undefined) {
+      const docked = await snapToEdge(side, origin.y, display.bounds);
+      notifyMode();
+      return { ball: ballOriginFromWindow(win), docked: docked ?? null };
+    }
+  }
+  const ball = clampBall(origin, display.workArea);
   setOrbBounds(win, collapsedBounds(ball), 'clampOrbBall:ball');
-  return ball;
+  // [XG-CUSTOM] 夹回也可能改尺寸（从 WM 缩放态的 96×96 变回 96×96 是同一个，但形状会被 X11 丢）
+  applyOrbShape('ball');
+  repaintOrbWindow(win);
+  saveOrbState({ ball });
+  orbTrace('main-clampBall', { ball, requested: origin, canDock });
+  return { ball, docked: null };
 }
 
 export function getOrbWindow(): BrowserWindow | null {
@@ -623,13 +1039,20 @@ function registerOrbIpc(): void {
     moveOrbBall(x, y);
     return true;
   });
-  ipcMain.handle('xiangwo:orb-drag-end', () => {
+  // [XG-CUSTOM] 松手 = 提交停靠：球压住屏幕左/右边缘就吸边，否则夹回工作区。
+  // 返回值带 `docked`（'left' | 'right' | null）—— orb.js 靠它切 body.docked-* + 点亮 #dock-tab。
+  // 第二个参数是渲染进程算的 canDock（!(running || 提问卡待答)）；主进程再用 running 护栏兜一层。
+  ipcMain.handle('xiangwo:orb-drag-end', async (_e, canDock?: unknown) => {
     const win = orbWindow;
-    if (!win || win.isDestroyed()) return false;
-    const ball = ballOriginFromWindow(win);
-    saveBallOrigin(ball);
-    orbTrace('main-dragEnd', { mode: orbMode, ball, bounds: win.getBounds() });
-    return true;
+    if (!win || win.isDestroyed()) return { ok: false, docked: null };
+    const outcome = await clampOrbBall(dockAllowed(canDock));
+    orbTrace('main-dragEnd', {
+      mode: visualMode(),
+      ball: outcome.ball ?? ballOriginFromWindow(win),
+      docked: outcome.docked,
+      bounds: win.getBounds(),
+    });
+    return { ok: true, docked: outcome.docked };
   });
   ipcMain.handle('xiangwo:orb-open-main', () => {
     orbTrace('main-open-main');
@@ -640,12 +1063,19 @@ function registerOrbIpc(): void {
     app.quit();
     return true;
   });
-  ipcMain.handle('xiangwo:orb-mode', () => [orbMode, pinned]);
+  // [XG-CUSTOM] 第四个元素是停靠侧（渲染进程启动时用它恢复 body.docked-* / #dock-tab）
+  ipcMain.handle('xiangwo:orb-mode', () => [
+    orbMode,
+    pinned,
+    orbMode === 'panel' ? panelDirection ?? null : null,
+    orbDocked?.side ?? null,
+  ]);
   // [XG-CUSTOM] orb.js 的宿主 API：把 Orb 的 rpc('floating.*') 全接到这里（路由见 xiangwo-orb-api.ts）
   registerXiangwoOrbApi({
     applyMode,
-    moveBall: moveOrbBall,
-    clampBall: clampOrbBall,
+    moveBall: (x, y) => ({ ball: moveOrbBall(x, y), docked: orbDocked?.side ?? null }),
+    clampBall: (canDock) => clampOrbBall(dockAllowed(canDock)),
+    unsnapBall: () => unsnapDockedBall(),
     getWindow: getOrbWindow,
   });
 }
@@ -662,10 +1092,24 @@ export function createXiangwoOrbWindow(openMain: () => void): BrowserWindow {
     orbWindow.focus();
     return orbWindow;
   }
-  const saved = loadBallOrigin();
-  const initialArea = workAreaFor(saved ?? { x: 0, y: 0 });
-  const ball = saved ?? defaultBallOrigin(screen.getPrimaryDisplay().workArea);
-  const bounds = collapsedBounds(clampBall(ball, initialArea));
+  // [XG-CUSTOM] 位置记忆：`ball`（球原点）+ `dock`（停靠侧）。停靠态也一并恢复 ——
+  // 重启后细条还贴在原来那条屏幕边上、同一个高度，不会先冒出一颗球再"跳"回去。
+  const saved = readSavedState();
+  const savedBall = saved.ball;
+  const initialArea = workAreaFor(savedBall ?? { x: 0, y: 0 });
+  const ball = savedBall ?? defaultBallOrigin(screen.getPrimaryDisplay().workArea);
+  const initialBall = clampBall(ball, initialArea);
+  const savedDock = saved.dock;
+  const dockBounds =
+    savedDock === undefined
+      ? undefined
+      : dockedTabBounds(
+          savedDock.side,
+          savedDock.y,
+          screenBoundsFor({ x: initialBall.x + ORB_BALL_SIZE / 2, y: initialBall.y + ORB_BALL_SIZE / 2 })
+        );
+  orbDocked = savedDock === undefined || dockBounds === undefined ? undefined : { ...savedDock, y: dockBounds.y };
+  const bounds = dockBounds ?? collapsedBounds(initialBall);
 
   orbWindow = new BrowserWindow({
     x: bounds.x,
@@ -701,8 +1145,9 @@ export function createXiangwoOrbWindow(openMain: () => void): BrowserWindow {
   // [XG-CUSTOM] 再显式压一次全透明底色（构造参数在部分平台会被默认底色覆盖）
   orbWindow.setBackgroundColor('#00000000');
   if (process.platform !== 'darwin') orbWindow.setMenuBarVisibility(false);
-  // [XG-CUSTOM] 建窗即塑成球态（这台机器没有合成器，透明无效 → 只能靠 X Shape 抠出圆）
-  applyOrbShape('ball');
+  // [XG-CUSTOM] 建窗即塑形（这台机器没有合成器，透明无效 → 只能靠 X Shape 抠出来）：
+  // 恢复成停靠态就抠 6×72 胶囊，否则抠圆。
+  applyOrbShape(visualMode());
 
   // [XG-CUSTOM] 加载移植过来的 Orb 页面（同一颗球窗口，不新建窗口）：
   // DEV = vite dev server 的 /orb/orb.html；生产 = app://<app>/orb/orb.html（out/renderer/orb/orb.html）
@@ -714,7 +1159,7 @@ export function createXiangwoOrbWindow(openMain: () => void): BrowserWindow {
   }
   orbWindow.once('ready-to-show', () => {
     // [XG-CUSTOM] 第一次真正上屏前再塑一次（某些平台是 map 之后才认 shape）
-    applyOrbShape(orbMode);
+    applyOrbShape(visualMode());
     orbWindow?.show();
   });
   // [XG-CUSTOM] resize（展开/收起/夹回）后 X11 的 shape 可能失效或与尺寸不匹配 → 重新塑形。
@@ -729,22 +1174,23 @@ export function createXiangwoOrbWindow(openMain: () => void): BrowserWindow {
   orbWindow.on('resize', () => {
     const win = orbWindow;
     if (!win || win.isDestroyed()) return;
-    applyOrbShape(orbMode);
-    const want = sizeForMode(orbMode);
+    const mode = visualMode();
+    applyOrbShape(mode);
+    const want = sizeForMode(mode);
     const current = win.getBounds();
     if (current.width === want.width && current.height === want.height) return;
     if (applyingBounds) return;
     setOrbBounds(win, { ...current, width: want.width, height: want.height }, 'resize-guard');
-    applyOrbShape(orbMode);
+    applyOrbShape(mode);
     repaintOrbWindow(win);
     orbTrace('main-resize-guard', {
-      mode: orbMode,
+      mode,
       from: [current.width, current.height],
       to: [want.width, want.height],
     });
   });
   // [XG-CUSTOM] 不用 win.on('move'/'moved') 记位置：球现在是自绘指针拖动（orb.js），
-  // 位置由渲染进程 orbDrag/orbDragEnd 驱动，收尾时 already 会 saveBallOrigin。
+  // 位置由渲染进程 orbDrag/orbDragEnd 驱动，收尾时已经会 saveOrbState（球态或停靠态）。
   orbWindow.webContents.on('did-finish-load', () => {
     notifyMode();
     orbWindow?.webContents
@@ -753,6 +1199,8 @@ export function createXiangwoOrbWindow(openMain: () => void): BrowserWindow {
   });
   orbWindow.on('closed', () => {
     orbWindow = null;
+    orbDocked = undefined;
+    cancelOrbAnim();
   });
   orbMode = 'ball';
   return orbWindow;

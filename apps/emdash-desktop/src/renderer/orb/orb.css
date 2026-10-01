@@ -702,10 +702,16 @@ select,
   -webkit-app-region: no-drag;
 }
 
-/* [XG-CUSTOM] TODO 边缘停靠：DOM/CSS 先留着，主进程暂不返回 docked */
+/* [XG-CUSTOM] 边缘停靠的细条（上游 floating.css 的 #dock-tab）。
+ *
+ * 关键约定：**停靠时窗口就是这条细条本身**（主进程 ORB_DOCK_HIT_WIDTH/HEIGHT = 6×72），
+ * 不是上游那种 34×88 的"细条 + 内发光 + 20px 悬停余量"——这台机器没有合成器，
+ * 窗口里没被形状盖住/没被画到的地方就是黑的，所以窗口只能等于画出来的细条。
+ * 因此 top 是 0（不是上游的 8px 发光内缩），left/right 贴窗口边 = 贴屏幕边。
+ * box-shadow 那圈柔和发光会被 X11 SHAPE 裁掉（同球态的 --ball-shadow），留着不影响几何。 */
 #dock-tab {
   position: absolute;
-  top: 8px;
+  top: 0;
   display: none;
   width: 6px;
   height: 72px;
@@ -805,13 +811,15 @@ body {
   background: transparent !important;
   background-color: transparent !important;
 }
+/* ⚠️ [XG-CUSTOM] 停靠态**也是收起态**（body 不带 .expanded），所以 #dock-tab 绝不能进下面这个
+   列表 —— 否则细条永远 display:none !important（停靠"点亮不了"的确定性原因之一）。
+   细条的显隐由它自己的 `hidden` 属性 + `#dock-tab{display:none}` / `body.docked #dock-tab{display:block}` 管。 */
 body:not(.expanded) #panel,
 body:not(.expanded) #transcript,
 body:not(.expanded) #history-list,
 body:not(.expanded) #status,
 body:not(.expanded) #composer,
-body:not(.expanded) #stop,
-body:not(.expanded) #dock-tab {
+body:not(.expanded) #stop {
   display: none !important;
   background: none !important;
   box-shadow: none !important;

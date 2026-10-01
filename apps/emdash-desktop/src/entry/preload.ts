@@ -47,7 +47,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   orbCollapse: () => ipcRenderer.invoke('xiangwo:orb-collapse'),
   orbTogglePin: () => ipcRenderer.invoke('xiangwo:orb-toggle-pin'),
   orbDrag: (x: number, y: number) => ipcRenderer.invoke('xiangwo:orb-drag', x, y),
-  orbDragEnd: () => ipcRenderer.invoke('xiangwo:orb-drag-end'),
+  // [XG-CUSTOM] 松手：主进程提交"边缘停靠"并回 `{ ok, docked }`（'left'|'right'|null）。
+  // canDock 由渲染进程算（!(running || 提问卡待答)）；主进程还会用 running 护栏兜一层。
+  orbDragEnd: (canDock?: boolean) => ipcRenderer.invoke('xiangwo:orb-drag-end', canDock),
   orbOpenMain: () => ipcRenderer.invoke('xiangwo:orb-open-main'),
   orbQuit: () => ipcRenderer.invoke('xiangwo:orb-quit'),
   getOrbMode: () => ipcRenderer.invoke('xiangwo:orb-mode'),
@@ -57,18 +59,22 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onOrbMode: (
     // [XG-CUSTOM] 第三个参数是展开方向：移动会让方向变（球跑到屏幕另一半），渲染进程据此换
     // expand-* 类，保证"页面画的球"和"主进程形状里的球圆"永远在同一个角。
+    // 第四个参数是**停靠侧**（边缘停靠，'left' | 'right' | null）：球常驻屏幕边、停靠时窗口滑出
+    // 屏幕外只留 6px 细条；渲染进程靠它切 body.docked-* + 点亮 #dock-tab。
     callback: (
       mode: 'ball' | 'panel',
       pinned: boolean,
-      direction: { horizontal: 'left' | 'right'; vertical: 'up' | 'down' } | null
+      direction: { horizontal: 'left' | 'right'; vertical: 'up' | 'down' } | null,
+      docked: 'left' | 'right' | null
     ) => void
   ) => {
     const listener = (
       _event: unknown,
       mode: 'ball' | 'panel',
       pinned: boolean,
-      direction: { horizontal: 'left' | 'right'; vertical: 'up' | 'down' } | null
-    ) => callback(mode, pinned, direction);
+      direction: { horizontal: 'left' | 'right'; vertical: 'up' | 'down' } | null,
+      docked: 'left' | 'right' | null
+    ) => callback(mode, pinned, direction, docked);
     ipcRenderer.on('xiangwo:orb-mode', listener);
     return () => {
       ipcRenderer.removeListener('xiangwo:orb-mode', listener);

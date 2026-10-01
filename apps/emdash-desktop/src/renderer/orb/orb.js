@@ -40,7 +40,10 @@
 //      坏 JSON / 无合法 url → 整段当普通文本（绝不吞消息）；块本身不残留在气泡文字里。
 //      **历史里只落 url 列表**（前 24 条），不落 dataURL（见 compactImagesBlock / persistConversations）。
 //   7) [XG-CUSTOM] **划词工具条（范围内版）**：只在球面板内部选中文字时弹出
-//      「搜索 / 翻译 / 发给项我」。全局版（任意应用选中 → 快捷键唤起）见文件末尾 TODO
+//      「搜索 / 翻译 / 发给项我」。三个动作都是**立刻可见**的：搜索 → 系统浏览器打开搜索结果；
+//      翻译 → 把「把下面这段翻译成中文：\n<选中>」**当场作为一条消息发出去**（不是只填进输入框）；
+//      发给项我 → 把选中文字当场发出去。动作绑在 mousedown（防"按下即折叠选区 → 条被隐藏 → 点空"）。
+//      全局版（任意应用选中 → 快捷键唤起）见文件末尾 TODO
 //      （Linux 需要 xdotool/xclip + 全局快捷键，属系统级依赖，先不做）。
 //   8) [XG-CUSTOM] 明确**不做**（写明原因，避免以后当成漏做）：
 //      - 上游的 `dsh-app://` 自定义协议 / iframe 嵌 dsh 转录 → 我们直接用 8900 直连 + 自己渲染气泡；
@@ -92,6 +95,16 @@ const CLICK_MAX_PX = 8;
  * 第一次单击**立即**执行、不做延迟，所以单击零延迟、不卡手。
  */
 const DOUBLE_CLICK_GUARD_MS = 400;
+/**
+ * [XG-CUSTOM] **边缘停靠（dock）**：细条被悬停这么久（ms）就滑回球态
+ * （照上游 floating.js 的 DOCK_HOVER_DELAY_MS；滑回动画 300ms easeOutCubic 在主进程做）。
+ */
+const DOCK_HOVER_DELAY_MS = 800;
+/**
+ * [XG-CUSTOM] **边缘停靠**：拖着细条朝屏幕内侧移超过这么多 DIP 就解锁
+ * （照上游 floating.js 的 DOCK_DRAG_OFF_PX = 24 = 球宽/3，与主进程 ORB_DOCK_DRAG_OFF 同值）。
+ */
+const DOCK_DRAG_OFF_PX = 24;
 /**
  * [XG-CUSTOM] 系统前缀。除了路由/来源，还带上**权限档**（D-1：让权限芯片真的生效）。
  * 说明：8900 后端目前**不解析**该字段（它只认 messages 里的 text），所以我们只保证"发出去"，
@@ -493,6 +506,8 @@ async function main() {
   const fileInput = document.querySelector('#file-input');
   const ballAvatar = document.querySelector('#ball-avatar');
   const selectionBar = document.querySelector('#selection-bar');
+  // [XG-CUSTOM] 边缘停靠的 6px 细条（orb.html 里自带 hidden，停靠时点亮）
+  const dockTab = document.querySelector('#dock-tab');
 
   document.querySelector('#input-label').textContent = '跟项我说话';
   prompt.dataset.placeholder = '跟项我说话…';
@@ -533,6 +548,15 @@ async function main() {
   let lastBallToggleBranch = null;
   /** [XG-CUSTOM] 最近一次标定出的 screen 单位系数（1 = screenX 已经是 DIP，1.5 = 物理像素） */
   let lastScreenUnit = 1;
+  // [XG-CUSTOM] 边缘停靠状态。主进程是唯一权威（move/clamp/unsnap 的返回 + xiangwo:orb-mode 事件），
+  // 这里只做镜像：docked = 'left' | 'right' | undefined。
+  let docked;
+  let dockHoverTimer;
+  /** 停靠后的 800ms 内先"不武装"悬停，避免刚吸上就被自己那一下 pointerenter 立刻弹回来 */
+  let dockHoverArmed = true;
+  let dockPointerInside = false;
+  /** [XG-CUSTOM] 拖细条的手势状态（{ startX, startY, moved }）；内移 > 24px 就解锁 */
+  let dockDrag;
   /** [XG-CUSTOM] 当前 bot（`#bot` 的 value；空串 = 默认「项我」）。历史桶跟着它走。 */
   let currentBotId = botSelect.value;
   let conversations = loadBucket(currentBotId);
@@ -844,6 +868,100 @@ async function main() {
     document.body.classList.toggle('running', running);
     stop.hidden = !expanded || !running;
     void api.floating.setSessionRunning(running);
+    // [XG-CUSTOM] 跑起来了就不许停在屏幕边上（上游 canDock = !(running||asking())）：
+    // 已经停靠着就顺手滑回来，否则会话在跑、球却是一条没人管的细条。
+    if (running && docked !== undefined) void unsnapDocked();
+  }
+
+  // ---------- 边缘停靠（dock）----------
+  // 语义（照上游）：拖动松手时球压住屏幕左/右边缘 ≥ 球宽 1/5 → 主进程把窗口滑出屏幕外、
+  // 只留 6px 细条；悬停细条 800ms → 滑回球态；拖细条向内 > 24px → 立刻解锁。
+  // 这里只维护 UI 镜像（body.docked-* + #dock-tab 的显隐/hover 计时），几何全在主进程。
+
+  /**
+   * [XG-CUSTOM] 提问卡待答态（上游 `asking()` 的等价物）：当前会话最后一条助手消息里
+   * 有提问块、且还没答过。待答时不许停靠 —— 否则用户看不到还等着他回答的那张卡。
+   * @returns {boolean} 有待答的提问卡
+   */
+  function asking() {
+    const last = current.messages[current.messages.length - 1];
+    if (last === undefined || last.role !== 'assistant') return false;
+    if (typeof last.answer === 'string' && last.answer !== '') return false;
+    const parsed = parseQuestionBlock(parseImagesBlock(last.text ?? '').text);
+    return parsed.question !== undefined;
+  }
+
+  /** [XG-CUSTOM] 现在允许吸边吗（与主进程的 running 护栏叠加，见 dockAllowed） */
+  function canDockNow() {
+    return !(running || asking());
+  }
+
+  function clearDockHoverTimer() {
+    if (dockHoverTimer === undefined) return;
+    clearTimeout(dockHoverTimer);
+    dockHoverTimer = undefined;
+  }
+
+  /**
+   * [XG-CUSTOM] 切到停靠态/球态（只动 UI）。照上游 applyDocked：
+   * 刚吸上就起一个 800ms 计时器，到点了如果指针还在细条上就滑回（"悬停细条 800ms → 滑回"）。
+   *
+   * [XG-CUSTOM] **幂等**：同一个侧别重复通知要原样返回。主进程会推两次（`orb-drag-end` 的返回值
+   * + `xiangwo:orb-mode` 事件），而上游那份 applyDocked 每次都 `clearDockHoverTimer()` ——
+   * 第二次进来会把刚起的 800ms 计时器清掉、`dockHoverArmed` 永远停在 false →
+   * **细条从此再也不会被悬停唤醒**（自检 B 抓到的真 bug：`/tmp` 里 harness 第一版就是被这个挂住的）。
+   * 同一条坑还有第二种走法：武装期内换了停靠侧（left ↔ right）——下面也一并重起计时器。
+   * @param {'left' | 'right' | undefined | null} side 主进程给的停靠侧
+   */
+  function applyDocked(side) {
+    const next = side === 'left' || side === 'right' ? side : undefined;
+    if (docked === next) {
+      // 重复通知：只保证细条的显隐正确，绝不动 800ms 悬停计时器
+      if (dockTab !== null) dockTab.hidden = next === undefined;
+      return;
+    }
+    const becameDocked = docked === undefined && next !== undefined;
+    docked = next;
+    document.body.classList.toggle('docked', next !== undefined);
+    document.body.classList.toggle('docked-left', next === 'left');
+    document.body.classList.toggle('docked-right', next === 'right');
+    clearDockHoverTimer();
+    if (next === undefined) {
+      if (dockTab !== null) dockTab.hidden = true;
+      dockHoverArmed = true;
+      return;
+    }
+    if (dockTab !== null) dockTab.hidden = false;
+    // [XG-CUSTOM] 还在"武装期"（刚吸上，或侧别从 left 换到 right）就起/重起 800ms 计时器。
+    // 上游只在 becameDocked 时起计时器；侧别变更那条路会把计时器清掉却不重起 →
+    // dockHoverArmed 永远停在 false，细条再也不会被悬停唤醒（同一个坑的第二种走法）。
+    if (!dockHoverArmed || becameDocked) {
+      dockHoverArmed = false;
+      dockHoverTimer = setTimeout(() => {
+        dockHoverTimer = undefined;
+        dockHoverArmed = true;
+        if (dockPointerInside) void unsnapDocked();
+      }, DOCK_HOVER_DELAY_MS);
+    }
+  }
+
+  /** [XG-CUSTOM] 主进程返回/事件里的 `docked` 字段 → UI（容忍 null / 老桥不带字段） */
+  function applyDockedFrom(result) {
+    if (result === undefined || result === null) return;
+    if (!('docked' in result)) return;
+    applyDocked(result.docked);
+  }
+
+  /** [XG-CUSTOM] 从停靠细条滑回球态（没停靠就是 no-op）。UI 先乐观切回来，再用主进程结果对账。 */
+  async function unsnapDocked() {
+    if (docked === undefined) return;
+    if (typeof api.floating.unsnap !== 'function') return;
+    applyDocked(undefined);
+    try {
+      applyDockedFrom(await api.floating.unsnap());
+    } catch (cause) {
+      trace('dock-unsnap-error', { error: describeError(cause) });
+    }
   }
 
   // [XG-CUSTOM] 面板挂载/卸载：收起态必须 display:none（上游只靠 opacity:0，
@@ -1488,54 +1606,114 @@ async function main() {
       selectionBar.hidden = true;
     };
 
-    document.addEventListener('mouseup', (event) => {
-      // 点在工具条自己身上就别动（否则按钮点不到）
-      if (selectionBar.contains(event.target)) return;
-      const found = readSelection();
-      if (found === undefined) {
-        hideBar();
-        return;
-      }
-      const panelRect = panel.getBoundingClientRect();
-      const barWidth = 190;
-      const barHeight = 30;
-      const left = Math.min(
-        Math.max(8, found.rect.left - panelRect.left + found.rect.width / 2 - barWidth / 2),
-        Math.max(8, panelRect.width - barWidth - 8)
-      );
-      const top = Math.max(8, found.rect.top - panelRect.top - barHeight - 6);
-      selectionBar.style.left = `${Math.round(left)}px`;
-      selectionBar.style.top = `${Math.round(top)}px`;
-      selectionBar.hidden = false;
-      selectionBar.dataset.selection = found.text;
-    });
-    document.addEventListener('selectionchange', () => {
-      const selection = window.getSelection();
-      if (selection === null || selection.isCollapsed) hideBar();
-    });
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') hideBar();
-    });
-    selectionBar.addEventListener('click', (event) => {
-      const button = event.target instanceof Element ? event.target.closest('button') : null;
-      if (button === null) return;
+    /**
+     * [XG-CUSTOM] 跑一个划词动作。**翻译 = 立刻把提示词发出去**（用户实测"点了没反应"：
+     * 旧实现只把提示词塞进输入框、不发送、也没有任何反馈，用户看不出发生了什么）。
+     * @param {string} action `search` / `translate` / `send`
+     */
+    const runAction = (action) => {
       const text = selectionBar.dataset.selection ?? '';
       if (text === '') return;
-      const action = button.dataset.action;
-      hideBar();
       if (action === 'search') {
         void orbApi('host.openExternal', {
           url: `https://www.google.com/search?q=${encodeURIComponent(text)}`,
         });
         return;
       }
-      if (action === 'translate') {
-        prompt.textContent = `把下面这段翻译成中文：\n${text}`;
-        syncComposerHeight();
-        prompt.focus();
+      // 翻译 / 发给项我 都要**真的发一条消息**。正在流式回答时 send() 会静默早退（见 send 的
+      // `if (sending) return`）→ 这里必须给人话反馈，否则又变成"点了没反应"。
+      if (sending) {
+        status.textContent = '（项我正在回答，等它说完再发）';
         return;
       }
-      if (action === 'send') void send(text);
+      void send(action === 'translate' ? `把下面这段翻译成中文：\n${text}` : text);
+    };
+
+    // [XG-CUSTOM] 点工具条自己那一下的三件事（治"点了没反应"）：
+    // ① `preventDefault()` 保住选区与焦点（默认行为会折叠选区 → selectionchange 把条收掉 → click 落空）；
+    // ② 动作**绑在 mousedown** 上执行，不等 click —— 天然免疫"条在 mouseup 前被隐藏"这一类落空；
+    // ③ `suppressHide`：这一轮按下-抬起里不许 selectionchange/mouseup 收条或重弹（mouseup 后清）。
+    let suppressHide = false;
+    /** [XG-CUSTOM] 这一轮按下是不是"在转录区里开始划选"——只有这种手势才允许 mouseup 弹条 */
+    let selectionGesture = false;
+    selectionBar.addEventListener('mousedown', (event) => {
+      event.preventDefault();
+      const button = event.target instanceof Element ? event.target.closest('button') : null;
+      if (button === null) return;
+      runAction(button.dataset.action);
+    });
+    document.addEventListener('mousedown', (event) => {
+      if (selectionBar.contains(event.target)) {
+        suppressHide = true;
+        return;
+      }
+      // 新手势（点别处）：清掉上一次可能残留的标志（比如上一次抬起丢在窗口外、没等到 mouseup）
+      suppressHide = false;
+      selectionGesture = transcript.contains(event.target) || transcript === event.target;
+      // 点在转录区之外（输入框 / 工具条行 / 窗口空白）= 明确的"收掉划词条"手势。
+      // 光靠 mouseup 的选区判断不够：Chrome 在非可选区域按下不一定会折叠已有选区，
+      // 于是点空白后条又被弹回来（用户看到的"关不掉"）。
+      if (!selectionGesture) hideBar();
+    });
+
+    document.addEventListener('mouseup', (event) => {
+      if (suppressHide) {
+        // 这一轮是"点工具条"：动作已在 mousedown 跑过，别再弹条（收条在 click 里做）
+        suppressHide = false;
+        return;
+      }
+      // 点在工具条自己身上就别动（否则按钮点不到）
+      if (selectionBar.contains(event.target)) return;
+      // 这一轮不是在转录区里起手的（点空白/输入框等）→ 不弹条
+      if (!selectionGesture) return;
+      const found = readSelection();
+      if (found === undefined) {
+        hideBar();
+        return;
+      }
+      // [XG-CUSTOM] 工具条是 `<body>` 的绝对定位子元素（最近定位祖先 = 初始包含块），
+      // 而这里原来按**面板** rect 算坐标 → 每次都偏移一个 --chrome（12px），真机上条会被画到
+      // 面板外的透明边距里（被裁 + 落在 X11 SHAPE 之外点不到）。现在统一用视口坐标，
+      // 并把整条**夹进面板矩形**（面板 = 窗口可见/可点的形状），保证三个按钮都点得到。
+      // 尺寸也不能写死估计值（原来假设 190 宽 → 实际 162，条整体偏离选区中心 ~14px）：
+      // 先隐藏着亮出来量真实尺寸，再定位（量完才解除 visibility，不会闪）。
+      selectionBar.dataset.selection = found.text;
+      selectionBar.style.visibility = 'hidden';
+      selectionBar.hidden = false;
+      const barBox = selectionBar.getBoundingClientRect();
+      const barWidth = barBox.width;
+      const barHeight = barBox.height;
+      const panelRect = panel.getBoundingClientRect();
+      const minLeft = panelRect.left + 8;
+      const maxLeft = Math.max(minLeft, panelRect.right - barWidth - 8);
+      const left = Math.min(
+        Math.max(minLeft, found.rect.left + found.rect.width / 2 - barWidth / 2),
+        maxLeft
+      );
+      const minTop = panelRect.top + 8;
+      const maxTop = Math.max(minTop, panelRect.bottom - barHeight - 8);
+      const above = found.rect.top - barHeight - 6;
+      // 选区上方放不下就翻到下方（仍夹在面板内），永远不越出面板
+      const top = Math.max(minTop, Math.min(above >= minTop ? above : found.rect.bottom + 6, maxTop));
+      selectionBar.style.left = `${Math.round(left)}px`;
+      selectionBar.style.top = `${Math.round(top)}px`;
+      selectionBar.style.visibility = '';
+    });
+    document.addEventListener('selectionchange', () => {
+      if (suppressHide) return; // 工具条按下期间的选区变化不是"用户在改选区"
+      const selection = window.getSelection();
+      if (selection === null || selection.isCollapsed) hideBar();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') hideBar();
+    });
+    // 鼠标路径的动作已经在 mousedown 跑过，click 只负责收条；键盘激活（Enter/Space 的 click
+    // detail === 0，没有 mousedown）才在这里补跑一次，别把无障碍路径弄丢。
+    selectionBar.addEventListener('click', (event) => {
+      const button = event.target instanceof Element ? event.target.closest('button') : null;
+      if (button === null) return;
+      if (event.detail === 0) runAction(button.dataset.action);
+      hideBar();
     });
   }
 
@@ -1627,7 +1805,9 @@ async function main() {
   }
 
   /**
-   * 收尾一次按下：清状态、必要时落盘位置。
+   * 收尾一次按下：清状态、必要时落盘位置 + **提交边缘停靠**。
+   * 松手时主进程按球压住屏幕边缘的程度决定"吸边成 6px 细条"还是"夹回工作区"，
+   * 返回值里的 `docked` 就是这一下的结论（见 applyDockedFrom）。
    * @param consume true = 由 pointerup 之外的路径收尾（丢捕获/取消）→ 抑制紧随其后的假点击
    * @returns 这次按下是不是"拖动"（true 时 pointerup 不会切换开/关）
    */
@@ -1645,7 +1825,8 @@ async function main() {
     if (!wasDragging) return false;
     if (consume === true) suppressOpen = true;
     if (origin !== undefined) await bridge.orbDrag?.(origin.x, origin.y);
-    await bridge.orbDragEnd?.();
+    // [XG-CUSTOM] canDock = !(running || 提问卡待答)；主进程还会用 running 护栏兜一层
+    applyDockedFrom(await bridge.orbDragEnd?.(canDockNow()));
     return true;
   }
 
@@ -1734,7 +1915,8 @@ async function main() {
           gesture.startX / gesture.unit - gesture.dx,
           gesture.startY / gesture.unit - gesture.dy
         );
-        await bridge.orbDragEnd?.();
+        // [XG-CUSTOM] 归位也是一次"松手"：同样要提交停靠结论（否则归位后细条状态会对不上）
+        applyDockedFrom(await bridge.orbDragEnd?.(canDockNow()));
       }
       // [XG-CUSTOM] 面板开/关的权威判定：主进程窗口态优先，DOM 可见性兜底
       const { open, source } = await panelOpenState();
@@ -1781,6 +1963,62 @@ async function main() {
     trace('ball-lost-capture', { hadPointer: pointer !== undefined, dragging });
     void finishBallPointer(true);
   });
+
+  // [XG-CUSTOM] 停靠细条（6px）：悬停 800ms → 滑回（applyDocked 里的计时器），
+  // 拖它朝屏幕内侧移 > DOCK_DRAG_OFF_PX → 立刻解锁（拖到哪算哪，不跟手移动 —— 主进程会做滑回动画）。
+  if (dockTab !== null) {
+    dockTab.addEventListener('pointerenter', () => {
+      dockPointerInside = true;
+      if (docked !== undefined && dockHoverArmed) void unsnapDocked();
+    });
+    dockTab.addEventListener('pointerleave', () => {
+      dockPointerInside = false;
+    });
+    dockTab.addEventListener('pointerdown', (event) => {
+      if (event.button !== 0) return;
+      dockDrag = { startX: event.screenX, startY: event.screenY, moved: false };
+      try {
+        dockTab.setPointerCapture(event.pointerId);
+      } catch {
+        /* 捕获失败也能靠 pointerup/leave 收尾 */
+      }
+    });
+    dockTab.addEventListener('pointermove', (event) => {
+      if (dockDrag === undefined || docked === undefined) return;
+      if ((event.buttons & 1) !== 1) {
+        dockDrag = undefined;
+        return;
+      }
+      // [XG-CUSTOM] screen 坐标在真机上是物理像素（见 detectScreenUnit），这里沿用最近标定过的系数
+      const unit = lastScreenUnit > 0 ? lastScreenUnit : 1;
+      const inward =
+        docked === 'right'
+          ? (dockDrag.startX - event.screenX) / unit
+          : (event.screenX - dockDrag.startX) / unit;
+      trace('dock-tab-drag', { inward: Math.round(inward), side: docked, unit });
+      if (inward <= DOCK_DRAG_OFF_PX) return;
+      dockDrag.moved = true;
+      void unsnapDocked();
+    });
+    const endDockDrag = (event) => {
+      const drag = dockDrag;
+      dockDrag = undefined;
+      if (drag === undefined || drag.moved) return;
+      // 单击细条 = 滑回（比等 800ms 更直接；上游只有 hover 一条路）
+      if (
+        Math.hypot(event.screenX - drag.startX, event.screenY - drag.startY) <= DOCK_DRAG_OFF_PX
+      ) {
+        void unsnapDocked();
+      }
+    };
+    dockTab.addEventListener('pointerup', endDockDrag);
+    dockTab.addEventListener('pointercancel', () => {
+      dockDrag = undefined;
+    });
+    dockTab.addEventListener('lostpointercapture', () => {
+      dockDrag = undefined;
+    });
+  }
   // [XG-CUSTOM] 右键菜单（照 Orb 原版）。菜单本体在主进程用 Electron 原生 Menu 弹
   // （收起态球窗口只有 96×96 且被 X11 SHAPE 抠成一颗圆，自绘 DOM 菜单根本画不出来 —— 见
   // main/host/xiangwo-orb-api.ts 的 popupOrbContextMenu）。这里只负责：阻止默认菜单、把
@@ -1815,10 +2053,13 @@ async function main() {
     else if (action === 'quit') void bridge.orbQuit?.();
   }
 
-  bridge.onOrbMode?.((mode, isPinned, direction) => {
+  bridge.onOrbMode?.((mode, isPinned, direction, dockedSide) => {
     applyPinned(isPinned);
     // [XG-CUSTOM] 主进程带了方向就跟着换角的类（移动导致方向变化时，这里是唯一的同步点）
     if (direction !== undefined && direction !== null) applyDirection(direction);
+    // [XG-CUSTOM] 停靠侧：主进程在吸边/滑回完成的瞬间推过来（也带 null = 已解锁）。
+    // 这是"重启后恢复停靠态"以及"拖细条解锁"的同步点（另一个是 move/clamp/unsnap 的返回值）。
+    if (dockedSide !== undefined) applyDocked(dockedSide);
     // [XG-CUSTOM] 主进程是「窗口尺寸」的唯一权威：它说收起就无条件同步收起 UI，
     // 避免出现「主进程已缩回球态、渲染进程还挂着大面板」的错位。
     if (mode !== 'panel' && expanded) {
@@ -1829,6 +2070,8 @@ async function main() {
   void bridge.getOrbMode?.().then((state) => {
     if (!Array.isArray(state)) return;
     applyPinned(state[1]);
+    // [XG-CUSTOM] state[3] = 停靠侧（重启后主进程直接以停靠态建窗，这里补上 body.docked-*）
+    if (state.length > 3) applyDocked(state[3]);
   });
 
   // ---------- 启动 ----------
