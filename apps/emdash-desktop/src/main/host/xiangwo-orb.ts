@@ -17,6 +17,7 @@ import { join } from 'node:path';
 import { log } from '@main/lib/logger';
 import { APP_ORIGIN } from './protocol';
 import {
+  clearOrbSessionRunning,
   orbSessionRunning,
   registerXiangwoOrbApi,
   type OrbBallOutcome,
@@ -95,6 +96,18 @@ let orbDocked: OrbDock | undefined;
 let orbDockToken = 0;
 /** [XG-CUSTOM] 正在跑的窗口动画（同一时刻只允许一个） */
 let orbAnim: { cancelled: boolean; resolve: () => void } | undefined;
+/**
+ * [XG-CUSTOM] 最近一次拖动的**目标**球原点（渲染进程算出来的、未经任何夹取的值）。
+ *
+ * 为什么必须单独记它（真机 2026-10-01 复现「停靠触发不了」的两条根因之一）：
+ * 这台机器的 KWin/X11 **不允许窗口停在屏幕外** —— 真机探针实测
+ * `setBounds({x:-48})` 之后 50~150ms 内窗口被拉回 `x:0`，`setBounds(right+30)` 被拉回 `右沿-96`。
+ * 于是拖动到边缘时 `win.getBounds()` 读回来永远是"贴边但没越界"：
+ * 球原点 = 0 + 12 = 12 → leftOverlap = 0-12 = **-12 < ORB_DOCK_OVERLAP(14)** → 永远吸不上边。
+ * 所以停靠判定必须用**指针/拖动目标**（用户的真实意图），不能用读回来的窗口位置。
+ * 只在拖动过程中有效，clamp/切态/解锁都会清掉，避免"旧目标"误触发吸边。
+ */
+let orbDragTarget: OrbBallPoint | undefined;
 
 /**
  * [XG-CUSTOM][TEMP-TRACE] 球交互排查日志（真机「展开态点球没反应」专用）。
@@ -429,6 +442,7 @@ export async function unsnapDockedBall(): Promise<OrbBallOutcome> {
   // 先清停靠态：下面这次 setBounds 会把窗口从 6×72 变回 96×96，
   // resize 护栏必须已经知道"现在是球态"，否则它会把尺寸又拉回细条。
   orbDocked = undefined;
+  orbDragTarget = undefined;
   cancelOrbAnim();
   setOrbBounds(win, collapsedBounds(start), 'unsnap:start');
   applyOrbShape('ball');
@@ -841,6 +855,8 @@ function applyMode(mode: OrbMode): OrbDirection {
   const area = workAreaFor({ x: ball.x, y: ball.y });
   const direction = orbDirection(ball, area);
   orbMode = mode;
+  // [XG-CUSTOM] 切态不是拖动：清掉拖动目标，免得旧目标让下一次 clamp 误判吸边
+  orbDragTarget = undefined;
   if (mode === 'panel' && orbDocked !== undefined) {
     // 展开态不吸边：清停靠（也打断在跑的吸边/滑回动画）
     orbDocked = undefined;
@@ -884,6 +900,8 @@ function moveOrbBall(x: number, y: number): OrbBallPoint | undefined {
   if (!win || win.isDestroyed()) return undefined;
   const requested = { x: Math.round(x), y: Math.round(y) };
   if (orbMode === 'panel') {
+    // 展开态不参与停靠：清掉可能残留的拖动目标
+    orbDragTarget = undefined;
     const bounds = win.getBounds();
     const area = workAreaFor(requested);
     let anchor = orbBallAnchor();
@@ -943,7 +961,10 @@ function moveOrbBall(x: number, y: number): OrbBallPoint | undefined {
   // [XG-CUSTOM] 收起态：**故意不夹回工作区** —— 边缘停靠要求球在松手前能压住屏幕边
   // （压住 ≥ ORB_DOCK_OVERLAP 才吸边，见 dockSideForBallOrigin）。真正的收尾在松手时：
   // orb-drag-end → clampOrbBall()（吸边 或 夹回工作区），所以球不会丢在屏幕外。
+  // [XG-CUSTOM] 但要记住**目标值**：KWin 会把越界窗口拉回屏内（真机探针实测），
+  // 松手时 `getBounds()` 读到的"贴边没越界"是假的 → 停靠判定用这里记下的目标（见 orbDragTarget）。
   const ball = requested;
+  orbDragTarget = ball;
   // 停靠态下被拖动 = 解锁（不会出现"细条跟着球跑"的错位）
   if (orbDocked !== undefined) {
     orbDocked = undefined;
@@ -962,10 +983,16 @@ function moveOrbBall(x: number, y: number): OrbBallPoint | undefined {
  * [XG-CUSTOM] 松手/夹回：球贴住屏幕左/右边缘（压住 ≥ ORB_DOCK_OVERLAP）就**吸边**成 6px 细条，
  * 否则把球夹回工作区。停靠态下再夹 = 重新对齐细条（保持停靠）。
  *
+ * ⚠️ 判定用的是**拖动目标**（`orbDragTarget`），不是 `win.getBounds()` ——
+ * 这台机器的 KWin 会把越界窗口拉回屏内（见 orbDragTarget 注释），读回来的位置永远"没越界"。
+ * 目标拿不到（没有拖动过程，例如老浮窗直接调 clamp）才退回"窗口位置 + chrome inset"。
+ *
  * `canDock = false`（正在跑会话 / 提问卡待答）时**绝不进入**停靠；如果本来停靠着，这里会直接解锁
  * （上游只保证"不进入"，我们多做一步：运行中不许**保持**停靠，否则细条就没人管了）。
+ * 本来能吸边却被这条护栏拒了 → 返回 `dockRefused: true`，渲染进程据此给**可见反馈**
+ * （真机复现的根因之二：运行中拖到边缘"毫无反应"，用户只会以为功能坏了）。
  * @param canDock 是否允许停靠（渲染进程的 running/asking + 主进程的 running 护栏，见 dockAllowed）
- * @returns 落点 + 停靠侧（docked 要透传给渲染进程）
+ * @returns 落点 + 停靠侧（docked 要透传给渲染进程）+ 是否"本该吸边但被拒"
  */
 async function clampOrbBall(canDock = true): Promise<OrbBallOutcome> {
   const win = orbWindow;
@@ -973,9 +1000,11 @@ async function clampOrbBall(canDock = true): Promise<OrbBallOutcome> {
   // [XG-CUSTOM] 展开态夹的是"整个面板"：只平移、尺寸不变（绝不能 setBounds(collapsedBounds) 缩回球态）
   if (orbMode === 'panel') {
     const ball = moveOrbBall(ballOriginFromWindow(win).x, ballOriginFromWindow(win).y);
+    orbDragTarget = undefined;
     return { ball, docked: null };
   }
   if (orbDocked !== undefined) {
+    orbDragTarget = undefined;
     if (!canDock) return unsnapDockedBall();
     const dock = orbDocked;
     const bounds = displayForPoint(orbWindowCenter()).bounds;
@@ -983,19 +1012,26 @@ async function clampOrbBall(canDock = true): Promise<OrbBallOutcome> {
     notifyMode();
     return { ball: ballOriginFromWindow(win), docked: dock.side };
   }
+  const target = orbDragTarget;
+  orbDragTarget = undefined;
   const current = win.getBounds();
+  const fromBounds = { x: current.x + ORB_CHROME_INSET, y: current.y + ORB_CHROME_INSET };
+  // 拖动目标优先：它是"用户把球推到哪"的唯一权威（窗口位置可能已被 WM 拉回屏内）
+  const origin = target ?? fromBounds;
   const display = displayForPoint({
-    x: current.x + ORB_BALL_SIZE / 2,
-    y: current.y + ORB_BALL_SIZE / 2,
+    x: origin.x + ORB_BALL_SIZE / 2,
+    y: origin.y + ORB_BALL_SIZE / 2,
   });
-  const origin = { x: current.x + ORB_CHROME_INSET, y: current.y + ORB_CHROME_INSET };
-  if (canDock) {
-    const side = dockSideForBallOrigin(origin, display.bounds);
-    if (side !== undefined) {
-      const docked = await snapToEdge(side, origin.y, display.bounds);
-      notifyMode();
-      return { ball: ballOriginFromWindow(win), docked: docked ?? null };
-    }
+  const side = dockSideForBallOrigin(origin, display.bounds);
+  if (side !== undefined && canDock) {
+    const docked = await snapToEdge(side, origin.y, display.bounds);
+    notifyMode();
+    return { ball: ballOriginFromWindow(win), docked: docked ?? null };
+  }
+  if (side !== undefined && !canDock) {
+    // 本该吸边，被"运行中/提问卡待答"拒了：明确告诉渲染进程（它会给可见反馈），别静默
+    const reason = orbSessionRunning() ? 'running' : 'renderer';
+    orbTrace('main-dock-refused', { side, reason, origin, canDock });
   }
   const ball = clampBall(origin, display.workArea);
   setOrbBounds(win, collapsedBounds(ball), 'clampOrbBall:ball');
@@ -1003,8 +1039,8 @@ async function clampOrbBall(canDock = true): Promise<OrbBallOutcome> {
   applyOrbShape('ball');
   repaintOrbWindow(win);
   saveOrbState({ ball });
-  orbTrace('main-clampBall', { ball, requested: origin, canDock });
-  return { ball, docked: null };
+  orbTrace('main-clampBall', { ball, requested: origin, canDock, fromTarget: target !== undefined });
+  return { ball, docked: null, ...(side !== undefined ? { dockRefused: true } : {}) };
 }
 
 export function getOrbWindow(): BrowserWindow | null {
@@ -1040,7 +1076,8 @@ function registerOrbIpc(): void {
     return true;
   });
   // [XG-CUSTOM] 松手 = 提交停靠：球压住屏幕左/右边缘就吸边，否则夹回工作区。
-  // 返回值带 `docked`（'left' | 'right' | null）—— orb.js 靠它切 body.docked-* + 点亮 #dock-tab。
+  // 返回值带 `docked`（'left' | 'right' | null）—— orb.js 靠它切 body.docked-* + 点亮 #dock-tab；
+  // 还带 `dockRefused`（本该吸边但被"运行中/提问卡待答"拒绝）—— orb.js 靠它给可见反馈。
   // 第二个参数是渲染进程算的 canDock（!(running || 提问卡待答)）；主进程再用 running 护栏兜一层。
   ipcMain.handle('xiangwo:orb-drag-end', async (_e, canDock?: unknown) => {
     const win = orbWindow;
@@ -1050,9 +1087,14 @@ function registerOrbIpc(): void {
       mode: visualMode(),
       ball: outcome.ball ?? ballOriginFromWindow(win),
       docked: outcome.docked,
+      dockRefused: outcome.dockRefused === true,
       bounds: win.getBounds(),
     });
-    return { ok: true, docked: outcome.docked };
+    return {
+      ok: true,
+      docked: outcome.docked,
+      dockRefused: outcome.dockRefused === true,
+    };
   });
   ipcMain.handle('xiangwo:orb-open-main', () => {
     orbTrace('main-open-main');
@@ -1094,6 +1136,8 @@ export function createXiangwoOrbWindow(openMain: () => void): BrowserWindow {
   }
   // [XG-CUSTOM] 位置记忆：`ball`（球原点）+ `dock`（停靠侧）。停靠态也一并恢复 ——
   // 重启后细条还贴在原来那条屏幕边上、同一个高度，不会先冒出一颗球再"跳"回去。
+  // [XG-CUSTOM] 顺手清掉可能残留的 `running`：它会让停靠护栏永久失效（见 clearOrbSessionRunning）。
+  clearOrbSessionRunning();
   const saved = readSavedState();
   const savedBall = saved.ball;
   const initialArea = workAreaFor(savedBall ?? { x: 0, y: 0 });

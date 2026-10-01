@@ -557,6 +557,8 @@ async function main() {
   let dockPointerInside = false;
   /** [XG-CUSTOM] 拖细条的手势状态（{ startX, startY, moved }）；内移 > 24px 就解锁 */
   let dockDrag;
+  /** [XG-CUSTOM] "本该吸边却被拒"提示的计时器（见 notifyDockRefused） */
+  let dockRefusedTimer;
   /** [XG-CUSTOM] 当前 bot（`#bot` 的 value；空串 = 默认「项我」）。历史桶跟着它走。 */
   let currentBotId = botSelect.value;
   let conversations = loadBucket(currentBotId);
@@ -952,13 +954,46 @@ async function main() {
     applyDocked(result.docked);
   }
 
+  /**
+   * [XG-CUSTOM] 「本来已经推到屏幕边、却因为运行中/提问卡待答被拒绝吸边」的可见反馈。
+   *
+   * 真机复现（2026-10-01）教训：护栏静默拒绝时用户只看到"球弹回屏内"，会直接判定"停靠没做/坏了"。
+   * 所以：球闪一圈红内描边（1.6s）+ 状态行一句人话 + trace 落日志（可 grep）。
+   */
+  function notifyDockRefused() {
+    const why = running ? '运行中' : '有提问卡等着回答';
+    const hint = `（${why}，先不吸边）`;
+    const previous = status.textContent;
+    status.textContent = hint;
+    document.body.classList.add('dock-refused');
+    trace('dock-refused', { running, asking: asking() });
+    if (dockRefusedTimer !== undefined) clearTimeout(dockRefusedTimer);
+    dockRefusedTimer = setTimeout(() => {
+      dockRefusedTimer = undefined;
+      document.body.classList.remove('dock-refused');
+      if (status.textContent === hint) status.textContent = previous;
+    }, 1600);
+  }
+
+  /**
+   * [XG-CUSTOM] 把一次 move/clamp/unsnap 的返回值落到 UI 上：`docked` → body.docked-*；
+   * `dockRefused` → 可见反馈（见 notifyDockRefused）。
+   * @param {{docked?: string|null, dockRefused?: boolean}|undefined|null} result 主进程返回值
+   */
+  function applyDockOutcome(result) {
+    applyDockedFrom(result);
+    if (result !== undefined && result !== null && result.dockRefused === true) {
+      notifyDockRefused();
+    }
+  }
+
   /** [XG-CUSTOM] 从停靠细条滑回球态（没停靠就是 no-op）。UI 先乐观切回来，再用主进程结果对账。 */
   async function unsnapDocked() {
     if (docked === undefined) return;
     if (typeof api.floating.unsnap !== 'function') return;
     applyDocked(undefined);
     try {
-      applyDockedFrom(await api.floating.unsnap());
+      applyDockOutcome(await api.floating.unsnap());
     } catch (cause) {
       trace('dock-unsnap-error', { error: describeError(cause) });
     }
@@ -1825,8 +1860,9 @@ async function main() {
     if (!wasDragging) return false;
     if (consume === true) suppressOpen = true;
     if (origin !== undefined) await bridge.orbDrag?.(origin.x, origin.y);
-    // [XG-CUSTOM] canDock = !(running || 提问卡待答)；主进程还会用 running 护栏兜一层
-    applyDockedFrom(await bridge.orbDragEnd?.(canDockNow()));
+    // [XG-CUSTOM] canDock = !(running || 提问卡待答)；主进程还会用 running 护栏兜一层。
+    // 返回值里 `docked` 决定吸不吸边，`dockRefused` 决定要不要给"为什么没吸"的可见反馈。
+    applyDockOutcome(await bridge.orbDragEnd?.(canDockNow()));
     return true;
   }
 
@@ -1916,7 +1952,7 @@ async function main() {
           gesture.startY / gesture.unit - gesture.dy
         );
         // [XG-CUSTOM] 归位也是一次"松手"：同样要提交停靠结论（否则归位后细条状态会对不上）
-        applyDockedFrom(await bridge.orbDragEnd?.(canDockNow()));
+        applyDockOutcome(await bridge.orbDragEnd?.(canDockNow()));
       }
       // [XG-CUSTOM] 面板开/关的权威判定：主进程窗口态优先，DOM 可见性兜底
       const { open, source } = await panelOpenState();

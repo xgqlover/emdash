@@ -35,6 +35,9 @@ const SECONDARY: Display = {
 
 class FakeBrowserWindow {
   static instances: FakeBrowserWindow[] = [];
+  /** true = 模拟 KWin：把越界窗口拉回屏内（见 setBounds） */
+  static wmClampOffScreen = false;
+  static screenBounds: Rect = { x: 0, y: 0, width: 1920, height: 1080 };
 
   bounds: Rect;
   destroyed = false;
@@ -74,6 +77,21 @@ class FakeBrowserWindow {
       width: Math.round(next.width ?? previous.width),
       height: Math.round(next.height ?? previous.height),
     };
+    // [XG-CUSTOM] 模拟真机 WM（KWin/X11）：**不许窗口停在屏幕外**。
+    // 真机探针实测（2026-10-01）：setBounds({x:-48}) 之后 50~150ms 内被拉回 x:0，
+    // setBounds(右沿+30) 被拉回 右沿-96 —— 这就是"拖到屏幕边却吸不上边"的根因。
+    // 打开这个开关跑用例 = 复现真机；停靠判定必须用拖动目标、不能读回窗口位置。
+    if (FakeBrowserWindow.wmClampOffScreen) {
+      const screen = FakeBrowserWindow.screenBounds;
+      this.bounds.x = Math.min(
+        Math.max(this.bounds.x, screen.x),
+        screen.x + screen.width - this.bounds.width
+      );
+      this.bounds.y = Math.min(
+        Math.max(this.bounds.y, screen.y),
+        screen.y + screen.height - this.bounds.height
+      );
+    }
     // 真 Electron：尺寸变了才发 resize（异步）
     if (previous.width !== this.bounds.width || previous.height !== this.bounds.height) {
       setTimeout(() => this.emit('resize'), 0);
@@ -196,10 +214,14 @@ function orb(): FakeBrowserWindow {
   return live[live.length - 1];
 }
 
-/** 拖到 (x, y) 然后松手，返回主进程给的停靠结论 */
-async function dragTo(x: number, y: number, canDock = true): Promise<{ ok: boolean; docked: string | null }> {
+/** 拖到 (x, y) 然后松手，返回主进程给的停靠结论（docked + dockRefused） */
+async function dragTo(
+  x: number,
+  y: number,
+  canDock = true
+): Promise<{ ok: boolean; docked: string | null; dockRefused: boolean }> {
   await call('xiangwo:orb-drag', x, y);
-  const result = await call<{ ok: boolean; docked: string | null }>(
+  const result = await call<{ ok: boolean; docked: string | null; dockRefused: boolean }>(
     'xiangwo:orb-drag-end',
     canDock
   );
@@ -215,6 +237,8 @@ beforeEach(async () => {
   vi.resetModules();
   state.handlers.clear();
   FakeBrowserWindow.instances.length = 0;
+  FakeBrowserWindow.wmClampOffScreen = false;
+  FakeBrowserWindow.screenBounds = { ...PRIMARY.bounds };
   const mod = await import('./xiangwo-orb');
   mod.createXiangwoOrbWindow(() => {});
   await settle();
@@ -259,7 +283,7 @@ describe('xiangwo orb 边缘停靠（主进程）', () => {
     it('球滑出屏幕，只留 6px 细条，并把停靠侧回给渲染进程', async () => {
       const result = await dragTo(1920 - ORB_BALL_SIZE + 20, 300);
 
-      expect(result).toEqual({ ok: true, docked: 'right' });
+      expect(result).toMatchObject({ ok: true, docked: 'right' });
       const bounds = orb().getBounds();
       expect(bounds.width).toBe(ORB_DOCK_TAB_WIDTH);
       expect(bounds.height).toBe(ORB_DOCK_TAB_HEIGHT);
@@ -314,6 +338,113 @@ describe('xiangwo orb 边缘停靠（主进程）', () => {
     });
   });
 
+  // ==========================================================================
+  // 真机复现回归（2026-10-01：「拖到屏幕左沿停靠触发不了」）
+  // 根因一：KWin 不允许窗口停在屏幕外 → setBounds(-48) 被拉回 0 → 读回窗口位置
+  //         算出的 overlap 恒为负 → 永远吸不上边。修法：判定用**拖动目标**。
+  // 根因二：当时球里有一个挂着的请求（running=true）→ canDock=false → 静默拒绝。
+  //         修法：显式回报 dockRefused（渲染进程给红环反馈）+ 建窗时清掉残留的 running。
+  // ==========================================================================
+  describe('真机回归：拖到屏幕左沿越界（要求 2 的两条断言）', () => {
+    it('球目标 x = 屏左沿 − 60 → 吸边（细条 6×72、docked:left）', async () => {
+      const left = PRIMARY.bounds.x;
+      const result = await dragTo(left - 60, 300);
+
+      expect(result.docked).toBe('left');
+      const bounds = orb().getBounds();
+      expect([bounds.width, bounds.height]).toEqual([ORB_DOCK_TAB_WIDTH, ORB_DOCK_TAB_HEIGHT]);
+      expect(bounds.x).toBe(left);
+      expect(savedFile().dock).toEqual({ side: 'left', y: 300 });
+    });
+
+    it('球目标 x = 屏左沿 − 13（不到球宽 1/5）→ 不吸边、夹回工作区', async () => {
+      const result = await dragTo(PRIMARY.bounds.x - ORB_DOCK_OVERLAP + 1, 300);
+
+      expect(result.docked).toBeNull();
+      const bounds = orb().getBounds();
+      expect(bounds.width).toBe(96);
+      // 球被夹回工作区左沿（球原点 = 0），窗口 = 球 - chrome inset
+      expect(bounds.x).toBe(PRIMARY.workArea.x - 12);
+      expect(savedFile().dock).toBeUndefined();
+    });
+
+    it('★ WM 把越界窗口拉回屏内（KWin 真机行为）也照样吸边', async () => {
+      // 打开模拟：任何越界的 setBounds 都会被拉回屏内 → getBounds() 永远"没越界"
+      FakeBrowserWindow.wmClampOffScreen = true;
+      const left = PRIMARY.bounds.x;
+      const result = await dragTo(left - 60, 300);
+
+      // 窗口位置读回来是 x=0（被 WM 拉了），但判定用的是拖动目标 -60 → 仍然吸边
+      expect(result.docked).toBe('left');
+      const bounds = orb().getBounds();
+      expect([bounds.width, bounds.height]).toEqual([ORB_DOCK_TAB_WIDTH, ORB_DOCK_TAB_HEIGHT]);
+      expect(bounds.x).toBe(left);
+      expect(savedFile().dock).toMatchObject({ side: 'left' });
+    });
+
+    it('★ WM 拉回屏内时，越界 13（不够阈值）依然不吸边', async () => {
+      FakeBrowserWindow.wmClampOffScreen = true;
+      const result = await dragTo(PRIMARY.bounds.x - ORB_DOCK_OVERLAP + 1, 300);
+      expect(result.docked).toBeNull();
+      expect(orb().getBounds().width).toBe(96);
+    });
+
+    it('没有拖动过程（直接 clamp）时退回"窗口位置"判定，不会凭空吸边', async () => {
+      // 球停在屏内（默认位），直接 floating.clamp：
+      const clamped = await call<{ docked: string | null }>('xiangwo:orb-api', 'floating.clamp', {});
+      expect(clamped.docked).toBeNull();
+      expect(orb().getBounds().width).toBe(96);
+    });
+  });
+
+  describe('运行时拒绝停靠要"说得出为什么"（要求：不能静默）', () => {
+    it('running=true 时拖到边缘：docked:null 且 dockRefused:true', async () => {
+      writeFileSync(
+        join(state.userData.dir, 'xiangwo-orb-session.json'),
+        `${JSON.stringify({ running: true })}\n`,
+        'utf8'
+      );
+      const result = await dragTo(PRIMARY.bounds.x - 60, 300);
+      expect(result.docked).toBeNull();
+      expect(result.dockRefused).toBe(true);
+    });
+
+    it('渲染进程说 canDock=false 也回报 dockRefused（提问卡待答那条路）', async () => {
+      const result = await dragTo(PRIMARY.bounds.x - 60, 300, false);
+      expect(result.docked).toBeNull();
+      expect(result.dockRefused).toBe(true);
+    });
+
+    it('球停在屏内时 clamp 不会被误报成 dockRefused', async () => {
+      const result = await dragTo(800, 400);
+      expect(result.docked).toBeNull();
+      expect(result.dockRefused).toBe(false);
+    });
+
+    it('建窗时清掉残留的 running（否则停靠会永久失效）', async () => {
+      writeFileSync(
+        join(state.userData.dir, 'xiangwo-orb-session.json'),
+        `${JSON.stringify({ sessionId: 's1', running: true })}\n`,
+        'utf8'
+      );
+      vi.resetModules();
+      state.handlers.clear();
+      FakeBrowserWindow.instances.length = 0;
+      const restarted = await import('./xiangwo-orb');
+      restarted.createXiangwoOrbWindow(() => {});
+      await settle();
+
+      const session = JSON.parse(
+        readFileSync(join(state.userData.dir, 'xiangwo-orb-session.json'), 'utf8')
+      ) as { running?: boolean; sessionId?: string };
+      expect(session.running).toBe(false);
+      expect(session.sessionId).toBe('s1'); // 会话 id 不能丢
+
+      const result = await dragTo(PRIMARY.bounds.x - 60, 300);
+      expect(result.docked).toBe('left');
+    });
+  });
+
   describe('位置记忆（xiangwo-orb.json）', () => {
     it('停靠侧落盘（兼容旧 ball 字段）', async () => {
       await dragTo(1920 - ORB_BALL_SIZE + 20, 512);
@@ -355,7 +486,7 @@ describe('xiangwo orb 边缘停靠（主进程）', () => {
       await dragTo(1920 - ORB_BALL_SIZE + 20, 300);
       const result = await call('xiangwo:orb-api', 'floating.unsnap', {});
 
-      expect(result).toEqual({ ok: true, docked: null });
+      expect(result).toMatchObject({ ok: true, docked: null });
       const bounds = orb().getBounds();
       expect([bounds.width, bounds.height]).toEqual([96, 96]);
       // 解锁后球回到屏内：球体本身（窗口内缩 12px chrome 后那 72px）完全在屏幕里，

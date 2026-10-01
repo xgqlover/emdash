@@ -30,8 +30,14 @@ export type OrbDock = { side: OrbDockSide; y: number };
 /**
  * [XG-CUSTOM] 一次 move/clamp/unsnap 的结果。
  * `docked` 必须**透传给渲染进程**（orb.js 靠它切 body.docked-* + 点亮/熄灭 #dock-tab）。
+ * `dockRefused` = 本来已经压住屏幕边、但因为「运行中/提问卡待答」被护栏拒了 ——
+ * 渲染进程据此给可见反馈（真机复现：运行中拖到边缘毫无反应，用户只会以为功能坏了）。
  */
-export type OrbBallOutcome = { ball?: OrbBallPoint; docked: OrbDockSide | null };
+export type OrbBallOutcome = {
+  ball?: OrbBallPoint;
+  docked: OrbDockSide | null;
+  dockRefused?: boolean;
+};
 
 /** 本模块需要球壳提供的能力（见 xiangwo-orb.ts） */
 export type OrbApiDeps = {
@@ -125,6 +131,19 @@ function writeSession(patch: OrbSessionState): OrbSessionState {
  */
 export function orbSessionRunning(): boolean {
   return readSession().running === true;
+}
+
+/**
+ * [XG-CUSTOM] 清掉落盘的 `running` 标记（建窗时调用）。
+ * 为什么必须有：`running` 是**落盘**的，进程被 kill / 请求挂着没结束都会留一个 `true`；
+ * 而主进程的停靠护栏读的就是它 —— 一旦残留，**吸边会永久失效**且没有任何提示
+ * （真机复现的另一半原因：用户拖到屏幕边毫无反应）。渲染进程启动时 running 恒为 false，
+ * 所以建窗时把这个可能过期的标记清掉，护栏只反映"本次运行"的真实状态。
+ */
+export function clearOrbSessionRunning(): void {
+  const current = readSession();
+  if (current.running !== true) return;
+  writeSession({ running: false });
 }
 
 /** 读持久化的权限档（缺省 = 完全访问，跟 Orb 一致） */
@@ -268,7 +287,12 @@ export async function routeOrbApi(
       log.warn('[xiangwo-orb-trace] main-api', { method: name, args: payload });
       // [XG-CUSTOM] canDock = 渲染进程的 !(running || asking()) && 主进程的 !running
       const clamped = await deps.clampBall(payload.canDock !== false && !orbSessionRunning());
-      return { x: clamped.ball?.x, y: clamped.ball?.y, docked: clamped.docked };
+      return {
+        x: clamped.ball?.x,
+        y: clamped.ball?.y,
+        docked: clamped.docked,
+        dockRefused: clamped.dockRefused === true,
+      };
     }
     case 'floating.contextMenu':
       return popupOrbContextMenu(deps.getWindow());
