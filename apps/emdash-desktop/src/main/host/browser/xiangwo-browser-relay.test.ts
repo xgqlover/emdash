@@ -168,7 +168,8 @@ describe('xiangwo-browser-relay 命令往返', () => {
     const { impl, calls } = makeFetch((url) => {
       if (url.startsWith(POLL)) {
         const pollNo = calls.filter((c) => c.url.startsWith(POLL)).length;
-        if (pollNo === 1) return json({ id: 1, kind: 'ws-open', sid: 's1', path: '/devtools/browser/XG' });
+        if (pollNo === 1)
+          return json({ id: 1, kind: 'ws-open', sid: 's1', path: '/devtools/browser/XG' });
         if (pollNo === 2) return json({ id: 2, kind: 'ws-send', sid: 's1', data: '{"id":1}' });
         return new Response(null, { status: 204 });
       }
@@ -339,13 +340,106 @@ describe('xiangwo-browser-relay open 命令（跨机"说打开就打开"）', ()
     sockets[0]?.message(JSON.stringify({ id: 1, result: { frameId: 'f1' } }));
     await tick(6);
     relay.stop();
-    const sent = JSON.parse(String(sockets[0]?.sent[0])) as { method: string; params: { url: string } };
+    const sent = JSON.parse(String(sockets[0]?.sent[0])) as {
+      method: string;
+      params: { url: string };
+    };
     expect(sent.method).toBe('Page.navigate');
     expect(sent.params.url).toBe('https://example.com');
     const result = calls.find((c) => c.url.endsWith('/api/emdash-browser/result'));
-    const body = JSON.parse(String(result?.init?.body)) as { ok: boolean; payload: { target_id: string } };
+    const body = JSON.parse(String(result?.init?.body)) as {
+      ok: boolean;
+      payload: { target_id: string };
+    };
     expect(body.ok).toBe(true);
     expect(body.payload.target_id).toBe('XG-EMBEDDED');
+  });
+
+  // [XG-CUSTOM 2026-10] 「从零开页」：一个内嵌浏览器都没有时，先请渲染进程开一个再导航。
+  // 抄的是 HippoBuddy「标记驱动自动开页」那一环，补掉「必须人工先开 Browser 标签页」的缺口。
+  it('没有内嵌页 + 接了开页回调 → 先广播开页请求，等到页面被绑定后再 navigate', async () => {
+    let listCalls = 0;
+    const { impl, calls } = makeFetch((url) => {
+      if (url.startsWith(POLL)) {
+        return calls.filter((c) => c.url.startsWith(POLL)).length === 1
+          ? json({ id: 9, kind: 'open', url: 'https://example.com' })
+          : new Response(null, { status: 204 });
+      }
+      if (url === 'http://127.0.0.1:9223/json/list') {
+        listCalls += 1;
+        // 第一轮（进 handleOpen 时）为空 → 触发自动开页；之后出现新页
+        return listCalls === 1
+          ? json([])
+          : json([
+              {
+                id: 'XG-AUTO',
+                type: 'page',
+                url: 'about:blank',
+                title: '新标签页',
+                webSocketDebuggerUrl: 'ws://127.0.0.1:9223/devtools/page/XG-AUTO',
+              },
+            ]);
+      }
+      if (url.endsWith('/api/emdash-browser/result')) return json({ ok: true });
+      return undefined;
+    });
+    const { factory, sockets } = makeFakeWs();
+    const opened: string[] = [];
+    const relay = new XiangwoBrowserRelay({
+      resolveBaseUrl: async () => 'http://linux:8900',
+      fetchImpl: impl,
+      webSocketFactory: factory,
+      openBrowserWaitMs: 2000,
+      requestOpenBrowser: (url) => opened.push(url),
+      log: () => undefined,
+    });
+    relay.start();
+    await tick(12);
+    expect(opened).toEqual(['https://example.com']); // 广播过开页请求
+    expect(sockets[0]?.url).toBe('ws://127.0.0.1:9223/devtools/page/XG-AUTO');
+    sockets[0]?.open();
+    sockets[0]?.message(JSON.stringify({ id: 1, result: { frameId: 'f1' } }));
+    await tick(6);
+    relay.stop();
+    const result = calls.find((c) => c.url.endsWith('/api/emdash-browser/result'));
+    const body = JSON.parse(String(result?.init?.body)) as {
+      ok: boolean;
+      payload: { target_id: string };
+    };
+    expect(body.ok).toBe(true);
+    expect(body.payload.target_id).toBe('XG-AUTO');
+  });
+
+  it('接了开页回调但一直没页面出现 → ok:false 且错误里说清是"自动开也没等到"', async () => {
+    const { impl, calls } = makeFetch((url) => {
+      if (url.startsWith(POLL)) {
+        return calls.filter((c) => c.url.startsWith(POLL)).length === 1
+          ? json({ id: 11, kind: 'open', url: 'https://example.com' })
+          : new Response(null, { status: 204 });
+      }
+      if (url === 'http://127.0.0.1:9223/json/list') return json([]);
+      if (url.endsWith('/api/emdash-browser/result')) return json({ ok: true });
+      return undefined;
+    });
+    const opened: string[] = [];
+    const relay = new XiangwoBrowserRelay({
+      resolveBaseUrl: async () => 'http://linux:8900',
+      fetchImpl: impl,
+      webSocketFactory: makeFakeWs().factory,
+      openBrowserWaitMs: 60,
+      requestOpenBrowser: (url) => opened.push(url),
+      log: () => undefined,
+    });
+    relay.start();
+    // 轮询间隔 150ms + waitMs 60ms → 至少要等过一拍（tick 每拍 ~2ms，给足余量）
+    await tick(250);
+    relay.stop();
+    expect(opened).toEqual(['https://example.com']);
+    const result = calls.find((c) => c.url.endsWith('/api/emdash-browser/result'));
+    const body = JSON.parse(String(result?.init?.body)) as { ok: boolean; error: string };
+    expect(body.ok).toBe(false);
+    expect(body.error).toContain('没有打开的内嵌浏览器');
+    expect(body.error).toContain('自动开一个但没等到');
   });
 });
 

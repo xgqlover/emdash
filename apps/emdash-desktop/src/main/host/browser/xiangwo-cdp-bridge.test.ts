@@ -14,6 +14,7 @@ import { networkInterfaces as osNetworkInterfaces, type NetworkInterfaceInfo } f
 import { afterEach, describe, expect, it } from 'vitest';
 import {
   embeddedTargetId,
+  XIANGWO_CDP_OPEN_BROWSER_PATH,
   XiangwoCdpBridge,
   type EmbeddedBrowserTarget,
   type XiangwoCdpBridgeOptions,
@@ -39,7 +40,11 @@ type MessageListener = (
 
 class FakeDebugger implements XiangwoCdpDebugger {
   attached = false;
-  readonly sendCalls: Array<{ method: string; params?: Record<string, unknown>; sessionId?: string }> = [];
+  readonly sendCalls: Array<{
+    method: string;
+    params?: Record<string, unknown>;
+    sessionId?: string;
+  }> = [];
   private readonly messageListeners: MessageListener[] = [];
   private readonly detachListeners: Array<(event: unknown, reason: string) => void> = [];
 
@@ -156,7 +161,11 @@ class CdpTestClient {
     });
   }
 
-  send(method: string, params?: Record<string, unknown>, sessionId?: string): Promise<Record<string, unknown>> {
+  send(
+    method: string,
+    params?: Record<string, unknown>,
+    sessionId?: string
+  ): Promise<Record<string, unknown>> {
     const id = this.nextId;
     this.nextId += 1;
     const payload: Record<string, unknown> = { id, method, params: params ?? {} };
@@ -169,7 +178,10 @@ class CdpTestClient {
     this.socket.close();
   }
 
-  async waitForEvent(method: string, timeoutMs = 2500): Promise<Record<string, unknown> | undefined> {
+  async waitForEvent(
+    method: string,
+    timeoutMs = 2500
+  ): Promise<Record<string, unknown> | undefined> {
     const deadline = Date.now() + timeoutMs;
     for (;;) {
       const found = this.events.find((event) => event['method'] === method);
@@ -202,23 +214,34 @@ async function startBridge(
   commandTimeoutMs = 500,
   options: Partial<XiangwoCdpBridgeOptions> = {}
 ): Promise<{ bridge: XiangwoCdpBridge; base: string }> {
-  const port = pickPort();
-  const startLogs: string[] = [];
-  const userLog = options.log;
-  const bridge = new XiangwoCdpBridge({
-    listTargets,
-    port,
-    commandTimeoutMs,
-    ...options,
-    log: (message, metadata) => {
-      startLogs.push(`${message} ${JSON.stringify(metadata ?? {})}`);
-      userLog?.(message, metadata);
-    },
-  });
-  running.push(bridge);
-  const started = await bridge.start();
-  expect(started, `端口 ${port} 启动失败：${startLogs.join(' | ')}`).toBe(true);
-  return { bridge, base: `http://127.0.0.1:${port}` };
+  // [XG-CUSTOM] 端口是随机挑的，`usedPorts` 只在本文件内去重；整个目录并行跑时不同 worker
+  // 之间仍会撞（撞了表现为 start() 返回 false，看起来像"功能坏了"）。撞了就换一个端口重试。
+  let lastLogs: string[] = [];
+  let lastPort = 0;
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const port = pickPort();
+    lastPort = port;
+    const startLogs: string[] = [];
+    const userLog = options.log;
+    const bridge = new XiangwoCdpBridge({
+      listTargets,
+      port,
+      commandTimeoutMs,
+      ...options,
+      log: (message, metadata) => {
+        startLogs.push(`${message} ${JSON.stringify(metadata ?? {})}`);
+        userLog?.(message, metadata);
+      },
+    });
+    running.push(bridge);
+    const started = await bridge.start();
+    if (started) return { bridge, base: `http://127.0.0.1:${port}` };
+    // 起不来（几乎只可能是 EADDRINUSE）→ 把这次失败的桥丢掉，换端口重试
+    bridge.stop();
+    lastLogs = startLogs;
+  }
+  expect(false, `端口 ${lastPort} 连试 5 次都启动失败：${lastLogs.join(' | ')}`).toBe(true);
+  throw new Error('unreachable');
 }
 
 afterEach(() => {
@@ -238,7 +261,9 @@ describe('[XG-CUSTOM] XiangwoCdpBridge', () => {
     expect(list[0]?.['id']).toBe(embeddedTargetId('task-1'));
     expect(list[0]?.['type']).toBe('page');
     expect(list[0]?.['url']).toBe('http://127.0.0.1:1933/studio/home');
-    expect(list[0]?.['webSocketDebuggerUrl']).toContain(`/devtools/page/${embeddedTargetId('task-1')}`);
+    expect(list[0]?.['webSocketDebuggerUrl']).toContain(
+      `/devtools/page/${embeddedTargetId('task-1')}`
+    );
   });
 
   it('getTargets/attachToTarget 把 webview 报成 page，页面命令转发到 debugger', async () => {
@@ -733,5 +758,94 @@ describe('[XG-CUSTOM] CDP 桥监听模式与真实网卡（不 mock）', () => {
         `ws://${address}:${port}/devtools/page/${embeddedTargetId('task-real')}`
       );
     }
+  });
+});
+
+// ── [XG-CUSTOM 2026-10] 「从零开页」`POST /xg/open-browser` ────────────────────────
+//
+// 补的缺口很具体：9223 桥的白名单只含**已加载**的内嵌浏览器，所以一个 Browser 标签页都没开时
+// agent「打开网站」在内嵌浏览器这条链上必然失败。这个端点把「请渲染进程开一个」做成可等待的
+// 一次往返（HippoBuddy 的标记驱动自动开页同源，见 xiangwo-cdp-bridge.ts 注释）。
+describe('[XG-CUSTOM] XiangwoCdpBridge /xg/open-browser（从零开页）', () => {
+  async function postOpen(base: string, body: unknown): Promise<Record<string, unknown>> {
+    const res = await fetch(`${base}${XIANGWO_CDP_OPEN_BROWSER_PATH}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    return (await res.json()) as Record<string, unknown>;
+  }
+
+  it('已有内嵌页 → 复用，不新开也不调开页回调', async () => {
+    const target = fakeTarget('task-existing');
+    const opened: string[] = [];
+    const { base } = await startBridge(() => [target], 500, {
+      requestOpenBrowser: (url) => opened.push(url),
+    });
+    const r = await postOpen(base, { url: 'https://example.com' });
+    expect(r['ok']).toBe(true);
+    expect(r['reused']).toBe(true);
+    expect(r['targetId']).toBe(embeddedTargetId('task-existing'));
+    expect(opened).toHaveLength(0);
+  });
+
+  it('一个都没有 → 广播开页请求，等 target 出现后回报新 targetId', async () => {
+    const bound: EmbeddedBrowserTarget[] = [];
+    const news: FakeTarget[] = [];
+    const { base } = await startBridge(() => bound, 500, {
+      openBrowserWaitMs: 3000,
+      requestOpenBrowser: (url) => {
+        // 模拟渲染进程：收到广播后开标签页 → webview attach → bindWebContents（这里直接进白名单）
+        expect(url).toBe('https://example.com');
+        setTimeout(() => {
+          const target = fakeTarget('task-auto-opened');
+          target.fake.url = 'https://example.com/';
+          news.push(target);
+          bound.push(target);
+        }, 50);
+      },
+    });
+    const r = await postOpen(base, { url: 'https://example.com' });
+    expect(r['ok']).toBe(true);
+    expect(r['reused']).toBe(false);
+    expect(r['targetId']).toBe(embeddedTargetId('task-auto-opened'));
+    expect(news).toHaveLength(1);
+  });
+
+  it('渲染进程开不出来（超时）→ ok:false + 人话，不假装成功', async () => {
+    const { base } = await startBridge(() => [], 500, {
+      openBrowserWaitMs: 120,
+      requestOpenBrowser: () => undefined,
+    });
+    const r = await postOpen(base, { url: 'https://example.com' });
+    expect(r['ok']).toBe(false);
+    expect(String(r['error'])).toContain('没有页面被绑定');
+  });
+
+  it('没接开页回调（老行为）→ ok:false，且不会去动别的浏览器', async () => {
+    const { base } = await startBridge(() => [], 500);
+    const r = await postOpen(base, { url: 'https://example.com' });
+    expect(r['ok']).toBe(false);
+    expect(String(r['error'])).toContain('没有接「从零开页」回调');
+  });
+
+  it('非 http(s) 或空 url → ok:false（不收任意字符串）', async () => {
+    const { base } = await startBridge(() => [], 500, { requestOpenBrowser: () => undefined });
+    expect((await postOpen(base, { url: 'file:///etc/passwd' }))['ok']).toBe(false);
+    expect((await postOpen(base, { url: '   ' }))['ok']).toBe(false);
+    expect((await postOpen(base, { nope: 1 }))['ok']).toBe(false);
+  });
+
+  it('请求体不是合法 JSON → ok:false（不抛、不 500）', async () => {
+    const { base } = await startBridge(() => [], 500, { requestOpenBrowser: () => undefined });
+    const res = await fetch(`${base}${XIANGWO_CDP_OPEN_BROWSER_PATH}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{not json',
+    });
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as Record<string, unknown>;
+    expect(body['ok']).toBe(false);
+    expect(String(body['error'])).toContain('合法 JSON');
   });
 });
