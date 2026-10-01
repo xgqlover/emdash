@@ -7,9 +7,9 @@
     "base": "669a24fe673f4af1a507ddc33fc3f3ffe1039348"
   },
   "stats": {
-    "files": 113,
-    "markers": 648,
-    "newFiles": 53,
+    "files": 116,
+    "markers": 652,
+    "newFiles": 56,
     "modifiedFiles": 60
   },
   "files": {
@@ -90,6 +90,20 @@
       "origin": "new",
       "firstCommit": "55a583cd5|2026-09-30|[XG-CUSTOM] 项我球：xiangwo-images 图片网格（侧边 agent 真能发图）",
       "lastCommit": "55a583cd5|2026-09-30|[XG-CUSTOM] 项我球：xiangwo-images 图片网格（侧边 agent 真能发图）",
+      "note": "验收 harness / 打包脚本（xg 定制）"
+    },
+    "apps/emdash-desktop/scripts/xiangwo-orb-selection-harness.mjs": {
+      "markers": 1,
+      "lines": [
+        2
+      ],
+      "anchors": [
+        "项我球 **划词工具条** harness —— 用 **Playwright + 真实 Chrome** 跑**构建产物**（out/renderer）。"
+      ],
+      "hash": "307011febcecadc62cc4b464858509297b5d16f4",
+      "origin": "new",
+      "firstCommit": "03c40f5a3|2026-10-01|chore: 收尾未提交的测试与 harness（多代理并行产物）",
+      "lastCommit": "03c40f5a3|2026-10-01|chore: 收尾未提交的测试与 harness（多代理并行产物）",
       "note": "验收 harness / 打包脚本（xg 定制）"
     },
     "apps/emdash-desktop/src/core/features/agents/api/browser/components/agent-selector/use-agent-availability.ts": {
@@ -695,6 +709,22 @@
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化（任务界面）"
+    },
+    "apps/emdash-desktop/src/core/features/workbench/api/browser/embedded-browser-open-request.test.ts": {
+      "markers": 2,
+      "lines": [
+        1,
+        48
+      ],
+      "anchors": [
+        "import { beforeEach, describe, expect, it, vi } from 'vitest';",
+        "describe('"
+      ],
+      "hash": "f71a3e71d7dab3ba4221f859ee1c3672ffe99a77",
+      "origin": "new",
+      "firstCommit": "03c40f5a3|2026-10-01|chore: 收尾未提交的测试与 harness（多代理并行产物）",
+      "lastCommit": "03c40f5a3|2026-10-01|chore: 收尾未提交的测试与 harness（多代理并行产物）",
+      "note": "中文化 + 项我入口（侧边栏/home）"
     },
     "apps/emdash-desktop/src/core/features/workbench/api/browser/embedded-browser-open-request.ts": {
       "markers": 4,
@@ -2616,6 +2646,20 @@
       "firstCommit": "411c4b07e|2026-09-29|[XG-CUSTOM] 中文化标记 + 体检/还原器（上游更新后可一键找回）",
       "lastCommit": "411c4b07e|2026-09-29|[XG-CUSTOM] 中文化标记 + 体检/还原器（上游更新后可一键找回）",
       "note": "中文化台账 + 还原器 apply.mjs"
+    },
+    "scripts/xg-pre-package.sh": {
+      "markers": 1,
+      "lines": [
+        2
+      ],
+      "anchors": [
+        "FORCE=\"${1:-}\""
+      ],
+      "hash": "f3df4a8fc32eb2523cba59f7bb269be86adfe8fd",
+      "origin": "new",
+      "firstCommit": "ed43cf2f6|2026-10-01|[XG-CUSTOM] 加打包前检查脚本 xg-pre-package.sh（多代理并行时防止打包漏改动）",
+      "lastCommit": "ed43cf2f6|2026-10-01|[XG-CUSTOM] 加打包前检查脚本 xg-pre-package.sh（多代理并行时防止打包漏改动）",
+      "note": "加打包前检查脚本 xg-pre-package.sh（多代理并行时防止打包漏改动）"
     }
   }
 }
