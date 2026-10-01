@@ -62,7 +62,8 @@ export function bootBackground(services: ServicesBundle, runtimes: DesktopRuntim
   // wiring.ts 的 autostartXiangwoOrb（失败只打日志，绝不影响主窗口启动）。
   autostartXiangwoOrb();
 
-  // [XG-CUSTOM] 内嵌浏览器 CDP 桥（agent.py 第②级「iframe 合流」，localhost:9223）。
+  // [XG-CUSTOM] 内嵌浏览器 CDP 桥（agent.py 第②级「内嵌浏览器优先」，localhost:9223；
+  // 历史叫法「iframe 合流」，实现是 <webview> + 白名单 CDP，不是 iframe）。
   // 和球一样放在 boot 最后：此时 service/wire 阶段都完成，browserWebContentsRegistry 可用。
   startXiangwoCdpBridge();
 

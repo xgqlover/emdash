@@ -1,5 +1,6 @@
 import { providerTokenRegistry } from '@core/features/account/api/node/provider-token-registry';
 import type { EmdashAccountService } from '@core/features/account/node/services/emdash-account-service';
+import { browserEvents } from '@core/features/browser/node'; // [XG-CUSTOM] 内嵌浏览器「从零开页」广播
 import { GitHubAuthServerAdapter } from '@core/features/github/node/accounts/github-auth-server-adapter';
 import { getIntegrationConnectionService } from '@core/features/integrations/node/integration-connection-service';
 import { provisionWorkspaceErrorToWorkspaceError } from '@core/features/workspaces/node/wire-controller';
@@ -17,20 +18,29 @@ import type { DesktopRuntimes } from '@main/gateway/desktop-runtimes';
 import { setBrowserCorsRelaxationSettings } from '@main/host/browser/browser-profile-session';
 import { browserWebContentsRegistry } from '@main/host/browser/browser-webcontents-registry';
 import { browserOperations } from '@main/host/browser/controller';
+import {
+  createXiangwoBrowserRelay,
+  type XiangwoBrowserRelay,
+} from '@main/host/browser/xiangwo-browser-relay';
 import { XiangwoCdpBridge } from '@main/host/browser/xiangwo-cdp-bridge'; // [XG-CUSTOM]
 import {
   parseXiangwoCdpAllowList,
   resolveXiangwoCdpBindMode,
 } from '@main/host/browser/xiangwo-cdp-peers';
-import {
-  createXiangwoBrowserRelay,
-  type XiangwoBrowserRelay,
-} from '@main/host/browser/xiangwo-browser-relay';
 import { createDevPerfOperations } from '@main/host/dev-perf/controller-operations';
 import { writeRendererLogEntry } from '@main/host/file-logger';
 import { setTrayVisible } from '@main/host/tray';
 import { updateOperations } from '@main/host/updates/controller-operations';
-import { applyNativeTheme, createKaneoWindow, createOpenVikingWindow, createT8Window, createWeKnoraWindow, createXiangwoFloatingWindow, ensureChromeRunning, expertHandoffCall } from '@main/host/window'; // [XG-CUSTOM]
+import {
+  applyNativeTheme,
+  createKaneoWindow,
+  createOpenVikingWindow,
+  createT8Window,
+  createWeKnoraWindow,
+  createXiangwoFloatingWindow,
+  ensureChromeRunning,
+  expertHandoffCall,
+} from '@main/host/window'; // [XG-CUSTOM]
 import { resolveXiangwoChatTarget } from '@main/host/xiangwo-chat-target';
 import { log } from '@main/lib/logger';
 import { telemetryService } from '@main/lib/telemetry';
@@ -83,7 +93,8 @@ export function autostartXiangwoOrb(delayMs = 1500): void {
 }
 
 /**
- * [XG-CUSTOM] 内嵌浏览器 CDP 桥（agent.py 第②级「iframe 合流」的通道）。
+ * [XG-CUSTOM] 内嵌浏览器 CDP 桥（agent.py 第②级「内嵌浏览器优先」的通道；
+ * 历史叫法「iframe 合流」，实际是渲染进程 <webview> + 本桥白名单 CDP，没有 iframe）。
  *
  * wego-lite/browser_use_bridge.py 连的是 `http://localhost:9223`，而 emdash 从没在 9223 上
  * 监听任何东西 —— 这条链路一直是断的。这里在 boot 完成后把桥拉起来：只用
@@ -113,10 +124,30 @@ export function startXiangwoCdpBridge(): void {
     ...(Number.isFinite(configuredPort) && configuredPort > 0 ? { port: configuredPort } : {}),
     bind: resolveXiangwoCdpBindMode(process.env.XIANGWO_CDP_BIND),
     ...(allowedPeers.length > 0 ? { allowedPeers } : {}),
+    // [XG-CUSTOM] 「从零开页」：白名单为空时把意图广播给渲染进程（真正开页的是它）
+    requestOpenBrowser: requestEmbeddedBrowserOpen,
     log: (message, metadata) => log.info(`[XG-CUSTOM] ${message}`, metadata),
   });
   xiangwoCdpBridge = bridge;
   void bridge.start();
+}
+
+/**
+ * [XG-CUSTOM] 「从零开页」广播：主进程 → 渲染进程。
+ *
+ * 内嵌浏览器是渲染进程的 `<webview>`（attach 后才 `bindWebContents` → 才进 9223 白名单）。
+ * 所以「一个标签页都没有」时，唯一合规的开页方式就是**请渲染进程开**，而不是主进程自己造
+ * WebContentsView（那会绕过 `browser-webcontents-registry.ts` 的 attach 白名单）。
+ *
+ * 渲染进程侧的消费者：`core/features/workbench/api/browser/embedded-browser-open-request.ts`
+ * （挂在 `renderer/App.tsx`）。它只操作**内嵌浏览器**，主窗口永远不在可达范围内。
+ */
+export function requestEmbeddedBrowserOpen(url: string): void {
+  try {
+    browserEvents.emit(undefined, { type: 'open-in-embedded-browser', url });
+  } catch (error) {
+    log.warn('[XG-CUSTOM] 广播内嵌浏览器开页请求失败', { url, error: String(error) });
+  }
 }
 
 let xiangwoCdpBridge: XiangwoCdpBridge | null = null;
@@ -140,7 +171,9 @@ export function startXiangwoBrowserRelay(): void {
   if (xiangwoBrowserRelay !== null) return;
   const relay = createXiangwoBrowserRelay(
     async () => (await resolveXiangwoChatTarget()).baseUrl,
-    (message, metadata) => log.info(`[XG-CUSTOM] ${message}`, metadata)
+    (message, metadata) => log.info(`[XG-CUSTOM] ${message}`, metadata),
+    // [XG-CUSTOM] 跨机 `open` 命令同样支持「从零开页」（与 9223 桥共用同一套广播）
+    requestEmbeddedBrowserOpen
   );
   if (relay === null) {
     log.info('[XG-CUSTOM] 内嵌浏览器反向通道已关闭（XIANGWO_BROWSER_RELAY=0）');
@@ -217,7 +250,8 @@ export function createDesktopWireOptions(
       expertHandoffDelete: ({ id }) => expertHandoffCall('delete', id),
       expertHandoffList: ({ bot, session }) => expertHandoffCall('list', bot, session),
       // [XG-CUSTOM] 新建交接（手动写交接内容，让专家接下去做）
-      expertHandoffAdd: ({ bot, expert, title, summary, session, context }) => expertHandoffCall('add', bot, expert, title, summary, session, context),
+      expertHandoffAdd: ({ bot, expert, title, summary, session, context }) =>
+        expertHandoffCall('add', bot, expert, title, summary, session, context),
       showWorkspaceItemInFolder: (input) => appOperations.showWorkspaceItemInFolder(input),
       clipboardWriteText: ({ text }) => appOperations.clipboardWriteText(text),
       persistDroppedBlob: (input) => appOperations.persistDroppedBlob(input),

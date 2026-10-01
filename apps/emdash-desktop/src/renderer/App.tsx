@@ -7,6 +7,8 @@ import { useIntegrationAccountEvents } from '@core/features/integrations/api/bro
 import { IntegrationsProvider } from '@core/features/integrations/contributions/browser/integrations-provider';
 import { useLegacyPortStatus } from '@core/features/legacy-port/api/browser/useLegacyPort';
 import { TerminalPoolProvider } from '@core/features/terminals/browser/pty/pty-pool-provider';
+// [XG-CUSTOM] 项我 agent「从零开内嵌浏览器页」（见该文件头注释）
+import { useEmbeddedBrowserOpenRequests } from '@core/features/workbench/api/browser/embedded-browser-open-request';
 import { confirmOpenExternalLink } from '@core/features/workbench/api/browser/open-external-link';
 import { Onboarding } from '@core/features/workbench/browser/onboarding/onboarding';
 import { FramelessTitlebarOverlay } from '@core/features/workbench/browser/window-controls';
@@ -32,6 +34,8 @@ type OnboardingStep = 'sign-in' | 'import';
 function AppContent() {
   useIntegrationAccountEvents();
   useGitHubAuthEvents();
+  // [XG-CUSTOM] 项我 agent 请求「从零开内嵌浏览器页」时，在本窗口开一个 Browser 标签页
+  useEmbeddedBrowserOpenRequests();
   const [view, setView] = useState<AppView>(() =>
     localStorage.getItem(HAS_SEEN_ONBOARDING) === 'true' ? 'workspace' : 'onboarding'
   );

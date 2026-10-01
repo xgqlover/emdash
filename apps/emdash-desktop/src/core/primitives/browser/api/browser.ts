@@ -1,5 +1,12 @@
 export type BrowserEvent =
   | { type: 'open-in-new-tab'; sourceBrowserId: string; url: string }
+  // [XG-CUSTOM] 项我 agent 请求「从零开一个内嵌浏览器页」：主进程没有任何已绑定的内嵌浏览器时
+  // （`/json/list` 为空），由 agent 侧的 9223 桥 / 跨机反向通道发出这条事件，渲染进程负责在
+  // 一个 task view 里真的开出一个 Browser 标签页 —— 那个 `<webview>` attach 之后才会被
+  // `bindWebContents` 绑上，agent 也才有可操作的目标。
+  // 与 `open-in-new-tab` 分开，是因为后者要求 `sourceBrowserId` 指向一个**已存在**的标签页；
+  // 而这条的整个意义就是「一个都不存在」。
+  | { type: 'open-in-embedded-browser'; url: string }
   | { type: 'link-copied'; kind: 'image' | 'link' | 'url'; url: string };
 
 export const BROWSER_PARTITION_PREFIX = 'persist:emdash-browser';

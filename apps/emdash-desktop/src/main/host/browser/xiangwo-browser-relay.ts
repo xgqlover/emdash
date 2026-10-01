@@ -38,6 +38,10 @@ import { randomUUID } from 'node:crypto';
 export const XIANGWO_RELAY_LOCAL_CDP_BASE = 'http://127.0.0.1:9223';
 /** [XG-CUSTOM] 缺省长轮询挂起秒数（服务端上限 25s） */
 export const XIANGWO_RELAY_DEFAULT_WAIT_SECONDS = 25;
+/** [XG-CUSTOM] `open` 命令「从零开页」等待新 target 的上限 */
+export const XIANGWO_RELAY_OPEN_BROWSER_WAIT_MS = 12_000;
+/** [XG-CUSTOM] 「从零开页」轮询间隔 */
+const XIANGWO_RELAY_OPEN_BROWSER_POLL_MS = 150;
 /** [XG-CUSTOM] 退避阶梯（网络不通时不要刷屏/不要耗电） */
 const BACKOFF_STEPS_MS = [1000, 2000, 5000, 15000];
 /** 单条 WS 打开超时 / 单次 CDP 往返超时 */
@@ -80,6 +84,14 @@ export type XiangwoBrowserRelayOptions = {
    * 只有**自动解析**（没显式给 XIANGWO_BROWSER_RELAY_URL）时才该为 true —— 见 createXiangwoBrowserRelay。
    */
   skipLocalAgentBase?: boolean;
+  /**
+   * [XG-CUSTOM] 「从零开页」回调（与 `xiangwo-cdp-bridge.ts` 同名选项同一件事）：
+   * 本机一个已绑定的内嵌浏览器都没有时，请**渲染进程**开一个 Browser 标签页。
+   * 不传 = `open` 命令保持老行为（只报一句"先在 emdash 主窗口开一个浏览器标签"）。
+   */
+  requestOpenBrowser?: (url: string) => void;
+  /** [XG-CUSTOM] 「从零开页」等待新 target 的上限（缺省 12s） */
+  openBrowserWaitMs?: number;
 };
 
 type RelaySession = {
@@ -168,6 +180,10 @@ export class XiangwoBrowserRelay {
   private readonly log: (message: string, metadata?: Record<string, unknown>) => void;
   private readonly backoffStepsMs: readonly number[];
   private readonly skipLocalAgentBase: boolean;
+  /** [XG-CUSTOM] 「从零开页」回调（null = 不支持，`open` 命令只报人话） */
+  private readonly requestOpenBrowser: ((url: string) => void) | null;
+  /** [XG-CUSTOM] 「从零开页」等待新 target 的上限 */
+  private readonly openBrowserWaitMs: number;
 
   /** 稳定的 peer id（同一次运行内复用，便于对面日志认人） */
   readonly peerId = randomUUID();
@@ -194,6 +210,8 @@ export class XiangwoBrowserRelay {
     this.log = options.log ?? (() => {});
     this.backoffStepsMs = options.backoffStepsMs ?? BACKOFF_STEPS_MS;
     this.skipLocalAgentBase = options.skipLocalAgentBase ?? true;
+    this.requestOpenBrowser = options.requestOpenBrowser ?? null;
+    this.openBrowserWaitMs = options.openBrowserWaitMs ?? XIANGWO_RELAY_OPEN_BROWSER_WAIT_MS;
   }
 
   status(): XiangwoBrowserRelayStatus {
@@ -238,7 +256,9 @@ export class XiangwoBrowserRelay {
         if (this.baseUrl === '') {
           const resolved = await this.resolveBaseUrl();
           if (resolved === null || resolved.trim() === '') {
-            this.noteError('解析不出 Linux agent 地址（XIANGWO_BROWSER_RELAY_URL / SSH 主机都没拿到）');
+            this.noteError(
+              '解析不出 Linux agent 地址（XIANGWO_BROWSER_RELAY_URL / SSH 主机都没拿到）'
+            );
             await this.backoff();
             continue;
           }
@@ -420,7 +440,9 @@ export class XiangwoBrowserRelay {
         } catch {
           // 忽略
         }
-        void this.result(command.id, false, null, `打开本机 9223 WS 超时（${path}）`).then(() => resolve());
+        void this.result(command.id, false, null, `打开本机 9223 WS 超时（${path}）`).then(() =>
+          resolve()
+        );
       }, WS_OPEN_TIMEOUT_MS);
 
       ws.onopen = () => {
@@ -511,7 +533,9 @@ export class XiangwoBrowserRelay {
   // ── open：让"说打开什么网页就打开什么"在跨机场景也成立 ───────────────────
   //
   // 先列本机 9223 上白名单里的内嵌浏览器：有就 Page.navigate 过去（用户肉眼可见）；
-  // 一个都没有 → 回一句能照做的人话（**不偷偷去操作别的浏览器**，这是 agent.py 里
+  // 一个都没有 → [XG-CUSTOM] 先请渲染进程开一个（`requestOpenBrowser`，与 9223 桥
+  // `/xg/open-browser` 同一套机制），等它被绑定再导航。
+  // 还是开不出来 → 回一句能照做的人话（**不偷偷去操作别的浏览器**，这是 agent.py 里
   // 反复强调的"错浏览器"坑）。
 
   private async handleOpen(command: RelayCommand): Promise<void> {
@@ -521,11 +545,29 @@ export class XiangwoBrowserRelay {
       return;
     }
     const fragment = String(command.fragment ?? '').trim();
-    const targets = await this.listLocalTargets();
+    let targets = await this.listLocalTargets();
+    let autoOpenAttempted = false;
+    if (targets.length === 0 && this.requestOpenBrowser !== null) {
+      autoOpenAttempted = true;
+      try {
+        this.requestOpenBrowser(url);
+        this.log('内嵌浏览器从零开页（反向通道）：已请求渲染进程开 Browser 标签页', { url });
+      } catch (error) {
+        this.noteError(`广播开页请求失败：${String(error)}`);
+      }
+      targets = await this.waitForLocalTarget(new Set<string>(), this.openBrowserWaitMs);
+    }
     if (targets.length === 0) {
-      await this.result(command.id, false, null,
-        'emdash 里当前没有打开的内嵌浏览器标签页（先在 emdash 主窗口开一个浏览器标签，' +
-        '再让 agent 操作；这不是配置，是页面）');
+      await this.result(
+        command.id,
+        false,
+        null,
+        'emdash 里当前没有打开的内嵌浏览器标签页' +
+          (autoOpenAttempted
+            ? '（已经请 emdash 自动开一个但没等到：渲染进程可能没停在 task 视图）'
+            : '（先在 emdash 主窗口开一个浏览器标签，再让 agent 操作）') +
+          '；这不是配置，是页面'
+      );
       return;
     }
     const target =
@@ -543,6 +585,21 @@ export class XiangwoBrowserRelay {
       before_url: before,
       title: target.title,
     });
+  }
+
+  /** [XG-CUSTOM] 轮询等本机 9223 上出现一个已绑定的内嵌浏览器（150ms 一拍，超时回 []） */
+  private async waitForLocalTarget(
+    known: ReadonlySet<string>,
+    waitMs: number
+  ): Promise<Array<{ id: string; url: string; title: string; webSocketDebuggerUrl: string }>> {
+    const deadline = Date.now() + Math.max(0, waitMs);
+    for (;;) {
+      const targets = await this.listLocalTargets().catch(() => []);
+      const fresh = targets.filter((target) => !known.has(target.id));
+      if (fresh.length > 0) return fresh;
+      if (Date.now() >= deadline) return [];
+      await sleep(XIANGWO_RELAY_OPEN_BROWSER_POLL_MS);
+    }
   }
 
   private async listLocalTargets(): Promise<
@@ -633,16 +690,20 @@ export function cdpCallOnce(
 /** [XG-CUSTOM] 从环境变量造一个 relay（wiring 用；单测直接 new）。 */
 export function createXiangwoBrowserRelay(
   resolveBaseUrl: () => Promise<string | null>,
-  log: (message: string, metadata?: Record<string, unknown>) => void
+  log: (message: string, metadata?: Record<string, unknown>) => void,
+  requestOpenBrowser?: (url: string) => void
 ): XiangwoBrowserRelay | null {
   if (!relayEnabledFromEnv(process.env.XIANGWO_BROWSER_RELAY)) return null;
   const explicit = (process.env.XIANGWO_BROWSER_RELAY_URL ?? '').trim();
   return new XiangwoBrowserRelay({
     resolveBaseUrl: async () => (explicit !== '' ? explicit : await resolveBaseUrl()),
-    localCdpBase: (process.env.XIANGWO_EMDASH_CDP_BASE ?? '').trim() || XIANGWO_RELAY_LOCAL_CDP_BASE,
+    localCdpBase:
+      (process.env.XIANGWO_EMDASH_CDP_BASE ?? '').trim() || XIANGWO_RELAY_LOCAL_CDP_BASE,
     pollWaitSeconds: parseWaitSeconds(process.env.XIANGWO_BROWSER_RELAY_WAIT),
     // 只有"自动解析"时才允许因"本机就是 agent"而自我停用；显式给了地址就照跑（自测/强制场景）
     skipLocalAgentBase: explicit === '',
+    // [XG-CUSTOM] 「从零开页」：本机一个内嵌浏览器都没有时，请渲染进程开一个
+    ...(requestOpenBrowser !== undefined ? { requestOpenBrowser } : {}),
     log,
   });
 }

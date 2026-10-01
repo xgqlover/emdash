@@ -1,6 +1,7 @@
 // [XG-CUSTOM] 内嵌浏览器 CDP 桥：把 emdash 的 `<webview>` 内嵌浏览器以标准 Chrome DevTools
 // Protocol 暴露在 `127.0.0.1:9223`，供 wego-lite/browser_use_bridge.py（agent.py 第②级
-// 「iframe 合流」）用 browser-use connect_over_cdp 直连 —— 不改 wego-lite，也不改 agent.py。
+// 「内嵌浏览器优先」—— 历史叫法「iframe 合流」，实际链路里没有任何 iframe）用 browser-use
+// connect_over_cdp 直连 —— 不改 wego-lite，也不改 agent.py。
 //
 // ── 为什么必须自己开这条通道（实测结论，别再走弯路）────────────────────────────
 // 1) emdash 从来没在 9223 上监听任何东西（历史 9223 是 HippoBuddy/electron/main.js 开的，
@@ -61,6 +62,16 @@ export const XIANGWO_CDP_COMMAND_TIMEOUT_MS = 10_000;
 
 /** 目标 URL/标题变化轮询间隔（只在有客户端连着时跑） */
 const TARGET_POLL_INTERVAL_MS = 1000;
+
+// ── [XG-CUSTOM] 「从零开页」（agent 请求 emdash 开一个内嵌浏览器页）─────────────
+/** 端点路径：agent 侧 `emdash_webview_cdp.py::request_open` 必须与此一致 */
+export const XIANGWO_CDP_OPEN_BROWSER_PATH = '/xg/open-browser';
+/** 广播后等 `<webview>` attach + 被绑定 + 建 CDP target 的上限 */
+export const XIANGWO_CDP_OPEN_BROWSER_WAIT_MS = 12_000;
+/** 等待期间的轮询间隔 */
+export const XIANGWO_CDP_OPEN_BROWSER_POLL_MS = 150;
+/** 请求体上限（只收一个 url，防止别人往这条端点灌数据） */
+const OPEN_BROWSER_BODY_LIMIT_BYTES = 8 * 1024;
 
 /**
  * attach 时的准备（焦点模拟 + 输入唤醒）是**尽力而为**的，用更短的超时：
@@ -131,6 +142,17 @@ export type XiangwoCdpBridgeOptions = {
    * 单测注入它来模拟「tailscale / ZeroTier / 公网」来源 —— 回环连接没法在真机上伪造源地址。
    */
   peerAddressOf?: (socket: unknown) => string | undefined;
+  /**
+   * [XG-CUSTOM] 「从零开页」回调：白名单里**一个内嵌浏览器都没有**时，agent 侧要开新页就得
+   * 先有人在渲染进程里开出一个 Browser 标签页（那个 `<webview>` attach 后才会被
+   * `bindWebContents` 绑定，桥才有 target 可用）。这里只负责把意图广播出去
+   * （wiring 接 `browserEvents.emit({type:'open-in-embedded-browser'})`），**不创建窗口、
+   * 不 loadURL** —— 真正开页的是渲染进程，边界与既有 9223 白名单完全一致。
+   * 不传 = 该端点只做「列已有目标」，不会尝试开新页（老行为）。
+   */
+  requestOpenBrowser?: (url: string) => void;
+  /** [XG-CUSTOM] 「从零开页」等待新 target 出现的上限（缺省 12s；0 = 不等，只广播） */
+  openBrowserWaitMs?: number;
 };
 
 type Attachment = {
@@ -174,9 +196,43 @@ function responseFromOutcome(id: unknown, outcome: CommandOutcome): Record<strin
   return { id: id ?? null, result: outcome.result ?? {} };
 }
 
+/** [XG-CUSTOM] 读一个小的 JSON 请求体（超过上限/不是 JSON 都抛错，调用方转成人话） */
+function readJsonBody(req: IncomingMessage): Promise<unknown> {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    let size = 0;
+    req.on('data', (chunk: Buffer) => {
+      size += chunk.length;
+      if (size > OPEN_BROWSER_BODY_LIMIT_BYTES) {
+        reject(new Error(`请求体超过 ${String(OPEN_BROWSER_BODY_LIMIT_BYTES)} 字节`));
+        req.destroy();
+        return;
+      }
+      chunks.push(chunk);
+    });
+    req.on('end', () => {
+      const text = Buffer.concat(chunks).toString('utf8').trim();
+      if (text === '') {
+        resolve(null);
+        return;
+      }
+      try {
+        resolve(JSON.parse(text) as unknown);
+      } catch (error) {
+        reject(error instanceof Error ? error : new Error(String(error)));
+      }
+    });
+    req.on('error', (error: Error) => reject(error));
+  });
+}
+
 /** [XG-CUSTOM] 稳定、可预测的 targetId（由 browserId 派生；Chromium 风格大写十六进制） */
 export function embeddedTargetId(browserId: string): string {
-  return createHash('sha1').update(`xg-embedded:${browserId}`).digest('hex').slice(0, 32).toUpperCase();
+  return createHash('sha1')
+    .update(`xg-embedded:${browserId}`)
+    .digest('hex')
+    .slice(0, 32)
+    .toUpperCase();
 }
 
 function newSessionId(): string {
@@ -193,6 +249,10 @@ export class XiangwoCdpBridge {
   private readonly allowedPeers: readonly string[];
   private readonly networkInterfaces: (() => XiangwoCdpNetworkInterfaces) | null;
   private readonly peerAddressOf: (socket: unknown) => string | undefined;
+  /** [XG-CUSTOM] 「从零开页」回调（null = 不支持，端点只列已有目标） */
+  private readonly requestOpenBrowser: ((url: string) => void) | null;
+  /** [XG-CUSTOM] 「从零开页」等待新 target 的上限 */
+  private readonly openBrowserWaitMs: number;
   /** 实际生效的来源白名单（start() 时算好；连接层每条连接都查它） */
   private peers: readonly XiangwoCdpAllowedPeer[] = XIANGWO_CDP_LOOPBACK_PEERS;
   /** 没带 Host 头的请求（HTTP/1.0）回填 ws 地址用的 authority */
@@ -214,6 +274,8 @@ export class XiangwoCdpBridge {
     this.allowedPeers = options.allowedPeers ?? [];
     this.networkInterfaces = options.networkInterfaces ?? null;
     this.peerAddressOf = options.peerAddressOf ?? peerAddressOfSocket;
+    this.requestOpenBrowser = options.requestOpenBrowser ?? null;
+    this.openBrowserWaitMs = options.openBrowserWaitMs ?? XIANGWO_CDP_OPEN_BROWSER_WAIT_MS;
     this.log = options.log ?? (() => {});
     const advertisedHost = this.host === XIANGWO_CDP_ANY_HOST ? XIANGWO_CDP_HOST : this.host;
     this.advertisedAuthority = `${advertisedHost}:${this.port}`;
@@ -410,7 +472,7 @@ export class XiangwoCdpBridge {
     this.started = false;
   }
 
-  // ── HTTP：/json、/json/list、/json/version（Chrome DevTools 端口最小兼容面）────
+  // ── HTTP：/json、/json/list、/json/version + [XG-CUSTOM] /xg/open-browser ────
   private handleHttp(req: IncomingMessage, res: ServerResponse): void {
     const path = (req.url ?? '/').split('?')[0] ?? '/';
     // 对外监听时不能把 `ws://0.0.0.0:9223/...` 回给客户端（对面机器连 0.0.0.0 是它自己的回环）。
@@ -431,11 +493,117 @@ export class XiangwoCdpBridge {
       this.writeJson(res, this.listTargetDescriptors(authority));
       return;
     }
+    // [XG-CUSTOM] 从零开页：agent 请求「在 emdash 里开一个内嵌浏览器页」。只广播意图给渲染进程
+    // 并等 `<webview>` 被绑定，**桥自己不开窗口/不 loadURL**（边界与白名单一致，见 options 注释）。
+    if (path === XIANGWO_CDP_OPEN_BROWSER_PATH) {
+      void this.handleOpenBrowserRequest(req, res);
+      return;
+    }
     res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
     res.end(
-      'emdash 内嵌浏览器 CDP 桥：只提供 /json、/json/list、/json/version。\n' +
+      `emdash 内嵌浏览器 CDP 桥：只提供 /json、/json/list、/json/version、${XIANGWO_CDP_OPEN_BROWSER_PATH}。\n` +
         '只暴露已绑定 browserId 的内嵌浏览器；emdash 主窗口不在其中。\n'
     );
+  }
+
+  /**
+   * [XG-CUSTOM] `POST /xg/open-browser` — 把「开一个内嵌浏览器页」这件事从零做成。
+   *
+   * 与 HippoBuddy 的标记驱动自动开页同源（那边是 `markdown-renderer.js` 扫
+   * `[XG-PREVIEW]url[/XG-PREVIEW]` → `filePreview.showBrowser(url)`）：**开页的人必须是前端**，
+   * 因为内嵌浏览器是渲染进程的 `<webview>`，主进程这边只有「已绑定」的白名单。
+   *
+   * 语义（三条，都写死在这里以免调用方各自猜）：
+   *   1. **已有内嵌页 → 复用，绝不新开**（返回 `reused:true`）——这是「别重复开页」的唯一判据；
+   *   2. 一个都没有 → 广播 `open-in-embedded-browser` 给渲染进程，再轮询白名单等它被绑定；
+   *   3. 等待超时 / 渲染进程没法开（比如没停在 task 视图）→ `ok:false` + 人话，
+   *      调用方（agent）据此落回旧链路，**不静默假装成功**。
+   */
+  private async handleOpenBrowserRequest(req: IncomingMessage, res: ServerResponse): Promise<void> {
+    let url = '';
+    try {
+      const body = await readJsonBody(req);
+      if (typeof body === 'object' && body !== null) {
+        const raw = (body as { url?: unknown }).url;
+        if (typeof raw === 'string') url = raw.trim();
+      }
+    } catch (error) {
+      this.writeOpenBrowserResult(res, {
+        ok: false,
+        error: `请求体不是合法 JSON：${String(error)}`,
+      });
+      return;
+    }
+    if (url === '' || !/^https?:\/\//i.test(url)) {
+      this.writeOpenBrowserResult(res, { ok: false, error: '需要 http(s):// 开头的 url' });
+      return;
+    }
+
+    // ① 已有 → 复用（不新开）
+    const existing = this.liveTargets();
+    if (existing.length > 0) {
+      this.writeOpenBrowserResult(res, {
+        ok: true,
+        reused: true,
+        url: safeUrl(existing[0]!.webContents),
+        targetId: embeddedTargetId(existing[0]!.browserId),
+      });
+      return;
+    }
+
+    // ② 从零开
+    if (this.requestOpenBrowser === null) {
+      this.writeOpenBrowserResult(res, {
+        ok: false,
+        error:
+          'emdash 侧没有接「从零开页」回调（只列已有目标）→ 请先在 emdash 里开一个 Browser 标签页',
+      });
+      return;
+    }
+    const known = new Set(this.liveTargets().map((target) => target.browserId));
+    try {
+      this.requestOpenBrowser(url);
+    } catch (error) {
+      this.writeOpenBrowserResult(res, { ok: false, error: `广播开页请求失败：${String(error)}` });
+      return;
+    }
+    this.log('内嵌浏览器从零开页：已请求渲染进程开 Browser 标签页', { url });
+    const appeared = await this.waitForNewTarget(known, this.openBrowserWaitMs);
+    if (appeared === null) {
+      this.writeOpenBrowserResult(res, {
+        ok: false,
+        error:
+          `已请求 emdash 开内嵌浏览器，但 ${String(Math.round(this.openBrowserWaitMs / 1000))}s 内` +
+          '没有页面被绑定（渲染进程可能没停在 task 视图 / 没有可用的 task）',
+      });
+      return;
+    }
+    this.writeOpenBrowserResult(res, {
+      ok: true,
+      reused: false,
+      url: safeUrl(appeared.webContents),
+      targetId: embeddedTargetId(appeared.browserId),
+    });
+  }
+
+  /** [XG-CUSTOM] 轮询等一个**新**的已绑定内嵌浏览器出现（150ms 一拍，超时返回 null） */
+  private async waitForNewTarget(
+    known: ReadonlySet<string>,
+    waitMs: number
+  ): Promise<EmbeddedBrowserTarget | null> {
+    const deadline = Date.now() + Math.max(0, waitMs);
+    for (;;) {
+      const fresh = this.liveTargets().find((target) => !known.has(target.browserId));
+      if (fresh !== undefined) return fresh;
+      if (Date.now() >= deadline) return null;
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, XIANGWO_CDP_OPEN_BROWSER_POLL_MS);
+      });
+    }
+  }
+
+  private writeOpenBrowserResult(res: ServerResponse, payload: Record<string, unknown>): void {
+    this.writeJson(res, payload);
   }
 
   /** 请求里的 authority（`host:port`）；没有 Host 头（HTTP/1.0）时用缺省 */
@@ -608,7 +776,8 @@ export class XiangwoCdpBridge {
       }
       case 'Target.setAutoAttach': {
         if (params['autoAttach'] !== false) {
-          for (const target of this.liveTargets()) await this.attachAndNotify(client, target, false);
+          for (const target of this.liveTargets())
+            await this.attachAndNotify(client, target, false);
         }
         return okResponse(id, {});
       }
@@ -982,12 +1151,7 @@ export class XiangwoCdpBridge {
     this.lastSeen.delete(attachment.browserId);
   }
 
-  private emitToClient(
-    client: Client,
-    method: string,
-    params: unknown,
-    sessionId?: string
-  ): void {
+  private emitToClient(client: Client, method: string, params: unknown, sessionId?: string): void {
     client.conn.sendText(
       JSON.stringify(sessionId === undefined ? { method, params } : { method, params, sessionId })
     );
