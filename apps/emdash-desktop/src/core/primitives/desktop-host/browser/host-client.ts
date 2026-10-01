@@ -30,6 +30,11 @@ export async function openT8() {
   return (await getHostClient()).openT8();
 }
 
+// [XG-CUSTOM] Kaneo 窗口（项我流程枢纽，5180）
+export async function openKaneo() {
+  return (await getHostClient()).openKaneo();
+}
+
 
 // [XG-CUSTOM] 专家交接平台：列前专家主题 / 接下 / 删除
 export async function expertHandoffByExpert(expert: string) {

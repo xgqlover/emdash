@@ -30,7 +30,7 @@ import { createDevPerfOperations } from '@main/host/dev-perf/controller-operatio
 import { writeRendererLogEntry } from '@main/host/file-logger';
 import { setTrayVisible } from '@main/host/tray';
 import { updateOperations } from '@main/host/updates/controller-operations';
-import { applyNativeTheme, createOpenVikingWindow, createT8Window, createWeKnoraWindow, createXiangwoFloatingWindow, ensureChromeRunning, expertHandoffCall } from '@main/host/window'; // [XG-CUSTOM]
+import { applyNativeTheme, createKaneoWindow, createOpenVikingWindow, createT8Window, createWeKnoraWindow, createXiangwoFloatingWindow, ensureChromeRunning, expertHandoffCall } from '@main/host/window'; // [XG-CUSTOM]
 import { resolveXiangwoChatTarget } from '@main/host/xiangwo-chat-target';
 import { log } from '@main/lib/logger';
 import { telemetryService } from '@main/lib/telemetry';
@@ -203,6 +203,12 @@ export function createDesktopWireOptions(
       openT8: async () => {
         const url = (await services.forwardManualPreview(18766)) ?? 'http://127.0.0.1:18766';
         createT8Window(url);
+        return { success: true };
+      },
+      // [XG-CUSTOM] Kaneo 窗口（项我流程枢纽：工作项/交接/依赖/审计，5180）
+      openKaneo: async () => {
+        const url = (await services.forwardManualPreview(5180)) ?? 'http://127.0.0.1:5180';
+        createKaneoWindow(url);
         return { success: true };
       },
       // [XG-CUSTOM] 专家交接平台：wire RPC → expert_handoff.py（session 隔离版 CLI）

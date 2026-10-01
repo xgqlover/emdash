@@ -8,7 +8,7 @@
   },
   "stats": {
     "files": 108,
-    "markers": 475,
+    "markers": 480,
     "newFiles": 50,
     "modifiedFiles": 58
   },
@@ -309,20 +309,22 @@
       "note": "专家交接台 feature"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/components/IntegrationsCard.tsx": {
-      "markers": 4,
+      "markers": 5,
       "lines": [
         1,
         9,
         116,
-        130
+        130,
+        155
       ],
       "anchors": [
         "import { t } from '@renderer/lib/i18n';",
-        "import { openOpenViking, openT8, openWeKnora } from '@core/primitives/desktop-host/browser/host-client';",
+        "import { openKaneo, openOpenViking, openT8, openWeKnora } from '@core/primitives/desktop-host/browser/host-client';",
         "<IntegrationSection title=\"本地工具\">",
-        "{/* [XG-CUSTOM] OpenViking 本地工具卡片 */} ⏎ <button"
+        "{/* [XG-CUSTOM] OpenViking 本地工具卡片 */} ⏎ <button",
+        "{/* [XG-CUSTOM] Kaneo 本地工具卡片（项我流程枢纽） */} ⏎ <button"
       ],
-      "hash": "d3441a62bd34d2877d1f60043ee7e9e6d0160a18",
+      "hash": "4195b6b074d7d6c1d107eae1bc3ac11709eeb58f",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -835,38 +837,42 @@
       "note": "浏览器 manifest 注册（xiangwo/handoff 视图）"
     },
     "apps/emdash-desktop/src/core/primitives/desktop-host/api/host-contract.ts": {
-      "markers": 4,
+      "markers": 5,
       "lines": [
         66,
         102,
         111,
-        124
+        116,
+        129
       ],
       "anchors": [
         "export interface ExpertHandoffTopic {",
         "openOpenViking: procedure({",
+        "openKaneo: procedure({",
         "expertHandoffByExpert: procedure({",
         "expertHandoffAdd: procedure({"
       ],
-      "hash": "b033464494cba1c943512b0512051b125fc1171e",
+      "hash": "1f50d73565d500eac916c63aa1084e1ddcde1ba9",
       "origin": "modified",
       "firstCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "desktop-host 契约扩展（宿主新增 API）"
     },
     "apps/emdash-desktop/src/core/primitives/desktop-host/browser/host-client.ts": {
-      "markers": 3,
+      "markers": 4,
       "lines": [
         24,
-        34,
-        47
+        33,
+        39,
+        52
       ],
       "anchors": [
         "export async function openOpenViking() {",
+        "export async function openKaneo() {",
         "export async function expertHandoffByExpert(expert: string) {",
         "export async function expertHandoffAdd(bot: string, expert: string, title: string, summary: string, session: string, context: string) {"
       ],
-      "hash": "3da799a6eaf95e780e5a5d16929a3651ad1ff836",
+      "hash": "c50496137f19d99037858c62e5b259ba935f85f1",
       "origin": "modified",
       "firstCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -957,7 +963,7 @@
       "note": "启动装配（注入 xiangwo 依赖 / 后台服务）"
     },
     "apps/emdash-desktop/src/main/bootstrap/boot/wiring.ts": {
-      "markers": 15,
+      "markers": 16,
       "lines": [
         20,
         33,
@@ -973,11 +979,12 @@
         146,
         197,
         208,
-        213
+        214,
+        219
       ],
       "anchors": [
         "import { XiangwoCdpBridge } from '@main/host/browser/xiangwo-cdp-bridge';",
-        "import { applyNativeTheme, createOpenVikingWindow, createT8Window, createWeKnoraWindow, createXiangwoFloatingWindow, ensureChromeRunning, expertHandoffCall } from '@main/host/window';",
+        "import { applyNativeTheme, createKaneoWindow, createOpenVikingWindow, createT8Window, createWeKnoraWindow, createXiangwoFloatingWindow, ensureChromeRunning, expertHandoffCall } from '@main/host/window",
         "export function autostartXiangwoOrb(delayMs = 1500): void {",
         "log.info('",
         "log.warn('",
@@ -986,10 +993,11 @@
         "export function startXiangwoBrowserRelay(): void {",
         "if (relay === null) {",
         "openOpenViking: async () => {",
+        "openKaneo: async () => {",
         "expertHandoffByExpert: ({ expert }) => expertHandoffCall('by-expert', expert),",
         "expertHandoffAdd: ({ bot, expert, title, summary, session, context }) => expertHandoffCall('add', bot, expert, title, summary, session, context),"
       ],
-      "hash": "7dbff9ebd3e780a466a18f21d4de8fb23bda8b60",
+      "hash": "00eba8c516026ec2e2274e5a31f892afbca34d57",
       "origin": "modified",
       "firstCommit": "67ccd329e|2026-09-22|feat: 专家交接台升级（wire RPC 修复 + bot/专家二级分组 + 并入对话 Sheet + 横条关闭）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1246,7 +1254,7 @@
       "note": "禁用自动更新（fork 不许被上游覆盖）"
     },
     "apps/emdash-desktop/src/main/host/window.ts": {
-      "markers": 19,
+      "markers": 20,
       "lines": [
         16,
         18,
@@ -1266,7 +1274,8 @@
         465,
         475,
         513,
-        551
+        551,
+        591
       ],
       "anchors": [
         "import { createXiangwoOrbWindow } from './xiangwo-orb';",
@@ -1286,9 +1295,10 @@
         "xiangwoFloatingWindow = createXiangwoOrbWindow(() => {",
         "let weKnoraWindow: BrowserWindow | null = null;",
         "let openVikingWindow: BrowserWindow | null = null;",
+        "let kaneoWindow: BrowserWindow | null = null;",
         "let t8Window: BrowserWindow | null = null;"
       ],
-      "hash": "60f7221aeeded3a1371341d505b484d03ef17ff7",
+      "hash": "1b9b74b6ea1b4539949d86d2c3baac3d99d72018",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",

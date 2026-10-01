@@ -108,6 +108,11 @@ export const desktopHostContract = defineContract({
     input: z.void(),
     output: z.custom<ActionResult>(),
   }),
+  // [XG-CUSTOM] Kaneo 窗口（项我流程枢纽，5180）
+  openKaneo: procedure({
+    input: z.void(),
+    output: z.custom<ActionResult>(),
+  }),
   // [XG-CUSTOM] 专家交接平台：列前专家主题 / 接下 / 删除
   expertHandoffByExpert: procedure({
     input: z.object({ expert: z.string() }),

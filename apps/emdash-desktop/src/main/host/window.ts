@@ -548,6 +548,46 @@ export function createOpenVikingWindow(url = 'http://127.0.0.1:1933/studio'): Br
 }
 
 
+// [XG-CUSTOM] Kaneo 窗口：项我统一工作平台的「流程枢纽」（工作项/交接/依赖/审计，5180）。
+// 设置→集成里 Kaneo 卡片点「打开」→ 弹出这个窗口加载 Kaneo 看板。
+// 定位：只放「谁在做什么、做到哪、卡在谁那」；知识→Pi 树、内容→OpenViking、
+//       提示词库/PR→emdash 自带、无限画布→T8。Kaneo 做引用，不做存储。
+let kaneoWindow: BrowserWindow | null = null;
+
+export function createKaneoWindow(url = 'http://127.0.0.1:5180'): BrowserWindow {
+  if (kaneoWindow && !kaneoWindow.isDestroyed()) {
+    kaneoWindow.show();
+    kaneoWindow.focus();
+    return kaneoWindow;
+  }
+  kaneoWindow = new BrowserWindow({
+    width: 1280,
+    height: 860,
+    minWidth: 800,
+    minHeight: 600,
+    title: 'Kaneo 工作流枢纽',
+    backgroundColor: nativeTheme.shouldUseDarkColors ? '#111111' : '#fcfcfc',
+    ...(import.meta.env.DEV && { icon: devIcon }),
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      sandbox: true,
+    },
+    show: false,
+  });
+  void kaneoWindow.loadURL(url);
+  kaneoWindow.once('ready-to-show', () => {
+    kaneoWindow?.show();
+    kaneoWindow?.focus();
+  });
+  kaneoWindow.show();
+  kaneoWindow.on('closed', () => {
+    kaneoWindow = null;
+  });
+  return kaneoWindow;
+}
+
+
 // [XG-CUSTOM] T8 窗口：AI 生成工作流引擎画板（T8 前端 18766，执行引擎 comfyui/volcengine 等）。
 // 设置→集成里 T8 卡片点「打开」→ 弹出这个窗口加载 T8 画板。
 let t8Window: BrowserWindow | null = null;
