@@ -1,4 +1,4 @@
-import { t } from '@renderer/lib/i18n';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM] 中文界面文案（zh i18n，详见 CUSTOMIZATIONS.md）
 import { SettingsCard, SettingsSection } from '@emdash/ui/react/patterns';
 import {
   Button,
@@ -10,16 +10,19 @@ import {
   toast,
 } from '@emdash/ui/react/primitives';
 import { Check, ChevronDown, Ellipsis, Eraser, Pencil, Plus, Trash2, X } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { browserControlsRegistry } from '@core/features/browser/api/browser/browser-controls-registry';
 import { browserSessionStore } from '@core/features/browser/api/browser/browser-session-store';
 import { getBrowserClient } from '@core/features/browser/api/browser/client';
 import { useAppSettingsKey } from '@core/features/settings/api/browser/use-app-settings-key';
 import { useOpenModal } from '@core/manifests/browser/modal-api';
+// [XG-CUSTOM] bot ⟷ 浏览器 profile：bot 列表复用已有「专家名册」主机桥（xiangwo-agent/expert_roster.py）
+import { expertRoster } from '@core/primitives/desktop-host/browser/host-client';
 import {
   BROWSER_ISOLATED_PROFILE_ID,
   DEFAULT_BROWSER_PROFILE_ID,
   DEFAULT_BROWSER_PROFILES,
+  browserProfileBotId,
   browserProfileLabel,
   isNamedBrowserProfileId,
   normalizeBrowserProfileSelection,
@@ -42,6 +45,8 @@ export function BrowserSettingsCard() {
   const [isAdding, setIsAdding] = useState(false);
   const [isBrowsingDataExpanded, setIsBrowsingDataExpanded] = useState(false);
   const [isClearingBrowsingData, setIsClearingBrowsingData] = useState(false);
+  // [XG-CUSTOM] 可绑定的 bot 列表（来自专家名册；读不到就只显示"未绑定"一项，不影响其它功能）
+  const [botOptions, setBotOptions] = useState<ReadonlyArray<{ id: string; name: string }>>([]);
   const addInputRef = useRef<HTMLInputElement>(null);
   const renameInputRef = useRef<HTMLInputElement>(null);
 
@@ -51,6 +56,54 @@ export function BrowserSettingsCard() {
     profiles
   );
   const disabled = isLoading || isSaving;
+
+  // [XG-CUSTOM] bot 名册：优先主 bot（main）+ 通用角色（role）+ 子代理（sub）—— 这三种都可能
+  // 是 `_exec_browser(key=...)` 的 key。读不到（agent 没起 / 桥不通）只 warn，不阻塞设置页。
+  useEffect(() => {
+    let disposed = false;
+    void (async () => {
+      try {
+        const roster = (await expertRoster()) as {
+          groups?: ReadonlyArray<{
+            kind?: string;
+            items?: ReadonlyArray<{ id?: string; name?: string }>;
+          }>;
+        };
+        const wanted = new Set(['main', 'role', 'sub']);
+        const options: Array<{ id: string; name: string }> = [];
+        for (const group of roster.groups ?? []) {
+          if (!wanted.has(group.kind ?? '')) continue;
+          for (const item of group.items ?? []) {
+            const id = typeof item.id === 'string' ? item.id : '';
+            if (id === '' || id === '(未归类)') continue;
+            options.push({ id, name: typeof item.name === 'string' && item.name ? item.name : id });
+          }
+        }
+        if (!disposed) setBotOptions(options);
+      } catch (error) {
+        console.warn('[XG-CUSTOM] 读取 bot 名册失败（绑定下拉为空，其它功能不受影响）', error);
+      }
+    })();
+    return () => {
+      disposed = true;
+    };
+  }, []);
+
+  /**
+   * [XG-CUSTOM] 把某个 profile 绑定到（或解绑）一个 bot。
+   * 1:1 硬约束：同一个 bot 只能绑一个 profile —— 先把它从别的 profile 上摘掉，再挂到目标上。
+   * 绑成 Default 也允许（那样"默认身份"就固定给这个 bot 了）。
+   */
+  const bindProfileBot = (profileId: string, botId: string) => {
+    update({
+      profiles: profiles.map((profile) => {
+        if (profile.id === profileId) return withBotId(profile, botId);
+        // 1:1：同一个 bot 不许同时挂在两个 profile 上（否则开页时不知道用谁的登录态）
+        if (botId !== '' && profile.botId === botId) return withBotId(profile, '');
+        return profile;
+      }),
+    });
+  };
 
   const addProfile = (name: string) => {
     setIsAdding(false);
@@ -184,6 +237,11 @@ export function BrowserSettingsCard() {
           <div className="text-xs text-foreground-passive">
             {t('browser_profiles_desc')}
           </div>
+          {/* [XG-CUSTOM] bot ⟷ profile 说明（唯一真源 = botId；未绑定的 bot 走 Default） */}
+          <div className="mt-1 text-xs text-foreground-passive">
+            Bind a profile to a bot so that bot browses with its own cookies and logins. Unbound
+            bots use the default profile.
+          </div>
 
           <div className="mt-2 flex flex-col divide-y divide-border/40">
             {profiles.map((profile) => (
@@ -232,6 +290,43 @@ export function BrowserSettingsCard() {
                     <span className="min-w-0 flex-1 truncate text-sm text-foreground">
                       {profile.name}
                     </span>
+                    {/* [XG-CUSTOM] bot ⟷ profile：这一行 profile 属于哪个 bot（未绑定 = Default 才会
+                        被没绑定身份的 agent 用到）。选项来自专家名册（main/role/sub 三类身份）。 */}
+                    <Select.Root
+                      value={browserProfileBotId(profile.id, profiles) ?? UNBOUND_BOT_VALUE}
+                      onValueChange={(next) =>
+                        bindProfileBot(
+                          profile.id,
+                          next === UNBOUND_BOT_VALUE || next === null ? '' : next
+                        )
+                      }
+                      disabled={disabled}
+                    >
+                      <Select.Trigger
+                        className="w-[150px] shrink-0 gap-1"
+                        aria-label={`${profile.name} bound bot`}
+                      >
+                        <Select.Value>
+                          {botLabelFor(profile, botOptions)}
+                        </Select.Value>
+                      </Select.Trigger>
+                      <Select.Content align="end">
+                        <Select.Item value={UNBOUND_BOT_VALUE}>未绑定 bot</Select.Item>
+                        {botOptions.map((bot) => (
+                          <Select.Item key={bot.id} value={bot.id}>
+                            {bot.name}
+                          </Select.Item>
+                        ))}
+                        {/* 绑定了一个名册里暂时读不到的 bot（agent 没起 / 名字改了）也要显示出来，
+                            否则下拉会显示成"未绑定"，用户一改就把绑定悄悄抹掉 */}
+                        {(() => {
+                          const bound = browserProfileBotId(profile.id, profiles);
+                          return bound !== undefined && !botOptions.some((b) => b.id === bound) ? (
+                            <Select.Item value={bound}>{bound}</Select.Item>
+                          ) : null;
+                        })()}
+                      </Select.Content>
+                    </Select.Root>
                     <DropdownMenu.Root>
                       <DropdownMenu.Trigger
                         render={
@@ -400,6 +495,25 @@ export function BrowserSettingsCard() {
       </SettingsSection>
     </div>
   );
+}
+
+// [XG-CUSTOM] bot ⟷ profile：「未绑定」在下拉里的哨兵值（空串不是合法的 Select value）
+const UNBOUND_BOT_VALUE = '__unbound__';
+
+/** [XG-CUSTOM] 设置某个 profile 的 botId；空串 = 解绑（写回不带 botId 的干净对象）。 */
+function withBotId(profile: BrowserProfile, botId: string): BrowserProfile {
+  if (botId === '') return { id: profile.id, name: profile.name };
+  return { id: profile.id, name: profile.name, botId };
+}
+
+/** [XG-CUSTOM] 行内显示：绑定的 bot 名（名册里找不到就显示 id 本身）。 */
+function botLabelFor(
+  profile: BrowserProfile,
+  botOptions: ReadonlyArray<{ id: string; name: string }>
+): string {
+  const botId = profile.botId?.trim();
+  if (botId === undefined || botId === '') return '未绑定 bot';
+  return botOptions.find((bot) => bot.id === botId)?.name ?? botId;
 }
 
 const BROWSING_DATA_CATEGORIES: ReadonlyArray<{

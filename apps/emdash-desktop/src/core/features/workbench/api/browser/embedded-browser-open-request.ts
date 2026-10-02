@@ -59,8 +59,11 @@ function resolveTargetTask(): { ref: TaskRef; needsNavigation: boolean } | undef
 /**
  * 按请求把 url 开进一个内嵌浏览器标签页。返回是否成功（调用方只用于日志/回报）。
  * 不抛：任何一步失败都只 warn —— 这是「尽力自动开页」，绝不能把渲染进程搞崩。
+ *
+ * [XG-CUSTOM] bot ⟷ profile：`profileId` 由主进程按 bot 解析好塞在事件里；不带 →
+ * `paneLayout.open('browser', { initialUrl })`，与改动前逐字节一致（渲染进程用 defaultProfileId）。
  */
-export function openEmbeddedBrowserTab(url: string): boolean {
+export function openEmbeddedBrowserTab(url: string, profileId?: string): boolean {
   const target = resolveTargetTask();
   if (target === undefined) {
     console.warn(
@@ -80,7 +83,12 @@ export function openEmbeddedBrowserTab(url: string): boolean {
     });
     return false;
   }
-  taskView.paneLayout.open('browser', { initialUrl: url });
+  taskView.paneLayout.open('browser', {
+    initialUrl: url,
+    ...(typeof profileId === 'string' && profileId.trim() !== ''
+      ? { profileId: profileId.trim() }
+      : {}),
+  });
   taskView.setFocusedRegion('main');
   return true;
 }
@@ -100,7 +108,7 @@ export function useEmbeddedBrowserOpenRequests(): void {
         const off = await client.events.subscribe(undefined, {
           onEvent: (event) => {
             if (event.type !== 'open-in-embedded-browser') return;
-            openEmbeddedBrowserTab(event.url);
+            openEmbeddedBrowserTab(event.url, event.profileId);
           },
           onGap: () => {},
         });

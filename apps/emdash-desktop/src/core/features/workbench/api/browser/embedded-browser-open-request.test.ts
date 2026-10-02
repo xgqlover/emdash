@@ -75,6 +75,33 @@ describe('[XG-CUSTOM] openEmbeddedBrowserTab（从零开内嵌浏览器页）', 
     expect(mocks.paneOpen).toHaveBeenCalledWith('browser', { initialUrl: 'https://example.com' });
   });
 
+  // [XG-CUSTOM] bot ⟷ profile：主进程按 bot 解析好的 profileId 必须原样传下去
+  // （paneLayout.open 的 args 是唯一入口；丢了它 = 用别人的登录态开页）。
+  it('带 profileId → 透传给 paneLayout.open（agent 按 bot 选身份）', () => {
+    mocks.navigationRef.viewId = 'task';
+    mocks.navigationRef.params = { projectId: 'p9', taskId: 't9' };
+    const ok = openEmbeddedBrowserTab('https://example.com', 'bot-sxsj');
+    expect(ok).toBe(true);
+    expect(mocks.paneOpen).toHaveBeenCalledWith('browser', {
+      initialUrl: 'https://example.com',
+      profileId: 'bot-sxsj',
+    });
+  });
+
+  it('不带 profileId（老调用方）→ args 里没有这个键，与改动前逐字节一致', () => {
+    mocks.navigationRef.viewId = 'task';
+    mocks.navigationRef.params = { projectId: 'p9', taskId: 't9' };
+    openEmbeddedBrowserTab('https://example.com');
+    expect(mocks.paneOpen).toHaveBeenCalledWith('browser', { initialUrl: 'https://example.com' });
+  });
+
+  it('profileId 是空白串 → 当作没带（不给"空 profile"留后门）', () => {
+    mocks.navigationRef.viewId = 'task';
+    mocks.navigationRef.params = { projectId: 'p9', taskId: 't9' };
+    openEmbeddedBrowserTab('https://example.com', '   ');
+    expect(mocks.paneOpen).toHaveBeenCalledWith('browser', { initialUrl: 'https://example.com' });
+  });
+
   it('一个 task 都没有 → 如实返回 false，不假装开了', () => {
     mocks.visibleTaskEntries = [];
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);

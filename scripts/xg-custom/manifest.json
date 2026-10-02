@@ -7,23 +7,23 @@
     "base": "669a24fe673f4af1a507ddc33fc3f3ffe1039348"
   },
   "stats": {
-    "files": 121,
-    "markers": 671,
-    "newFiles": 60,
-    "modifiedFiles": 61
+    "files": 128,
+    "markers": 734,
+    "newFiles": 62,
+    "modifiedFiles": 66
   },
   "files": {
     "apps/emdash-desktop/electron-builder.config.ts": {
       "markers": 2,
       "lines": [
         34,
-        126
+        358
       ],
       "anchors": [
         "精确收集 emdash-desktop 的直接依赖（electron-builder 在 pnpm workspace 下",
         "msi: {"
       ],
-      "hash": "deea0c5636f4b6c2db00fe85ff8f28189a9f029f",
+      "hash": "8f71f3978bc0d8f5de6046aa5e7a96abeefd3210",
       "origin": "modified",
       "firstCommit": "32fb70f94|2026-09-18|fix: 去掉 win azureSignOptions（fork 无 Azure 凭据，签名卡 6h 超时），打 unsigned 包",
       "lastCommit": "32fb70f94|2026-09-18|fix: 去掉 win azureSignOptions（fork 无 Azure 凭据，签名卡 6h 超时），打 unsigned 包",
@@ -121,6 +121,56 @@
       "firstCommit": "a023bd16a|2026-09-20|fix: SSH 远程项目「创建任务」下拉 bot 全灰（hostDependency 检测不支持远程，远程场景跳过检测视为可用）",
       "lastCommit": "a023bd16a|2026-09-20|fix: SSH 远程项目「创建任务」下拉 bot 全灰（hostDependency 检测不支持远程，远程场景跳过检测视为可用）",
       "note": "远程场景 bot 可用性（跳过 hostDependency）"
+    },
+    "apps/emdash-desktop/src/core/features/browser/browser/browser-session-store.test.ts": {
+      "markers": 2,
+      "lines": [
+        23,
+        25
+      ],
+      "anchors": [
+        "it('[XG-CUSTOM] two bots open onto different profile partitions', () => { ⏎ const store = new BrowserSessionStore();",
+        "it('"
+      ],
+      "hash": "03a2a7498c1d156c634007bd90875a629981dda3",
+      "origin": "modified",
+      "firstCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
+      "lastCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/browser/browser/browser-tab-provider.tsx": {
+      "markers": 2,
+      "lines": [
+        30,
+        94
+      ],
+      "anchors": [
+        "profileId?: string;",
+        "const requestedProfileId ="
+      ],
+      "hash": "e771bad3fb24aae02e659d3861603a29c268b4c2",
+      "origin": "modified",
+      "firstCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
+      "lastCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/browser/contributions/settings.ts": {
+      "markers": 3,
+      "lines": [
+        15,
+        32,
+        47
+      ],
+      "anchors": [
+        "const browserBotIdSchema = z",
+        "botId: browserBotIdSchema.optional(),",
+        ".refine((settings) => {"
+      ],
+      "hash": "ad8f391c6f9a74fee14854fffa222378caf71f1f",
+      "origin": "modified",
+      "firstCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
+      "lastCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
+      "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/conversations/browser/acp/acp-chat-panel.tsx": {
       "markers": 14,
@@ -363,6 +413,40 @@
       "firstCommit": "bd2b9657e|2026-09-22|feat: 专家交接台侧边栏导航（handoff view + list 桥接，list 空待后续定位）",
       "lastCommit": "bd2b9657e|2026-09-22|feat: 专家交接台侧边栏导航（handoff view + list 桥接，list 空待后续定位）",
       "note": "专家交接台 feature"
+    },
+    "apps/emdash-desktop/src/core/features/settings/browser/components/BrowserSettingsCard.tsx": {
+      "markers": 11,
+      "lines": [
+        1,
+        19,
+        48,
+        60,
+        84,
+        93,
+        240,
+        293,
+        500,
+        503,
+        509
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';",
+        "import { expertRoster } from '@core/primitives/desktop-host/browser/host-client';",
+        "const [botOptions, setBotOptions] = useState<ReadonlyArray<{ id: string; name: string }>>([]);",
+        "useEffect(() => {",
+        "console.warn('",
+        "const bindProfileBot = (profileId: string, botId: string) => {",
+        "<div className=\"mt-1 text-xs text-foreground-passive\">",
+        "被没绑定身份的 agent 用到）。选项来自专家名册（main/role/sub 三类身份）。 */} ⏎ <Select.Root",
+        "const UNBOUND_BOT_VALUE = '__unbound__';",
+        "function withBotId(profile: BrowserProfile, botId: string): BrowserProfile {",
+        "function botLabelFor("
+      ],
+      "hash": "d464043136b8a0c9f069f8eef4ae2c5254d6eddf",
+      "origin": "modified",
+      "firstCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/components/IntegrationsCard.tsx": {
       "markers": 6,
@@ -755,35 +839,39 @@
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/workbench/api/browser/embedded-browser-open-request.test.ts": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
         1,
-        48
+        48,
+        78
       ],
       "anchors": [
         "import { beforeEach, describe, expect, it, vi } from 'vitest';",
-        "describe('"
+        "describe('",
+        "it('带 profileId → 透传给 paneLayout.open（agent 按 bot 选身份）', () => {"
       ],
-      "hash": "f71a3e71d7dab3ba4221f859ee1c3672ffe99a77",
+      "hash": "eebe751d5162dd301867eec3641f85e343d90970",
       "origin": "new",
       "firstCommit": "03c40f5a3|2026-10-01|chore: 收尾未提交的测试与 harness（多代理并行产物）",
       "lastCommit": "03c40f5a3|2026-10-01|chore: 收尾未提交的测试与 harness（多代理并行产物）",
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
     "apps/emdash-desktop/src/core/features/workbench/api/browser/embedded-browser-open-request.ts": {
-      "markers": 4,
+      "markers": 5,
       "lines": [
         1,
-        67,
-        77,
-        110
+        63,
+        70,
+        80,
+        118
       ],
       "anchors": [
         "项我定制（见 emdash/CUSTOMIZATIONS.md）",
+        "export function openEmbeddedBrowserTab(url: string, profileId?: string): boolean {",
         "); ⏎ return false;",
         "console.warn('"
       ],
-      "hash": "7772ba2147242c9d2eaef0487e883312ec4fefed",
+      "hash": "f579a4ec1d5747c2fe2bc4f5bb40ad59d1b6c4dc",
       "origin": "new",
       "firstCommit": "9ec2107ba|2026-10-01|[XG-CUSTOM] 内嵌浏览器：从零开页（对齐 HippoBuddy 的 WebContentsView 升级）+ iframe 命名正名",
       "lastCommit": "9ec2107ba|2026-10-01|[XG-CUSTOM] 内嵌浏览器：从零开页（对齐 HippoBuddy 的 WebContentsView 升级）+ iframe 命名正名",
@@ -947,15 +1035,39 @@
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "浏览器 manifest 注册（xiangwo/handoff 视图）"
     },
-    "apps/emdash-desktop/src/core/primitives/browser/api/browser.ts": {
-      "markers": 1,
+    "apps/emdash-desktop/src/core/primitives/browser/api/browser.test.ts": {
+      "markers": 2,
       "lines": [
-        3
+        207,
+        211
       ],
       "anchors": [
-        "| { type: 'link-copied'; kind: 'image' | 'link' | 'url'; url: string };"
+        "const profiles = [",
+        "describe('"
       ],
-      "hash": "42c2aba14d9caf6ca0692d0527b7731093561e79",
+      "hash": "5d484c9caa421b7a5229256dcab561f61f227121",
+      "origin": "modified",
+      "firstCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
+      "lastCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
+      "note": "core 基元定制"
+    },
+    "apps/emdash-desktop/src/core/primitives/browser/api/browser.ts": {
+      "markers": 5,
+      "lines": [
+        3,
+        22,
+        32,
+        286,
+        335
+      ],
+      "anchors": [
+        "| { type: 'link-copied'; kind: 'image' | 'link' | 'url'; url: string };",
+        "botId?: string;",
+        "export const BROWSER_BOT_PROFILE_PREFIX = 'bot-';",
+        "export function browserProfileBotId(",
+        "export function browserProfileIdFromPartition(partition: string): string | undefined {"
+      ],
+      "hash": "9eb11b44f9f41ebd8e0fa0f3b22c3d9ed634de15",
       "origin": "modified",
       "firstCommit": "9ec2107ba|2026-10-01|[XG-CUSTOM] 内嵌浏览器：从零开页（对齐 HippoBuddy 的 WebContentsView 升级）+ iframe 命名正名",
       "lastCommit": "9ec2107ba|2026-10-01|[XG-CUSTOM] 内嵌浏览器：从零开页（对齐 HippoBuddy 的 WebContentsView 升级）+ iframe 命名正名",
@@ -1100,46 +1212,55 @@
       "note": "启动装配（注入 xiangwo 依赖 / 后台服务）"
     },
     "apps/emdash-desktop/src/main/bootstrap/boot/wiring.ts": {
-      "markers": 23,
+      "markers": 28,
       "lines": [
         3,
-        26,
-        46,
-        75,
-        85,
-        91,
-        93,
-        99,
-        119,
-        130,
-        132,
-        139,
-        152,
-        159,
-        184,
-        210,
-        216,
-        267,
-        278,
-        284,
-        290,
-        295,
-        298
+        29,
+        30,
+        55,
+        84,
+        94,
+        100,
+        102,
+        108,
+        128,
+        135,
+        146,
+        148,
+        150,
+        157,
+        166,
+        182,
+        192,
+        217,
+        243,
+        248,
+        253,
+        304,
+        315,
+        321,
+        327,
+        332,
+        335
       ],
       "anchors": [
         "import { browserEvents } from '@core/features/browser/node';",
-        "import { XiangwoCdpBridge } from '@main/host/browser/xiangwo-cdp-bridge';",
+        "} from '@main/host/browser/xiangwo-cdp-bridge';",
+        "// [XG-CUSTOM] bot ⟷ 浏览器 profile 绑定表（唯一真源 = botId） ⏎ import {",
         "} from '@main/host/window';",
         "export function autostartXiangwoOrb(delayMs = 1500): void {",
         "log.info('",
         "log.warn('",
         "内嵌浏览器 CDP 桥（agent.py 第②级「内嵌浏览器优先」的通道；",
+        "listTargets: () =>",
         "requestOpenBrowser: requestEmbeddedBrowserOpen,",
+        "// [XG-CUSTOM] bot → 已绑定的 profile（未绑定 null）：挑\"要复用的那一页\"用 ⏎ lookupBotProfile: (botId) => xiangwoBoundProfileIdForBot(botId),",
         "log: (message, metadata) => log.info(`",
-        "export function requestEmbeddedBrowserOpen(url: string): void {",
+        "export function requestEmbeddedBrowserOpen(request: XiangwoOpenBrowserRequest): void {",
         "内嵌浏览器「反向命令通道」：**出站 only**，跨机主路径。",
         "log.info(`",
-        "if (relay === null) {",
+        "onBaseUrlFailure: (baseUrl) => selector.noteFailure(baseUrl),",
+        "// [XG-CUSTOM] bot ⟷ profile：跨机开页也挑\"这个 bot 自己的那一页\" ⏎ lookupBotProfile: (botId) => xiangwoBoundProfileIdForBot(botId),",
         "openOpenViking: async () => {",
         "openKaneo: async () => {",
         "openAffine: async () => {",
@@ -1147,7 +1268,7 @@
         "expertHandoffAdd: ({ bot, expert, title, summary, session, context }) =>",
         "expertRoster: () => expertRosterCall(),"
       ],
-      "hash": "111d08c8969e5ea860bfcfe3bf1e1dd7ffc943e2",
+      "hash": "2173ec1f3a6e872f9d0ff041399ff46194f56484",
       "origin": "modified",
       "firstCommit": "67ccd329e|2026-09-22|feat: 专家交接台升级（wire RPC 修复 + bot/专家二级分组 + 并入对话 Sheet + 横条关闭）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1168,16 +1289,20 @@
       "note": "gateway 定制（runtime broker / acp 入口）"
     },
     "apps/emdash-desktop/src/main/host/browser/browser-profile-session.ts": {
-      "markers": 2,
+      "markers": 4,
       "lines": [
         16,
-        46
+        18,
+        35,
+        50
       ],
       "anchors": [
         "import { resolveXiangwoBrowserProxy } from './xiangwo-browser-proxy';",
+        "import { setXiangwoBrowserProfileBindings } from './xiangwo-bot-browser-profile';",
+        "setXiangwoBrowserProfileBindings(browser);",
         "const browserProxy = resolveXiangwoBrowserProxy({"
       ],
-      "hash": "88ae6b8318c327cf77d8ba81508a6c4d36abb811",
+      "hash": "159917e3932c08ca561cf2922f1871e087dcae35",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1186,15 +1311,55 @@
     "apps/emdash-desktop/src/main/host/browser/browser-webcontents-registry.ts": {
       "markers": 1,
       "lines": [
-        161
+        162
       ],
       "anchors": [
-        "listBoundBrowsers(): Array<{ browserId: string; webContents: WebContents }> {"
+        "listBoundBrowsers(): Array<{"
       ],
-      "hash": "8c4971832683990d8fe30038f5657d3887847c2c",
+      "hash": "ad25dbb4ce741888c1736cad7bb2042a2ef32ab6",
       "origin": "modified",
       "firstCommit": "f1dbc7f61|2026-09-30|[XG-CUSTOM] 内嵌浏览器 9223 CDP 桥 + 项我球「网页 N」计数与一键清理",
       "lastCommit": "f1dbc7f61|2026-09-30|[XG-CUSTOM] 内嵌浏览器 9223 CDP 桥 + 项我球「网页 N」计数与一键清理",
+      "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
+    },
+    "apps/emdash-desktop/src/main/host/browser/xiangwo-bot-browser-profile.test.ts": {
+      "markers": 2,
+      "lines": [
+        1,
+        29
+      ],
+      "anchors": [
+        "import { mkdtempSync, readFileSync } from 'node:fs';",
+        "describe('"
+      ],
+      "hash": "42676e167effaf6f8b7c6c912e72bb6572468af8",
+      "origin": "new",
+      "firstCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
+      "lastCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
+      "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
+    },
+    "apps/emdash-desktop/src/main/host/browser/xiangwo-bot-browser-profile.ts": {
+      "markers": 6,
+      "lines": [
+        1,
+        36,
+        86,
+        102,
+        121,
+        131
+      ],
+      "anchors": [
+        "项我定制（见 emdash/CUSTOMIZATIONS.md）",
+        "export function xiangwoBotBrowserMapPath(): string {",
+        "log.warn('",
+        "writeBotBrowserMapDump();",
+        "export function xiangwoBoundProfileIdForBot(botId: string | undefined): string | null {",
+        "export function xiangwoBrowserProfilesSnapshot(): readonly BrowserProfile[] {"
+      ],
+      "hash": "890935eeb4d444db30ecdf34d2a3164f27a61304",
+      "origin": "new",
+      "firstCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
+      "lastCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
       "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
     },
     "apps/emdash-desktop/src/main/host/browser/xiangwo-browser-proxy.test.ts": {
@@ -1226,139 +1391,180 @@
       "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
     },
     "apps/emdash-desktop/src/main/host/browser/xiangwo-browser-relay.test.ts": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        588
       ],
       "anchors": [
-        "import { hostname as osHostname } from 'node:os';"
+        "import { hostname as osHostname } from 'node:os';",
+        "describe('"
       ],
-      "hash": "bec67fc7d42d46b74cd894a2bf5516e577785827",
+      "hash": "78cb98c4c72174052083264889817af15c6b6492",
       "origin": "new",
       "firstCommit": "a5fa00d73|2026-09-30|[XG-CUSTOM] 内嵌浏览器反向命令通道（出站 only，抄 HippoBuddy 机制）",
       "lastCommit": "a5fa00d73|2026-09-30|[XG-CUSTOM] 内嵌浏览器反向命令通道（出站 only，抄 HippoBuddy 机制）",
       "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
     },
     "apps/emdash-desktop/src/main/host/browser/xiangwo-browser-relay.ts": {
-      "markers": 15,
+      "markers": 23,
       "lines": [
         1,
-        46,
+        45,
         48,
         50,
         52,
         54,
-        106,
-        111,
-        354,
-        376,
-        378,
-        779,
-        833,
-        933,
-        959
+        56,
+        78,
+        118,
+        124,
+        128,
+        371,
+        393,
+        395,
+        397,
+        799,
+        811,
+        873,
+        907,
+        979,
+        991,
+        1009,
+        1015
       ],
       "anchors": [
         "内嵌浏览器「反向命令通道」客户端（Windows/Linux 都跑，出站 only）。",
+        "import type { XiangwoOpenBrowserRequest } from './xiangwo-cdp-bridge';",
         "export const XIANGWO_RELAY_LOCAL_CDP_BASE = 'http://127.0.0.1:9223';",
         "export const XIANGWO_RELAY_DEFAULT_WAIT_SECONDS = 25;",
         "export const XIANGWO_RELAY_OPEN_BROWSER_WAIT_MS = 12_000;",
         "const XIANGWO_RELAY_OPEN_BROWSER_POLL_MS = 150;",
         "const BACKOFF_STEPS_MS = [1000, 2000, 5000, 15000];",
-        "requestOpenBrowser?: (url: string) => void;",
+        "type LocalCdpTarget = {",
+        "requestOpenBrowser?: (request: XiangwoOpenBrowserRequest) => void;",
+        "*/ ⏎ lookupBotProfile?: (botId: string) => string | null;",
         "openBrowserWaitMs?: number;",
         "export class XiangwoBrowserRelay {",
-        "private readonly requestOpenBrowser: ((url: string) => void) | null;",
+        "private readonly requestOpenBrowser: ((request: XiangwoOpenBrowserRequest) => void) | null;",
+        "private readonly lookupBotProfile: ((botId: string) => string | null) | null;",
         "private readonly openBrowserWaitMs: number;",
         "private async handleOpen(command: RelayCommand): Promise<void> {",
+        "const bot = String(command.bot ?? '').trim();",
         "known: ReadonlySet<string>,",
+        "profile: String(item.profile ?? ''),",
         "export function createXiangwoBrowserRelay(",
-        "...(requestOpenBrowser !== undefined ? { requestOpenBrowser } : {}),"
+        "/** [XG-CUSTOM] bot → profileId（绑定表；未绑定 null）；不给 = 不做 bot 维度挑页 */ ⏎ lookupBotProfile?: (botId: string) => string | null;",
+        "...(requestOpenBrowser !== undefined ? { requestOpenBrowser } : {}),",
+        "...(overrides?.lookupBotProfile !== undefined"
       ],
-      "hash": "baa6819e7e9996794b0fa35c0da8cccca812b151",
+      "hash": "5d9eb68c6ece7b1b47ed6a83b6c82f68373ad95b",
       "origin": "new",
       "firstCommit": "a5fa00d73|2026-09-30|[XG-CUSTOM] 内嵌浏览器反向命令通道（出站 only，抄 HippoBuddy 机制）",
       "lastCommit": "a5fa00d73|2026-09-30|[XG-CUSTOM] 内嵌浏览器反向命令通道（出站 only，抄 HippoBuddy 机制）",
       "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
     },
     "apps/emdash-desktop/src/main/host/browser/xiangwo-cdp-bridge.test.ts": {
-      "markers": 9,
+      "markers": 11,
       "lines": [
         1,
-        217,
-        251,
-        505,
-        540,
-        631,
-        635,
-        708,
-        769
+        133,
+        222,
+        256,
+        510,
+        545,
+        636,
+        640,
+        713,
+        774,
+        865
       ],
       "anchors": [
         "import { networkInterfaces as osNetworkInterfaces, type NetworkInterfaceInfo } from 'node:os';",
+        "function fakeBotTarget(browserId: string, profileId: string, botId: string): FakeTarget {",
         "let lastLogs: string[] = [];",
         "describe('",
         "function iface(address: string, internal = false, netmask = '255.255.255.0'): NetworkInterfaceInfo {",
         "const WINDOWS_INTERFACES: XiangwoCdpNetworkInterfaces = {"
       ],
-      "hash": "5b1e658e2a965149bb4c6072f89153389af4a749",
+      "hash": "5f110bfb2b89d18bf7b72fe6cdf9fc2329ab48f5",
       "origin": "new",
       "firstCommit": "f1dbc7f61|2026-09-30|[XG-CUSTOM] 内嵌浏览器 9223 CDP 桥 + 项我球「网页 N」计数与一键清理",
       "lastCommit": "f1dbc7f61|2026-09-30|[XG-CUSTOM] 内嵌浏览器 9223 CDP 桥 + 项我球「网页 N」计数与一键清理",
       "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
     },
     "apps/emdash-desktop/src/main/host/browser/xiangwo-cdp-bridge.ts": {
-      "markers": 23,
+      "markers": 34,
       "lines": [
         1,
         54,
         57,
         66,
-        132,
-        136,
-        138,
-        141,
-        146,
-        154,
-        199,
-        229,
-        252,
-        254,
-        364,
-        365,
-        447,
-        475,
-        496,
-        510,
-        589,
-        621,
-        1252
+        116,
+        119,
+        124,
+        149,
+        153,
+        155,
+        158,
+        163,
+        169,
+        174,
+        180,
+        225,
+        255,
+        278,
+        280,
+        282,
+        393,
+        394,
+        476,
+        504,
+        525,
+        539,
+        562,
+        578,
+        646,
+        660,
+        698,
+        699,
+        715,
+        1334
       ],
       "anchors": [
         "内嵌浏览器 CDP 桥：把 emdash 的 `<webview>` 内嵌浏览器以标准 Chrome DevTools",
         "export const XIANGWO_CDP_DEFAULT_PORT = 9223;",
         "export const XIANGWO_CDP_HOST = '127.0.0.1';",
         "export const XIANGWO_CDP_OPEN_BROWSER_PATH = '/xg/open-browser';",
+        "profileId?: string;",
+        "botId?: string;",
+        "export type XiangwoOpenBrowserRequest = {",
         "bind?: XiangwoCdpBindMode;",
         "allowedPeers?: readonly string[];",
         "networkInterfaces?: () => XiangwoCdpNetworkInterfaces;",
         "peerAddressOf?: (socket: unknown) => string | undefined;",
-        "requestOpenBrowser?: (url: string) => void;",
+        "requestOpenBrowser?: (request: XiangwoOpenBrowserRequest) => void;",
+        "lookupBotProfile?: (botId: string) => string | null;",
         "openBrowserWaitMs?: number;",
         "function readJsonBody(req: IncomingMessage): Promise<unknown> {",
         "export function embeddedTargetId(browserId: string): string {",
-        "private readonly requestOpenBrowser: ((url: string) => void) | null;",
+        "private readonly requestOpenBrowser: ((request: XiangwoOpenBrowserRequest) => void) | null;",
+        "private readonly lookupBotProfile: ((botId: string) => string | null) | null;",
         "private readonly openBrowserWaitMs: number;",
         "private logListenBanner(plan: XiangwoCdpPeerCollectResult): void {",
         "private handleConnection(socket: Duplex): void {",
         "private handleHttp(req: IncomingMessage, res: ServerResponse): void {",
         "if (path === XIANGWO_CDP_OPEN_BROWSER_PATH) {",
         "private async handleOpenBrowserRequest(req: IncomingMessage, res: ServerResponse): Promise<void> {",
+        "if (typeof raw.bot === 'string') bot = raw.bot.trim();",
+        "const wantedProfile = this.requestedProfileOf(bot, profile);",
+        "private requestedProfileOf(bot: string, profile: string): string | null {",
         "known: ReadonlySet<string>,",
         "listTargetDescriptors(",
+        "profile: target.profileId ?? '',",
         "function denyPeer(socket: Duplex, peers: readonly XiangwoCdpAllowedPeer[]): void {"
       ],
-      "hash": "e3335e36a95f432ffc50534686f046555e180470",
+      "hash": "107fe85b1a8b9857e1fbaaa30903c22d80b8ced4",
       "origin": "new",
       "firstCommit": "f1dbc7f61|2026-09-30|[XG-CUSTOM] 内嵌浏览器 9223 CDP 桥 + 项我球「网页 N」计数与一键清理",
       "lastCommit": "f1dbc7f61|2026-09-30|[XG-CUSTOM] 内嵌浏览器 9223 CDP 桥 + 项我球「网页 N」计数与一键清理",

@@ -130,6 +130,11 @@ function fakeTarget(browserId: string): FakeTarget {
   return { browserId, webContents: fake, fake };
 }
 
+/** [XG-CUSTOM] 带 bot 维度的白名单目标（profileId/botId 由 registry 反推后传进来） */
+function fakeBotTarget(browserId: string, profileId: string, botId: string): FakeTarget {
+  return { ...fakeTarget(browserId), profileId, botId };
+}
+
 /** 极简 CDP 客户端（用 Node 自带 WebSocket，独立于桥的实现） */
 class CdpTestClient {
   private readonly socket: WebSocket;
@@ -780,7 +785,7 @@ describe('[XG-CUSTOM] XiangwoCdpBridge /xg/open-browser（从零开页）', () =
     const target = fakeTarget('task-existing');
     const opened: string[] = [];
     const { base } = await startBridge(() => [target], 500, {
-      requestOpenBrowser: (url) => opened.push(url),
+      requestOpenBrowser: (request) => opened.push(request.url),
     });
     const r = await postOpen(base, { url: 'https://example.com' });
     expect(r['ok']).toBe(true);
@@ -794,9 +799,9 @@ describe('[XG-CUSTOM] XiangwoCdpBridge /xg/open-browser（从零开页）', () =
     const news: FakeTarget[] = [];
     const { base } = await startBridge(() => bound, 500, {
       openBrowserWaitMs: 3000,
-      requestOpenBrowser: (url) => {
+      requestOpenBrowser: (request) => {
         // 模拟渲染进程：收到广播后开标签页 → webview attach → bindWebContents（这里直接进白名单）
-        expect(url).toBe('https://example.com');
+        expect(request.url).toBe('https://example.com');
         setTimeout(() => {
           const target = fakeTarget('task-auto-opened');
           target.fake.url = 'https://example.com/';
@@ -847,5 +852,148 @@ describe('[XG-CUSTOM] XiangwoCdpBridge /xg/open-browser（从零开页）', () =
     const body = (await res.json()) as Record<string, unknown>;
     expect(body['ok']).toBe(false);
     expect(String(body['error'])).toContain('合法 JSON');
+  });
+});
+
+
+// ── [XG-CUSTOM 2026-10-02] bot ⟷ 浏览器 profile：/json/list 回报身份 + open 只认自己那一页 ──
+//
+// 病根：设置里的 profile 是**全局**的（一个 Default + 手动 Add profile），所有内嵌浏览器共用
+// 一份 cookie → agent 用 sxsj 的身份打开网页，实际接管的是 babado 已登录的标签页。
+// 这条链的判据只有两个：① /json/list 里每页要能看出 profile/botId；
+// ② 带 bot 的「从零开页」不许复用别人的页（宁可新开一个也不串登录态）。
+describe('[XG-CUSTOM] bot ⟷ profile（/json/list 身份 + 按 bot 挑页）', () => {
+  async function postOpen(base: string, body: unknown): Promise<Record<string, unknown>> {
+    const res = await fetch(`${base}${XIANGWO_CDP_OPEN_BROWSER_PATH}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    return (await res.json()) as Record<string, unknown>;
+  }
+
+  it('/json/list 每页带 profile/botId；老字段一个不少', async () => {
+    const { base } = await startBridge(
+      () => [fakeBotTarget('task-sxsj', 'bot-sxsj', 'sxsj'), fakeTarget('task-plain')],
+      500
+    );
+    const res = await fetch(`${base}/json/list`);
+    const list = (await res.json()) as Array<Record<string, unknown>>;
+    expect(list).toHaveLength(2);
+    const sxsj = list.find((item) => item['browserId'] === 'task-sxsj');
+    const plain = list.find((item) => item['browserId'] === 'task-plain');
+    expect(sxsj?.['profile']).toBe('bot-sxsj');
+    expect(sxsj?.['botId']).toBe('sxsj');
+    // 认不出 profile 的页（比如 per-task 隔离分区）回报空串，而不是漏字段
+    expect(plain?.['profile']).toBe('');
+    expect(plain?.['botId']).toBe('');
+    // browser-use / agent 依赖的旧字段仍在
+    expect(typeof sxsj?.['id']).toBe('string');
+    expect(typeof sxsj?.['title']).toBe('string');
+    expect(String(sxsj?.['webSocketDebuggerUrl'])).toContain('/devtools/page/');
+  });
+
+  it('不带 bot/profile → 复用第一个已绑定的页（与改动前逐字节一致）', async () => {
+    const opened: Array<Record<string, unknown>> = [];
+    const { base } = await startBridge(
+      () => [fakeBotTarget('task-babado', 'bot-babado', 'babado')],
+      500,
+      { requestOpenBrowser: (request) => opened.push({ ...request }) }
+    );
+    const r = await postOpen(base, { url: 'https://example.com' });
+    expect(r['ok']).toBe(true);
+    expect(r['reused']).toBe(true);
+    expect(r['targetId']).toBe(embeddedTargetId('task-babado'));
+    expect(opened).toHaveLength(0);
+  });
+
+  it('带 bot 且已有它自己的页 → 复用那一页（不新开）', async () => {
+    const opened: Array<Record<string, unknown>> = [];
+    const { base } = await startBridge(
+      () => [fakeBotTarget('task-babado', 'bot-babado', 'babado'), fakeBotTarget('task-sxsj', 'bot-sxsj', 'sxsj')],
+      500,
+      {
+        requestOpenBrowser: (request) => opened.push({ ...request }),
+        lookupBotProfile: (bot) => (bot === 'sxsj' ? 'bot-sxsj' : null),
+      }
+    );
+    const r = await postOpen(base, { url: 'https://example.com', bot: 'sxsj' });
+    expect(r['ok']).toBe(true);
+    expect(r['reused']).toBe(true);
+    expect(r['targetId']).toBe(embeddedTargetId('task-sxsj'));
+    expect(r['profile']).toBe('bot-sxsj');
+    expect(r['botId']).toBe('sxsj');
+    expect(opened).toHaveLength(0);
+  });
+
+  it('带 bot 但只有别人的页 → 绝不复用，改为广播开自己的页（bot 随广播带下去）', async () => {
+    const bound: EmbeddedBrowserTarget[] = [fakeBotTarget('task-babado', 'bot-babado', 'babado')];
+    const opened: Array<Record<string, unknown>> = [];
+    const { base } = await startBridge(() => bound, 500, {
+      openBrowserWaitMs: 3000,
+      lookupBotProfile: (bot) => (bot === 'sxsj' ? 'bot-sxsj' : null),
+      requestOpenBrowser: (request) => {
+        opened.push({ ...request });
+        setTimeout(() => {
+          const target = fakeBotTarget('task-sxsj', 'bot-sxsj', 'sxsj');
+          target.fake.url = 'https://example.com/';
+          bound.push(target);
+        }, 50);
+      },
+    });
+    const r = await postOpen(base, { url: 'https://example.com', bot: 'sxsj' });
+    expect(opened).toEqual([{ url: 'https://example.com', bot: 'sxsj' }]);
+    expect(r['ok']).toBe(true);
+    expect(r['reused']).toBe(false);
+    expect(r['targetId']).toBe(embeddedTargetId('task-sxsj'));
+    expect(r['botId']).toBe('sxsj');
+  });
+
+  it('显式 profile 优先于 bot（两个都给时按 profile 挑）', async () => {
+    const opened: Array<Record<string, unknown>> = [];
+    const { base } = await startBridge(
+      () => [fakeBotTarget('task-babado', 'bot-babado', 'babado')],
+      500,
+      { requestOpenBrowser: (request) => opened.push({ ...request }) }
+    );
+    const r = await postOpen(base, {
+      url: 'https://example.com',
+      bot: 'sxsj',
+      profile: 'bot-babado',
+    });
+    expect(r['ok']).toBe(true);
+    expect(r['reused']).toBe(true);
+    expect(r['targetId']).toBe(embeddedTargetId('task-babado'));
+    expect(opened).toHaveLength(0);
+  });
+
+  it('bot 没绑定任何 profile → 不做精确匹配（走老行为，不猜 default）', async () => {
+    const opened: Array<Record<string, unknown>> = [];
+    const { base } = await startBridge(
+      () => [fakeBotTarget('task-other', 'bot-other', 'other')],
+      500,
+      {
+        requestOpenBrowser: (request) => opened.push({ ...request }),
+        lookupBotProfile: () => null,
+      }
+    );
+    const r = await postOpen(base, { url: 'https://example.com', bot: 'scout' });
+    expect(r['ok']).toBe(true);
+    expect(r['reused']).toBe(true);
+    expect(opened).toHaveLength(0);
+  });
+
+  it('广播等不到"profile 对得上"的新页 → ok:false（不拿别人的页凑数）', async () => {
+    const bound: EmbeddedBrowserTarget[] = [];
+    const { base } = await startBridge(() => bound, 500, {
+      openBrowserWaitMs: 200,
+      lookupBotProfile: (bot) => (bot === 'sxsj' ? 'bot-sxsj' : null),
+      requestOpenBrowser: () => {
+        setTimeout(() => bound.push(fakeBotTarget('task-babado', 'bot-babado', 'babado')), 30);
+      },
+    });
+    const r = await postOpen(base, { url: 'https://example.com', bot: 'sxsj' });
+    expect(r['ok']).toBe(false);
+    expect(String(r['error'])).toContain('没有页面被绑定');
   });
 });

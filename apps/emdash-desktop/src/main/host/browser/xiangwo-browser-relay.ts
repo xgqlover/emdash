@@ -42,6 +42,8 @@
 // 真机实测（Windows 192.168.2.20 ↔ Linux hub 192.168.2.10）就是踩了这个。
 import { randomUUID } from 'node:crypto';
 import { hostname as osHostname } from 'node:os';
+// [XG-CUSTOM] 「从零开页」请求体形状（bot/profile 可选；见 xiangwo-cdp-bridge.ts）
+import type { XiangwoOpenBrowserRequest } from './xiangwo-cdp-bridge';
 
 /** [XG-CUSTOM] 默认：命令一律落到本机 9223 白名单桥 */
 export const XIANGWO_RELAY_LOCAL_CDP_BASE = 'http://127.0.0.1:9223';
@@ -71,6 +73,16 @@ export type RelayCommand = {
   id: number;
   kind: string;
   [key: string]: unknown;
+};
+
+/** [XG-CUSTOM] 本机 9223 `/json/list` 的一个内嵌浏览器目标（bot 维度见 profile/botId） */
+type LocalCdpTarget = {
+  id: string;
+  url: string;
+  title: string;
+  webSocketDebuggerUrl: string;
+  profile: string;
+  botId: string;
 };
 
 export type XiangwoBrowserRelayOptions = {
@@ -107,7 +119,12 @@ export type XiangwoBrowserRelayOptions = {
    * 本机一个已绑定的内嵌浏览器都没有时，请**渲染进程**开一个 Browser 标签页。
    * 不传 = `open` 命令保持老行为（只报一句"先在 emdash 主窗口开一个浏览器标签"）。
    */
-  requestOpenBrowser?: (url: string) => void;
+  requestOpenBrowser?: (request: XiangwoOpenBrowserRequest) => void;
+  /**
+   * [XG-CUSTOM] bot ⟷ profile：bot → profileId（绑定表；未绑定 null）。用来在 `open` 命令里
+   * 挑**这个 bot 自己的那一页**复用/导航（挑了别人的页 = 串登录态）。不传 = 老行为。
+   */
+  lookupBotProfile?: (botId: string) => string | null;
   /** [XG-CUSTOM] 「从零开页」等待新 target 的上限（缺省 12s） */
   openBrowserWaitMs?: number;
   /**
@@ -374,7 +391,9 @@ export class XiangwoBrowserRelay {
   /** [XG-CUSTOM 2026-10-02] 本机主机名（判定"同机"用；缺省 os.hostname()） */
   private readonly localHostname: string;
   /** [XG-CUSTOM] 「从零开页」回调（null = 不支持，`open` 命令只报人话） */
-  private readonly requestOpenBrowser: ((url: string) => void) | null;
+  private readonly requestOpenBrowser: ((request: XiangwoOpenBrowserRequest) => void) | null;
+  /** [XG-CUSTOM] bot → profileId（绑定表；未绑定 null） */
+  private readonly lookupBotProfile: ((botId: string) => string | null) | null;
   /** [XG-CUSTOM] 「从零开页」等待新 target 的上限 */
   private readonly openBrowserWaitMs: number;
   /** [XG-CUSTOM 2026-10-02] 多候选切换钩子（null = 旧行为，一个地址用到死） */
@@ -412,6 +431,7 @@ export class XiangwoBrowserRelay {
       (async (baseUrl: string) => (await probeAgentIdentity(baseUrl, this.fetchImpl))?.hostname ?? null);
     this.localHostname = options.localHostname ?? osHostname();
     this.requestOpenBrowser = options.requestOpenBrowser ?? null;
+    this.lookupBotProfile = options.lookupBotProfile ?? null;
     this.openBrowserWaitMs = options.openBrowserWaitMs ?? XIANGWO_RELAY_OPEN_BROWSER_WAIT_MS;
     this.onBaseUrlFailure = options.onBaseUrlFailure ?? null;
   }
@@ -788,17 +808,37 @@ export class XiangwoBrowserRelay {
       return;
     }
     const fragment = String(command.fragment ?? '').trim();
+    // [XG-CUSTOM] bot ⟷ profile：`bot`/`profile` 都是可选的。**都不带 = 与改动前逐字节一致**
+    // （复用/导航第一个内嵌页）。带了就只认 profile 对得上的那一页 —— 否则「以 sxsj 的身份打开」
+    // 会静默接管 babado 已登录的标签页。
+    const bot = String(command.bot ?? '').trim();
+    const explicitProfile = String(command.profile ?? '').trim();
+    const wantedProfile =
+      explicitProfile !== '' ? explicitProfile : bot !== '' ? this.lookupBotProfile?.(bot) ?? null : null;
     let targets = await this.listLocalTargets();
+    if (wantedProfile !== null) {
+      const matched = targets.filter((target) => target.profile === wantedProfile);
+      if (matched.length > 0) targets = matched;
+      else targets = [];
+    }
     let autoOpenAttempted = false;
     if (targets.length === 0 && this.requestOpenBrowser !== null) {
       autoOpenAttempted = true;
       try {
-        this.requestOpenBrowser(url);
-        this.log('内嵌浏览器从零开页（反向通道）：已请求渲染进程开 Browser 标签页', { url });
+        this.requestOpenBrowser({
+          url,
+          ...(bot !== '' ? { bot } : {}),
+          ...(explicitProfile !== '' ? { profile: explicitProfile } : {}),
+        });
+        this.log('内嵌浏览器从零开页（反向通道）：已请求渲染进程开 Browser 标签页', {
+          url,
+          ...(bot !== '' ? { bot } : {}),
+          ...(explicitProfile !== '' ? { profile: explicitProfile } : {}),
+        });
       } catch (error) {
         this.noteError(`广播开页请求失败：${String(error)}`);
       }
-      targets = await this.waitForLocalTarget(new Set<string>(), this.openBrowserWaitMs);
+      targets = await this.waitForLocalTarget(new Set<string>(), this.openBrowserWaitMs, wantedProfile);
     }
     if (targets.length === 0) {
       await this.result(
@@ -830,24 +870,27 @@ export class XiangwoBrowserRelay {
     });
   }
 
-  /** [XG-CUSTOM] 轮询等本机 9223 上出现一个已绑定的内嵌浏览器（150ms 一拍，超时回 []） */
+  /** [XG-CUSTOM] 轮询等本机 9223 上出现一个已绑定的内嵌浏览器（150ms 一拍，超时回 []）。
+   *  给了 `wantedProfile` 就只认 profile 对得上的新页（否则等于"随便开了一个页"）。 */
   private async waitForLocalTarget(
     known: ReadonlySet<string>,
-    waitMs: number
-  ): Promise<Array<{ id: string; url: string; title: string; webSocketDebuggerUrl: string }>> {
+    waitMs: number,
+    wantedProfile: string | null = null
+  ): Promise<LocalCdpTarget[]> {
     const deadline = Date.now() + Math.max(0, waitMs);
     for (;;) {
       const targets = await this.listLocalTargets().catch(() => []);
-      const fresh = targets.filter((target) => !known.has(target.id));
+      const fresh = targets.filter(
+        (target) =>
+          !known.has(target.id) && (wantedProfile === null || target.profile === wantedProfile)
+      );
       if (fresh.length > 0) return fresh;
       if (Date.now() >= deadline) return [];
       await sleep(XIANGWO_RELAY_OPEN_BROWSER_POLL_MS);
     }
   }
 
-  private async listLocalTargets(): Promise<
-    Array<{ id: string; url: string; title: string; webSocketDebuggerUrl: string }>
-  > {
+  private async listLocalTargets(): Promise<LocalCdpTarget[]> {
     const response = await this.fetchImpl(`${this.localCdpBase}/json/list`, {
       signal: AbortSignal.timeout(4000),
     });
@@ -861,6 +904,9 @@ export class XiangwoBrowserRelay {
         url: String(item.url ?? ''),
         title: String(item.title ?? ''),
         webSocketDebuggerUrl: String(item.webSocketDebuggerUrl ?? ''),
+        // [XG-CUSTOM] bot 维度（桥的 /json/list 现在带这两个字段；老版 emdash 没有 → 空串）
+        profile: String(item.profile ?? ''),
+        botId: String(item.botId ?? ''),
       }))
       .filter((item) => item.id !== '');
   }
@@ -934,13 +980,17 @@ export function cdpCallOnce(
 export function createXiangwoBrowserRelay(
   resolveBaseUrl: () => Promise<string | null>,
   log: (message: string, metadata?: Record<string, unknown>) => void,
-  requestOpenBrowser?: (url: string) => void,
+  requestOpenBrowser?: (request: XiangwoOpenBrowserRequest) => void,
   /**
    * [XG-CUSTOM 2026-10-02] 可选覆盖（多候选自动切换用）：把
    * `RelayCandidateSelector.noteFailure` 接进来即可 —— 地址本身由第 1 个参数
    * （`RelayCandidateSelector.resolve`）给。不传 = 与改动前逐字一致的行为。
    */
-  overrides?: { onBaseUrlFailure?: (baseUrl: string) => boolean }
+  overrides?: {
+    onBaseUrlFailure?: (baseUrl: string) => boolean;
+    /** [XG-CUSTOM] bot → profileId（绑定表；未绑定 null）；不给 = 不做 bot 维度挑页 */
+    lookupBotProfile?: (botId: string) => string | null;
+  }
 ): XiangwoBrowserRelay | null {
   if (!relayEnabledFromEnv(process.env.XIANGWO_BROWSER_RELAY)) return null;
   const explicit = (process.env.XIANGWO_BROWSER_RELAY_URL ?? '').trim();
@@ -961,6 +1011,10 @@ export function createXiangwoBrowserRelay(
     // [XG-CUSTOM 2026-10-02] 多候选切换：连续失败到阈值就换下一条候选
     ...(overrides?.onBaseUrlFailure !== undefined
       ? { onBaseUrlFailure: overrides.onBaseUrlFailure }
+      : {}),
+    // [XG-CUSTOM] bot ⟷ profile：跨机开页时挑"这个 bot 自己的那一页"
+    ...(overrides?.lookupBotProfile !== undefined
+      ? { lookupBotProfile: overrides.lookupBotProfile }
       : {}),
     log,
   });

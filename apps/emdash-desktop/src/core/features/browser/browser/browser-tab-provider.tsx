@@ -27,6 +27,9 @@ export interface BrowserState {
 
 export interface BrowserOpenArgs {
   initialUrl?: string;
+  // [XG-CUSTOM] bot ⟷ profile：主进程按 bot 解析好的 profile（不带 = 用 defaultProfileId，
+  // 与改动前一致）。见 core/primitives/browser/api 的 resolveBotBrowserProfileId。
+  profileId?: string;
 }
 
 /**
@@ -88,8 +91,14 @@ export const browserTabProvider: TabProvider<
   onBeforeOpen(args: BrowserOpenArgs, ctx: TabViewContext): BrowserState | null {
     const taskCtx = ctx as TaskTabContext;
     const browserSettings = getAppSettingValueSnapshot('browser');
+    // [XG-CUSTOM] 请求里指定了 profile（agent 按 bot 解析来的）就用它 —— 但必须已经存在，
+    // 否则 normalize 会退回 defaultProfileId（不给"凭空造一个 profile"的后门）。
+    const requestedProfileId =
+      typeof args.profileId === 'string' && args.profileId !== ''
+        ? args.profileId
+        : browserSettings?.defaultProfileId;
     const profileId = normalizeBrowserProfileSelection(
-      browserSettings?.defaultProfileId,
+      requestedProfileId,
       browserSettings?.profiles
     );
     const session = browserSessionStore.createSession({

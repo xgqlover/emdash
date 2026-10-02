@@ -12,6 +12,7 @@ import { browserEvents } from '@core/features/browser/node';
 import { desktopHostEvents } from '@core/features/workbench/node';
 import { buildBrowserClaims, type BrowserClaim } from '@core/manifests/shared/browser-claims';
 import {
+  browserProfileIdFromPartition,
   browserProfilePartition,
   isNamedBrowserProfileId,
   normalizeBrowserUrl,
@@ -161,11 +162,22 @@ export class BrowserWebContentsRegistry {
    * [XG-CUSTOM] 内嵌浏览器 CDP 桥（main/host/browser/xiangwo-cdp-bridge.ts）的白名单来源：
    * 只返回已通过 bindWebContents 绑定过 browserId 的内嵌浏览器 webContents —— 也就是
    * "拿得到 browserId 的那个内嵌浏览器"。主窗口/其它 webContents 永远不会从这里出去。
+   *
+   * `profileId` 由该 browserId 注册时的 partition 反推（渲染进程 `registerSession` 时给的），
+   * 供桥在 `/json/list` 里回报 `profile`/`botId`，并让 agent 挑对"自己那个 bot 的页"。
    */
-  listBoundBrowsers(): Array<{ browserId: string; webContents: WebContents }> {
-    const bound: Array<{ browserId: string; webContents: WebContents }> = [];
+  listBoundBrowsers(): Array<{
+    browserId: string;
+    webContents: WebContents;
+    profileId?: string;
+  }> {
+    const bound: Array<{ browserId: string; webContents: WebContents; profileId?: string }> = [];
     for (const [browserId, webContents] of this.webContentsByBrowserId) {
-      if (!webContents.isDestroyed()) bound.push({ browserId, webContents });
+      if (webContents.isDestroyed()) continue;
+      const registered = this.sessionsByBrowserId.get(browserId);
+      const profileId =
+        registered === undefined ? undefined : browserProfileIdFromPartition(registered.partition);
+      bound.push({ browserId, webContents, ...(profileId ? { profileId } : {}) });
     }
     return bound;
   }

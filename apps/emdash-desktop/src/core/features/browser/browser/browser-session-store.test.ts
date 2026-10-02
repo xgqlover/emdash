@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BrowserSessionStore } from '@core/features/browser/api/browser/browser-session-store';
+import { resolveBotBrowserProfileId } from '@core/primitives/browser/api';
 
 describe('BrowserSessionStore', () => {
   it('creates isolated sessions with normalized initial URLs', () => {
@@ -17,6 +18,47 @@ describe('BrowserSessionStore', () => {
     expect(session.profileId).toBe('default');
     expect(session.partition).toBe('persist:emdash-browser-profile');
     expect(store.getSession('browser-1')).toEqual(session);
+  });
+
+  // [XG-CUSTOM] bot ⟷ profile：两个 bot 各开一个页 → **partition 不同**（cookie/登录态不串的根）。
+  // 这就是"带 bot A / bot B 落到不同 profile"的最小断言（真机 cookie 隔离见 OPS 文档）。
+  it('[XG-CUSTOM] two bots open onto different profile partitions', () => {
+    const store = new BrowserSessionStore();
+    const profiles = [
+      { id: 'default', name: 'Default' },
+      { id: 'bot-sxsj', name: 'sxsj', botId: 'sxsj' },
+      { id: 'bot-babado', name: 'babado', botId: 'babado' },
+    ];
+    const base = {
+      projectId: 'project-1',
+      workspaceId: 'workspace-1',
+      taskId: 'task-1',
+      initialUrl: 'https://example.com',
+    };
+
+    const sxsj = store.createSession({
+      ...base,
+      browserId: 'browser-sxsj',
+      profileId: resolveBotBrowserProfileId('sxsj', profiles, 'default'),
+    });
+    const babado = store.createSession({
+      ...base,
+      browserId: 'browser-babado',
+      profileId: resolveBotBrowserProfileId('babado', profiles, 'default'),
+    });
+    const unbound = store.createSession({
+      ...base,
+      browserId: 'browser-scout',
+      profileId: resolveBotBrowserProfileId('scout', profiles, 'default'),
+    });
+
+    expect(sxsj.profileId).toBe('bot-sxsj');
+    expect(babado.profileId).toBe('bot-babado');
+    expect(sxsj.partition).toBe('persist:emdash-browser-profile-bot-sxsj');
+    expect(babado.partition).toBe('persist:emdash-browser-profile-bot-babado');
+    expect(sxsj.partition).not.toBe(babado.partition);
+    // 未绑定的 bot → Default 的 partition（零回归）
+    expect(unbound.partition).toBe('persist:emdash-browser-profile');
   });
 
   it('updates mutable browser state while preserving URL on rejected navigation', () => {

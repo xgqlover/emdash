@@ -15,6 +15,8 @@ import {
 } from './browser-user-agent';
 // [XG-CUSTOM] 内嵌浏览器代理解析（env → 配置文件 → 非 Linux 缺省；见该文件头）
 import { resolveXiangwoBrowserProxy } from './xiangwo-browser-proxy';
+// [XG-CUSTOM] bot ⟷ profile 绑定快照（设置 → 浏览器的 profiles[].botId）
+import { setXiangwoBrowserProfileBindings } from './xiangwo-bot-browser-profile';
 
 // Web permissions the embedded browser may use without asking. Everything else
 // (camera, microphone, geolocation, notifications, USB/HID/serial, …) is denied:
@@ -30,6 +32,8 @@ let relaxCorsForLocalDevelopment = false;
 
 export function setBrowserCorsRelaxationSettings(browser: AppSettings['browser']): void {
   relaxCorsForLocalDevelopment = browser.relaxCorsForLocalhost;
+  // [XG-CUSTOM] 同一个调用点顺手把 bot⟷profile 绑定刷进主进程快照（9223 桥 / 反向通道查表用）
+  setXiangwoBrowserProfileBindings(browser);
 }
 
 /**

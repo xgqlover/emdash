@@ -23,7 +23,16 @@ import {
   type XiangwoBrowserRelay,
 } from '@main/host/browser/xiangwo-browser-relay';
 import { createRelayCandidateSelector } from '@main/host/browser/xiangwo-relay-candidates';
-import { XiangwoCdpBridge } from '@main/host/browser/xiangwo-cdp-bridge'; // [XG-CUSTOM]
+import {
+  XiangwoCdpBridge,
+  type XiangwoOpenBrowserRequest,
+} from '@main/host/browser/xiangwo-cdp-bridge'; // [XG-CUSTOM]
+// [XG-CUSTOM] bot ⟷ 浏览器 profile 绑定表（唯一真源 = botId）
+import {
+  xiangwoBotIdForBrowserProfile,
+  xiangwoBoundProfileIdForBot,
+  xiangwoProfileIdForBot,
+} from '@main/host/browser/xiangwo-bot-browser-profile';
 import {
   parseXiangwoCdpAllowList,
   resolveXiangwoCdpBindMode,
@@ -123,12 +132,21 @@ export function startXiangwoCdpBridge(): void {
   const configuredPort = Number.parseInt(process.env.XIANGWO_CDP_PORT ?? '', 10);
   const allowedPeers = parseXiangwoCdpAllowList(process.env.XIANGWO_CDP_ALLOW);
   const bridge = new XiangwoCdpBridge({
-    listTargets: () => browserWebContentsRegistry.listBoundBrowsers(),
+    // [XG-CUSTOM] 顺带回报该页所属 profile / bot（botId 由 profile 的绑定反查）
+    listTargets: () =>
+      browserWebContentsRegistry.listBoundBrowsers().map((target) => ({
+        ...target,
+        ...(target.profileId === undefined
+          ? {}
+          : { botId: xiangwoBotIdForBrowserProfile(target.profileId) }),
+      })),
     ...(Number.isFinite(configuredPort) && configuredPort > 0 ? { port: configuredPort } : {}),
     bind: resolveXiangwoCdpBindMode(process.env.XIANGWO_CDP_BIND),
     ...(allowedPeers.length > 0 ? { allowedPeers } : {}),
     // [XG-CUSTOM] 「从零开页」：白名单为空时把意图广播给渲染进程（真正开页的是它）
     requestOpenBrowser: requestEmbeddedBrowserOpen,
+    // [XG-CUSTOM] bot → 已绑定的 profile（未绑定 null）：挑"要复用的那一页"用
+    lookupBotProfile: (botId) => xiangwoBoundProfileIdForBot(botId),
     log: (message, metadata) => log.info(`[XG-CUSTOM] ${message}`, metadata),
   });
   xiangwoCdpBridge = bridge;
@@ -144,12 +162,27 @@ export function startXiangwoCdpBridge(): void {
  *
  * 渲染进程侧的消费者：`core/features/workbench/api/browser/embedded-browser-open-request.ts`
  * （挂在 `renderer/App.tsx`）。它只操作**内嵌浏览器**，主窗口永远不在可达范围内。
+ *
+ * [XG-CUSTOM] bot ⟷ profile：带了 `bot`/`profile` 就**在主进程解析成具体 profileId**
+ * （唯一真源 = botId；未绑定的 bot → 设置里的 defaultProfileId），再随事件下发 ——
+ * 渲染进程不必自己认识 bot 名册。**都不带 → 事件与改动前逐字节一致**（渲染进程用 defaultProfileId）。
  */
-export function requestEmbeddedBrowserOpen(url: string): void {
+export function requestEmbeddedBrowserOpen(request: XiangwoOpenBrowserRequest): void {
   try {
-    browserEvents.emit(undefined, { type: 'open-in-embedded-browser', url });
+    const explicitProfile = (request.profile ?? '').trim();
+    const bot = (request.bot ?? '').trim();
+    const profileId =
+      explicitProfile !== '' ? explicitProfile : bot !== '' ? xiangwoProfileIdForBot(bot) : '';
+    browserEvents.emit(undefined, {
+      type: 'open-in-embedded-browser',
+      url: request.url,
+      ...(profileId !== '' ? { profileId } : {}),
+    });
   } catch (error) {
-    log.warn('[XG-CUSTOM] 广播内嵌浏览器开页请求失败', { url, error: String(error) });
+    log.warn('[XG-CUSTOM] 广播内嵌浏览器开页请求失败', {
+      url: request.url,
+      error: String(error),
+    });
   }
 }
 
@@ -210,7 +243,11 @@ export function startXiangwoBrowserRelay(): void {
     // [XG-CUSTOM] 跨机 `open` 命令同样支持「从零开页」（与 9223 桥共用同一套广播）
     requestEmbeddedBrowserOpen,
     // [XG-CUSTOM 2026-10-02] 连续失败 → 判定这条路坏了 → 换下一条
-    { onBaseUrlFailure: (baseUrl) => selector.noteFailure(baseUrl) }
+    {
+      onBaseUrlFailure: (baseUrl) => selector.noteFailure(baseUrl),
+      // [XG-CUSTOM] bot ⟷ profile：跨机开页也挑"这个 bot 自己的那一页"
+      lookupBotProfile: (botId) => xiangwoBoundProfileIdForBot(botId),
+    }
   );
   if (relay === null) {
     log.info('[XG-CUSTOM] 内嵌浏览器反向通道已关闭（XIANGWO_BROWSER_RELAY=0）');

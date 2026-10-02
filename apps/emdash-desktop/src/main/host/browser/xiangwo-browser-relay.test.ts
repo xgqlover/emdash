@@ -528,7 +528,7 @@ describe('xiangwo-browser-relay open 命令（跨机"说打开就打开"）', ()
       fetchImpl: impl,
       webSocketFactory: factory,
       openBrowserWaitMs: 2000,
-      requestOpenBrowser: (url) => opened.push(url),
+      requestOpenBrowser: (request) => opened.push(request.url),
       log: () => undefined,
     });
     relay.start();
@@ -565,7 +565,7 @@ describe('xiangwo-browser-relay open 命令（跨机"说打开就打开"）', ()
       fetchImpl: impl,
       webSocketFactory: makeFakeWs().factory,
       openBrowserWaitMs: 60,
-      requestOpenBrowser: (url) => opened.push(url),
+      requestOpenBrowser: (request) => opened.push(request.url),
       log: () => undefined,
     });
     relay.start();
@@ -578,6 +578,145 @@ describe('xiangwo-browser-relay open 命令（跨机"说打开就打开"）', ()
     expect(body.ok).toBe(false);
     expect(body.error).toContain('没有打开的内嵌浏览器');
     expect(body.error).toContain('自动开一个但没等到');
+  });
+});
+
+// ── [XG-CUSTOM 2026-10-02] bot ⟷ profile：跨机 open 也要挑"这个 bot 自己的那一页" ──────────
+//
+// 跨机链路（Linux agent → 反向通道 → 本机 9223）与 /xg/open-browser 共用同一套 profile 语义：
+// 带 bot 时就只导航 profile 对得上的那一页；对不上宁可按「从零开页」再开一个，也不接管别人的页。
+describe('[XG-CUSTOM] xiangwo-browser-relay open 命令 + bot/profile', () => {
+  function listWith(targets: Array<Record<string, unknown>>): () =>
+    | Response
+    | undefined {
+    return () => json(targets);
+  }
+
+  async function runOpenCommand(
+    command: Record<string, unknown>,
+    targets: Array<Record<string, unknown>>,
+    overrides: {
+      lookupBotProfile?: (botId: string) => string | null;
+      requestOpenBrowser?: (request: { url: string; bot?: string; profile?: string }) => void;
+      openBrowserWaitMs?: number;
+    } = {}
+  ) {
+    const { impl, calls } = makeFetch((url) => {
+      if (url.startsWith(POLL)) {
+        return calls.filter((c) => c.url.startsWith(POLL)).length === 1
+          ? json({ id: 7, kind: 'open', ...command })
+          : new Response(null, { status: 204 });
+      }
+      if (url === 'http://127.0.0.1:9223/json/list') return listWith(targets)();
+      if (url.endsWith('/api/emdash-browser/result')) return json({ ok: true });
+      return undefined;
+    });
+    const { factory, sockets } = makeFakeWs();
+    const relay = new XiangwoBrowserRelay({
+      resolveBaseUrl: async () => 'http://linux:8900',
+      fetchImpl: impl,
+      webSocketFactory: factory,
+      openBrowserWaitMs: overrides.openBrowserWaitMs ?? 200,
+      ...(overrides.lookupBotProfile ? { lookupBotProfile: overrides.lookupBotProfile } : {}),
+      ...(overrides.requestOpenBrowser ? { requestOpenBrowser: overrides.requestOpenBrowser } : {}),
+      log: () => undefined,
+    });
+    relay.start();
+    await tick(8);
+    for (const socket of sockets) {
+      socket.open();
+      socket.message(JSON.stringify({ id: 1, result: { frameId: 'f1' } }));
+    }
+    // 等「从零开页」那条路走完（带 waitMs 的用例需要超过 waitMs；不带的用例空转也无害）
+    await tick(150);
+    relay.stop();
+    const result = calls.find((c) => c.url.endsWith('/api/emdash-browser/result'));
+    const body = JSON.parse(String(result?.init?.body)) as {
+      ok: boolean;
+      payload?: { target_id: string };
+      error?: string;
+    };
+    return { body, sockets };
+  }
+
+  it('带了 bot 且只有别人的页 → 不 navigate 别人的页，改为请求从零开自己的页', async () => {
+    const opened: Array<Record<string, unknown>> = [];
+    const { body, sockets } = await runOpenCommand(
+      { url: 'https://example.com', bot: 'sxsj' },
+      [
+        {
+          id: 'XG-OTHER',
+          type: 'page',
+          url: 'https://other.example/',
+          title: '别人的页',
+          webSocketDebuggerUrl: 'ws://127.0.0.1:9223/devtools/page/XG-OTHER',
+          profile: 'bot-babado',
+          botId: 'babado',
+        },
+      ],
+      {
+        lookupBotProfile: (bot) => (bot === 'sxsj' ? 'bot-sxsj' : null),
+        requestOpenBrowser: (request) => opened.push({ ...request }),
+        openBrowserWaitMs: 60,
+      }
+    );
+    expect(opened).toEqual([{ url: 'https://example.com', bot: 'sxsj' }]);
+    // 一页都没对得上 → 没有可 navigate 的目标
+    expect(sockets.every((socket) => socket.sent.length === 0)).toBe(true);
+    expect(body.ok).toBe(false);
+  });
+
+  it('带了 bot 且 profile 对得上 → 就导航那一页（不新开）', async () => {
+    const opened: Array<Record<string, unknown>> = [];
+    const { body, sockets } = await runOpenCommand(
+      { url: 'https://example.com', bot: 'sxsj' },
+      [
+        {
+          id: 'XG-OTHER',
+          type: 'page',
+          url: 'https://other.example/',
+          title: '别人的页',
+          webSocketDebuggerUrl: 'ws://127.0.0.1:9223/devtools/page/XG-OTHER',
+          profile: 'bot-babado',
+          botId: 'babado',
+        },
+        {
+          id: 'XG-SXSJ',
+          type: 'page',
+          url: 'https://about.blank/',
+          title: '我的页',
+          webSocketDebuggerUrl: 'ws://127.0.0.1:9223/devtools/page/XG-SXSJ',
+          profile: 'bot-sxsj',
+          botId: 'sxsj',
+        },
+      ],
+      {
+        lookupBotProfile: (bot) => (bot === 'sxsj' ? 'bot-sxsj' : null),
+        requestOpenBrowser: (request) => opened.push({ ...request }),
+      }
+    );
+    expect(opened).toHaveLength(0);
+    const navigated = sockets.find((socket) => socket.url.endsWith('/devtools/page/XG-SXSJ'));
+    expect(navigated).toBeDefined();
+    expect(body.ok).toBe(true);
+    expect(body.payload?.target_id).toBe('XG-SXSJ');
+  });
+
+  it('老调用方（不带 bot/profile）→ 照旧 navigate 第一个内嵌页（零回归）', async () => {
+    const { body, sockets } = await runOpenCommand({ url: 'https://example.com' }, [
+      {
+        id: 'XG-EMBEDDED',
+        type: 'page',
+        url: 'about:blank',
+        title: '新标签页',
+        webSocketDebuggerUrl: 'ws://127.0.0.1:9223/devtools/page/XG-EMBEDDED',
+        profile: '',
+        botId: '',
+      },
+    ]);
+    expect(sockets.length).toBeGreaterThanOrEqual(1);
+    expect(sockets[0]?.url).toBe('ws://127.0.0.1:9223/devtools/page/XG-EMBEDDED');
+    expect(body.ok).toBe(true);
   });
 });
 

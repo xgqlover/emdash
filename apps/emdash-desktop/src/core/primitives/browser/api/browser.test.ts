@@ -2,12 +2,19 @@ import { describe, expect, it } from 'vitest';
 import {
   BROWSER_PROFILE_PARTITION,
   BROWSER_ISOLATED_PROFILE_ID,
+  browserProfileBotId,
+  browserProfileIdFromPartition,
+  browserProfilePartition,
   createBrowserSessionSnapshot,
+  DEFAULT_BROWSER_PROFILE_ID,
   isBrowsingDataKind,
+  makeBotBrowserProfileId,
   makeIsolatedBrowserPartition,
   makeBrowserSessionIdentity,
+  normalizeBrowserBotId,
   normalizeBrowserProfileSelection,
   normalizeBrowserUrl,
+  resolveBotBrowserProfileId,
 } from './browser';
 
 describe('normalizeBrowserUrl', () => {
@@ -193,5 +200,71 @@ describe('browser session identity', () => {
     ).toMatchObject({
       currentUrl: 'https://intranet/',
     });
+  });
+});
+
+
+// [XG-CUSTOM] bot ⟷ profile：唯一真源 = botId。这些用例锁住三件事：
+//  ① 未绑定 bot / 没带 bot → 与今天一致（Default / defaultProfileId）；
+//  ② 绑定了的 bot → 精确落到它自己那个 profile；
+//  ③ partition ↔ profileId 双向可逆（9223 桥的 /json/list 靠它反推 bot 身份）。
+describe('[XG-CUSTOM] bot ⟷ 浏览器 profile', () => {
+  const profiles = [
+    { id: DEFAULT_BROWSER_PROFILE_ID, name: 'Default' },
+    { id: 'bot-sxsj', name: 'sxsj', botId: 'sxsj' },
+    { id: 'bot-babado', name: 'babado', botId: 'babado' },
+  ];
+
+  it('未带 botId → 用 defaultProfileId（零回归）', () => {
+    expect(resolveBotBrowserProfileId(undefined, profiles, DEFAULT_BROWSER_PROFILE_ID)).toBe(
+      DEFAULT_BROWSER_PROFILE_ID
+    );
+    expect(resolveBotBrowserProfileId('', profiles, 'bot-sxsj')).toBe('bot-sxsj');
+  });
+
+  it('未绑定的 bot → 仍落 defaultProfileId（不猜、不自动建）', () => {
+    expect(resolveBotBrowserProfileId('scout', profiles, DEFAULT_BROWSER_PROFILE_ID)).toBe(
+      DEFAULT_BROWSER_PROFILE_ID
+    );
+  });
+
+  it('绑定了的 bot → 精确落到它自己那个 profile（两个 bot 不会撞同一个 partition）', () => {
+    const a = resolveBotBrowserProfileId('sxsj', profiles, DEFAULT_BROWSER_PROFILE_ID);
+    const b = resolveBotBrowserProfileId('babado', profiles, DEFAULT_BROWSER_PROFILE_ID);
+    expect(a).toBe('bot-sxsj');
+    expect(b).toBe('bot-babado');
+    expect(browserProfilePartition(a)).not.toBe(browserProfilePartition(b));
+  });
+
+  it('browserProfileBotId 认得出归属，未绑定返回 undefined', () => {
+    expect(browserProfileBotId('bot-sxsj', profiles)).toBe('sxsj');
+    expect(browserProfileBotId(DEFAULT_BROWSER_PROFILE_ID, profiles)).toBeUndefined();
+  });
+
+  it('partition → profileId 可逆（Default 与具名 profile 都对得上）', () => {
+    expect(browserProfileIdFromPartition(BROWSER_PROFILE_PARTITION)).toBe(
+      DEFAULT_BROWSER_PROFILE_ID
+    );
+    expect(browserProfileIdFromPartition(browserProfilePartition('bot-sxsj'))).toBe('bot-sxsj');
+    // per-task 隔离分区 / 别的 session 不算具名 profile
+    expect(
+      browserProfileIdFromPartition(
+        makeIsolatedBrowserPartition(
+          makeBrowserSessionIdentity({
+            browserId: 'b1',
+            projectId: 'p',
+            workspaceId: 'w',
+            taskId: 't',
+          })
+        )
+      )
+    ).toBeUndefined();
+    expect(browserProfileIdFromPartition('persist:emdash-app')).toBeUndefined();
+  });
+
+  it('makeBotBrowserProfileId 生成 bot-<id> 且重名会加后缀', () => {
+    expect(makeBotBrowserProfileId('Scout', profiles)).toBe('bot-scout');
+    expect(makeBotBrowserProfileId('sxsj', profiles)).toBe('bot-sxsj-2');
+    expect(normalizeBrowserBotId('  Chief Engineer  ')).toBe('chief-engineer');
   });
 });
