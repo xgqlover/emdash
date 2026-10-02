@@ -22,6 +22,7 @@ import {
   createXiangwoBrowserRelay,
   type XiangwoBrowserRelay,
 } from '@main/host/browser/xiangwo-browser-relay';
+import { createRelayCandidateSelector } from '@main/host/browser/xiangwo-relay-candidates';
 import { XiangwoCdpBridge } from '@main/host/browser/xiangwo-cdp-bridge'; // [XG-CUSTOM]
 import {
   parseXiangwoCdpAllowList,
@@ -40,6 +41,7 @@ import {
   createXiangwoFloatingWindow,
   ensureChromeRunning,
   expertHandoffCall,
+  expertRosterCall,
 } from '@main/host/window'; // [XG-CUSTOM]
 import { resolveXiangwoChatTarget } from '@main/host/xiangwo-chat-target';
 import { log } from '@main/lib/logger';
@@ -163,17 +165,51 @@ let xiangwoCdpBridge: XiangwoCdpBridge | null = null;
  * 只能操作内嵌浏览器，主窗口永远不可附加。
  *
  * - 地址：`XIANGWO_BROWSER_RELAY_URL` > `resolveXiangwoChatTarget()`（球面板同一套解析：
- *   本机 127.0.0.1:8900 / SSH 转发 / 主机地址直连）
- * - 逃生开关：`XIANGWO_BROWSER_RELAY=0`
+ *   本机 127.0.0.1:8900 / SSH 转发 / 主机地址直连）。**显式给了 URL 就无条件拨**。
+ * - 自动避让（2026-10-02 修正）：解析出"回环 + 8900"时**不再**直接停用，而是先
+ *   `GET {base}/xg/whoami` 比对面 hostname 与本机 `os.hostname()` —— 同机才停用。
+ *   原因：SSH 转发（`ssh -L 8900:127.0.0.1:8900`）给出的也是这个地址，旧判据把外地
+ *   Windows 误停用（hub 里 `has_peer=false`）。保险丝 `XIANGWO_BROWSER_RELAY_SKIP_LOCAL_AGENT=1`。
+ * - 逃生开关：`XIANGWO_BROWSER_RELAY=0` 关；`=1` 开
  * - 失败只打日志 + 指数退避，绝不影响主窗口启动
+ * - [XG-CUSTOM 2026-10-02] **多候选 + 自动切换**（`xiangwo-relay-candidates.ts`）：
+ *   依次试 `XIANGWO_BROWSER_RELAY_URL` > 上次成功的 > 直连网线 192.168.2.10 > ZeroTier
+ *   10.239.5.174 > tailscale 100.125.4.119 > 127.0.0.1，探到就记、坏了就换（5 分钟复检）。
+ *   **Windows 端不需要配任何东西**：不设 env 也自己找路、自己切。
  */
 export function startXiangwoBrowserRelay(): void {
   if (xiangwoBrowserRelay !== null) return;
+  const relayLog = (message: string, metadata?: Record<string, unknown>): void => {
+    log.info(`[XG-CUSTOM] ${message}`, metadata);
+  };
+  // [XG-CUSTOM 2026-10-02] 多候选地址选择器：一条链路断了自动走下一条（不需要重启 emdash）
+  const selector = createRelayCandidateSelector({
+    log: relayLog,
+    // 兜底动态候选（SSH 转发 / 远程主机地址）：静态候选都不通时才轮得到它
+    extraCandidates: async () => {
+      try {
+        const target = await resolveXiangwoChatTarget();
+        return target.baseUrl === ''
+          ? []
+          : [
+              {
+                url: target.baseUrl,
+                source: 'dynamic' as const,
+                label: `动态解析（${target.source}）`,
+              },
+            ];
+      } catch {
+        return [];
+      }
+    },
+  });
   const relay = createXiangwoBrowserRelay(
-    async () => (await resolveXiangwoChatTarget()).baseUrl,
-    (message, metadata) => log.info(`[XG-CUSTOM] ${message}`, metadata),
+    async () => selector.resolve(),
+    relayLog,
     // [XG-CUSTOM] 跨机 `open` 命令同样支持「从零开页」（与 9223 桥共用同一套广播）
-    requestEmbeddedBrowserOpen
+    requestEmbeddedBrowserOpen,
+    // [XG-CUSTOM 2026-10-02] 连续失败 → 判定这条路坏了 → 换下一条
+    { onBaseUrlFailure: (baseUrl) => selector.noteFailure(baseUrl) }
   );
   if (relay === null) {
     log.info('[XG-CUSTOM] 内嵌浏览器反向通道已关闭（XIANGWO_BROWSER_RELAY=0）');
@@ -252,6 +288,8 @@ export function createDesktopWireOptions(
       // [XG-CUSTOM] 新建交接（手动写交接内容，让专家接下去做）
       expertHandoffAdd: ({ bot, expert, title, summary, session, context }) =>
         expertHandoffCall('add', bot, expert, title, summary, session, context),
+      // [XG-CUSTOM] Pi 树专家名册（专家总览视图）
+      expertRoster: () => expertRosterCall(),
       showWorkspaceItemInFolder: (input) => appOperations.showWorkspaceItemInFolder(input),
       clipboardWriteText: ({ text }) => appOperations.clipboardWriteText(text),
       persistDroppedBlob: (input) => appOperations.persistDroppedBlob(input),

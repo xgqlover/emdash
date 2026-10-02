@@ -57,6 +57,11 @@ export async function expertHandoffAdd(bot: string, expert: string, title: strin
 export async function expertHandoffList(bot: string, session: string) {
   return (await getHostClient()).expertHandoffList({ bot, session });
 }
+
+// [XG-CUSTOM] Pi 树专家名册（专家总览视图）
+export async function expertRoster() {
+  return (await getHostClient()).expertRoster({});
+}
 export async function copyTextToClipboard(text: string) {
   return (await getHostClient()).clipboardWriteText({ text });
 }

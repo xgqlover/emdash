@@ -379,6 +379,25 @@ export function expertHandoffCall<T = unknown>(cmd: string, ...args: string[]): 
   }) as Promise<T>;
 }
 
+// [XG-CUSTOM] Pi 树专家名册桥接：调 xiangwo-agent/expert_roster.py roster（输出 JSON）。
+// 与交接台同款主机感知（local spawn / remote ssh），数据源是宿主机上的 suagent_registry + Pi 树。
+const EXPERT_ROSTER_PY =
+  '/persistent/home/xgqlover/天天项上/五层四维记忆系统/xiangwo-agent/expert_roster.py';
+
+export function expertRosterCall<T = unknown>(): Promise<T> {
+  return runXiangwoScript({
+    label: '专家总览',
+    interpreter: {
+      local: '/usr/bin/python3',
+      remote: 'python3',
+      remoteSearchPaths: ['/usr/bin/python3', '/usr/local/bin/python3'],
+    },
+    scriptPath: EXPERT_ROSTER_PY,
+    envVar: 'XIANGWO_EXPERT_ROSTER_PY',
+    args: ['roster'],
+  }) as Promise<T>;
+}
+
 // [XG-CUSTOM] 项我球 / 旧浮窗的聊天地址：注册 `xiangwo:resolve-chat-url`
 // （preload: electronAPI.resolveXiangwoChatUrl）。解析规则/依赖注入见 main/host/xiangwo-chat-target.ts，
 // 真实依赖（db 里的 SSH 主机 + services.forwardManualPreview）在 boot 时注入。

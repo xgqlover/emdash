@@ -75,6 +75,32 @@ export interface ExpertHandoffTopic {
   created: number;
 }
 
+// [XG-CUSTOM] Pi 树专家名册（对应 xiangwo-agent/expert_roster.py 输出）
+// 用途：emdash「专家总览」视图 —— Kaneo 只放有工作的 bot，全量身份看这里。
+export interface ExpertRosterEntry {
+  id: string;
+  name: string;
+  kind: string; // main | sub | role | expert | other
+  parent: string;
+  topics: number;
+  pending: number;
+  accepted: number;
+  lastActive: number;
+}
+
+export interface ExpertRosterResult {
+  registryError?: string | null;
+  groups: { kind: string; items: ExpertRosterEntry[] }[];
+  totals: {
+    identities: number;
+    identitiesWithWork: number;
+    topics: number;
+    pending: number;
+    accepted: number;
+    generatedAt: number;
+  };
+}
+
 type ActionResult = { success: boolean; error?: string };
 type RequiredPathResult = { success: true; path: string } | { success: false; error: string };
 type NullablePathResult =
@@ -141,6 +167,11 @@ export const desktopHostContract = defineContract({
   expertHandoffList: procedure({
     input: z.object({ bot: z.string(), session: z.string() }),
     output: z.custom<ExpertHandoffTopic[]>(),
+  }),
+  // [XG-CUSTOM] Pi 树专家名册（专家总览视图）
+  expertRoster: procedure({
+    input: z.object({}),
+    output: z.custom<ExpertRosterResult>(),
   }),
   openPath: procedure({
     input: z.object({ ref: hostFileRefSchema }),

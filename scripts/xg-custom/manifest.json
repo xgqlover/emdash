@@ -7,10 +7,10 @@
     "base": "669a24fe673f4af1a507ddc33fc3f3ffe1039348"
   },
   "stats": {
-    "files": 116,
-    "markers": 656,
-    "newFiles": 56,
-    "modifiedFiles": 60
+    "files": 118,
+    "markers": 663,
+    "newFiles": 57,
+    "modifiedFiles": 61
   },
   "files": {
     "apps/emdash-desktop/electron-builder.config.ts": {
@@ -869,6 +869,24 @@
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "项我主对话 feature（8900 聊天）"
     },
+    "apps/emdash-desktop/src/core/manifests/browser/browser-contributions.ts": {
+      "markers": 3,
+      "lines": [
+        14,
+        17,
+        22
+      ],
+      "anchors": [
+        "import { xiangwoBrowserContributions } from '@core/features/xiangwo/contributions/browser';",
+        "import { expertRosterBrowserContributions } from '@core/features/expert-roster/contributions/browser';",
+        "...xiangwoBrowserContributions.views,"
+      ],
+      "hash": "f86b9447ba34a437c4649b9992f8ee01c80f30ea",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "浏览器 manifest 注册（xiangwo/handoff 视图）"
+    },
     "apps/emdash-desktop/src/core/manifests/browser/view-catalog.ts": {
       "markers": 2,
       "lines": [
@@ -1358,6 +1376,23 @@
       "origin": "new",
       "firstCommit": "f1dbc7f61|2026-09-30|[XG-CUSTOM] 内嵌浏览器 9223 CDP 桥 + 项我球「网页 N」计数与一键清理",
       "lastCommit": "f1dbc7f61|2026-09-30|[XG-CUSTOM] 内嵌浏览器 9223 CDP 桥 + 项我球「网页 N」计数与一键清理",
+      "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
+    },
+    "apps/emdash-desktop/src/main/host/browser/xiangwo-relay-candidates.test.ts": {
+      "markers": 4,
+      "lines": [
+        30,
+        90,
+        203,
+        404
+      ],
+      "anchors": [
+        "describe('"
+      ],
+      "hash": "304618dfe7d3b21ba70c6c295ba6483d0f1596e6",
+      "origin": "new",
+      "firstCommit": "b055afb66|2026-10-02|[XG-CUSTOM] 稳定联网：反向通道误判修复 + 多候选自动切换",
+      "lastCommit": "b055afb66|2026-10-02|[XG-CUSTOM] 稳定联网：反向通道误判修复 + 多候选自动切换",
       "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
     },
     "apps/emdash-desktop/src/main/host/updates/update-service.ts": {

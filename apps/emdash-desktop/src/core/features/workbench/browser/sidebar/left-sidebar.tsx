@@ -1,11 +1,12 @@
 import { getTaskManagerStore } from '@core/features/tasks/api/browser/task-state/task-selectors';
 import { taskViewDef } from '@core/features/tasks/contributions/views';
 import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
-import { Clock, FolderInput, Inbox, MessageSquareShare, Settings } from 'lucide-react';
+import { Clock, FolderInput, Inbox, MessageSquareShare, Settings, Users } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { automationsViewDef } from '@core/features/automations/contributions/views';
 import { handoffViewDef } from '@core/features/handoff/contributions/views';
+import { expertRosterViewDef } from '@core/features/expert-roster/contributions/views';
 import { settingsViewDef } from '@core/features/settings/contributions/views';
 import { useOpenModal } from '@core/manifests/browser/modal-api';
 import { BoundShortcut } from '@core/primitives/keybindings/browser/shortcut';
@@ -129,6 +130,17 @@ export const LeftSidebar: React.FC = observer(function LeftSidebar() {
               <span className="flex min-w-0 items-center gap-2">
                 <Inbox className="h-5 w-5 shrink-0 sm:h-4 sm:w-4" />
                 <span className="truncate">交接台</span>
+              </span>
+            </SidebarMenuButton>
+            <SidebarMenuButton
+              isActive={isCurrentView(currentView, 'expertRoster')}
+              onClick={() => navigate(expertRosterViewDef())}
+              aria-label="专家总览"
+              className="w-full justify-between"
+            >
+              <span className="flex min-w-0 items-center gap-2">
+                <Users className="h-5 w-5 shrink-0 sm:h-4 sm:w-4" />
+                <span className="truncate">专家总览</span>
               </span>
             </SidebarMenuButton>
             <SidebarMenuButton
