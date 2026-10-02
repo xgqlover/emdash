@@ -208,6 +208,46 @@ Linux 绝对路径（第 10 节遗留）。
 - **正本说明**：`scripts/xg-custom/README.md`（三件套为什么缺一不可、以标记为锚点/hash 只作辅助的取舍、
   升级上游标准流程、已知历史欠账清单）；运维速查见工作区 `emdash-运行经验-OPS.md` §十二。
 
+### 12. [XG-CUSTOM] 专家总览视图（Pi 树全量身份，2026-10-02）
+
+**定位**：Kaneo 只放「有工作」的 bot（A 方案），**全量身份可见性**放 emdash 侧边栏这个视图。
+⚠️ 功能价值存疑（它统计的"负载"来自交接池，不等于真实忙闲）—— **用户尚未拍板留/删**，见 `Kaneo-OPS.md`。
+
+**改动 5 处 + 1 个新 slice**：
+| # | 文件 | 加什么 |
+|---|---|---|
+| 1 | `core/features/expert-roster/`（**新 slice**） | `contributions/views.ts`（`defineView({id:'expertRoster'})`）+ `contributions/browser.ts` + `browser/expert-roster-view.tsx` |
+| 2 | `core/primitives/desktop-host/api/host-contract.ts` | `ExpertRosterEntry/ExpertRosterResult` 类型 + `expertRoster` procedure |
+| 3 | `core/primitives/desktop-host/browser/host-client.ts` | `expertRoster()` |
+| 4 | `main/host/window.ts` | `expertRosterCall()`（复用 `runXiangwoScript`，主机感知 → Windows 走 ssh） |
+| 5 | `main/bootstrap/boot/wiring.ts` | 注册 `expertRoster: () => expertRosterCall()` |
+| 6 | `core/manifests/browser/browser-contributions.ts` | 聚合新视图（**顺带给原有 xiango 注册补标**） |
+| 7 | `core/features/workbench/browser/sidebar/left-sidebar.tsx` | 侧边栏「专家总览」入口（Users 图标） |
+
+**数据源**：`xiangwo-agent/expert_roster.py roster`（只读 `suagent_registry.py` + `expert_topics.json`），
+输出 81 身份（9 主 bot / 47 子代理 / 6 通用角色 / 19 专家池 + 未归类），按 kind 分组。
+
+**升级找回**：`grep -rn "expertRoster\|expert-roster" apps/emdash-desktop/src`
+
+### 13. [XG-CUSTOM] AFFiNE 集成卡片（知识工作台 3010，2026-10-02）
+
+**背景**：用户报「设置→集成里看不到 AFFiNE」。查证：集成区此前只有 Kaneo/OpenViking/T8/WeKnora 四张卡，
+**AFFiNE 从没在 emdash 接过**（只在 HippoBuddy 侧被 `_patch_hippo_canvas_affine.py` 指向过 3010）。
+
+**照 Kaneo 模板改 5 处**：
+| # | 文件 | 加什么 |
+|---|---|---|
+| 1 | `main/host/window.ts` | `createAffineWindow(url='http://127.0.0.1:3010')`（单例窗口，照 `createKaneoWindow`） |
+| 2 | `main/bootstrap/boot/wiring.ts` | import `createAffineWindow` + handler `openAffine`（走 `services.forwardManualPreview(3010)`） |
+| 3 | `core/primitives/desktop-host/api/host-contract.ts` | `openAffine` procedure |
+| 4 | `core/primitives/desktop-host/browser/host-client.ts` | `openAffine()` |
+| 5 | `core/features/settings/browser/components/IntegrationsCard.tsx` | import `openAffine` + 🧩 卡片（「知识工作台（文档 · 白板 · 表格，一体化编辑）」） |
+
+**与内容侧的关系（别混）**：本卡片只是**打开 AFFiNE 窗口**（人看人用）；
+AFFiNE 内容进 Pi 树靠 **`affine_ingest.py`**（Yjs 解码，见 `Kaneo-OPS.md`）。两者独立。
+
+**升级找回**：`grep -rn "openAffine\|createAffineWindow" apps/emdash-desktop/src`
+
 **新版流程（写进日常习惯）**：
 
 1. 改 fork 代码时**一边改一边标** `[XG-CUSTOM]`（标记 + 一句话说明为什么改）—— 别攒着后面补；
