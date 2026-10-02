@@ -1,11 +1,18 @@
 // [XG-CUSTOM] 内嵌浏览器反向通道单测：只测"出站拨号 + 本地转发 + 结果回传"这套协议，
 // 不碰 Electron（fetch / WebSocket 都注入假的），也不碰真 emdash。
+// 真 HTTP / 真本机 hub 的端到端用例在 `xiangwo-browser-relay-live.test.ts`
+// （分开是因为"真网络 + 长轮询"混在一个 worker 里会让 vitest 收尾卡住）。
+import { hostname as osHostname } from 'node:os';
 import { describe, expect, it, vi } from 'vitest';
 import {
   cdpCallOnce,
+  decideSkipLocalAgent,
+  envTruthy,
   isLocalAgentBase,
+  isLoopbackAgentBase,
   localWsBaseOf,
   relayEnabledFromEnv,
+  relaySkipLocalAgentFromEnv,
   XiangwoBrowserRelay,
   type RelayWebSocket,
 } from './xiangwo-browser-relay';
@@ -108,17 +115,108 @@ describe('xiangwo-browser-relay 开关与小工具', () => {
     expect(localWsBaseOf('garbage')).toBe('ws://127.0.0.1:9223');
   });
 
-  it('isLocalAgentBase 只认"回环 + 正好 8900"（SSH 转发端口不算）', () => {
+  it('isLoopbackAgentBase 只认"回环 + 正好 8900"（是"像本机"，不是"是本机"）', () => {
     // 家里那台 Linux：agent 与本机 emdash 同机 → 本机 emdash 不该再拨回来
-    expect(isLocalAgentBase('http://127.0.0.1:8900')).toBe(true);
-    expect(isLocalAgentBase('http://localhost:8900')).toBe(true);
-    expect(isLocalAgentBase('http://[::1]:8900/')).toBe(true);
+    expect(isLoopbackAgentBase('http://127.0.0.1:8900')).toBe(true);
+    expect(isLoopbackAgentBase('http://localhost:8900')).toBe(true);
+    expect(isLoopbackAgentBase('http://[::1]:8900/')).toBe(true);
     // Windows 各种情形：SSH 转发的回环端口 / 组网地址 → 都要拨
-    expect(isLocalAgentBase('http://127.0.0.1:51234')).toBe(false);
-    expect(isLocalAgentBase('http://10.239.5.174:8900')).toBe(false);
-    expect(isLocalAgentBase('http://100.125.4.119:8900')).toBe(false);
-    expect(isLocalAgentBase('http://127.0.0.1')).toBe(false);
-    expect(isLocalAgentBase('garbage')).toBe(false);
+    expect(isLoopbackAgentBase('http://127.0.0.1:51234')).toBe(false);
+    expect(isLoopbackAgentBase('http://10.239.5.174:8900')).toBe(false);
+    expect(isLoopbackAgentBase('http://100.125.4.119:8900')).toBe(false);
+    expect(isLoopbackAgentBase('http://127.0.0.1')).toBe(false);
+    expect(isLoopbackAgentBase('garbage')).toBe(false);
+    // 旧名保留为别名（语义已降级）
+    expect(isLocalAgentBase('http://127.0.0.1:8900')).toBe(true);
+  });
+
+  it('envTruthy / relaySkipLocalAgentFromEnv 只认 1/on/true/yes', () => {
+    expect(envTruthy('1')).toBe(true);
+    expect(envTruthy('ON')).toBe(true);
+    expect(envTruthy('  yes ')).toBe(true);
+    expect(envTruthy(undefined)).toBe(false);
+    expect(envTruthy('0')).toBe(false);
+    expect(relaySkipLocalAgentFromEnv('1')).toBe(true);
+    expect(relaySkipLocalAgentFromEnv(undefined)).toBe(false);
+    expect(relaySkipLocalAgentFromEnv('0')).toBe(false);
+  });
+});
+
+// ── [XG-CUSTOM 2026-10-02] 真机 bug 的判定逻辑：回环 8900 ≠ 同机 ──────────────
+// 现象（用户另一台 Win，LAN 192.168.2.20）：9223/8900 都在听，但 hub 里没有它 →
+// `resolveXiangwoChatTarget()` 走 SSH 转发给出 `http://127.0.0.1:8900`（转发端口**就是** 8900），
+// 旧判据只看 URL → 误判"agent 在本机" → relay 自我停用。这里把每条分支钉死。
+describe('decideSkipLocalAgent：回环 8900 到底是不是本机', () => {
+  it('对面报的 hostname == 本机 → 确证同机 → 不拨（家里 Linux 的原始避让目的）', async () => {
+    const decision = await decideSkipLocalAgent({
+      baseUrl: 'http://127.0.0.1:8900',
+      localHostname: 'xgqlover-PC',
+      probe: async () => ({ hostname: 'XGQLOVER-PC.', instanceId: 'x', platform: 'Linux' }),
+    });
+    expect(decision.skip).toBe(true);
+    expect(decision.reason).toBe('same-host');
+  });
+
+  it('对面报的 hostname != 本机 → 确证是 SSH 转发来的远端 agent → 拨', async () => {
+    const decision = await decideSkipLocalAgent({
+      baseUrl: 'http://127.0.0.1:8900',
+      localHostname: 'DESKTOP-XG-WIN',
+      probe: async () => ({ hostname: 'xgqlover-PC', instanceId: 'x', platform: 'Linux' }),
+    });
+    expect(decision.skip).toBe(false);
+    expect(decision.reason).toBe('remote-agent');
+    expect(decision.detail).toContain('SSH 转发');
+  });
+
+  it('对面没答 /xg/whoami（旧版 agent）→ 无法确证，按"远端"照拨', async () => {
+    const decision = await decideSkipLocalAgent({
+      baseUrl: 'http://127.0.0.1:8900',
+      localHostname: 'DESKTOP-XG-WIN',
+      probe: async () => null,
+    });
+    expect(decision.skip).toBe(false);
+    expect(decision.reason).toBe('unknown-agent');
+  });
+
+  it('探测抛异常 → 不停用（跨机主路径优先，绝不因探测抖动把自己关死）', async () => {
+    const decision = await decideSkipLocalAgent({
+      baseUrl: 'http://127.0.0.1:8900',
+      localHostname: 'DESKTOP-XG-WIN',
+      probe: async () => {
+        throw new Error('ECONNRESET');
+      },
+    });
+    expect(decision.skip).toBe(false);
+  });
+
+  it('显式给了 XIANGWO_BROWSER_RELAY_URL → 无条件拨；SKIP_LOCAL_AGENT=1 → 无条件停用', async () => {
+    const explicit = await decideSkipLocalAgent({
+      baseUrl: 'http://127.0.0.1:8900',
+      localHostname: 'xgqlover-PC',
+      explicitTarget: true,
+      probe: async () => ({ hostname: 'xgqlover-PC', instanceId: 'x', platform: 'Linux' }),
+    });
+    expect(explicit.reason).toBe('explicit');
+    expect(explicit.skip).toBe(false);
+
+    const forced = await decideSkipLocalAgent({
+      baseUrl: 'http://127.0.0.1:8900',
+      localHostname: 'DESKTOP-XG-WIN',
+      forceSkip: true,
+      probe: async () => ({ hostname: 'xgqlover-PC', instanceId: 'x', platform: 'Linux' }),
+    });
+    expect(forced.reason).toBe('forced');
+    expect(forced.skip).toBe(true);
+  });
+
+  it('非回环地址（组网/主机直连）→ 根本不进避让逻辑', async () => {
+    const decision = await decideSkipLocalAgent({
+      baseUrl: 'http://10.239.5.174:8900',
+      localHostname: 'xgqlover-PC',
+      probe: async () => ({ hostname: 'xgqlover-PC', instanceId: 'x', platform: 'Linux' }),
+    });
+    expect(decision.skip).toBe(false);
+    expect(decision.reason).toBe('not-loopback');
   });
 });
 
@@ -212,13 +310,15 @@ describe('xiangwo-browser-relay 命令往返', () => {
     expect(sockets[0]?.sent).toContain('{"id":1}');
   });
 
-  it('解析出的地址是"本机 8900"（agent 与本机 emdash 同机）→ 自我停用，不发请求', async () => {
+  it('解析到"本机 8900"且身份探测确证同机 → 自我停用，不发请求', async () => {
     const { impl, calls } = makeFetch(() => json({}));
     const logs: string[] = [];
     const relay = new XiangwoBrowserRelay({
       resolveBaseUrl: async () => 'http://127.0.0.1:8900',
       fetchImpl: impl,
       backoffStepsMs: [1],
+      // 生产实现会真去 GET {base}/xg/whoami；这里注入"对面就是本机"
+      probeHostname: async () => osHostname(),
       log: (message) => logs.push(message),
     });
     relay.start();
@@ -226,6 +326,44 @@ describe('xiangwo-browser-relay 命令往返', () => {
     expect(calls).toHaveLength(0);
     expect(relay.status().enabled).toBe(false);
     expect(logs.join('\n')).toContain('agent 就在本机');
+  });
+
+  it('解析到"本机 8900"但探测报的是别的主机（SSH 转发）→ 照拨', async () => {
+    const { impl, calls } = makeFetch((url) =>
+      url.includes('/api/emdash-browser/poll') ? new Response(null, { status: 204 }) : json({})
+    );
+    const logs: string[] = [];
+    const relay = new XiangwoBrowserRelay({
+      resolveBaseUrl: async () => 'http://127.0.0.1:8900',
+      fetchImpl: impl,
+      backoffStepsMs: [1],
+      probeHostname: async () => 'DESKTOP-XG-WIN', // 对端 8900 其实在另一台机器上
+      log: (message, metadata) => logs.push(`${message} ${JSON.stringify(metadata ?? {})}`),
+    });
+    relay.start();
+    await tick(12);
+    relay.stop();
+    expect(calls.some((c) => c.url.includes('/api/emdash-browser/poll'))).toBe(true);
+    expect(logs.join('\n')).toContain('remote-agent');
+  });
+
+  it('显式地址（explicitTarget）→ 不做身份探测，直接长轮询', async () => {
+    const { impl, calls } = makeFetch((url) =>
+      url.includes('/api/emdash-browser/poll') ? new Response(null, { status: 204 }) : json({})
+    );
+    const relay = new XiangwoBrowserRelay({
+      resolveBaseUrl: async () => 'http://127.0.0.1:8900',
+      fetchImpl: impl,
+      skipLocalAgentBase: false,
+      explicitTarget: true,
+      backoffStepsMs: [1],
+      log: () => undefined,
+    });
+    relay.start();
+    await tick(6);
+    relay.stop();
+    expect(calls.some((c) => c.url.includes('/xg/whoami'))).toBe(false);
+    expect(calls.some((c) => c.url.includes('/api/emdash-browser/poll'))).toBe(true);
   });
 
   it('显式给了地址（skipLocalAgentBase=false）→ 就算指向 127.0.0.1:8900 也照拨（自测/强制场景）', async () => {
