@@ -34,6 +34,7 @@ import { setTrayVisible } from '@main/host/tray';
 import { updateOperations } from '@main/host/updates/controller-operations';
 import {
   applyNativeTheme,
+  createAffineWindow,
   createKaneoWindow,
   createOpenVikingWindow,
   createT8Window,
@@ -278,6 +279,12 @@ export function createDesktopWireOptions(
       openKaneo: async () => {
         const url = (await services.forwardManualPreview(5180)) ?? 'http://127.0.0.1:5180';
         createKaneoWindow(url);
+        return { success: true };
+      },
+      // [XG-CUSTOM] AFFiNE 窗口（知识工作台：文档/白板/表格，3010）
+      openAffine: async () => {
+        const url = (await services.forwardManualPreview(3010)) ?? 'http://127.0.0.1:3010';
+        createAffineWindow(url);
         return { success: true };
       },
       // [XG-CUSTOM] 专家交接平台：wire RPC → expert_handoff.py（session 隔离版 CLI）

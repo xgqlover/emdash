@@ -35,6 +35,11 @@ export async function openKaneo() {
   return (await getHostClient()).openKaneo();
 }
 
+// [XG-CUSTOM] AFFiNE 窗口（知识工作台，3010）
+export async function openAffine() {
+  return (await getHostClient()).openAffine();
+}
+
 
 // [XG-CUSTOM] 专家交接平台：列前专家主题 / 接下 / 删除
 export async function expertHandoffByExpert(expert: string) {

@@ -7,9 +7,9 @@
     "base": "669a24fe673f4af1a507ddc33fc3f3ffe1039348"
   },
   "stats": {
-    "files": 118,
-    "markers": 663,
-    "newFiles": 57,
+    "files": 121,
+    "markers": 671,
+    "newFiles": 60,
     "modifiedFiles": 61
   },
   "files": {
@@ -262,6 +262,48 @@
       "lastCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",
       "note": "会话/ACP 定制（专家交接横条、专家表）"
     },
+    "apps/emdash-desktop/src/core/features/expert-roster/browser/expert-roster-view.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { PageLayout } from '@emdash/ui/react/patterns';"
+      ],
+      "hash": "44c8dd6506882235750748127e9d08588e926a16",
+      "origin": "new",
+      "firstCommit": "94c6d6134|2026-10-02|feat(expert-roster): 专家总览视图（Pi 树全量身份）+ 刷新定制台账",
+      "lastCommit": "94c6d6134|2026-10-02|feat(expert-roster): 专家总览视图（Pi 树全量身份）+ 刷新定制台账",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/expert-roster/contributions/browser.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { expertRosterViewRuntime } from '../browser/expert-roster-view';"
+      ],
+      "hash": "a11933204df7a8e171699b1fea01813e45f0f64d",
+      "origin": "new",
+      "firstCommit": "94c6d6134|2026-10-02|feat(expert-roster): 专家总览视图（Pi 树全量身份）+ 刷新定制台账",
+      "lastCommit": "94c6d6134|2026-10-02|feat(expert-roster): 专家总览视图（Pi 树全量身份）+ 刷新定制台账",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/expert-roster/contributions/views.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { z } from 'zod';"
+      ],
+      "hash": "fc4ee488cf765c970a921ac5a74751ca7f5ee9ed",
+      "origin": "new",
+      "firstCommit": "94c6d6134|2026-10-02|feat(expert-roster): 专家总览视图（Pi 树全量身份）+ 刷新定制台账",
+      "lastCommit": "94c6d6134|2026-10-02|feat(expert-roster): 专家总览视图（Pi 树全量身份）+ 刷新定制台账",
+      "note": "core feature 定制"
+    },
     "apps/emdash-desktop/src/core/features/github/node/services/octokit-provider.ts": {
       "markers": 2,
       "lines": [
@@ -323,22 +365,24 @@
       "note": "专家交接台 feature"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/components/IntegrationsCard.tsx": {
-      "markers": 5,
+      "markers": 6,
       "lines": [
         1,
         9,
         116,
         130,
-        155
+        155,
+        168
       ],
       "anchors": [
         "import { t } from '@renderer/lib/i18n';",
-        "import { openKaneo, openOpenViking, openT8, openWeKnora } from '@core/primitives/desktop-host/browser/host-client';",
+        "import { openAffine, openKaneo, openOpenViking, openT8, openWeKnora } from '@core/primitives/desktop-host/browser/host-client';",
         "<IntegrationSection title=\"本地工具\">",
         "{/* [XG-CUSTOM] OpenViking 本地工具卡片 */} ⏎ <button",
+        "{/* [XG-CUSTOM] AFFiNE 本地工具卡片（知识工作台：文档/白板/表格） */} ⏎ <button",
         "{/* [XG-CUSTOM] Kaneo 本地工具卡片（项我流程枢纽） */} ⏎ <button"
       ],
-      "hash": "4195b6b074d7d6c1d107eae1bc3ac11709eeb58f",
+      "hash": "731bb462d76eef7d8fcbbdab2ab804aaf52315f7",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -883,7 +927,7 @@
       ],
       "hash": "f86b9447ba34a437c4649b9992f8ee01c80f30ea",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "94c6d6134|2026-10-02|feat(expert-roster): 专家总览视图（Pi 树全量身份）+ 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "浏览器 manifest 注册（xiangwo/handoff 视图）"
     },
@@ -918,48 +962,52 @@
       "note": "core 基元定制"
     },
     "apps/emdash-desktop/src/core/primitives/desktop-host/api/host-contract.ts": {
-      "markers": 7,
+      "markers": 8,
       "lines": [
         66,
         78,
         128,
         137,
         142,
-        155,
-        171
+        147,
+        160,
+        176
       ],
       "anchors": [
         "export interface ExpertHandoffTopic {",
         "export interface ExpertRosterEntry {",
         "openOpenViking: procedure({",
         "openKaneo: procedure({",
+        "openAffine: procedure({",
         "expertHandoffByExpert: procedure({",
         "expertHandoffAdd: procedure({",
         "expertRoster: procedure({"
       ],
-      "hash": "6383be53b5a5ce451af06c0d228a7f0110262bb4",
+      "hash": "d9f09765099bc86e98380dd246585a3b4c969805",
       "origin": "modified",
       "firstCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "desktop-host 契约扩展（宿主新增 API）"
     },
     "apps/emdash-desktop/src/core/primitives/desktop-host/browser/host-client.ts": {
-      "markers": 5,
+      "markers": 6,
       "lines": [
         24,
         33,
-        39,
-        52,
-        61
+        38,
+        44,
+        57,
+        66
       ],
       "anchors": [
         "export async function openOpenViking() {",
         "export async function openKaneo() {",
+        "export async function openAffine() {",
         "export async function expertHandoffByExpert(expert: string) {",
         "export async function expertHandoffAdd(bot: string, expert: string, title: string, summary: string, session: string, context: string) {",
         "export async function expertRoster() {"
       ],
-      "hash": "e6e76cebc3d80c6a5c3d749ce7c6a01ac769ccae",
+      "hash": "183af52beea32ff67912ab4ec59b40ffc3a0d43f",
       "origin": "modified",
       "firstCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1052,30 +1100,31 @@
       "note": "启动装配（注入 xiangwo 依赖 / 后台服务）"
     },
     "apps/emdash-desktop/src/main/bootstrap/boot/wiring.ts": {
-      "markers": 22,
+      "markers": 23,
       "lines": [
         3,
         26,
-        45,
-        74,
-        84,
-        90,
-        92,
-        98,
-        118,
-        129,
-        131,
-        138,
-        151,
-        158,
-        183,
-        209,
-        215,
-        266,
-        277,
-        283,
-        288,
-        291
+        46,
+        75,
+        85,
+        91,
+        93,
+        99,
+        119,
+        130,
+        132,
+        139,
+        152,
+        159,
+        184,
+        210,
+        216,
+        267,
+        278,
+        284,
+        290,
+        295,
+        298
       ],
       "anchors": [
         "import { browserEvents } from '@core/features/browser/node';",
@@ -1093,11 +1142,12 @@
         "if (relay === null) {",
         "openOpenViking: async () => {",
         "openKaneo: async () => {",
+        "openAffine: async () => {",
         "expertHandoffByExpert: ({ expert }) => expertHandoffCall('by-expert', expert),",
         "expertHandoffAdd: ({ bot, expert, title, summary, session, context }) =>",
         "expertRoster: () => expertRosterCall(),"
       ],
-      "hash": "08d1b619966c486aaeced8c5b045368834eb4b81",
+      "hash": "111d08c8969e5ea860bfcfe3bf1e1dd7ffc943e2",
       "origin": "modified",
       "firstCommit": "67ccd329e|2026-09-22|feat: 专家交接台升级（wire RPC 修复 + bot/专家二级分组 + 并入对话 Sheet + 横条关闭）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1410,7 +1460,7 @@
       "note": "禁用自动更新（fork 不许被上游覆盖）"
     },
     "apps/emdash-desktop/src/main/host/window.ts": {
-      "markers": 21,
+      "markers": 22,
       "lines": [
         16,
         18,
@@ -1432,7 +1482,8 @@
         494,
         532,
         570,
-        610
+        610,
+        649
       ],
       "anchors": [
         "import { createXiangwoOrbWindow } from './xiangwo-orb';",
@@ -1454,9 +1505,10 @@
         "let weKnoraWindow: BrowserWindow | null = null;",
         "let openVikingWindow: BrowserWindow | null = null;",
         "let kaneoWindow: BrowserWindow | null = null;",
+        "let affineWindow: BrowserWindow | null = null;",
         "let t8Window: BrowserWindow | null = null;"
       ],
-      "hash": "cb3395d7fe843708b0c07847c2f3098cd6b95af2",
+      "hash": "2006239f1e7d670ea0e79fa94d62259e9302c54d",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",

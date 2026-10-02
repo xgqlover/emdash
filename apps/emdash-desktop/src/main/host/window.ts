@@ -607,6 +607,45 @@ export function createKaneoWindow(url = 'http://127.0.0.1:5180'): BrowserWindow 
 }
 
 
+// [XG-CUSTOM] AFFiNE 窗口：知识工作台（文档/白板/表格，blocksuite 底座，3010）。
+// 设置→集成里 AFFiNE 卡片点「打开」→ 弹出这个窗口。
+// 注意：AFFiNE 内容是 Yjs 二进制，进记忆靠 affine_ingest.py（见 Kaneo-OPS.md），与本窗口无关。
+let affineWindow: BrowserWindow | null = null;
+
+export function createAffineWindow(url = 'http://127.0.0.1:3010'): BrowserWindow {
+  if (affineWindow && !affineWindow.isDestroyed()) {
+    affineWindow.show();
+    affineWindow.focus();
+    return affineWindow;
+  }
+  affineWindow = new BrowserWindow({
+    width: 1400,
+    height: 900,
+    minWidth: 900,
+    minHeight: 600,
+    title: 'AFFiNE 知识工作台',
+    backgroundColor: nativeTheme.shouldUseDarkColors ? '#111111' : '#fcfcfc',
+    ...(import.meta.env.DEV && { icon: devIcon }),
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      sandbox: true,
+    },
+    show: false,
+  });
+  void affineWindow.loadURL(url);
+  affineWindow.once('ready-to-show', () => {
+    affineWindow?.show();
+    affineWindow?.focus();
+  });
+  affineWindow.show();
+  affineWindow.on('closed', () => {
+    affineWindow = null;
+  });
+  return affineWindow;
+}
+
+
 // [XG-CUSTOM] T8 窗口：AI 生成工作流引擎画板（T8 前端 18766，执行引擎 comfyui/volcengine 等）。
 // 设置→集成里 T8 卡片点「打开」→ 弹出这个窗口加载 T8 画板。
 let t8Window: BrowserWindow | null = null;
