@@ -264,3 +264,24 @@ AFFiNE 内容进 Pi 树靠 **`affine_ingest.py`**（Yjs 解码，见 `Kaneo-OPS.
 （其中 65 个是中文化批处理时没打标记的组件，`import { t } from '@renderer/lib/i18n'` 是它们唯一的定制证据，
 现在靠 `scripts/xg-i18n/manifest.json` 行级对照表兜着）。补法：在中文化 import 那行补 `// [XG-CUSTOM]` → `--gen`。
 
+
+---
+
+### 14. [XG-CUSTOM] bot ⟷ 浏览器 profile（每个 bot 一套 cookie/登录态，2026-10-03）
+
+**要解决什么**：所有 bot 共用一个浏览器 = 共用一套 cookie。两个 bot 同时登同一个站点会互相顶下线，登录态还会串。
+
+**唯一真源 = `BrowserProfile.botId`**（不给 bot 建反向表；派生映射 `~/.xiangwo/bot-browser-map.json` 只读重生，不反向写）。
+
+**1:1 硬约束**：一个 bot 只能挂一个 profile（`bindProfileBot` 绑新的会自动把它从旧的摘掉），否则「开页时用谁的登录态」说不清。
+
+**解析顺序**（`resolveBotBrowserProfileId`）：绑了 → 用它那个 profile；没绑 → 走「默认浏览器配置文件」（`Default` = 共享一套 / `isolated-per-task` = 每任务一套）。
+
+**名册来源**：复用专家名册主机桥（`xiangwo-agent/expert_roster.py`，81 身份 = 9 主 bot / 47 子代理 / 6 通用角色 / 19 专家池）。
+**用户 2026-10-03 拍板：只给 9 个主 bot 各绑一个 profile，子代理/专家不绑。**
+
+**涉及文件**：`core/primitives/browser/api/browser.ts`（botId / 分区 id / 解析）、`main/host/browser/xiangwo-bot-browser-profile.ts`（派生映射）、`core/features/settings/browser/components/BrowserSettingsCard.tsx`（下拉 UI）、`core/features/browser/contributions/settings.ts`（schema + 分组头）、`browser-webcontents-registry.ts` / `browser-profile-session.ts` / `browser-tab-provider.tsx`（分区真正生效处）。
+
+**验证**：Electron 40.10.2 / Chromium 144 实测三套分区（`persist:emdash-browser-profile` / `-bot-sxsj` / `-bot-babado`）cookie 互不可见；本地 `1.2.12-xiangwo` AppImage 实测设置页出现「未绑定 bot」下拉且名册可读（截图在桌面 `emdash-浏览器设置-bot下拉-20261003.png`）。
+
+**升级找回**：`grep -rn "botId\|BROWSER_ISOLATED_PROFILE_ID\|resolveBotBrowserProfileId" apps/emdash-desktop/src | grep -i custom`
