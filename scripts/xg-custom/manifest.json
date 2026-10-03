@@ -7,12 +7,26 @@
     "base": "669a24fe673f4af1a507ddc33fc3f3ffe1039348"
   },
   "stats": {
-    "files": 128,
-    "markers": 739,
+    "files": 129,
+    "markers": 740,
     "newFiles": 62,
-    "modifiedFiles": 66
+    "modifiedFiles": 67
   },
   "files": {
+    ".gitignore": {
+      "markers": 1,
+      "lines": [
+        113
+      ],
+      "anchors": [
+        "定制台账生成器的备份文件（check.mjs --gen 每次生成新的，不该进仓）"
+      ],
+      "hash": "6173f3069370edb19ed03c941a74d5b6835c151f",
+      "origin": "modified",
+      "firstCommit": "353d9c429|2026-10-03|chore(gitignore): 忽略 xg-custom 台账备份文件 [XG-CUSTOM]",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "忽略 xg-custom 台账备份文件"
+    },
     "apps/emdash-desktop/electron-builder.config.ts": {
       "markers": 2,
       "lines": [
@@ -1508,36 +1522,36 @@
         54,
         57,
         66,
-        116,
         119,
-        124,
-        149,
-        153,
-        155,
+        122,
+        127,
+        152,
+        156,
         158,
-        163,
-        169,
-        174,
-        180,
-        225,
-        255,
-        278,
-        280,
-        282,
-        393,
-        394,
-        476,
-        504,
-        525,
-        539,
-        562,
-        578,
-        646,
-        660,
-        698,
-        699,
-        715,
-        1334
+        161,
+        166,
+        172,
+        177,
+        183,
+        228,
+        258,
+        281,
+        283,
+        285,
+        396,
+        397,
+        479,
+        507,
+        528,
+        542,
+        565,
+        581,
+        649,
+        663,
+        701,
+        702,
+        718,
+        1337
       ],
       "anchors": [
         "内嵌浏览器 CDP 桥：把 emdash 的 `<webview>` 内嵌浏览器以标准 Chrome DevTools",
@@ -1572,7 +1586,7 @@
         "profile: target.profileId ?? '',",
         "function denyPeer(socket: Duplex, peers: readonly XiangwoCdpAllowedPeer[]): void {"
       ],
-      "hash": "107fe85b1a8b9857e1fbaaa30903c22d80b8ced4",
+      "hash": "88080fe1c7aeac982fbe2208196dde9889e373b5",
       "origin": "new",
       "firstCommit": "f1dbc7f61|2026-09-30|[XG-CUSTOM] 内嵌浏览器 9223 CDP 桥 + 项我球「网页 N」计数与一键清理",
       "lastCommit": "f1dbc7f61|2026-09-30|[XG-CUSTOM] 内嵌浏览器 9223 CDP 桥 + 项我球「网页 N」计数与一键清理",

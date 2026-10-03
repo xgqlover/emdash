@@ -66,8 +66,11 @@ const TARGET_POLL_INTERVAL_MS = 1000;
 // ── [XG-CUSTOM] 「从零开页」（agent 请求 emdash 开一个内嵌浏览器页）─────────────
 /** 端点路径：agent 侧 `emdash_webview_cdp.py::request_open` 必须与此一致 */
 export const XIANGWO_CDP_OPEN_BROWSER_PATH = '/xg/open-browser';
-/** 广播后等 `<webview>` attach + 被绑定 + 建 CDP target 的上限 */
-export const XIANGWO_CDP_OPEN_BROWSER_WAIT_MS = 12_000;
+/** 广播后等 `<webview>` attach + 被绑定 + 建 CDP target 的上限
+ *  [XG-CUSTOM 2026-10-03] 12s → 30s：Windows 侧经反向通道实测要 8–16s 才出现 target，
+ *  12s 会造成「**页面其实开好了，却报 12s 内没出现**」的假故障（用户看到的就是"打不开"）。
+ *  配套递进：hub `open` RPC = 35s（emdash_browser_hub.py），agent request_open = 40s（emdash_webview_cdp.py）。 */
+export const XIANGWO_CDP_OPEN_BROWSER_WAIT_MS = 30_000;
 /** 等待期间的轮询间隔 */
 export const XIANGWO_CDP_OPEN_BROWSER_POLL_MS = 150;
 /** 请求体上限（只收一个 url，防止别人往这条端点灌数据） */
