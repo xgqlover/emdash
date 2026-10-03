@@ -134,8 +134,8 @@
       ],
       "hash": "03a2a7498c1d156c634007bd90875a629981dda3",
       "origin": "modified",
-      "firstCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
-      "lastCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
+      "firstCommit": "d4d009b8b|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
+      "lastCommit": "d4d009b8b|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/browser/browser-tab-provider.tsx": {
@@ -150,8 +150,8 @@
       ],
       "hash": "e771bad3fb24aae02e659d3861603a29c268b4c2",
       "origin": "modified",
-      "firstCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
-      "lastCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
+      "firstCommit": "d4d009b8b|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
+      "lastCommit": "d4d009b8b|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/contributions/settings.ts": {
@@ -168,8 +168,8 @@
       ],
       "hash": "ad8f391c6f9a74fee14854fffa222378caf71f1f",
       "origin": "modified",
-      "firstCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
-      "lastCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
+      "firstCommit": "d4d009b8b|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
+      "lastCommit": "d4d009b8b|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/conversations/browser/acp/acp-chat-panel.tsx": {
@@ -444,7 +444,7 @@
       ],
       "hash": "d464043136b8a0c9f069f8eef4ae2c5254d6eddf",
       "origin": "modified",
-      "firstCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
+      "firstCommit": "d4d009b8b|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
@@ -1047,8 +1047,8 @@
       ],
       "hash": "5d484c9caa421b7a5229256dcab561f61f227121",
       "origin": "modified",
-      "firstCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
-      "lastCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
+      "firstCommit": "d4d009b8b|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
+      "lastCommit": "d4d009b8b|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
       "note": "core 基元定制"
     },
     "apps/emdash-desktop/src/core/primitives/browser/api/browser.ts": {
@@ -1334,8 +1334,8 @@
       ],
       "hash": "42676e167effaf6f8b7c6c912e72bb6572468af8",
       "origin": "new",
-      "firstCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
-      "lastCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
+      "firstCommit": "d4d009b8b|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
+      "lastCommit": "d4d009b8b|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
       "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
     },
     "apps/emdash-desktop/src/main/host/browser/xiangwo-bot-browser-profile.ts": {
@@ -1358,8 +1358,8 @@
       ],
       "hash": "890935eeb4d444db30ecdf34d2a3164f27a61304",
       "origin": "new",
-      "firstCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
-      "lastCommit": "dcd6ec5cf|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
+      "firstCommit": "d4d009b8b|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
+      "lastCommit": "d4d009b8b|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
       "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
     },
     "apps/emdash-desktop/src/main/host/browser/xiangwo-browser-proxy.test.ts": {
