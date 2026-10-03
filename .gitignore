@@ -109,3 +109,7 @@ packages/plugins/src/agents/impl/*/fixtures/acp-transcript.json
 .nx/cache
 .nx/workspace-data
 *.AppImage
+
+# [XG-CUSTOM] 定制台账生成器的备份文件（check.mjs --gen 每次生成新的，不该进仓）
+scripts/xg-custom/manifest.json.bak-*
+CUSTOMIZATIONS.md.bak-*
