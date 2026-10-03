@@ -7,9 +7,9 @@
     "base": "669a24fe673f4af1a507ddc33fc3f3ffe1039348"
   },
   "stats": {
-    "files": 131,
-    "markers": 757,
-    "newFiles": 64,
+    "files": 133,
+    "markers": 771,
+    "newFiles": 66,
     "modifiedFiles": 67
   },
   "files": {
@@ -1244,27 +1244,33 @@
       "note": "启动装配（注入 xiangwo 依赖 / 后台服务）"
     },
     "apps/emdash-desktop/src/main/bootstrap/boot/phases/services.ts": {
-      "markers": 4,
+      "markers": 7,
       "lines": [
         153,
-        348,
-        366,
-        380
+        155,
+        182,
+        352,
+        370,
+        384,
+        388
       ],
       "anchors": [
         "import { applyNativeTheme, isAppFocused, registerXiangwoChatTarget } from '@main/host/window';",
+        "import { computeToolWindowTarget } from '@main/host/xiangwo-tool-target';",
+        "readonly resolveToolWindowUrl: (remotePort: number, path?: string) => Promise<string>;",
         "const forwardManualPreview = async (remotePort: number): Promise<string | null> => {",
         "const firstRemoteHost = (): { connectionId: string; host: string } | undefined => {",
-        "log.warn('"
+        "log.warn('",
+        "const resolveToolWindowUrl = async (remotePort: number, path = '/'): Promise<string> => {"
       ],
-      "hash": "7518e782971457525fdcbf5cbd4fb02d49ee744a",
+      "hash": "a24db35b3b8544469e02ffcb9de3979cde689587",
       "origin": "modified",
       "firstCommit": "d7996e9ec|2026-09-19|fix(integrations): WeKnora/T8 窗口走 SSH 端口转发，修 Windows 远程项目打不开",
       "lastCommit": "d7996e9ec|2026-09-19|fix(integrations): WeKnora/T8 窗口走 SSH 端口转发，修 Windows 远程项目打不开",
       "note": "启动装配（注入 xiangwo 依赖 / 后台服务）"
     },
     "apps/emdash-desktop/src/main/bootstrap/boot/wiring.ts": {
-      "markers": 30,
+      "markers": 35,
       "lines": [
         3,
         21,
@@ -1289,13 +1295,18 @@
         252,
         257,
         262,
-        313,
-        324,
-        330,
+        309,
+        314,
+        316,
+        322,
+        327,
+        329,
+        334,
         336,
         341,
-        344,
-        346
+        346,
+        349,
+        351
       ],
       "anchors": [
         "import { browserEvents } from '@core/features/browser/node';",
@@ -1316,15 +1327,20 @@
         "log.info(`",
         "onBaseUrlFailure: (baseUrl) => selector.noteFailure(baseUrl),",
         "// [XG-CUSTOM] bot ⟷ profile：跨机开页也挑\"这个 bot 自己的那一页\" ⏎ lookupBotProfile: (botId) => xiangwoBoundProfileIdForBot(botId),",
+        "const url = await services.resolveToolWindowUrl(9037);",
         "openOpenViking: async () => {",
+        "const url = await services.resolveToolWindowUrl(1933, '/studio');",
+        "const url = await services.resolveToolWindowUrl(18766);",
         "openKaneo: async () => {",
+        "const url = await services.resolveToolWindowUrl(5180);",
         "openAffine: async () => {",
+        "const url = await services.resolveToolWindowUrl(3010);",
         "expertHandoffByExpert: ({ expert }) => expertHandoffCall('by-expert', expert),",
         "expertHandoffAdd: ({ bot, expert, title, summary, session, context }) =>",
         "expertRoster: () => expertRosterCall(),",
         "taskSpaceList: () => taskSpaceCall('list'),"
       ],
-      "hash": "cd48965c44e2e57ecfe408acf9ca7eda7598bc7d",
+      "hash": "91379dc96ab65f90b42b9354c1bd0cc6a15580e4",
       "origin": "modified",
       "firstCommit": "67ccd329e|2026-09-22|feat: 专家交接台升级（wire RPC 修复 + bot/专家二级分组 + 并入对话 Sheet + 横条关闭）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -2140,6 +2156,39 @@
       "origin": "new",
       "firstCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
       "lastCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
+      "note": "renderer/main 侧定制"
+    },
+    "apps/emdash-desktop/src/main/host/xiangwo-tool-target.test.ts": {
+      "markers": 5,
+      "lines": [
+        1,
+        13,
+        25,
+        34,
+        41
+      ],
+      "anchors": [
+        "import { describe, expect, it } from 'vitest';",
+        "describe('"
+      ],
+      "hash": "87d393311950de1b8dd0caf63bcdb9fc3bc25de5",
+      "origin": "new",
+      "firstCommit": "",
+      "lastCommit": "",
+      "note": "renderer/main 侧定制"
+    },
+    "apps/emdash-desktop/src/main/host/xiangwo-tool-target.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "2026-10-03 工具窗口（WeKnora / AFFiNE / Kaneo / T8 / OpenViking）的**地址解析**（主进程唯一权威）。"
+      ],
+      "hash": "e9863fbab3076d86d8b34c7ef77889d437110de3",
+      "origin": "new",
+      "firstCommit": "",
+      "lastCommit": "",
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/renderer/App.tsx": {

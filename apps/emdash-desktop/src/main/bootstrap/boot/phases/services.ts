@@ -152,6 +152,8 @@ import { setTrayVisible } from '@main/host/tray';
 import { installUpdateNotifications } from '@main/host/updates/update-notifications';
 import { applyNativeTheme, isAppFocused, registerXiangwoChatTarget } from '@main/host/window'; // [XG-CUSTOM]
 import { configureXiangwoScriptRunner } from '@main/host/xiangwo-script-runner';
+// [XG-CUSTOM] 2026-10-03 工具窗口地址解析（SSH 隧道 → 主机直连 → 本机）
+import { computeToolWindowTarget } from '@main/host/xiangwo-tool-target';
 import { log } from '@main/lib/logger';
 import { telemetryService } from '@main/lib/telemetry';
 import { appScope } from '../../core/app-scope';
@@ -177,6 +179,8 @@ export type ServicesBundle = {
   readonly notifications: ReturnType<typeof createNotificationService>;
   readonly previewServerAccess: PreviewServerAccessService;
   readonly forwardManualPreview: (remotePort: number) => Promise<string | null>;
+  // [XG-CUSTOM] 2026-10-03 工具窗口（WeKnora/AFFiNE/Kaneo/T8/OpenViking）地址：隧道 → 主机直连 → 本机
+  readonly resolveToolWindowUrl: (remotePort: number, path?: string) => Promise<string>;
   readonly promptLibrary: ReturnType<typeof createPromptLibraryService>;
   readonly projectDeletion: ProjectDeletionDependencies;
   readonly projects: ProjectAttachmentManager;
@@ -380,6 +384,19 @@ export async function bootServices(
       log.warn('[XG-CUSTOM] 读取 SSH 远程主机失败（按本机处理）', { error: String(error) });
       return undefined;
     }
+  };
+  // [XG-CUSTOM] 2026-10-03 工具窗口（WeKnora/AFFiNE/Kaneo/T8/OpenViking）地址解析。
+  // 为什么不再直接回落 127.0.0.1：**Windows 客户端上 127.0.0.1 是客户端自己、不是主机**，
+  // 隧道一失败窗口就白屏（2026-10-03 AFFiNE 案）；而这些服务在主机上都监听 0.0.0.0，直连主机一定通。
+  const resolveToolWindowUrl = async (remotePort: number, path = '/'): Promise<string> => {
+    const target = await computeToolWindowTarget(remotePort, path, {
+      activeRemoteHost: firstRemoteHost,
+      forwardRemotePort: (port) => forwardManualPreview(port),
+      log: (message, metadata) => {
+        log.info(`[xiangwo-tool] ${message}`, { remotePort, ...(metadata ?? {}) });
+      },
+    });
+    return target.url;
   };
   registerXiangwoChatTarget({
     activeRemoteHost: firstRemoteHost,
@@ -915,6 +932,7 @@ export async function bootServices(
     notifications: notificationService,
     previewServerAccess,
     forwardManualPreview,
+    resolveToolWindowUrl,
     promptLibrary: promptLibraryService,
     projectDeletion,
     projects: projectManager,

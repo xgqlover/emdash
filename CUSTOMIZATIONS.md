@@ -285,3 +285,36 @@ AFFiNE 内容进 Pi 树靠 **`affine_ingest.py`**（Yjs 解码，见 `Kaneo-OPS.
 **验证**：Electron 40.10.2 / Chromium 144 实测三套分区（`persist:emdash-browser-profile` / `-bot-sxsj` / `-bot-babado`）cookie 互不可见；本地 `1.2.12-xiangwo` AppImage 实测设置页出现「未绑定 bot」下拉且名册可读（截图在桌面 `emdash-浏览器设置-bot下拉-20261003.png`）。
 
 **升级找回**：`grep -rn "botId\|BROWSER_ISOLATED_PROFILE_ID\|resolveBotBrowserProfileId" apps/emdash-desktop/src | grep -i custom`
+
+---
+
+### 15. [XG-CUSTOM 2026-10-03] 工具窗口地址解析：隧道 → 主机直连 → 本机（修「外地客户端白屏」）
+
+**要解决什么**：WeKnora / AFFiNE / Kaneo / T8 / OpenViking 五个窗口原来都是
+
+```ts
+const url = (await services.forwardManualPreview(port)) ?? 'http://127.0.0.1:<port>';
+```
+
+**Linux 上客户端 == 主机**，「回落地址」正好就是那台服务 ⇒ 回落也能用；
+**Windows 客户端上 `127.0.0.1` 是客户端自己**（不是主机）⇒ SSH 隧道一失败窗口就白屏，看着像「功能没打包进 exe」。
+（2026-10-03 AFFiNE 案实测：代码在包里 ✅、网络也通 ✅，白屏根因就是这个死地址 + 客户端未登录。）
+
+**改法**：新增 `main/host/xiangwo-tool-target.ts`（照 `xiangwo-chat-target.ts` 已验证的范式：纯逻辑、不 import electron、带单测）。
+解析顺序：① SSH 隧道 → ② `http://<主机>:<端口><path>` → ③ 本机 `127.0.0.1`（客户端 == 主机时）→ ④ **任何异常回落本机，永不抛**。
+`bootstrap/boot/phases/services.ts` 注入 `resolveToolWindowUrl(remotePort, path?)`（复用 `firstRemoteHost` + `forwardManualPreview`）；
+`bootstrap/boot/wiring.ts` 五个调用点改成一行 `await services.resolveToolWindowUrl(...)`。
+
+**为什么"直连主机"是对的**：这些服务在主机上都监听 `0.0.0.0`；实测外地 Windows 经 ZeroTier 直连
+`3010 / 9037 / 5180 / 18766` → **200**、`1933` → 302、`8900` → 404（= 活着，只是路径不对），WebSocket 握手 **101**。
+
+**涉及文件**：`main/host/xiangwo-tool-target.ts`（新）、`main/host/xiangwo-tool-target.test.ts`（新）、
+`main/bootstrap/boot/phases/services.ts`、`main/bootstrap/boot/wiring.ts`。
+
+**验证**：`vitest run src/main/host/xiangwo-tool-target.test.ts` → **14 passed**（含 隧道 null / 抛错 / 超时 → 直连主机、IPv6 方括号、loopback 回落、异常不抛出）；
+`tsgo --noEmit -p tsconfig.node.json` → **exit 0**。
+
+**⚠️ 要重新打包才在 Windows 生效**（旧 exe 行为不变：隧道不通即白屏）。网络侧结论已写进
+`NAS与网线OPS.md` 第十三节。
+
+**升级找回**：`grep -rn "resolveToolWindowUrl\|computeToolWindowTarget" apps/emdash-desktop/src`

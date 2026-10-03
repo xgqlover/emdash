@@ -306,30 +306,35 @@ export function createDesktopWireOptions(
         return { success: true };
       },
       openWeKnora: async () => {
-        const url = (await services.forwardManualPreview(9037)) ?? 'http://127.0.0.1:9037';
+        // [XG-CUSTOM] 2026-10-03 隧道 → 主机直连 → 本机（Windows 上 127.0.0.1 不是主机，别再回落死地址）
+        const url = await services.resolveToolWindowUrl(9037);
         createWeKnoraWindow(url);
         return { success: true };
       },
       // [XG-CUSTOM] OpenViking 窗口（照 WeKnora 模板，1933 Studio）
       openOpenViking: async () => {
-        const url = (await services.forwardManualPreview(1933)) ?? 'http://127.0.0.1:1933/studio';
+        // [XG-CUSTOM] 2026-10-03 隧道 → 主机直连 → 本机
+        const url = await services.resolveToolWindowUrl(1933, '/studio');
         createOpenVikingWindow(url);
         return { success: true };
       },
       openT8: async () => {
-        const url = (await services.forwardManualPreview(18766)) ?? 'http://127.0.0.1:18766';
+        // [XG-CUSTOM] 2026-10-03 隧道 → 主机直连 → 本机
+        const url = await services.resolveToolWindowUrl(18766);
         createT8Window(url);
         return { success: true };
       },
       // [XG-CUSTOM] Kaneo 窗口（项我流程枢纽：工作项/交接/依赖/审计，5180）
       openKaneo: async () => {
-        const url = (await services.forwardManualPreview(5180)) ?? 'http://127.0.0.1:5180';
+        // [XG-CUSTOM] 2026-10-03 隧道 → 主机直连 → 本机
+        const url = await services.resolveToolWindowUrl(5180);
         createKaneoWindow(url);
         return { success: true };
       },
       // [XG-CUSTOM] AFFiNE 窗口（知识工作台：文档/白板/表格，3010）
       openAffine: async () => {
-        const url = (await services.forwardManualPreview(3010)) ?? 'http://127.0.0.1:3010';
+        // [XG-CUSTOM] 2026-10-03 隧道 → 主机直连 → 本机
+        const url = await services.resolveToolWindowUrl(3010);
         createAffineWindow(url);
         return { success: true };
       },
