@@ -73,6 +73,10 @@ export const XIANGWO_CDP_OPEN_BROWSER_PATH = '/xg/open-browser';
 export const XIANGWO_CDP_OPEN_BROWSER_WAIT_MS = 30_000;
 /** 等待期间的轮询间隔 */
 export const XIANGWO_CDP_OPEN_BROWSER_POLL_MS = 150;
+/** [XG-CUSTOM] 复用已有页时，`Page.navigate` 之后等 URL **真的换过去**的上限
+ *  （[XG-CUSTOM 2026-10-03] 导航是"打开网址"唯一肉眼可见的效果判据：等不到就照实回当场
+ *  的 url，绝不回报旧 URL 谎报成功）。 */
+export const XIANGWO_CDP_NAVIGATE_WAIT_MS = 10_000;
 /** 请求体上限（只收一个 url，防止别人往这条端点灌数据） */
 const OPEN_BROWSER_BODY_LIMIT_BYTES = 8 * 1024;
 
@@ -180,6 +184,15 @@ export type XiangwoCdpBridgeOptions = {
    * 不传 = 不做 bot 维度复用判断（老行为）。
    */
   lookupBotProfile?: (botId: string) => string | null;
+  /**
+   * [XG-CUSTOM] 这个 bot **还没绑定** profile 时，渲染进程按需建 / 复用的那个 profileId
+   * （确定性：主进程与渲染进程用同一个约定 `bot-<botId>`，见
+   * `xiangwo-bot-browser-profile.ts::xiangwoNewBotProfileId`）。
+   * 带 botId 的请求靠它把「要复用哪一页 / 要开哪一页」钉死在同一个 profile 上 ——
+   * 否则未绑定的 bot 会退化成"谁先来用谁那一页"（串登录态）。
+   * 不传 = 未绑定的 bot 走老行为（不做 profile 精确匹配）。
+   */
+  newBotProfileId?: (botId: string) => string;
   /** [XG-CUSTOM] 「从零开页」等待新 target 出现的上限（缺省 12s；0 = 不等，只广播） */
   openBrowserWaitMs?: number;
 };
@@ -282,6 +295,8 @@ export class XiangwoCdpBridge {
   private readonly requestOpenBrowser: ((request: XiangwoOpenBrowserRequest) => void) | null;
   /** [XG-CUSTOM] bot → profileId（绑定表；未绑定 null） */
   private readonly lookupBotProfile: ((botId: string) => string | null) | null;
+  /** [XG-CUSTOM] 未绑定的 bot → 待建/待用的确定性 profileId（不传 = 老行为） */
+  private readonly newBotProfileId: ((botId: string) => string) | null;
   /** [XG-CUSTOM] 「从零开页」等待新 target 的上限 */
   private readonly openBrowserWaitMs: number;
   /** 实际生效的来源白名单（start() 时算好；连接层每条连接都查它） */
@@ -307,6 +322,7 @@ export class XiangwoCdpBridge {
     this.peerAddressOf = options.peerAddressOf ?? peerAddressOfSocket;
     this.requestOpenBrowser = options.requestOpenBrowser ?? null;
     this.lookupBotProfile = options.lookupBotProfile ?? null;
+    this.newBotProfileId = options.newBotProfileId ?? null;
     this.openBrowserWaitMs = options.openBrowserWaitMs ?? XIANGWO_CDP_OPEN_BROWSER_WAIT_MS;
     this.log = options.log ?? (() => {});
     const advertisedHost = this.host === XIANGWO_CDP_ANY_HOST ? XIANGWO_CDP_HOST : this.host;
@@ -547,7 +563,9 @@ export class XiangwoCdpBridge {
    *
    * 语义（四条，都写死在这里以免调用方各自猜）：
    *   1. **已有内嵌页 → 复用，绝不新开**（返回 `reused:true`）——这是「别重复开页」的唯一判据；
-   *      但**带 bot/profile 时只复用 profile 对得上的那一页**（复用别的 bot 的页 = 串登录态）；
+   *      但**带 bot/profile 时只复用 profile 对得上的那一页**（复用别的 bot 的页 = 串登录态），
+   *      并且 [XG-CUSTOM 2026-10-03] **复用后一定 `Page.navigate` 到请求的 url**（等它生效再返回），
+   *      返回体里的 `url`/`title` 是导航后的真实值；
    *   2. 一个都没有（或没有对得上的）→ 广播 `open-in-embedded-browser` 给渲染进程，再轮询白名单等它被绑定；
    *   3. 等待超时 / 渲染进程没法开（比如没停在 task 视图）→ `ok:false` + 人话，
    *      调用方（agent）据此落回旧链路，**不静默假装成功**；
@@ -560,11 +578,21 @@ export class XiangwoCdpBridge {
     try {
       const body = await readJsonBody(req);
       if (typeof body === 'object' && body !== null) {
-        const raw = body as { url?: unknown; bot?: unknown; profile?: unknown };
+        const raw = body as {
+          url?: unknown;
+          bot?: unknown;
+          botId?: unknown;
+          profile?: unknown;
+          profileId?: unknown;
+        };
         if (typeof raw.url === 'string') url = raw.url.trim();
         // [XG-CUSTOM] bot/profile：可选，只接受非空字符串（别把对象/数字带进来当 profileId）
         if (typeof raw.bot === 'string') bot = raw.bot.trim();
         if (typeof raw.profile === 'string') profile = raw.profile.trim();
+        // [XG-CUSTOM 2026-10-03] `botId` / `profileId` 是同一个维度的别名：agent 侧（hub / MCP
+        // 探测）实测发的是 `botId`，而桥只认 `bot` → 身份被整条丢掉（7 个页的 botId 全空就是这么来的）。
+        if (bot === '' && typeof raw.botId === 'string') bot = raw.botId.trim();
+        if (profile === '' && typeof raw.profileId === 'string') profile = raw.profileId.trim();
       }
     } catch (error) {
       this.writeOpenBrowserResult(res, {
@@ -582,20 +610,43 @@ export class XiangwoCdpBridge {
     // 否则「用 sxsj 的身份打开」会静默接管 babado 已登录的那一页。
     const wantedProfile = this.requestedProfileOf(bot, profile);
 
-    // ① 已有 → 复用（不新开）
+    // ① 已有 → 复用（不新开）—— 但**复用不等于什么都不做**：
+    // [XG-CUSTOM] 复用这个标签页，不是复用它的 URL。命中已有页时必须把该 target 真的导航到
+    // 请求的 url（并等到 URL 换过去）再返回，否则 agent 报"打开了"、用户看到的还是旧页。
     const existing = this.liveTargets();
     const reusable =
       wantedProfile === null
         ? existing[0]
         : existing.find((target) => target.profileId === wantedProfile);
     if (reusable !== undefined) {
+      const previousUrl = safeUrl(reusable.webContents);
+      const outcome = await this.navigateExistingTarget(reusable, url);
+      // [XG-CUSTOM] 页面归属的 bot 以「这一页自己的 profileId」为准（精确匹配才敢落 bot 名）：
+      // 设置快照还没来得及刷上新建的 profile 时，退用请求里的 bot 名 —— 不谎报、也不丢身份。
+      const matchedProfile = wantedProfile !== null && reusable.profileId === wantedProfile;
+      const pageBotId = reusable.botId ?? (matchedProfile && bot !== '' ? bot : undefined);
+      if ('error' in outcome) {
+        this.writeOpenBrowserResult(res, {
+          ok: false,
+          reused: true,
+          url: safeUrl(reusable.webContents),
+          previousUrl,
+          targetId: embeddedTargetId(reusable.browserId),
+          error: `复用了已有内嵌页，但导航失败：${outcome.error.message}`,
+        });
+        return;
+      }
       this.writeOpenBrowserResult(res, {
         ok: true,
         reused: true,
+        // 真实结果：导航后的 url/title（不是复用前那个旧 URL）
         url: safeUrl(reusable.webContents),
+        title: safeTitle(reusable.webContents),
+        requestedUrl: url,
+        previousUrl,
         targetId: embeddedTargetId(reusable.browserId),
         ...(reusable.profileId !== undefined ? { profile: reusable.profileId } : {}),
-        ...(reusable.botId !== undefined ? { botId: reusable.botId } : {}),
+        ...(pageBotId !== undefined ? { botId: pageBotId } : {}),
       });
       return;
     }
@@ -614,7 +665,11 @@ export class XiangwoCdpBridge {
       this.requestOpenBrowser({
         url,
         ...(bot !== '' ? { bot } : {}),
-        ...(profile !== '' ? { profile } : {}),
+        // [XG-CUSTOM 2026-10-03] 把**已解析好的 profileId** 一起带给渲染进程（显式 profile、
+        // 已绑定 bot 的那个 profile、或未绑定 bot 的确定性 `bot-<botId>`）。
+        // 只带 bot 名字的话，渲染进程会各自按自己的快照再解析一遍 → 主进程等的 profile 与实际
+        // 开出来的 profile 可能对不上（botId 也就永远回不来）。
+        ...(wantedProfile !== null ? { profile: wantedProfile } : {}),
       });
     } catch (error) {
       this.writeOpenBrowserResult(res, { ok: false, error: `广播开页请求失败：${String(error)}` });
@@ -635,13 +690,32 @@ export class XiangwoCdpBridge {
       });
       return;
     }
+    // [XG-CUSTOM] 新页也可能是"被绑定了但 initialUrl 还没落地"（url 为空 / about:blank）——
+    // 用同一条导航路径补一次并等它生效，别把 about:blank 当成功回给 agent。
+    const appearedUrl = safeUrl(appeared.webContents);
+    if (appearedUrl === '' || appearedUrl === 'about:blank') {
+      const outcome = await this.navigateExistingTarget(appeared, url);
+      if ('error' in outcome) {
+        this.writeOpenBrowserResult(res, {
+          ok: false,
+          reused: false,
+          targetId: embeddedTargetId(appeared.browserId),
+          error: `新内嵌页已绑定，但导航失败：${outcome.error.message}`,
+        });
+        return;
+      }
+    }
+    const matchedProfile = wantedProfile !== null && appeared.profileId === wantedProfile;
+    const pageBotId = appeared.botId ?? (matchedProfile && bot !== '' ? bot : undefined);
     this.writeOpenBrowserResult(res, {
       ok: true,
       reused: false,
       url: safeUrl(appeared.webContents),
+      title: safeTitle(appeared.webContents),
+      requestedUrl: url,
       targetId: embeddedTargetId(appeared.browserId),
       ...(appeared.profileId !== undefined ? { profile: appeared.profileId } : {}),
-      ...(appeared.botId !== undefined ? { botId: appeared.botId } : {}),
+      ...(pageBotId !== undefined ? { botId: pageBotId } : {}),
     });
   }
 
@@ -656,8 +730,44 @@ export class XiangwoCdpBridge {
   private requestedProfileOf(bot: string, profile: string): string | null {
     if (profile !== '') return profile;
     if (bot === '') return null;
-    const bound = this.lookupBotProfile?.(bot) ?? null;
-    return bound;
+    // [XG-CUSTOM] 绑定表里有就用它；没有（bot 还没绑）则用**确定性的 bot profile**（`bot-<botId>`）
+    // —— 渲染进程收到事件后按需建这个 profile，别的 bot 的页依旧不会被串用。
+    return this.lookupBotProfile?.(bot) ?? this.newBotProfileId?.(bot) ?? null;
+  }
+
+  /**
+   * [XG-CUSTOM] 「复用一个已有内嵌页」= 复用这个标签页，不是复用它的 URL。
+   *
+   * 病根（2026-10-03 实测）：旧分支只回报 `reused:true` 就结束，页面留在原 URL —— 请求
+   * yahoo.co.jp / g-mark.org / jagda.or.jp 全被 `reused:true` 吞掉，9223 的 `/json/list` 里
+   * 始终只有最初那个 example.com，用户看到的就是"所有网页都没打开"。
+   *
+   * 命令走既有的 `sendToDirectClientTarget`（attach + prepare + `webContents.debugger`
+   * 转发，不另造一套），并轮询等 URL 真的换过去（上限 `XIANGWO_CDP_NAVIGATE_WAIT_MS`），
+   * 让调用方拿到的是导航后的真实 url/title。
+   */
+  private async navigateExistingTarget(
+    target: EmbeddedBrowserTarget,
+    url: string
+  ): Promise<CommandOutcome> {
+    const before = safeUrl(target.webContents);
+    const outcome = await this.sendToDirectClientTarget(
+      target.browserId,
+      'Page.navigate',
+      { url },
+      target.webContents
+    );
+    if ('error' in outcome) return outcome;
+    if (before === url) return outcome; // 已经在请求的那一页上：navigate 幂等，不必再等
+    const deadline = Date.now() + XIANGWO_CDP_NAVIGATE_WAIT_MS;
+    for (;;) {
+      const now = safeUrl(target.webContents);
+      if (now !== '' && now !== before) return outcome;
+      if (Date.now() >= deadline) return outcome;
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, XIANGWO_CDP_OPEN_BROWSER_POLL_MS);
+      });
+    }
   }
 
   /** [XG-CUSTOM] 轮询等一个**新**的已绑定内嵌浏览器出现（150ms 一拍，超时返回 null）。
@@ -807,14 +917,35 @@ export class XiangwoCdpBridge {
     client.conn.sendText(JSON.stringify(await this.handleBrowserLevel(client, id, method, params)));
   }
 
+  /**
+   * 把一个命令发到"某个直连 target"上（没有浏览器级握手的客户端走这条路）。
+   *
+   * [XG-CUSTOM] `explicitWebContents`：调用方**已经挑好**这一页时（复用已有页 → 导航），
+   * 命令必须发到**那一个** webContents 上，不能按 browserId 再查一遍白名单 ——
+   * `listTargets()` 每次现读，页面 reload / 重挂时可能给出另一个对象，
+   * 于是"导航的是 A、回报/轮询的却是 B"，两边对不上。
+   */
   private async sendToDirectClientTarget(
     browserId: string,
     method: string,
-    params: Record<string, unknown>
+    params: Record<string, unknown>,
+    explicitWebContents?: XiangwoCdpWebContents
   ): Promise<CommandOutcome> {
     let attachment = this.attachments.get(browserId);
+    if (
+      attachment !== undefined &&
+      explicitWebContents !== undefined &&
+      attachment.webContents !== explicitWebContents
+    ) {
+      // 目标对象换了：旧 attachment 已经不作数，拆掉再按新的那条挂
+      this.destroyAttachment(attachment);
+      attachment = undefined;
+    }
     if (!attachment) {
-      const target = this.liveTargets().find((item) => item.browserId === browserId);
+      const target =
+        explicitWebContents !== undefined
+          ? { browserId, webContents: explicitWebContents }
+          : this.liveTargets().find((item) => item.browserId === browserId);
       if (!target) {
         return { error: { code: -32000, message: `内嵌浏览器已关闭（browserId=${browserId}）` } };
       }

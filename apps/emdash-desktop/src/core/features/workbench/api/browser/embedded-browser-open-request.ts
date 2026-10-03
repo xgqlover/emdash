@@ -62,8 +62,11 @@ function resolveTargetTask(): { ref: TaskRef; needsNavigation: boolean } | undef
  *
  * [XG-CUSTOM] bot ⟷ profile：`profileId` 由主进程按 bot 解析好塞在事件里；不带 →
  * `paneLayout.open('browser', { initialUrl })`，与改动前逐字节一致（渲染进程用 defaultProfileId）。
+ * [XG-CUSTOM 2026-10-03] `botId` 也一起透传：开页的 provider 要按它按需建/复用该 bot 的
+ * profile（未绑定时建 `bot-<botId>`），否则 agent 用 bot 身份开的页会落到 default，
+ * `/json/list` 里 `profile`/`botId` 永远为空。
  */
-export function openEmbeddedBrowserTab(url: string, profileId?: string): boolean {
+export function openEmbeddedBrowserTab(url: string, profileId?: string, botId?: string): boolean {
   const target = resolveTargetTask();
   if (target === undefined) {
     console.warn(
@@ -88,6 +91,7 @@ export function openEmbeddedBrowserTab(url: string, profileId?: string): boolean
     ...(typeof profileId === 'string' && profileId.trim() !== ''
       ? { profileId: profileId.trim() }
       : {}),
+    ...(typeof botId === 'string' && botId.trim() !== '' ? { botId: botId.trim() } : {}),
   });
   taskView.setFocusedRegion('main');
   return true;
@@ -108,7 +112,7 @@ export function useEmbeddedBrowserOpenRequests(): void {
         const off = await client.events.subscribe(undefined, {
           onEvent: (event) => {
             if (event.type !== 'open-in-embedded-browser') return;
-            openEmbeddedBrowserTab(event.url, event.profileId);
+            openEmbeddedBrowserTab(event.url, event.profileId, event.botId);
           },
           onGap: () => {},
         });

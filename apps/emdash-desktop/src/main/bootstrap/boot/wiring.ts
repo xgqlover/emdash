@@ -18,25 +18,26 @@ import type { DesktopRuntimes } from '@main/gateway/desktop-runtimes';
 import { setBrowserCorsRelaxationSettings } from '@main/host/browser/browser-profile-session';
 import { browserWebContentsRegistry } from '@main/host/browser/browser-webcontents-registry';
 import { browserOperations } from '@main/host/browser/controller';
-import {
-  createXiangwoBrowserRelay,
-  type XiangwoBrowserRelay,
-} from '@main/host/browser/xiangwo-browser-relay';
-import { createRelayCandidateSelector } from '@main/host/browser/xiangwo-relay-candidates';
-import {
-  XiangwoCdpBridge,
-  type XiangwoOpenBrowserRequest,
-} from '@main/host/browser/xiangwo-cdp-bridge'; // [XG-CUSTOM]
 // [XG-CUSTOM] bot ⟷ 浏览器 profile 绑定表（唯一真源 = botId）
 import {
   xiangwoBotIdForBrowserProfile,
   xiangwoBoundProfileIdForBot,
+  xiangwoNewBotProfileId,
   xiangwoProfileIdForBot,
 } from '@main/host/browser/xiangwo-bot-browser-profile';
+import {
+  createXiangwoBrowserRelay,
+  type XiangwoBrowserRelay,
+} from '@main/host/browser/xiangwo-browser-relay';
+import {
+  XiangwoCdpBridge,
+  type XiangwoOpenBrowserRequest,
+} from '@main/host/browser/xiangwo-cdp-bridge'; // [XG-CUSTOM]
 import {
   parseXiangwoCdpAllowList,
   resolveXiangwoCdpBindMode,
 } from '@main/host/browser/xiangwo-cdp-peers';
+import { createRelayCandidateSelector } from '@main/host/browser/xiangwo-relay-candidates';
 import { createDevPerfOperations } from '@main/host/dev-perf/controller-operations';
 import { writeRendererLogEntry } from '@main/host/file-logger';
 import { setTrayVisible } from '@main/host/tray';
@@ -148,6 +149,9 @@ export function startXiangwoCdpBridge(): void {
     requestOpenBrowser: requestEmbeddedBrowserOpen,
     // [XG-CUSTOM] bot → 已绑定的 profile（未绑定 null）：挑"要复用的那一页"用
     lookupBotProfile: (botId) => xiangwoBoundProfileIdForBot(botId),
+    // [XG-CUSTOM] 未绑定的 bot → 确定性的 `bot-<botId>`（[XG-CUSTOM 2026-10-03]）：桥用它挑页 +
+    // 随开页请求下发给渲染进程（渲染进程按同一个 id 真的建出这个 profile），否则 botId 永远带上不去。
+    newBotProfileId: (botId) => xiangwoNewBotProfileId(botId),
     log: (message, metadata) => log.info(`[XG-CUSTOM] ${message}`, metadata),
   });
   xiangwoCdpBridge = bridge;
@@ -167,6 +171,9 @@ export function startXiangwoCdpBridge(): void {
  * [XG-CUSTOM] bot ⟷ profile：带了 `bot`/`profile` 就**在主进程解析成具体 profileId**
  * （唯一真源 = botId；未绑定的 bot → 设置里的 defaultProfileId），再随事件下发 ——
  * 渲染进程不必自己认识 bot 名册。**都不带 → 事件与改动前逐字节一致**（渲染进程用 defaultProfileId）。
+ * [XG-CUSTOM 2026-10-03] `botId` 也一起下发：渲染进程要按它**按需建/复用那个 bot 的 profile**
+ * （否则带 botId 开的页落到 default，`/json/list` 里 `profile`/`botId` 永远为空 = agent 分不清
+ * "这一页是不是我的"）。
  */
 export function requestEmbeddedBrowserOpen(request: XiangwoOpenBrowserRequest): void {
   try {
@@ -178,6 +185,7 @@ export function requestEmbeddedBrowserOpen(request: XiangwoOpenBrowserRequest): 
       type: 'open-in-embedded-browser',
       url: request.url,
       ...(profileId !== '' ? { profileId } : {}),
+      ...(bot !== '' ? { botId: bot } : {}),
     });
   } catch (error) {
     log.warn('[XG-CUSTOM] 广播内嵌浏览器开页请求失败', {

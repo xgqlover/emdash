@@ -4,9 +4,12 @@ import { browserSessionStore } from '@core/features/browser/api/browser/browser-
 import { BrowserTabResource } from '@core/features/browser/api/browser/browser-tab-resource';
 import { getBrowserClient } from '@core/features/browser/api/browser/client';
 import { BrowserPane } from '@core/features/browser/browser/browser-pane';
-import { getAppSettingValueSnapshot } from '@core/features/settings/api/browser/app-settings-client';
+import {
+  getAppSettingValueSnapshot,
+  setAppSettingsValueInCache,
+  updateAppSettingsRequest,
+} from '@core/features/settings/api/browser/app-settings-client';
 import type { TaskTabContext } from '@core/features/workbench/api/browser/tabs/task-tab-context';
-import { normalizeBrowserProfileSelection } from '@core/primitives/browser/api';
 import type { BrowserSessionSnapshot } from '@core/primitives/browser/api';
 import type {
   TabEntry,
@@ -18,6 +21,7 @@ import type {
 } from '@core/primitives/workbench-shell/browser/tabs/core/tab-provider';
 import { createTabProvider } from '@core/primitives/workbench-shell/browser/tabs/core/tab-provider-registry';
 import { BrowserTabBarItem, BrowserTabBarItemDragPreview } from './browser-tab-item';
+import { resolveOpenProfile } from './ensure-bot-browser-profile';
 
 export interface BrowserState {
   browserId: string;
@@ -30,6 +34,9 @@ export interface BrowserOpenArgs {
   // [XG-CUSTOM] bot ⟷ profile：主进程按 bot 解析好的 profile（不带 = 用 defaultProfileId，
   // 与改动前一致）。见 core/primitives/browser/api 的 resolveBotBrowserProfileId。
   profileId?: string;
+  // [XG-CUSTOM 2026-10-03] 请求方 bot（agent 的 `key=<botId>`）：设置里没绑 profile 时按需建
+  // 一个 `bot-<botId>` 并绑上 —— 否则这一页落到 default，`/json/list` 里 `botId` 永远是空。
+  botId?: string;
 }
 
 /**
@@ -93,19 +100,33 @@ export const browserTabProvider: TabProvider<
     const browserSettings = getAppSettingValueSnapshot('browser');
     // [XG-CUSTOM] 请求里指定了 profile（agent 按 bot 解析来的）就用它 —— 但必须已经存在，
     // 否则 normalize 会退回 defaultProfileId（不给"凭空造一个 profile"的后门）。
-    const requestedProfileId =
-      typeof args.profileId === 'string' && args.profileId !== ''
-        ? args.profileId
-        : browserSettings?.defaultProfileId;
-    const profileId = normalizeBrowserProfileSelection(
-      requestedProfileId,
-      browserSettings?.profiles
-    );
+    // [XG-CUSTOM 2026-10-03] 例外只有一个：请求**显式带了 botId** 而设置里还没绑这个 bot →
+    // 按需建 `bot-<botId>`（id 优先用主进程下发的那个）并落盘，见 ensure-bot-browser-profile.ts。
+    const resolution = resolveOpenProfile({
+      requestedProfileId: args.profileId,
+      botId: args.botId,
+      profiles: browserSettings?.profiles,
+      defaultProfileId: browserSettings?.defaultProfileId,
+    });
+    if (resolution.createdProfile !== undefined && browserSettings !== undefined) {
+      const created = resolution.createdProfile;
+      const next = { ...browserSettings, profiles: [...browserSettings.profiles, created] };
+      // 先更新缓存（同一 tick 里的 normalize/回归都能看到它），再异步落盘；
+      // 落盘失败只 warn —— 这一页仍然用它自己的 partition 打开，不影响用户。
+      setAppSettingsValueInCache('browser', next);
+      void updateAppSettingsRequest('browser', next).catch((error: unknown) => {
+        console.warn('[XG-CUSTOM] 按需建 bot 浏览器 profile 落盘失败（本页仍按该 profile 打开）', {
+          botId: resolution.botId,
+          profileId: created.id,
+          error,
+        });
+      });
+    }
     const session = browserSessionStore.createSession({
       projectId: taskCtx.projectId,
       workspaceId: taskCtx.workspaceId,
       taskId: taskCtx.taskId,
-      profileId,
+      profileId: resolution.profileId,
       initialUrl: args.initialUrl,
     });
     return { browserId: session.browserId, session };

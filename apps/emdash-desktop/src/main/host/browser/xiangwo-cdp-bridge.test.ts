@@ -40,6 +40,11 @@ type MessageListener = (
 
 class FakeDebugger implements XiangwoCdpDebugger {
   attached = false;
+  /**
+   * [XG-CUSTOM 2026-10-03] 真 Chromium 里 `Page.navigate` 之后 `getURL()` 就会变；假实现照做，
+   * 否则「复用已有页也要导航」的分支会等满 XIANGWO_CDP_NAVIGATE_WAIT_MS（单测傻等 10s）。
+   */
+  onNavigate?: (url: string) => void;
   readonly sendCalls: Array<{
     method: string;
     params?: Record<string, unknown>;
@@ -74,6 +79,10 @@ class FakeDebugger implements XiangwoCdpDebugger {
     sessionId?: string
   ): Promise<unknown> {
     this.sendCalls.push({ method, params, sessionId });
+    if (method === 'Page.navigate') {
+      const navigated = typeof params?.['url'] === 'string' ? params['url'] : '';
+      if (navigated !== '') this.onNavigate?.(navigated);
+    }
     if (method === '__hang') return new Promise(() => {});
     if (method === 'Target.getTargetInfo') {
       return { targetInfo: { targetId: 'REAL-CHROMIUM-ID', browserContextId: 'CTX-REAL' } };
@@ -127,6 +136,11 @@ class FakeWebContents implements XiangwoCdpWebContents {
 function fakeTarget(browserId: string): FakeTarget {
   const fake = new FakeWebContents();
   fake.id = Math.floor(Math.random() * 100000);
+  // [XG-CUSTOM 2026-10-03] 模拟真导航：Page.navigate 之后 getURL()/getTitle() 立刻反映新页
+  fake.debugger.onNavigate = (url) => {
+    fake.url = url;
+    fake.title = `导航后：${url}`;
+  };
   return { browserId, webContents: fake, fake };
 }
 
@@ -794,6 +808,45 @@ describe('[XG-CUSTOM] XiangwoCdpBridge /xg/open-browser（从零开页）', () =
     expect(opened).toHaveLength(0);
   });
 
+  // [XG-CUSTOM] 回归：**复用一个已有内嵌页时也必须 Page.navigate**
+  // （[XG-CUSTOM 2026-10-03] 修「打开网址无反应」）。
+  // 病根：旧分支只回 `reused:true` 就走，页面留在原 URL —— agent 报"打开了"、用户看到的还是旧页
+  // （本机实测：请求 yahoo.co.jp / g-mark.org / jagda.or.jp 全被 reused 吞掉，target 里始终只有
+  // 最初那个 example.com）。所以这里同时锁三件事：命令真的发了、回包 url/title 是导航后的真值、
+  // /json/list 里那一页也换了 URL。
+  it('已有内嵌页 → 复用时也必须 Page.navigate，回包/清单都是导航后的真实结果', async () => {
+    const target = fakeTarget('task-existing');
+    const { base } = await startBridge(() => [target], 500);
+    const wanted = 'https://www.g-mark.org/zh-CN';
+    const r = await postOpen(base, { url: wanted });
+    expect(r['ok']).toBe(true);
+    expect(r['reused']).toBe(true);
+    expect(r['url']).toBe(wanted);
+    expect(r['requestedUrl']).toBe(wanted);
+    expect(r['previousUrl']).toBe('http://127.0.0.1:1933/studio/home');
+    expect(String(r['title'])).toContain(wanted);
+    expect(r['targetId']).toBe(embeddedTargetId('task-existing'));
+    const navigated = target.fake.debugger.sendCalls.filter((c) => c.method === 'Page.navigate');
+    expect(navigated).toHaveLength(1);
+    expect(navigated[0]?.params).toEqual({ url: wanted });
+    const list = (await (await fetch(`${base}/json/list`)).json()) as Array<
+      Record<string, unknown>
+    >;
+    expect(list[0]?.['url']).toBe(wanted);
+  });
+
+  it('复用时导航失败 → ok:false + 人话（绝不回旧 URL 谎报成功）', async () => {
+    const target = fakeTarget('task-broken');
+    target.fake.debugger.sendCommand = async () => {
+      throw new Error('模拟导航失败');
+    };
+    const { base } = await startBridge(() => [target], 500);
+    const r = await postOpen(base, { url: 'https://www.g-mark.org/zh-CN' });
+    expect(r['ok']).toBe(false);
+    expect(r['reused']).toBe(true);
+    expect(String(r['error'])).toContain('导航失败');
+  });
+
   it('一个都没有 → 广播开页请求，等 target 出现后回报新 targetId', async () => {
     const bound: EmbeddedBrowserTarget[] = [];
     const news: FakeTarget[] = [];
@@ -855,6 +908,96 @@ describe('[XG-CUSTOM] XiangwoCdpBridge /xg/open-browser（从零开页）', () =
   });
 });
 
+// ── [XG-CUSTOM 2026-10-03] botId 必须被带到新页上（不是只带 url）────────────────────
+//
+// 病根（本机实测）：`/json/list` 里 7 个内嵌页的 `botId` 全是空，`POST /xg/open-browser
+// {"url":X,"botId":"xg-mcp-probe"}` 也被忽略 —— agent 侧发的是 `botId`，桥只认 `bot`，
+// 身份整条丢掉；就算认了，未绑定的 bot 也会落到 default（真实配置 = `isolated-per-task`），
+// 那一页的 `profile`/`botId` 反推不出来。这三条钉住：别名要认、确定性 profile 要随请求下去、
+// 回包与 /json/list 要回**真实** botId。
+describe('[XG-CUSTOM] /xg/open-browser 的 botId（payload 不丢）', () => {
+  async function postOpen(base: string, body: unknown): Promise<Record<string, unknown>> {
+    const res = await fetch(`${base}${XIANGWO_CDP_OPEN_BROWSER_PATH}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    return (await res.json()) as Record<string, unknown>;
+  }
+
+  it('请求体写 botId（不是 bot）也是同一个维度：按 bot 挑页 + 复用也导航', async () => {
+    const target = fakeBotTarget('task-sxsj', 'bot-sxsj', 'sxsj');
+    const opened: Array<Record<string, unknown>> = [];
+    const { base } = await startBridge(() => [target], 500, {
+      lookupBotProfile: (bot) => (bot === 'sxsj' ? 'bot-sxsj' : null),
+      requestOpenBrowser: (request) => opened.push({ ...request }),
+    });
+    const r = await postOpen(base, { url: 'https://example.com', botId: 'sxsj' });
+    expect(r['ok']).toBe(true);
+    expect(r['reused']).toBe(true);
+    expect(r['profile']).toBe('bot-sxsj');
+    expect(r['botId']).toBe('sxsj');
+    expect(r['url']).toBe('https://example.com');
+    expect(opened).toHaveLength(0);
+    expect(target.fake.debugger.sendCalls.some((c) => c.method === 'Page.navigate')).toBe(true);
+  });
+
+  it('带 botId 开新页 → bot/profile 随开页请求下去，回包与 /json/list 都回真实 botId', async () => {
+    const bound: EmbeddedBrowserTarget[] = [];
+    const opened: Array<Record<string, unknown>> = [];
+    const { base } = await startBridge(() => bound, 500, {
+      openBrowserWaitMs: 3000,
+      // 本机真实状态：设置里一个 botId 绑定都没有
+      lookupBotProfile: () => null,
+      newBotProfileId: (botId) => `bot-${botId}`,
+      requestOpenBrowser: (request) => {
+        opened.push({ ...request });
+        setTimeout(() => {
+          const target = fakeBotTarget('task-probe', 'bot-xg-mcp-probe', 'xg-mcp-probe');
+          target.fake.url = 'https://example.com/';
+          bound.push(target);
+        }, 50);
+      },
+    });
+    const r = await postOpen(base, { url: 'https://example.com', botId: 'xg-mcp-probe' });
+    expect(opened).toEqual([
+      { url: 'https://example.com', bot: 'xg-mcp-probe', profile: 'bot-xg-mcp-probe' },
+    ]);
+    expect(r['ok']).toBe(true);
+    expect(r['reused']).toBe(false);
+    expect(r['profile']).toBe('bot-xg-mcp-probe');
+    expect(r['botId']).toBe('xg-mcp-probe');
+    const list = (await (await fetch(`${base}/json/list`)).json()) as Array<
+      Record<string, unknown>
+    >;
+    expect(list[0]?.['botId']).toBe('xg-mcp-probe');
+    expect(list[0]?.['profile']).toBe('bot-xg-mcp-probe');
+  });
+
+  it('新页的 profile 对得上、但设置快照还没刷上 botId → 仍按 profile 归属回报请求的 botId', async () => {
+    const bound: EmbeddedBrowserTarget[] = [];
+    const { base } = await startBridge(() => bound, 500, {
+      openBrowserWaitMs: 3000,
+      lookupBotProfile: () => null,
+      newBotProfileId: (botId) => `bot-${botId}`,
+      requestOpenBrowser: () => {
+        setTimeout(() => {
+          // 渲染进程按同一个 id 建了 profile 并开页；主进程的设置快照（botId 反查）可能还没刷上
+          const target: FakeTarget = {
+            ...fakeTarget('task-lag'),
+            profileId: 'bot-xg-mcp-probe',
+          };
+          target.fake.url = 'https://example.com/';
+          bound.push(target);
+        }, 50);
+      },
+    });
+    const r = await postOpen(base, { url: 'https://example.com', botId: 'xg-mcp-probe' });
+    expect(r['ok']).toBe(true);
+    expect(r['profile']).toBe('bot-xg-mcp-probe');
+    expect(r['botId']).toBe('xg-mcp-probe');
+  });
+});
 
 // ── [XG-CUSTOM 2026-10-02] bot ⟷ 浏览器 profile：/json/list 回报身份 + open 只认自己那一页 ──
 //
@@ -910,7 +1053,10 @@ describe('[XG-CUSTOM] bot ⟷ profile（/json/list 身份 + 按 bot 挑页）', 
   it('带 bot 且已有它自己的页 → 复用那一页（不新开）', async () => {
     const opened: Array<Record<string, unknown>> = [];
     const { base } = await startBridge(
-      () => [fakeBotTarget('task-babado', 'bot-babado', 'babado'), fakeBotTarget('task-sxsj', 'bot-sxsj', 'sxsj')],
+      () => [
+        fakeBotTarget('task-babado', 'bot-babado', 'babado'),
+        fakeBotTarget('task-sxsj', 'bot-sxsj', 'sxsj'),
+      ],
       500,
       {
         requestOpenBrowser: (request) => opened.push({ ...request }),
@@ -942,7 +1088,9 @@ describe('[XG-CUSTOM] bot ⟷ profile（/json/list 身份 + 按 bot 挑页）', 
       },
     });
     const r = await postOpen(base, { url: 'https://example.com', bot: 'sxsj' });
-    expect(opened).toEqual([{ url: 'https://example.com', bot: 'sxsj' }]);
+    // [XG-CUSTOM 2026-10-03] 广播里带上**已解析好的 profile**：渲染进程按同一个 id 建/用那一页，
+    // 否则主进程"等哪个 profile"与实际开出来的页可能对不上（botId 也就回不来）。
+    expect(opened).toEqual([{ url: 'https://example.com', bot: 'sxsj', profile: 'bot-sxsj' }]);
     expect(r['ok']).toBe(true);
     expect(r['reused']).toBe(false);
     expect(r['targetId']).toBe(embeddedTargetId('task-sxsj'));

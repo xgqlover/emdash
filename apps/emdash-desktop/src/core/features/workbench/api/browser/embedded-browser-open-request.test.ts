@@ -102,6 +102,35 @@ describe('[XG-CUSTOM] openEmbeddedBrowserTab（从零开内嵌浏览器页）', 
     expect(mocks.paneOpen).toHaveBeenCalledWith('browser', { initialUrl: 'https://example.com' });
   });
 
+  // [XG-CUSTOM] botId 必须一起到渲染进程（[XG-CUSTOM 2026-10-03]）：provider 靠它按需建/复用
+  // 该 bot 的 profile（本机实测 payload 丢掉 botId → 页落到 default，/json/list 里 botId 永远为空）。
+  it('带 botId → 透传给 paneLayout.open（url/profileId/botId 一起到）', () => {
+    mocks.navigationRef.viewId = 'task';
+    mocks.navigationRef.params = { projectId: 'p9', taskId: 't9' };
+    const ok = openEmbeddedBrowserTab('https://example.com', 'bot-xg-mcp-probe', 'xg-mcp-probe');
+    expect(ok).toBe(true);
+    expect(mocks.paneOpen).toHaveBeenCalledWith('browser', {
+      initialUrl: 'https://example.com',
+      profileId: 'bot-xg-mcp-probe',
+      botId: 'xg-mcp-probe',
+    });
+  });
+
+  it('不带 / 空白 botId → args 里没有这个键（老调用方逐字节一致）', () => {
+    mocks.navigationRef.viewId = 'task';
+    mocks.navigationRef.params = { projectId: 'p9', taskId: 't9' };
+    openEmbeddedBrowserTab('https://example.com', 'bot-sxsj');
+    expect(mocks.paneOpen).toHaveBeenLastCalledWith('browser', {
+      initialUrl: 'https://example.com',
+      profileId: 'bot-sxsj',
+    });
+    openEmbeddedBrowserTab('https://example.com', 'bot-sxsj', '   ');
+    expect(mocks.paneOpen).toHaveBeenLastCalledWith('browser', {
+      initialUrl: 'https://example.com',
+      profileId: 'bot-sxsj',
+    });
+  });
+
   it('一个 task 都没有 → 如实返回 false，不假装开了', () => {
     mocks.visibleTaskEntries = [];
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);

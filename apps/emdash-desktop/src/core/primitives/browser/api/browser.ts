@@ -8,7 +8,10 @@ export type BrowserEvent =
   // 而这条的整个意义就是「一个都不存在」。
   // `profileId`：主进程已按 bot 解析好的 profile（唯一真源 = botId）。**不带 = 与改动前一致**
   // （渲染进程用设置里的 defaultProfileId）。
-  | { type: 'open-in-embedded-browser'; url: string; profileId?: string }
+  // [XG-CUSTOM 2026-10-03] `botId`：请求方 bot 名（agent 侧 `key=<botId>`）。渲染进程按它
+  // **按需建/复用该 bot 的 profile**（未绑定时建 `bot-<botId>`）——丢了它，agent 开的页就落到
+  // default，`/json/list` 的 `profile`/`botId` 永远是空的。
+  | { type: 'open-in-embedded-browser'; url: string; profileId?: string; botId?: string }
   | { type: 'link-copied'; kind: 'image' | 'link' | 'url'; url: string };
 
 export const BROWSER_PARTITION_PREFIX = 'persist:emdash-browser';

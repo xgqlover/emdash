@@ -1,3 +1,6 @@
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { dirname, join } from 'node:path';
 // [XG-CUSTOM] 项我定制（见 emdash/CUSTOMIZATIONS.md）
 //
 // bot ⟷ 浏览器 profile 的主进程侧解析（唯一真源 = **botId**）。
@@ -21,13 +24,11 @@ import {
   DEFAULT_BROWSER_PROFILES,
   browserProfileBotId,
   browserProfilePartition,
+  makeBotBrowserProfileId,
   resolveBotBrowserProfileId,
   type BrowserProfile,
 } from '@core/primitives/browser/api';
 import type { AppSettings } from '@core/services/settings/api';
-import { mkdirSync, writeFileSync } from 'node:fs';
-import { homedir } from 'node:os';
-import { dirname, join } from 'node:path';
 import { log } from '@main/lib/logger';
 
 type BrowserSettings = AppSettings['browser'];
@@ -95,9 +96,10 @@ let defaultProfileId: string = DEFAULT_BROWSER_PROFILE_ID;
  * （wiring.ts / phases/services.ts 两处调用点），这里留一份快照供 9223 桥与反向通道查表。
  */
 export function setXiangwoBrowserProfileBindings(browser: BrowserSettings): void {
-  profiles = Array.isArray(browser.profiles) && browser.profiles.length > 0
-    ? browser.profiles
-    : DEFAULT_BROWSER_PROFILES;
+  profiles =
+    Array.isArray(browser.profiles) && browser.profiles.length > 0
+      ? browser.profiles
+      : DEFAULT_BROWSER_PROFILES;
   defaultProfileId = browser.defaultProfileId ?? DEFAULT_BROWSER_PROFILE_ID;
   // [XG-CUSTOM] 顺手把派生映射表导出给人/agent 看（失败只 warn，绝不影响设置保存）
   writeBotBrowserMapDump();
@@ -126,6 +128,21 @@ export function xiangwoBoundProfileIdForBot(botId: string | undefined): string |
   if (wanted === '') return null;
   const bound = profiles.find((profile) => browserProfileBotId(profile.id, profiles) === wanted);
   return bound ? bound.id : null;
+}
+
+/**
+ * [XG-CUSTOM] 该 bot **还没绑定** profile 时，渲染进程会按需建的那个 profileId
+ * （[XG-CUSTOM 2026-10-03] 让 `botId` 真的带到新页上）。
+ *
+ * 为什么需要它：本机实测 `profiles[].botId` 一个都没绑，于是带 botId 的「打开内嵌页」永远落到
+ * default（真实配置里甚至 = `isolated-per-task`）→ 每页的 `profile`/`botId` 都是空，
+ * agent 分不清"这一页是不是我的"。这里给出**确定性**的 `bot-<botId>`：主进程把它随开页请求
+ * 下发 + 当作"要复用哪一页"的判据，渲染进程按同一个 id 真的建出这个 profile（见
+ * `core/features/browser/browser/browser-tab-provider.tsx` 的 `onBeforeOpen`），
+ * 之后 `/json/list` 就能从 partition 反推出 bot 身份。
+ */
+export function xiangwoNewBotProfileId(botId: string): string {
+  return makeBotBrowserProfileId(botId, profiles);
 }
 
 /** [XG-CUSTOM] 设置页要展示"未绑定"提示 / 反向通道判重用。只读快照，调用方别改。 */
