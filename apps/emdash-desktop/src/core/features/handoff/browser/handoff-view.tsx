@@ -10,16 +10,20 @@ import {
   createTextMatcher,
   PageLayout,
 } from '@emdash/ui/react/patterns';
-import { AbsoluteTime, Button, Sheet, toast } from '@emdash/ui/react/primitives';
-import { Bot, CheckCircle2, Clock, Plus, Trash2, UserRound, X } from 'lucide-react';
+import { AbsoluteTime, Button, Sheet, Tabs, toast } from '@emdash/ui/react/primitives';
+import { Bot, CheckCircle2, Clock, MonitorSmartphone, Plus, Trash2, UserRound, X } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { Fragment, useCallback, useMemo, useState } from 'react';
 import { listAllAcpChats } from '@core/features/conversations/browser/acp/acp-chat-resource-manager';
-import type { ExpertHandoffTopic } from '@core/primitives/desktop-host/api/host-contract';
+import type { ExpertHandoffTopic, TaskSpace } from '@core/primitives/desktop-host/api/host-contract';
 import {
   expertHandoffAdd,
   expertHandoffDelete,
   expertHandoffList,
+  taskSpaceComplete,
+  taskSpaceHandoff,
+  taskSpaceList,
+  taskSpaceTakeover,
 } from '@core/primitives/desktop-host/browser/host-client';
 import { cn } from '@core/primitives/styling/browser/cn';
 import { defineViewRuntime } from '@core/primitives/views/react';
@@ -74,6 +78,153 @@ const handoffListView = createListView({
     by: (topic: ExpertHandoffTopic) => `${topic.bot || '未知业务线'} · ${expertLabel(topic.expert)}`,
   },
 });
+
+// ───────────────────────── 第二个 Tab：浏览器工作台（task-spaces）─────────────────────────
+// 交的东西是**浏览器页面控制权**（ownership 三态），和上面「专家交接台」交的**任务**是两件事。
+// 数据：wego-lite/task-spaces/spaces.json ← task-spaces.mjs（经 host 桥接，本机 spawn / 远程 SSH）
+// ownership：agent=agent 拥有 / agentDelegatedToUser=控制权临时交给用户 / user=用户拥有
+
+const OWNERSHIP_LABEL: Record<string, string> = {
+  agent: 'agent 在操作',
+  agentDelegatedToUser: '交给用户待接',
+  user: '用户拥有',
+};
+
+function OwnershipBadge({ ownership }: { ownership: string }) {
+  if (ownership === 'agentDelegatedToUser') {
+    return (
+      <span className={cn('flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-xs bg-background-success text-foreground-success')}>
+        <MonitorSmartphone className="size-3" />
+        待接
+      </span>
+    );
+  }
+  if (ownership === 'user') {
+    return (
+      <span className={cn('flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-xs bg-background-1 text-foreground-muted')}>
+        <UserRound className="size-3" />
+        用户拥有
+      </span>
+    );
+  }
+  return (
+    <span className={cn('flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-xs bg-background-info text-foreground-info')}>
+      <Bot className="size-3" />
+      agent 在操作
+    </span>
+  );
+}
+
+const spaceListView = createListView({
+  getItemId: (space: TaskSpace) => String(space.id),
+  source: {
+    kind: 'async',
+    load: async () => {
+      const list = await taskSpaceList();
+      return Array.isArray(list) ? (list as TaskSpace[]) : [];
+    },
+  },
+  search: {
+    kind: 'sync',
+    predicate: createTextMatcher((space: TaskSpace) => [space.name, space.ownership]),
+  },
+  sections: {
+    by: (space: TaskSpace) => OWNERSHIP_LABEL[space.ownership] ?? space.ownership,
+  },
+});
+
+const SpaceCounts = observer(function SpaceCounts() {
+  const list = spaceListView.useListView();
+  if (list.status === 'loading' && list.visibleItems.length === 0) {
+    return <span className="shrink-0 text-xs text-foreground-muted">加载中…</span>;
+  }
+  const waiting = list.visibleItems.filter((s) => s.ownership === 'agentDelegatedToUser').length;
+  return (
+    <span className="shrink-0 text-xs text-foreground-muted">
+      {list.visibleItems.length} 个页面 · {waiting} 待接
+    </span>
+  );
+});
+
+const SpaceToolbar = observer(function SpaceToolbar({ onRefresh }: { onRefresh: () => void }) {
+  const search = spaceListView.useSearch();
+  return (
+    <CollectionToolbar.Root>
+      <CollectionToolbar.Search
+        value={search.query}
+        onValueChange={search.setQuery}
+        placeholder="搜索页面名"
+      />
+      <SpaceCounts />
+      <CollectionToolbar.Spacer />
+      <CollectionToolbar.Group>
+        <Button variant="secondary" size="sm" onClick={onRefresh}>
+          刷新
+        </Button>
+      </CollectionToolbar.Group>
+    </CollectionToolbar.Root>
+  );
+});
+
+function SpaceRow({
+  space,
+  onAct,
+}: {
+  space: TaskSpace;
+  onAct: (cmd: 'handoff' | 'takeover' | 'complete', id: number) => void;
+}) {
+  const isAgentOwned = space.ownership === 'agent';
+  const isWaiting = space.ownership === 'agentDelegatedToUser';
+  const isUserOwned = space.ownership === 'user';
+  return (
+    <div className="group flex w-full items-start gap-4 text-left">
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+        {/* 第 1 行：名字 + 归属徽章 左，id pill 右 */}
+        <div className="flex min-w-0 items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="min-w-0 truncate text-md text-foreground">{space.name || `space #${space.id}`}</span>
+            <OwnershipBadge ownership={space.ownership} />
+          </div>
+          <div className="flex shrink-0 items-center gap-1 text-xs text-foreground-muted">
+            <span className="flex items-center gap-1 rounded-md bg-background-1 px-2 py-1 group-hover:bg-background-2">
+              #{space.id}
+            </span>
+            <span className="flex items-center gap-1 rounded-md bg-background-1 px-2 py-1 group-hover:bg-background-2">
+              {space.tabs?.length ?? 0} 个标签页
+            </span>
+          </div>
+        </div>
+
+        {/* 第 2 行：动作按钮（按 ownership 互斥，不能冒泡到整行点击） */}
+        <div
+          className="flex shrink-0 gap-1"
+          onClick={(event) => event.stopPropagation()}
+          onPointerDown={(event) => event.stopPropagation()}
+        >
+          {isWaiting && (
+            <Button variant="primary" size="sm" onClick={() => onAct('takeover', space.id)}>
+              接手
+            </Button>
+          )}
+          {isAgentOwned && (
+            <Button variant="secondary" size="sm" onClick={() => onAct('handoff', space.id)}>
+              交给用户
+            </Button>
+          )}
+          {isUserOwned && (
+            <Button variant="secondary" size="sm" onClick={() => onAct('takeover', space.id)}>
+              认领
+            </Button>
+          )}
+          <Button variant="ghost" size="sm" onClick={() => onAct('complete', space.id)}>
+            <CheckCircle2 className="size-3" />
+            完成
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 /** 工具条左侧的计数（搜索后按可见项算，和旧版「N 个主题 · M 待接」一致）。 */
 const HandoffCounts = observer(function HandoffCounts() {
@@ -178,6 +329,7 @@ function HandoffRow({
 }
 
 export function HandoffMainPanel() {
+  const [tab, setTab] = useState<'expert' | 'spaces'>('expert');
   const [selected, setSelected] = useState<ExpertHandoffTopic | null>(null);
   const [mergeText, setMergeText] = useState('');
   const [target, setTarget] = useState('');
@@ -207,6 +359,30 @@ export function HandoffMainPanel() {
       reload();
     },
     [reload]
+  );
+
+  // ── 浏览器工作台（第二个 Tab）──
+  const reloadSpaces = useCallback(() => void spaceListView.reload(), []);
+
+  const handleSpaceAct = useCallback(
+    async (cmd: 'handoff' | 'takeover' | 'complete', id: number) => {
+      try {
+        if (cmd === 'handoff') {
+          await taskSpaceHandoff(String(id));
+          toast('已交给用户', { description: '控制权在你这，可在交接台接手' });
+        } else if (cmd === 'takeover') {
+          await taskSpaceTakeover(String(id));
+          toast('已接手', { description: '控制权回到 agent' });
+        } else {
+          await taskSpaceComplete(String(id), false);
+          toast('已完成', { description: 'space 已关闭' });
+        }
+      } catch (e) {
+        toast.error('操作失败', { description: (e as Error).message });
+      }
+      reloadSpaces();
+    },
+    [reloadSpaces]
   );
 
   // 可用的 ACP 聊天（并入目标）
@@ -241,13 +417,21 @@ export function HandoffMainPanel() {
   return (
     <div className="flex h-full flex-col overflow-hidden bg-background text-foreground">
       <div className="h-6 shrink-0 [-webkit-app-region:drag]" />
-      <div className="mx-auto grid min-h-0 w-full max-w-4xl flex-1 grid-cols-1 gap-8">
-        <div className="relative min-h-0 w-full min-w-0 overflow-y-auto px-8">
-          <div className="flex w-full flex-col gap-8 py-8">
-            <PageLayout.Header
-              title="交接台"
-              description="专家之间的任务交接 —— 按 bot / 专家分组，点卡片并入对话"
-            />
+      <div className="mx-auto flex min-h-0 w-full max-w-4xl flex-1 flex-col gap-4 px-8 py-8">
+        <PageLayout.Header
+          title="交接台"
+          description="两件事分开：「专家交接」交的是任务，「浏览器工作台」交的是页面控制权"
+        />
+        {/* 双 Tab 切换：不放进滚动区，保证切页时头部不跑 */}
+        <Tabs.Root value={tab} onValueChange={(value) => setTab(value as 'expert' | 'spaces')}>
+          <Tabs.List>
+            <Tabs.Tab value="expert">专家交接</Tabs.Tab>
+            <Tabs.Tab value="spaces">浏览器工作台</Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>
+
+        <div className="relative min-h-0 w-full min-w-0 flex-1 overflow-y-auto">
+          {tab === 'expert' ? (
             <handoffListView.Root>
               <CollectionView
                 view={handoffListView}
@@ -268,7 +452,28 @@ export function HandoffMainPanel() {
                 }
               />
             </handoffListView.Root>
-          </div>
+          ) : (
+            <spaceListView.Root>
+              <CollectionView
+                view={spaceListView}
+                layout="grouped"
+                estimateSize={104}
+                renderRow={(space) => <SpaceRow space={space} onAct={handleSpaceAct} />}
+                toolbar={<SpaceToolbar onRefresh={reloadSpaces} />}
+                emptySlot={
+                  <p className="p-6 text-sm text-foreground-muted">
+                    暂无浏览器工作台页面。agent 侧边干活时（/use）会自动开一个 space，
+                    干完把控制权交给你，这里就会亮起来。
+                  </p>
+                }
+                errorSlot={
+                  <p className="p-6 text-sm text-foreground-muted">
+                    读取浏览器工作台失败（检查 wego-lite/task-spaces/task-spaces.mjs 桥接与 node 路径）
+                  </p>
+                }
+              />
+            </spaceListView.Root>
+          )}
         </div>
       </div>
 

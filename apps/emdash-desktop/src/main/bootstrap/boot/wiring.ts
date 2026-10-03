@@ -52,6 +52,7 @@ import {
   ensureChromeRunning,
   expertHandoffCall,
   expertRosterCall,
+  taskSpaceCall,
 } from '@main/host/window'; // [XG-CUSTOM]
 import { resolveXiangwoChatTarget } from '@main/host/xiangwo-chat-target';
 import { log } from '@main/lib/logger';
@@ -334,6 +335,11 @@ export function createDesktopWireOptions(
         expertHandoffCall('add', bot, expert, title, summary, session, context),
       // [XG-CUSTOM] Pi 树专家名册（专家总览视图）
       expertRoster: () => expertRosterCall(),
+      // [XG-CUSTOM] 浏览器工作台（task-spaces）：页面控制权交接（交接台第二个 Tab）
+      taskSpaceList: () => taskSpaceCall('list'),
+      taskSpaceHandoff: ({ id }) => taskSpaceCall('handoff', id),
+      taskSpaceTakeover: ({ id }) => taskSpaceCall('takeover', id),
+      taskSpaceComplete: ({ id, keep }) => taskSpaceCall('complete', id, keep ? 'true' : 'false'),
       showWorkspaceItemInFolder: (input) => appOperations.showWorkspaceItemInFolder(input),
       clipboardWriteText: ({ text }) => appOperations.clipboardWriteText(text),
       persistDroppedBlob: (input) => appOperations.persistDroppedBlob(input),

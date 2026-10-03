@@ -330,9 +330,13 @@ export function registerXiangwoCdpBridge(): void {
 const TASK_SPACES_MJS =
   '/persistent/home/xgqlover/天天项上/五层四维记忆系统/wego-lite/task-spaces/task-spaces.mjs';
 
-function taskSpaceCall<T = unknown>(cmd: string, ...args: string[]): Promise<T> {
+// [XG-CUSTOM] 浏览器工作台 task-spaces 调用（泛型返回，适配 ProcedureDef 具体类型）
+// 两个入口共用这一个实现：
+//   ① emdash「交接台」第二个 Tab（走 Wire host 域 → wiring.ts）
+//   ② 项我球浮窗的「📤 交接」按钮（走 IPC xiangwo:task-space-*，见 registerXiangwoTaskSpaces）
+export function taskSpaceCall<T = unknown>(cmd: string, ...args: string[]): Promise<T> {
   return runXiangwoScript({
-    label: '侧边交接台',
+    label: '浏览器工作台',
     interpreter: {
       local: 'node',
       remote: 'node',

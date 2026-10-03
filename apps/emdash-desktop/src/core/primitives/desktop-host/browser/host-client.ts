@@ -67,6 +67,26 @@ export async function expertHandoffList(bot: string, session: string) {
 export async function expertRoster() {
   return (await getHostClient()).expertRoster({});
 }
+
+// [XG-CUSTOM] 浏览器工作台（task-spaces）：页面控制权交接，与专家交接台分开的一组
+// ⚠️ 这是**另一条**通路：走 Wire（host 域）→ 主机感知的 runXiangwoScript（本机 spawn / 远程 SSH），
+//    与 XiangwoFloatingPanel 用的那组 IPC（xiangwo:task-space-*）数据源相同、入口不同。
+export async function taskSpaceList() {
+  return (await getHostClient()).taskSpaceList({});
+}
+
+export async function taskSpaceHandoff(id: string) {
+  return (await getHostClient()).taskSpaceHandoff({ id });
+}
+
+export async function taskSpaceTakeover(id: string) {
+  return (await getHostClient()).taskSpaceTakeover({ id });
+}
+
+export async function taskSpaceComplete(id: string, keep: boolean) {
+  return (await getHostClient()).taskSpaceComplete({ id, keep });
+}
+
 export async function copyTextToClipboard(text: string) {
   return (await getHostClient()).clipboardWriteText({ text });
 }

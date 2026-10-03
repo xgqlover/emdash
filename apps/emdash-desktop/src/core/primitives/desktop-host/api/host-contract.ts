@@ -75,6 +75,18 @@ export interface ExpertHandoffTopic {
   created: number;
 }
 
+// [XG-CUSTOM] 浏览器工作台 space（对应 wego-lite/task-spaces/spaces.json）
+// ownership 三态沿用 ego-lite 原码：agent=agent 拥有 / agentDelegatedToUser=控制权临时交给用户
+// / user=用户拥有（agent 要 claim 才能动）。与「专家交接台」是两个不同的交接口径：
+// 这里交的是**页面控制权**，那里交的是**任务**。
+export interface TaskSpace {
+  id: number;
+  name: string;
+  ownership: string; // agent | agentDelegatedToUser | user
+  createdBy: string;
+  tabs: { title?: string; url?: string }[];
+}
+
 // [XG-CUSTOM] Pi 树专家名册（对应 xiangwo-agent/expert_roster.py 输出）
 // 用途：emdash「专家总览」视图 —— Kaneo 只放有工作的 bot，全量身份看这里。
 export interface ExpertRosterEntry {
@@ -172,6 +184,23 @@ export const desktopHostContract = defineContract({
   expertHandoffList: procedure({
     input: z.object({ bot: z.string(), session: z.string() }),
     output: z.custom<ExpertHandoffTopic[]>(),
+  }),
+  // [XG-CUSTOM] 浏览器工作台（task-spaces）：页面控制权交接，与专家交接台分开的一组 procedure
+  taskSpaceList: procedure({
+    input: z.object({}),
+    output: z.custom<TaskSpace[]>(),
+  }),
+  taskSpaceHandoff: procedure({
+    input: z.object({ id: z.string() }),
+    output: z.custom<TaskSpace>(),
+  }),
+  taskSpaceTakeover: procedure({
+    input: z.object({ id: z.string() }),
+    output: z.custom<TaskSpace>(),
+  }),
+  taskSpaceComplete: procedure({
+    input: z.object({ id: z.string(), keep: z.boolean() }),
+    output: z.custom<unknown>(),
   }),
   // [XG-CUSTOM] Pi 树专家名册（专家总览视图）
   expertRoster: procedure({

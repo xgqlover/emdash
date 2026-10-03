@@ -8,7 +8,7 @@
   },
   "stats": {
     "files": 128,
-    "markers": 734,
+    "markers": 739,
     "newFiles": 62,
     "modifiedFiles": 66
   },
@@ -374,13 +374,13 @@
       "markers": 2,
       "lines": [
         1,
-        275
+        480
       ],
       "anchors": [
         "// 数据走 host 桥接 → python3 expert_handoff.py list/accept/delete/add（与 agent.py 后端共 ⏎ import {",
         "<Sheet.Root open={showNew} onOpenChange={(open) => !open && setShowNew(false)}>"
       ],
-      "hash": "8f2a5f4fc70a06a2bff9c3eb9c84464451b6468a",
+      "hash": "16d5fbd5fe46c75bdfa9f5d023bda2f5c4d9d3cc",
       "origin": "new",
       "firstCommit": "bd2b9657e|2026-09-22|feat: 专家交接台侧边栏导航（handoff view + list 桥接，list 空待后续定位）",
       "lastCommit": "bd2b9657e|2026-09-22|feat: 专家交接台侧边栏导航（handoff view + list 桥接，list 空待后续定位）",
@@ -1074,42 +1074,47 @@
       "note": "core 基元定制"
     },
     "apps/emdash-desktop/src/core/primitives/desktop-host/api/host-contract.ts": {
-      "markers": 8,
+      "markers": 10,
       "lines": [
         66,
         78,
-        128,
-        137,
-        142,
-        147,
-        160,
-        176
+        90,
+        140,
+        149,
+        154,
+        159,
+        172,
+        188,
+        205
       ],
       "anchors": [
         "export interface ExpertHandoffTopic {",
+        "export interface TaskSpace {",
         "export interface ExpertRosterEntry {",
         "openOpenViking: procedure({",
         "openKaneo: procedure({",
         "openAffine: procedure({",
         "expertHandoffByExpert: procedure({",
         "expertHandoffAdd: procedure({",
+        "taskSpaceList: procedure({",
         "expertRoster: procedure({"
       ],
-      "hash": "d9f09765099bc86e98380dd246585a3b4c969805",
+      "hash": "06dff45dddda2094ec6065d2f86f61a4b1ac82e2",
       "origin": "modified",
       "firstCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "desktop-host 契约扩展（宿主新增 API）"
     },
     "apps/emdash-desktop/src/core/primitives/desktop-host/browser/host-client.ts": {
-      "markers": 6,
+      "markers": 7,
       "lines": [
         24,
         33,
         38,
         44,
         57,
-        66
+        66,
+        71
       ],
       "anchors": [
         "export async function openOpenViking() {",
@@ -1117,9 +1122,10 @@
         "export async function openAffine() {",
         "export async function expertHandoffByExpert(expert: string) {",
         "export async function expertHandoffAdd(bot: string, expert: string, title: string, summary: string, session: string, context: string) {",
-        "export async function expertRoster() {"
+        "export async function expertRoster() {",
+        "export async function taskSpaceList() {"
       ],
-      "hash": "183af52beea32ff67912ab4ec59b40ffc3a0d43f",
+      "hash": "2c06d93565ff4a8b260e7a9043f64b9b72bd5536",
       "origin": "modified",
       "firstCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1212,36 +1218,37 @@
       "note": "启动装配（注入 xiangwo 依赖 / 后台服务）"
     },
     "apps/emdash-desktop/src/main/bootstrap/boot/wiring.ts": {
-      "markers": 28,
+      "markers": 29,
       "lines": [
         3,
         29,
         30,
-        55,
-        84,
-        94,
-        100,
-        102,
-        108,
-        128,
-        135,
-        146,
-        148,
-        150,
-        157,
-        166,
-        182,
-        192,
-        217,
-        243,
-        248,
-        253,
-        304,
-        315,
-        321,
-        327,
-        332,
-        335
+        56,
+        85,
+        95,
+        101,
+        103,
+        109,
+        129,
+        136,
+        147,
+        149,
+        151,
+        158,
+        167,
+        183,
+        193,
+        218,
+        244,
+        249,
+        254,
+        305,
+        316,
+        322,
+        328,
+        333,
+        336,
+        338
       ],
       "anchors": [
         "import { browserEvents } from '@core/features/browser/node';",
@@ -1266,9 +1273,10 @@
         "openAffine: async () => {",
         "expertHandoffByExpert: ({ expert }) => expertHandoffCall('by-expert', expert),",
         "expertHandoffAdd: ({ bot, expert, title, summary, session, context }) =>",
-        "expertRoster: () => expertRosterCall(),"
+        "expertRoster: () => expertRosterCall(),",
+        "taskSpaceList: () => taskSpaceCall('list'),"
       ],
-      "hash": "2173ec1f3a6e872f9d0ff041399ff46194f56484",
+      "hash": "9f050d907387dda7a8fa9e9246d14c45cb02d656",
       "origin": "modified",
       "firstCommit": "67ccd329e|2026-09-22|feat: 专家交接台升级（wire RPC 修复 + bot/专家二级分组 + 并入对话 Sheet + 横条关闭）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1666,7 +1674,7 @@
       "note": "禁用自动更新（fork 不许被上游覆盖）"
     },
     "apps/emdash-desktop/src/main/host/window.ts": {
-      "markers": 22,
+      "markers": 23,
       "lines": [
         16,
         18,
@@ -1676,20 +1684,21 @@
         293,
         325,
         327,
-        361,
-        367,
-        382,
-        401,
-        426,
-        434,
-        440,
-        477,
-        484,
-        494,
-        532,
-        570,
-        610,
-        649
+        333,
+        365,
+        371,
+        386,
+        405,
+        430,
+        438,
+        444,
+        481,
+        488,
+        498,
+        536,
+        574,
+        614,
+        653
       ],
       "anchors": [
         "import { createXiangwoOrbWindow } from './xiangwo-orb';",
@@ -1699,6 +1708,7 @@
         "type XiangwoPageInfo = { id: string; title: string; url: string };",
         "ipcMain.handle('xiangwo:pages', async () => listXiangwoPages());",
         "const TASK_SPACES_MJS =",
+        "export function taskSpaceCall<T = unknown>(cmd: string, ...args: string[]): Promise<T> {",
         "const EXPERT_HANDOFF_PY =",
         "export function expertHandoffCall<T = unknown>(cmd: string, ...args: string[]): Promise<T> {",
         "const EXPERT_ROSTER_PY =",
@@ -1714,7 +1724,7 @@
         "let affineWindow: BrowserWindow | null = null;",
         "let t8Window: BrowserWindow | null = null;"
       ],
-      "hash": "2006239f1e7d670ea0e79fa94d62259e9302c54d",
+      "hash": "6f2de4f14fe41872b0727967fc46f43a77c21b1d",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
