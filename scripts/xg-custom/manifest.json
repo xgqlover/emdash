@@ -180,8 +180,8 @@
       ],
       "hash": "f47d102cbe90d92c6e039a0b7b33a51b98fe7b70",
       "origin": "new",
-      "firstCommit": "",
-      "lastCommit": "",
+      "firstCommit": "c6ea7b383|2026-10-03|fix(browser): [XG-CUSTOM] 复用内嵌页时也要导航（修「打开网址无反应」）",
+      "lastCommit": "c6ea7b383|2026-10-03|fix(browser): [XG-CUSTOM] 复用内嵌页时也要导航（修「打开网址无反应」）",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/browser/ensure-bot-browser-profile.ts": {
@@ -194,8 +194,8 @@
       ],
       "hash": "051400f1bc871a877b64d6248331960cee121a82",
       "origin": "new",
-      "firstCommit": "",
-      "lastCommit": "",
+      "firstCommit": "c6ea7b383|2026-10-03|fix(browser): [XG-CUSTOM] 复用内嵌页时也要导航（修「打开网址无反应」）",
+      "lastCommit": "c6ea7b383|2026-10-03|fix(browser): [XG-CUSTOM] 复用内嵌页时也要导航（修「打开网址无反应」）",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/contributions/settings.ts": {
@@ -1643,7 +1643,7 @@
         "browserId: string,",
         "function denyPeer(socket: Duplex, peers: readonly XiangwoCdpAllowedPeer[]): void {"
       ],
-      "hash": "1b7e6e3b65b1db0ea61720ba86a21f3bfe6832a8",
+      "hash": "c0f48b10914952416d9917e729bc890afbf706b2",
       "origin": "new",
       "firstCommit": "f1dbc7f61|2026-09-30|[XG-CUSTOM] 内嵌浏览器 9223 CDP 桥 + 项我球「网页 N」计数与一键清理",
       "lastCommit": "f1dbc7f61|2026-09-30|[XG-CUSTOM] 内嵌浏览器 9223 CDP 桥 + 项我球「网页 N」计数与一键清理",

@@ -185,7 +185,7 @@ export type XiangwoCdpBridgeOptions = {
    */
   lookupBotProfile?: (botId: string) => string | null;
   /**
-   * [XG-CUSTOM] 这个 bot **还没绑定** profile 时，渲染进程按需建 / 复用的那个 profileId
+   * [XG-CUSTOM] 这个 bot **还没绑定** profile 时，渲染进程按需建 / 复用的那个 profileId（[XG-CUSTOM 2026-10-03]）
    * （确定性：主进程与渲染进程用同一个约定 `bot-<botId>`，见
    * `xiangwo-bot-browser-profile.ts::xiangwoNewBotProfileId`）。
    * 带 botId 的请求靠它把「要复用哪一页 / 要开哪一页」钉死在同一个 profile 上 ——
@@ -295,7 +295,7 @@ export class XiangwoCdpBridge {
   private readonly requestOpenBrowser: ((request: XiangwoOpenBrowserRequest) => void) | null;
   /** [XG-CUSTOM] bot → profileId（绑定表；未绑定 null） */
   private readonly lookupBotProfile: ((botId: string) => string | null) | null;
-  /** [XG-CUSTOM] 未绑定的 bot → 待建/待用的确定性 profileId（不传 = 老行为） */
+  /** [XG-CUSTOM] 未绑定的 bot → 待建/待用的确定性 profileId（不传 = 老行为） [XG-CUSTOM 2026-10-03] */
   private readonly newBotProfileId: ((botId: string) => string) | null;
   /** [XG-CUSTOM] 「从零开页」等待新 target 的上限 */
   private readonly openBrowserWaitMs: number;
@@ -612,7 +612,7 @@ export class XiangwoCdpBridge {
 
     // ① 已有 → 复用（不新开）—— 但**复用不等于什么都不做**：
     // [XG-CUSTOM] 复用这个标签页，不是复用它的 URL。命中已有页时必须把该 target 真的导航到
-    // 请求的 url（并等到 URL 换过去）再返回，否则 agent 报"打开了"、用户看到的还是旧页。
+    // 请求的 url（并等到 URL 换过去）再返回，否则 agent 报"打开了"、用户看到的还是旧页。 [XG-CUSTOM 2026-10-03]
     const existing = this.liveTargets();
     const reusable =
       wantedProfile === null
@@ -622,7 +622,7 @@ export class XiangwoCdpBridge {
       const previousUrl = safeUrl(reusable.webContents);
       const outcome = await this.navigateExistingTarget(reusable, url);
       // [XG-CUSTOM] 页面归属的 bot 以「这一页自己的 profileId」为准（精确匹配才敢落 bot 名）：
-      // 设置快照还没来得及刷上新建的 profile 时，退用请求里的 bot 名 —— 不谎报、也不丢身份。
+      // 设置快照还没来得及刷上新建的 profile 时，退用请求里的 bot 名 —— 不谎报、也不丢身份。 [XG-CUSTOM 2026-10-03]
       const matchedProfile = wantedProfile !== null && reusable.profileId === wantedProfile;
       const pageBotId = reusable.botId ?? (matchedProfile && bot !== '' ? bot : undefined);
       if ('error' in outcome) {
@@ -691,7 +691,7 @@ export class XiangwoCdpBridge {
       return;
     }
     // [XG-CUSTOM] 新页也可能是"被绑定了但 initialUrl 还没落地"（url 为空 / about:blank）——
-    // 用同一条导航路径补一次并等它生效，别把 about:blank 当成功回给 agent。
+    // 用同一条导航路径补一次并等它生效，别把 about:blank 当成功回给 agent。 [XG-CUSTOM 2026-10-03]
     const appearedUrl = safeUrl(appeared.webContents);
     if (appearedUrl === '' || appearedUrl === 'about:blank') {
       const outcome = await this.navigateExistingTarget(appeared, url);
@@ -731,12 +731,12 @@ export class XiangwoCdpBridge {
     if (profile !== '') return profile;
     if (bot === '') return null;
     // [XG-CUSTOM] 绑定表里有就用它；没有（bot 还没绑）则用**确定性的 bot profile**（`bot-<botId>`）
-    // —— 渲染进程收到事件后按需建这个 profile，别的 bot 的页依旧不会被串用。
+    // —— 渲染进程收到事件后按需建这个 profile，别的 bot 的页依旧不会被串用。 [XG-CUSTOM 2026-10-03]
     return this.lookupBotProfile?.(bot) ?? this.newBotProfileId?.(bot) ?? null;
   }
 
   /**
-   * [XG-CUSTOM] 「复用一个已有内嵌页」= 复用这个标签页，不是复用它的 URL。
+   * [XG-CUSTOM] 「复用一个已有内嵌页」= 复用这个标签页，不是复用它的 URL。 [XG-CUSTOM 2026-10-03]
    *
    * 病根（2026-10-03 实测）：旧分支只回报 `reused:true` 就结束，页面留在原 URL —— 请求
    * yahoo.co.jp / g-mark.org / jagda.or.jp 全被 `reused:true` 吞掉，9223 的 `/json/list` 里
@@ -923,7 +923,7 @@ export class XiangwoCdpBridge {
    * [XG-CUSTOM] `explicitWebContents`：调用方**已经挑好**这一页时（复用已有页 → 导航），
    * 命令必须发到**那一个** webContents 上，不能按 browserId 再查一遍白名单 ——
    * `listTargets()` 每次现读，页面 reload / 重挂时可能给出另一个对象，
-   * 于是"导航的是 A、回报/轮询的却是 B"，两边对不上。
+   * 于是"导航的是 A、回报/轮询的却是 B"，两边对不上。 [XG-CUSTOM 2026-10-03]
    */
   private async sendToDirectClientTarget(
     browserId: string,
