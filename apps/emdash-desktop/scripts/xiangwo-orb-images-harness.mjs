@@ -9,9 +9,11 @@
 // 驱动真实 UI（填 #prompt → submit），只断言外部可见的事实。
 //
 // 断言（含既有行为的回归）：
-//   ① 含 xiangwo-images 的回复 → 渲染成图片网格（条数 / <img src> / lazy / no-referrer）
-//   ② 点格子 → 调 host.openExternal(原图 url)
-//   ③ 图片加载失败 → 占位（写着"图片加载失败" + 原链接），点它仍然开原图
+//   ① 含 xiangwo-images 的回复 → 渲染成图片网格（条数 / <img src> / lazy / no-referrer / 域名角标）
+//   ①b [XG-CUSTOM 2026-10-03] **相对地址**（/xg/img?u=…）按 agent baseUrl 拼成绝对 URL
+//   ② [XG-CUSTOM 2026-10-03] 点格子 → 调 host.openEmbeddedBrowser(**来源作品页 page**)；
+//      没有 page 的格子不可点（也不悄悄开系统浏览器 —— 不许有 host.openExternal）
+//   ③ 图片加载失败 → 占位（写着"图片加载失败" + 地址），点它仍然开来源作品页
 //   ④ 坏 JSON / 无合法 url → 整段当普通文本**不吞消息**、不出网格
 //   ⑤ 块不残留在气泡文字里
 //   ⑥ 历史只落 url 列表（≤24 条）、**不含 dataURL**
@@ -27,6 +29,8 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const RENDERER_DIR = resolve(HERE, '..', 'out', 'renderer');
 const ORB_HTML = resolve(RENDERER_DIR, 'orb', 'orb.html');
 const LOCAL_URL = 'http://127.0.0.1:8900/v1/chat/completions';
+/** [XG-CUSTOM 2026-10-03] 假主进程给的 agent 基址（相对地址 /xg/img?u=… 靠它拼绝对） */
+const LOCAL_BASE = 'http://127.0.0.1:8900';
 const STORE_KEY = 'xiangwo-orb-conversations:__default';
 
 const failures = [];
@@ -175,6 +179,9 @@ function defaultOrbApi(method) {
       return { horizontal: 'right', vertical: 'up' };
     case 'floating.setSessionRunning':
       return true;
+    // [XG-CUSTOM 2026-10-03] 图片卡片点击 → 内嵌浏览器开来源页（真实主进程见 xiangwo-orb-api.ts）
+    case 'host.openEmbeddedBrowser':
+      return { ok: true };
     default:
       return null;
   }
@@ -187,7 +194,13 @@ function makeBridge({ chatUrl = LOCAL_URL } = {}) {
     apiCalls,
     apiArgs,
     openedMain: 0,
-    resolveXiangwoChatUrl: async () => ({ url: chatUrl, reachable: true, hint: '' }),
+    resolveXiangwoChatUrl: async () => ({
+      url: chatUrl,
+      // [XG-CUSTOM 2026-10-03] 主进程解析出来的 agent 基址（真实实现见 main/host/xiangwo-chat-target.ts）
+      baseUrl: LOCAL_BASE,
+      reachable: true,
+      hint: '',
+    }),
     orbApi: async (method, args) => {
       apiCalls.push(method);
       apiArgs.push(args);
@@ -223,10 +236,16 @@ async function waitFor(predicate, { timeout = 15_000, interval = 25 } = {}) {
 }
 
 function replyResponse(content) {
+  const body = JSON.stringify({ choices: [{ message: { content } }] });
   return {
     ok: true,
     status: 200,
-    json: async () => ({ choices: [{ message: { content } }] }),
+    headers: { get: () => 'application/json' },
+    json: async () => JSON.parse(body),
+    // [XG-CUSTOM 2026-10-03] 球现在走 SSE 流式通道（见 xiangwo-chat.ts 的文件头 9)）：服务端回
+    // 非 event-stream 时整段当回答，但**必须先读得到 text()** —— 少了它整轮会被判成
+    // 「连接建立了但没有回任何数据」→ 网格根本不出现（本 harness 之前就是这么坏掉的）。
+    text: async () => body,
   };
 }
 
@@ -278,9 +297,32 @@ function samplePayload(title = '图搜 · baking brush') {
         thumb: 'https://img.example.com/a_thumb.jpg',
         alt: '烘焙刷 A',
         source: 'searxng',
+        page: 'https://www.zcool.com.cn/work/Z1.html',
       },
-      { url: 'https://img.example.com/b.jpg', alt: '烘焙刷 B', source: 'searxng' },
+      {
+        url: 'https://img.example.com/b.jpg',
+        alt: '烘焙刷 B',
+        source: 'searxng',
+        page: 'https://searxng.example/landing/2',
+      },
+      // 没有 page 的一条：按协议**不可点**（也绝不悄悄开系统浏览器）
       { url: 'https://img.example.com/c.jpg', alt: '', source: 'zcool' },
+    ],
+  };
+}
+
+/** [XG-CUSTOM 2026-10-03] agent 侧改成走自己的图片代理（/xg/img?u=…）：相对地址要靠 agent 基址拼绝对 */
+function relativePayload() {
+  return {
+    title: '图搜 · 相对地址',
+    images: [
+      {
+        url: '/xg/img?u=https%3A%2F%2Fp3-pc-sign.douyinpic.com%2Fa.jpg',
+        alt: '抖音直链代理',
+        source: 'searxng',
+        page: '/xg/page?id=7',
+      },
+      { url: 'https://img.example.com/abs.jpg', alt: '绝对地址', source: 'web' },
     ],
   };
 }
@@ -326,30 +368,113 @@ async function run() {
       cells[0]?.querySelector('.image-caption')?.textContent === '烘焙刷 A' &&
         cells[2]?.querySelector('.image-caption')?.textContent === 'zcool'
     );
+    check(
+      "角上显示来源域名（page 的 host，取不到用 source）",
+      cells[0]?.querySelector('.image-domain')?.textContent === 'www.zcool.com.cn' &&
+        cells[2]?.querySelector('.image-domain')?.textContent === 'zcool',
+      JSON.stringify(cells.map((c) => c.querySelector('.image-domain')?.textContent))
+    );
     orb.close();
   }
 
-  // ---------- ② 点图开原图 ----------
+  // ---------- ①b 相对地址 → 按 agent 基址拼绝对 ----------
   {
-    console.log('\n② 点格子 → host.openExternal(原图)');
-    const orb = await orbWithReply('images-click', imagesBlock(samplePayload()));
-    const cells = [...orb.window.document.querySelectorAll('.image-cell')];
-    cells[1].click();
-    const opened = orb.bridge.apiCalls.filter((m) => m === 'host.openExternal').length;
-    const lastArgs = [...orb.bridge.apiArgs].reverse().find((a) => a?.url !== undefined);
-    check('点击触发 host.openExternal', opened === 1, `实际 ${String(opened)}`);
+    console.log('\n①b 相对地址 /xg/img?u=… → 按 agent baseUrl 拼成绝对 URL');
+    const orb = await orbWithReply('images-relative', imagesBlock(relativePayload()));
+    const doc = orb.window.document;
+    const imgs = [...doc.querySelectorAll('.image-cell img.image-thumb')];
     check(
-      '开的是**原图** url（不是 thumb）',
-      lastArgs?.url === 'https://img.example.com/b.jpg',
+      '第 1 格 src = agent 基址 + 相对路径',
+      imgs[0]?.getAttribute('src') ===
+        `${LOCAL_BASE}/xg/img?u=https%3A%2F%2Fp3-pc-sign.douyinpic.com%2Fa.jpg`,
+      String(imgs[0]?.getAttribute('src'))
+    );
+    check(
+      '第 2 格（绝对地址）原样用，没被 base 套一层',
+      imgs[1]?.getAttribute('src') === 'https://img.example.com/abs.jpg',
+      String(imgs[1]?.getAttribute('src'))
+    );
+    check(
+      '整卡可点：title = 拼成绝对的来源作品页',
+      doc.querySelectorAll('.image-cell')[0]?.title === `${LOCAL_BASE}/xg/page?id=7`,
+      String(doc.querySelectorAll('.image-cell')[0]?.title)
+    );
+    orb.close();
+  }
+
+  // ---------- ② 点格子开**来源作品页**（内嵌浏览器） ----------
+  {
+    console.log('\n② 点格子 → host.openEmbeddedBrowser(来源作品页)；没有 page 的格子不可点');
+    const orb = await orbWithReply('images-click', imagesBlock(samplePayload()));
+    const doc = orb.window.document;
+    const cells = [...doc.querySelectorAll('.image-cell')];
+    check(
+      '有 page 的格子可点（image-cell-clickable → 手型）',
+      cells[1]?.className.includes('image-cell-clickable'),
+      String(cells[1]?.className)
+    );
+    check(
+      '没有 page 的格子不可点（image-cell-static）',
+      cells[2]?.className.includes('image-cell-static'),
+      String(cells[2]?.className)
+    );
+    check('格子 title = 完整来源作品页', cells[1]?.title === 'https://searxng.example/landing/2');
+    cells[1].click();
+    await sleep(20);
+    const opened = orb.bridge.apiCalls.filter((m) => m === 'host.openEmbeddedBrowser').length;
+    const systemOpened = orb.bridge.apiCalls.filter((m) => m === 'host.openExternal').length;
+    const lastArgs = [...orb.bridge.apiArgs].reverse().find((a) => a?.url !== undefined);
+    check('点击触发 host.openEmbeddedBrowser（内嵌浏览器）', opened === 1, `实际 ${String(opened)}`);
+    check('绝不开系统浏览器（没有 host.openExternal）', systemOpened === 0, `实际 ${String(systemOpened)}`);
+    check(
+      '开的是来源作品页（不是图片直链）',
+      lastArgs?.url === 'https://searxng.example/landing/2',
       String(lastArgs?.url)
     );
-    check('格子 title 提示原图地址', cells[1].title === 'https://img.example.com/b.jpg');
+    // 没有 page 的格子：点了什么都不开
+    cells[2]?.click();
+    await sleep(20);
+    check(
+      '没有 page 的格子点了不开页',
+      orb.bridge.apiCalls.filter((m) => m === 'host.openEmbeddedBrowser').length === 1
+    );
+    orb.close();
+  }
+
+  // ---------- ②b 带 bot → 开页请求带 bot（落到该 bot 的浏览器 profile） ----------
+  {
+    console.log('\n②b 选了 bot → 开页请求带上 bot 维度（切 bot 会换会话桶，所以先切再发消息）');
+    const { html, bundle } = readOrbBundle();
+    const bridge = makeBridge();
+    const orb = await openOrb({
+      html,
+      bundle,
+      scenario: 'images-click-bot',
+      bridge,
+      fetchImpl: async () => replyResponse(imagesBlock(samplePayload())),
+    });
+    const doc = orb.window.document;
+    const select = doc.querySelector('#bot');
+    const second = select.options[1];
+    select.value = second.value;
+    select.dispatchEvent(new orb.window.Event('change'));
+    await sleep(30);
+    await sendMessage(orb, '搜图');
+    await waitFor(() => doc.querySelectorAll('.image-cell').length === 3);
+    doc.querySelectorAll('.image-cell')[1]?.click();
+    await sleep(20);
+    const lastArgs = [...bridge.apiArgs].reverse().find((a) => a?.url !== undefined);
+    check(
+      '开页请求带上了当前 bot（落到该 bot 的浏览器 profile）',
+      second !== undefined && lastArgs?.bot === second.value,
+      JSON.stringify(lastArgs)
+    );
     orb.close();
   }
 
   // ---------- ③ 加载失败 → 占位 ----------
   {
-    console.log('\n③ 图片加载失败 → 先换原图重试，再显示占位 + 原链接（点它仍开原图）');
+    console.log('\n③ 图片加载失败 → 先换原图重试，再显示占位（文字 + 域名，点它仍开来源作品页）');
     const orb = await orbWithReply('images-error', imagesBlock(samplePayload()));
     const doc = orb.window.document;
     const firstImg = doc.querySelector('.image-cell img.image-thumb');
@@ -372,19 +497,28 @@ async function run() {
       `style.display=${firstImg.style.display}`
     );
     check(
-      '占位写着「图片加载失败」+ 原链接',
+      '占位写着「图片加载失败」+ 完整地址',
       fallback?.querySelector('.image-fallback-text')?.textContent === '图片加载失败' &&
         fallback?.querySelector('.image-fallback-url')?.textContent ===
-          'https://img.example.com/a_full.jpg',
+          'https://www.zcool.com.cn/work/Z1.html',
       JSON.stringify([
         fallback?.querySelector('.image-fallback-text')?.textContent,
         fallback?.querySelector('.image-fallback-url')?.textContent,
       ])
     );
+    check(
+      '退化卡仍然带域名角标（文字 + 域名，可点）',
+      doc.querySelector('.image-cell.failed .image-domain')?.textContent === 'www.zcool.com.cn'
+    );
     const cell = doc.querySelector('.image-cell.failed');
     cell.click();
+    await sleep(20);
     const lastArgs = [...orb.bridge.apiArgs].reverse().find((a) => a?.url !== undefined);
-    check('失败格子仍能开原图', lastArgs?.url === 'https://img.example.com/a_full.jpg');
+    check(
+      '失败格子仍能开来源作品页',
+      lastArgs?.url === 'https://www.zcool.com.cn/work/Z1.html',
+      String(lastArgs?.url)
+    );
     orb.close();
   }
 

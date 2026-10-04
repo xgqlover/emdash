@@ -1,9 +1,17 @@
 import { systemPreferences } from 'electron';
 import { integrationsEvents } from '@core/features/integrations/node/event-host';
 import type { DesktopRuntimes } from '@main/gateway/desktop-runtimes';
+// [XG-CUSTOM] 球的「图片卡片点击 → 开内嵌浏览器」把请求接回同一条开页广播
+// [XG-CUSTOM 2026-10-03] 球窗口拿不到 openEmbeddedBrowserTab（它挂在主窗口的 task 视图上）
+import { configureOrbEmbeddedBrowserOpen } from '@main/host/xiangwo-orb-api';
 import { log } from '@main/lib/logger';
 import { runInBackground } from '../../core/background';
-import { autostartXiangwoOrb, startXiangwoBrowserRelay, startXiangwoCdpBridge } from '../wiring'; // [XG-CUSTOM]
+import {
+  autostartXiangwoOrb,
+  requestEmbeddedBrowserOpen,
+  startXiangwoBrowserRelay,
+  startXiangwoCdpBridge,
+} from '../wiring'; // [XG-CUSTOM]
 import { startMainDevPerfInstruments } from './dev-perf';
 import { startPerfVitalsTelemetry } from './perf-vitals';
 import type { ServicesBundle } from './services';
@@ -60,6 +68,12 @@ export function bootBackground(services: ServicesBundle, runtimes: DesktopRuntim
   // [XG-CUSTOM] 项我球（orb）启动常驻：这一步在 window/service 阶段与 wire 注册（controllers/gateway）
   // 之后运行，所以不会和窗口初始化竞争。开关 XIANGWO_ORB_AUTOSTART=0 与失败兜底都在
   // wiring.ts 的 autostartXiangwoOrb（失败只打日志，绝不影响主窗口启动）。
+  // [XG-CUSTOM 2026-10-03] 先接上「球里图片卡片点击 → 内嵌浏览器开来源页」的入口：接到同一条
+  // requestEmbeddedBrowserOpen 广播（agent 9223 桥 / 反向通道用的就是它），不另造开页机制。
+  configureOrbEmbeddedBrowserOpen((request) => {
+    requestEmbeddedBrowserOpen(request);
+    return true;
+  });
   autostartXiangwoOrb();
 
   // [XG-CUSTOM] 内嵌浏览器 CDP 桥（agent.py 第②级「内嵌浏览器优先」，localhost:9223；

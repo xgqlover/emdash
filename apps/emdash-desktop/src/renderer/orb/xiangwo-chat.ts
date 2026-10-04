@@ -22,6 +22,12 @@
 /** 本机兜底端点（主进程不可用/解析失败时用） */
 export const XIANGWO_FALLBACK_CHAT_URL = 'http://127.0.0.1:8900/v1/chat/completions';
 
+/**
+ * [XG-CUSTOM] 本机兜底 **agent 基址**（无尾斜杠，与主进程 `XIANGWO_LOCAL_CHAT_BASE` 同值）。
+ * 图片网格里的相对地址（`/xg/img?u=…`）靠它拼成绝对 URL；主进程桥接不可用时用它。
+ */
+export const XIANGWO_FALLBACK_AGENT_BASE = 'http://127.0.0.1:8900';
+
 /** 重试间隔（第 1/2/3 次重试前等待；最多 3 次重试 = 最多 4 次请求） */
 export const XIANGWO_RETRY_DELAYS_MS = [1500, 3000, 5000] as const;
 
@@ -33,6 +39,13 @@ export type XiangwoChatBridge = {
 export type XiangwoChatTargetView = {
   /** 完整聊天端点 */
   url: string;
+  /**
+   * [XG-CUSTOM 2026-10-03] agent 基址（无尾斜杠，如 `http://10.239.5.174:8900`）。
+   * 图片网格的 `url`/`thumb` 可能是 agent 侧相对路径（`/xg/img?u=…`），靠它拼绝对 URL；
+   * 主进程的 `XiangwoChatTarget` 本来就带这个字段（env / SSH 转发 / 主机直连 / 本机都算过），
+   * 这里只是把它透出来，**不另造一套地址解析**。
+   */
+  baseUrl: string;
   /** 主进程是否判定可达（false 时 hint 是给用户看的人话提示） */
   reachable: boolean;
   hint: string;
@@ -60,6 +73,42 @@ export function normalizeChatEndpoint(raw: string): string {
 }
 
 /**
+ * [XG-CUSTOM 2026-10-03] 从聊天端点反推 agent 基址
+ * （`http://h:8900/v1/chat/completions` → `http://h:8900`）。
+ * 主进程没给 `baseUrl`（老版本主进程 / 桥接返回值被裁）时的兜底；反推不出来 → `''`。
+ */
+export function xiangwoAgentBaseFromChatUrl(endpoint: string): string {
+  const value = endpoint.trim().replace(/\/+$/, '');
+  const base = value.replace(/\/v1\/chat\/completions$/i, '').replace(/\/v1$/i, '');
+  return isHttpUrl(base) ? base : '';
+}
+
+/**
+ * [XG-CUSTOM 2026-10-03] **相对资源地址 → 绝对 URL**（图片网格的 `url`/`thumb`/`page` 可能是
+ * agent 侧相对路径，如 `/xg/img?u=https%3A%2F%2F…`）。规则：
+ *   · 已经是 `http(s)://…` → 原样返回；
+ *   · `//host/x`（协议相对）→ 用 base 的协议补全（没有 base 就按 https）；
+ *   · 其它相对写法（`/x` 或无前导斜杠）→ 拼到 base（去掉尾斜杠）上；
+ *   · **拼不出来（base 不是 http(s) / 为空）→ `''`** —— 调用方据此画「图片不可用」占位，
+ *     绝不让整个网格崩。
+ * @param baseUrl agent 基址（见 XiangwoChatTargetView.baseUrl）
+ * @param raw 原始地址（未知类型一律当空）
+ * @returns 绝对 http(s) URL，或 `''`（拼不出来）
+ */
+export function resolveXiangwoAssetUrl(baseUrl: unknown, raw: unknown): string {
+  const value = typeof raw === 'string' ? raw.trim() : '';
+  if (value === '') return '';
+  if (isHttpUrl(value)) return value;
+  const base = typeof baseUrl === 'string' ? baseUrl.trim().replace(/\/+$/, '') : '';
+  if (value.startsWith('//')) {
+    const scheme = /^(https?):\/\//i.exec(base)?.[1]?.toLowerCase() ?? 'https';
+    return `${scheme}:${value}`;
+  }
+  if (!isHttpUrl(base)) return '';
+  return value.startsWith('/') ? `${base}${value}` : `${base}/${value}`;
+}
+
+/**
  * 问主进程要聊天地址；任何异常/异常返回值都回落本机。
  * @param bridge preload 桥接（`window.electronAPI`）
  */
@@ -72,8 +121,13 @@ export async function resolveXiangwoChatUrl(
       const record = asRecord(await resolver());
       const url = typeof record.url === 'string' ? record.url.trim() : '';
       if (isHttpUrl(url)) {
+        // [XG-CUSTOM 2026-10-03] 基址优先用主进程给的那个（它算过 env / SSH 转发 / 主机直连），
+        // 没有/坏掉才从这个聊天端点反推 —— 图片相对地址全靠它拼绝对，别在这里猜主机。
+        const rawBase = typeof record.baseUrl === 'string' ? record.baseUrl.trim() : '';
+        const base = rawBase.replace(/\/+$/, '');
         return {
           url: normalizeChatEndpoint(url),
+          baseUrl: isHttpUrl(base) ? base : xiangwoAgentBaseFromChatUrl(url),
           reachable: record.reachable !== false,
           hint: typeof record.hint === 'string' ? record.hint : '',
         };
@@ -82,7 +136,12 @@ export async function resolveXiangwoChatUrl(
   } catch {
     /* 桥接不可用 / IPC 抛错 → 兜底 */
   }
-  return { url: XIANGWO_FALLBACK_CHAT_URL, reachable: true, hint: '' };
+  return {
+    url: XIANGWO_FALLBACK_CHAT_URL,
+    baseUrl: XIANGWO_FALLBACK_AGENT_BASE,
+    reachable: true,
+    hint: '',
+  };
 }
 
 /**

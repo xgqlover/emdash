@@ -23,6 +23,32 @@ import { log } from '@main/lib/logger';
 /** 球相对工作区的展开方向（渲染进程据此加 expand-left/right/up/down 类） */
 export type OrbDirection = { horizontal: 'left' | 'right'; vertical: 'up' | 'down' };
 
+/**
+ * [XG-CUSTOM 2026-10-03] 球里「点图片卡片 → 在内嵌浏览器打开来源页」的要打开请求。
+ * `bot` 选填（带了就落到该 bot 的浏览器 profile，与 agent 开页同一个维度）；不带 = default。
+ */
+export type OrbOpenEmbeddedBrowserRequest = { url: string; bot?: string };
+
+/**
+ * [XG-CUSTOM 2026-10-03] 「开内嵌浏览器」的真实实现（由 boot 注入，见
+ * main/bootstrap/boot/phases/background.ts 的 configureOrbEmbeddedBrowserOpen 调用）。
+ * **不在主进程另造开页机制**：接到的是 wiring.ts 的 `requestEmbeddedBrowserOpen` —— 也就是
+ * agent 9223 桥 / 反向通道用的同一条「从零开页」广播（`open-in-embedded-browser` →
+ * 主窗口的 `openEmbeddedBrowserTab`，见 core/features/workbench/api/browser/
+ * embedded-browser-open-request.ts）。null = 还没注入（单测复位也用它）。
+ */
+let openEmbeddedBrowserImpl: ((request: OrbOpenEmbeddedBrowserRequest) => boolean) | null = null;
+
+/**
+ * 注入「开内嵌浏览器」实现（boot 调一次）。传 null = 复位（单测用）。
+ * @param open 收到 {url, bot} 返回"广播是否已发出"（best-effort，等待绑定在渲染进程侧）
+ */
+export function configureOrbEmbeddedBrowserOpen(
+  open: ((request: OrbOpenEmbeddedBrowserRequest) => boolean) | null
+): void {
+  openEmbeddedBrowserImpl = open;
+}
+
 /** 球原点（屏幕坐标，球本身左上角） */
 export type OrbBallPoint = { x: number; y: number };
 
@@ -839,6 +865,18 @@ export async function routeOrbApi(
       if (url === '' || !/^https?:\/\//.test(url)) return false;
       void shell.openExternal(url);
       return true;
+    }
+    // [XG-CUSTOM 2026-10-03] 图片网格的整卡点击：在 emdash **内嵌浏览器**里打开来源作品页
+    // （不是系统浏览器 —— 球面板不该因此离开）。通道 = boot 注入的 requestEmbeddedBrowserOpen，
+    // 与 agent 的 9223 桥 / 反向通道**完全同一条**「从零开页」广播；没注入/地址不合法就如实
+    // 回 ok:false（不假装成功，也不悄悄换开法）。
+    case 'host.openEmbeddedBrowser': {
+      const url = typeof payload.url === 'string' ? payload.url.trim() : '';
+      if (url === '' || !/^https?:\/\//.test(url)) return { ok: false, reason: 'bad-url' };
+      const bot = typeof payload.bot === 'string' ? payload.bot.trim() : '';
+      const open = openEmbeddedBrowserImpl;
+      if (open === null) return { ok: false, reason: 'unavailable' };
+      return { ok: open(bot === '' ? { url } : { url, bot }) };
     }
     case 'floating.relaunch':
       app.relaunch();

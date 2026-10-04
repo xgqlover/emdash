@@ -44,14 +44,24 @@
 //      那个 9090 文件服务（HippoBuddy 内置 Java）也没在跑 → 球里永远什么都不显示。
 //      现在约定一个 fenced JSON 块，agent 输出它就等于"展示了"：
 //        ```xiangwo-images
-//        {"title":"baking brush food illustration","images":[{"url":"https://…","thumb":"https://…",
-//          "alt":"…","source":"searxng"}]}
+//        {"title":"baking brush food illustration","images":[{"url":"<可能是相对地址 /xg/img?u=…>",
+//          "thumb":"<同上，可选>","alt":"…","source":"searxng","page":"<来源作品页，可选>",
+//          "orig":"<原始图片地址，可选>"}]}
 //        ```
-//      渲染：网格（每格一张图，点击走 `host.openExternal` 开**原图**；`loading="lazy"` +
-//      `referrerpolicy="no-referrer"` 防防盗链；加载失败显示占位 + 原链接）。
-//      字段：title 选填（≤200 字）；images 必填（≤60 条，每条至少 http(s) 的 url）。
-//      坏 JSON / 无合法 url → 整段当普通文本（绝不吞消息）；块本身不残留在气泡文字里。
-//      **历史里只落 url 列表**（前 24 条），不落 dataURL（见 compactImagesBlock / persistConversations）。
+//      渲染：网格（每格一张图 + 角上来源域名角标，`loading="lazy"` + `referrerpolicy="no-referrer"`
+//      防防盗链）。[XG-CUSTOM 2026-10-03] **`url`/`thumb`/`page` 是相对路径时要按 agent 基址拼绝对**
+//      （基址 = 主进程解析的 `resolveXiangwoChatUrl().baseUrl`，复用同一套"多候选/隧道/回落"逻辑；
+//      见 ./xiangwo-images.ts）—— 第三方 CDN 直链会被防盗链/签名过期干掉，agent 侧改成走自己的
+//      `/xg/img?u=…` 代理；拼不出基址 → 该卡「图片不可用」占位，**不让整个网格崩**。
+//      [XG-CUSTOM 2026-10-03] **整卡可点**：优先 `page`（来源作品页）→ 没有就什么都不做（不悄悄开
+//      系统浏览器）；打开方式 = 主进程 `host.openEmbeddedBrowser`（复用「从零开页」广播 →
+//      主窗口 openEmbeddedBrowserTab），**点击后不离开球面板**。角上域名取 `page` 的 host（否则
+//      `source`），`title` 属性挂完整 URL。
+//      字段：title 选填（≤200 字）；images 必填（≤60 条，每条至少 url/orig/page 之一）。
+//      坏 JSON / 一条合法地址都没有 → 整段当普通文本（绝不吞消息）；块本身不残留在气泡文字里。
+//      单张图 `onerror` → 只有那**一张**退化成「文字 + 域名」（可点），别的卡不受影响。
+//      **历史里只落前 24 条地址**，不落 dataURL（见 ./xiangwo-images.ts 的 compactXiangwoImagesBlock
+//      与 persistConversations）。
 //   7) [XG-CUSTOM] **划词工具条（范围内版）**：只在球面板内部选中文字时弹出
 //      「搜索 / 翻译 / 发给项我」。三个动作都是**立刻可见**的：搜索 → 系统浏览器打开搜索结果；
 //      翻译 → 把「把下面这段翻译成中文：\n<选中>」**当场作为一条消息发出去**（不是只填进输入框）；
@@ -90,6 +100,14 @@ import {
   waitingStatusText,
   XIANGWO_HEARTBEAT_STATUS,
 } from './xiangwo-chat';
+// [XG-CUSTOM 2026-10-03] 图片协议 xiangwo-images 的解析/渲染整体挪进 ./xiangwo-images.ts
+// （相对地址按 agent 基址拼绝对 + 整卡点击走内嵌浏览器 + 单卡加载失败退化）：纯逻辑 + DOM
+// 都能被 vitest 直接断言（见 xiangwo-images.test.ts），这里只保留"接线"。
+import {
+  compactXiangwoImagesBlock,
+  parseXiangwoImagesBlock,
+  renderXiangwoImageGrid,
+} from './xiangwo-images';
 
 const bridge = window.electronAPI ?? {};
 
@@ -391,73 +409,6 @@ function parseQuestionBlock(text) {
   }
 }
 
-/**
- * [XG-CUSTOM] **图片协议 xiangwo-images** 的解析（协议见文件头 6.1)）。
- * 归一化一份图片 payload：`images` 里的每条至少要有 http(s) 的 `url`（thumb/alt/source 选填）。
- * 没有任何合法图片 → undefined（调用方据此把整段当普通文本，绝不吞消息）。
- * @param {unknown} raw JSON.parse 后的对象
- * @returns {{title: string, images: Array<{url: string, thumb: string, alt: string, source: string}>} | undefined}
- */
-function normalizeImagesPayload(raw) {
-  const list = Array.isArray(raw?.images) ? raw.images : [];
-  const images = [];
-  for (const item of list) {
-    const url = typeof item?.url === 'string' ? item.url.trim() : '';
-    if (!/^https?:\/\//i.test(url)) continue;
-    const thumb = typeof item?.thumb === 'string' ? item.thumb.trim() : '';
-    images.push({
-      url,
-      thumb: /^https?:\/\//i.test(thumb) ? thumb : url,
-      alt: typeof item?.alt === 'string' ? item.alt.slice(0, 200) : '',
-      source: typeof item?.source === 'string' ? item.source.slice(0, 60) : '',
-    });
-    if (images.length >= 60) break; // 协议上限：≤60 条
-  }
-  if (images.length === 0) return undefined;
-  const title = typeof raw?.title === 'string' ? raw.title.trim().slice(0, 200) : '';
-  return { title, images };
-}
-
-/**
- * [XG-CUSTOM] 解析回复里的图片网格块（协议见文件头 6.1)）。
- * 找不到 / JSON 坏了 / 一条合法 url 都没有 → 原样返回文本、images = undefined（绝不吞消息）。
- * @param {string} text 助手回复原文
- * @returns {{ text: string, images?: {title: string, images: object[]} }}
- */
-function parseImagesBlock(text) {
-  const match = /```xiangwo-images\s*([\s\S]*?)```/.exec(text);
-  if (match === null) return { text };
-  try {
-    const payload = normalizeImagesPayload(JSON.parse(match[1].trim()));
-    if (payload === undefined) return { text };
-    return { text: text.replace(match[0], '').trim(), images: payload };
-  } catch {
-    return { text };
-  }
-}
-
-/**
- * [XG-CUSTOM] 历史落盘时压缩图片块（协议见文件头 6.1)）：
- * 只留前 `STORE_IMAGES_MAX` 条 url（**不落 dataURL**，历史里只有 http(s) 地址）。
- * 压不了/不需要压 → 原样返回（绝不改坏别的文本）。
- * @param {string} text 助手回复原文
- * @returns {string} 落盘用文本
- */
-function compactImagesBlock(text) {
-  if (typeof text !== 'string' || !text.includes('```xiangwo-images')) return text;
-  const match = /```xiangwo-images\s*([\s\S]*?)```/.exec(text);
-  if (match === null) return text;
-  try {
-    const payload = normalizeImagesPayload(JSON.parse(match[1].trim()));
-    if (payload === undefined || payload.images.length <= STORE_IMAGES_MAX) return text;
-    const stored = { images: payload.images.slice(0, STORE_IMAGES_MAX) };
-    if (payload.title !== '') stored.title = payload.title;
-    return text.replace(match[0], '```xiangwo-images\n' + JSON.stringify(stored) + '\n```');
-  } catch {
-    return text;
-  }
-}
-
 function promptText(prompt) {
   const raw = prompt.innerText ?? prompt.textContent ?? '';
   return raw.replaceAll('\u00a0', ' ');
@@ -495,8 +446,8 @@ const STORE_MIGRATED_KEY = 'xiangwo-orb-conversations:migrated';
 const DEFAULT_BOT_ID = '';
 const DEFAULT_BOT_SLOT = '__default';
 const MAX_CONVERSATIONS_PER_BOT = 20;
-/** [XG-CUSTOM] 历史里每个图片块最多落盘多少条 url（协议上限 60，历史只留前 24 条省 localStorage） */
-const STORE_IMAGES_MAX = 24;
+// [XG-CUSTOM 2026-10-03] 历史里每个图片块最多落盘多少条地址（前 24 条，省 localStorage）不再在这里
+// 定义：协议/落盘压缩都归 ./xiangwo-images.ts（XIANGWO_IMAGES_STORE_MAX，与 xiangwo-images.test.ts 同一份）。
 
 /** 会话桶 key（默认 bot 用哨兵，避免出现空 botId 的 key 片段） */
 function botStoreKey(botId) {
@@ -689,8 +640,8 @@ async function main() {
       // 图片 data URL 不落盘（localStorage 只有几 MB）
       messages: current.messages.map((message) => ({
         role: message.role,
-        // [XG-CUSTOM] 图片网格块落盘时只留前 N 条 url（**不落 dataURL**，见 compactImagesBlock）
-        text: compactImagesBlock(message.text),
+        // [XG-CUSTOM] 图片网格块落盘时只留前 N 条地址（**不落 dataURL**，见 compactXiangwoImagesBlock）
+        text: compactXiangwoImagesBlock(message.text),
         // [XG-CUSTOM] 提问卡的已答状态要跟着历史走（图片 data URL 仍然不落盘）
         ...(typeof message.answer === 'string' && message.answer !== ''
           ? { answer: message.answer }
@@ -749,7 +700,7 @@ async function main() {
       // [XG-CUSTOM] 也可能带图片网格块（协议见文件头 6.1)）→ 先拆图片块，再在剩下的文字里找提问块
       const withImages =
         message.role === 'assistant'
-          ? parseImagesBlock(message.text ?? '')
+          ? parseXiangwoImagesBlock(message.text ?? '')
           : { text: message.text ?? '' };
       const parsed =
         message.role === 'assistant'
@@ -762,7 +713,15 @@ async function main() {
         row.append(bubble);
       }
       if (withImages.images !== undefined) {
-        row.append(renderImageGrid(withImages.images));
+        // [XG-CUSTOM 2026-10-03] 图片网格：相对地址按 agent 基址拼绝对 + 整卡点击开内嵌浏览器
+        // （渲染/降级细节见 ./xiangwo-images.ts；这里只把当前基址/bot/桥接进去）
+        row.append(
+          renderXiangwoImageGrid(document, withImages.images, {
+            baseUrl: agentBaseUrl,
+            botId: currentBotId,
+            bridge,
+          })
+        );
       }
       if (parsed.question !== undefined) {
         row.append(renderQuestionCard(message, parsed.question));
@@ -1089,91 +1048,6 @@ async function main() {
     return card;
   }
 
-  /**
-   * [XG-CUSTOM] 渲染图片网格（协议见文件头 6.1)）：agent 图搜/素材工具产出的 xiangwo-images 块。
-   * 每格一张图 + 说明；**点击格子开原图**（走已有 IPC `host.openExternal`，和划词工具条同一个通道）。
-   * @param {{title: string, images: Array<{url: string, thumb: string, alt: string, source: string}>}} payload
-   * @returns {HTMLElement} 网格容器
-   */
-  function renderImageGrid(payload) {
-    const wrap = document.createElement('div');
-    wrap.className = 'image-grid-wrap';
-    if (payload.title !== '') {
-      const title = document.createElement('div');
-      title.className = 'image-grid-title';
-      title.textContent = payload.title;
-      wrap.append(title);
-    }
-    const grid = document.createElement('div');
-    grid.className = 'image-grid';
-    for (const item of payload.images) grid.append(renderImageCell(item));
-    wrap.append(grid);
-    return wrap;
-  }
-
-  /**
-   * [XG-CUSTOM] 渲染网格里的一格。加载失败（防盗链/404）→ 换占位 + 原链接，绝不静默留白；
-   * thumb 挂了会用原图再试一次。点击一律开**原图**（item.url）。
-   * @param {{url: string, thumb: string, alt: string, source: string}} item 一条图片
-   * @returns {HTMLElement} 格子（button）
-   */
-  function renderImageCell(item) {
-    const cell = document.createElement('button');
-    cell.type = 'button';
-    cell.className = 'image-cell';
-    cell.title = item.url;
-
-    const image = document.createElement('img');
-    image.className = 'image-thumb';
-    image.src = item.thumb === '' ? item.url : item.thumb;
-    image.alt = item.alt;
-    // [XG-CUSTOM] 用 setAttribute 写（不靠属性反射）：DOM 上一定能看到这两个事实，
-    // 自检也能直接断言 attribute，不依赖各引擎对 img.loading/referrerPolicy 的支持差异
-    image.setAttribute('loading', 'lazy');
-    // [XG-CUSTOM] 防盗链：不带 referrer 更容易把图加载出来（和 soutu_toolset 生成的 HTML 一致）
-    image.setAttribute('referrerpolicy', 'no-referrer');
-    image.setAttribute('decoding', 'async');
-
-    // 说明文字（alt 优先，否则来源）先建好：加载失败的占位要插在它前面（观感跟正常格子一致）
-    const caption = item.alt !== '' ? item.alt : item.source;
-    const captionEl = caption === '' ? null : document.createElement('span');
-    if (captionEl !== null) {
-      captionEl.className = 'image-caption';
-      captionEl.textContent = caption;
-    }
-
-    let triedOriginal = false;
-    image.addEventListener('error', () => {
-      if (!triedOriginal && item.thumb !== '' && item.thumb !== item.url) {
-        triedOriginal = true;
-        image.src = item.url; // 缩略图挂了 → 用原图再试一次
-        return;
-      }
-      if (cell.querySelector('.image-fallback') !== null) return;
-      // [XG-CUSTOM] 注意：不能用 image.hidden —— .image-thumb 的 `display:block`（作者样式）
-      // 会盖掉 UA 的 [hidden]{display:none}，破图图标和 alt 文字还会杵在那儿（真机截图抓到的）
-      image.style.display = 'none';
-      const fallback = document.createElement('div');
-      fallback.className = 'image-fallback';
-      const label = document.createElement('span');
-      label.className = 'image-fallback-text';
-      label.textContent = '图片加载失败';
-      const link = document.createElement('span');
-      link.className = 'image-fallback-url';
-      link.textContent = item.url;
-      fallback.append(label, link);
-      if (captionEl === null) cell.append(fallback);
-      else cell.insertBefore(fallback, captionEl);
-      cell.classList.add('failed');
-    });
-    cell.append(image);
-    if (captionEl !== null) cell.append(captionEl);
-    cell.addEventListener('click', () => {
-      void orbApi('host.openExternal', { url: item.url });
-    });
-    return cell;
-  }
-
   function renderHistory() {
     historyList.replaceChildren();
     if (conversations.length === 0) {
@@ -1259,7 +1133,7 @@ async function main() {
     if (last === undefined || last.role !== 'assistant') return false;
     // 已答/已取消/已跳过：整张卡都作废了（`answer` 是唯一的落盘标记）
     if (typeof last.answer === 'string' && last.answer !== '') return false;
-    const parsed = parseQuestionBlock(parseImagesBlock(last.text ?? '').text);
+    const parsed = parseQuestionBlock(parseXiangwoImagesBlock(last.text ?? '').text);
     if (parsed.question === undefined) return false;
     const drafts = draftState(last, parsed.question.questions);
     return parsed.question.questions.some((_, index) => !draftAnswered(drafts[index]));
@@ -1584,13 +1458,34 @@ async function main() {
   /**
    * [XG-CUSTOM] 聊天地址（主进程解析，preload 暴露）。
    * - 懒解析：第一条消息才问主进程（球常驻，没必要启动就 IPC）。
+   *   例外：[XG-CUSTOM 2026-10-03] 图片网格的相对地址要靠它带的 `baseUrl` 拼绝对，
+   *   所以启动时也解析一次（见 main() 末尾的 `void chatEndpoint()`）—— 解析不到就保持空串，
+   *   卡片画「图片不可用」，绝不让整个网格崩。
    * - 每次**失败后作废**（见 send 的 catch）：主机换了 / 隧道断了 / 8900 刚重启，
    *   下一条消息会重新解析，不会一直卡在过期的地址上。
    */
   let chatTarget;
+  /** [XG-CUSTOM 2026-10-03] 当前 agent 基址（图片网格拼相对地址用；'' = 还没解析出来） */
+  let agentBaseUrl = '';
+
+  /**
+   * [XG-CUSTOM 2026-10-03] 记下 agent 基址（来源见 xiangwo-chat.ts 的 resolveXiangwoChatUrl）。
+   * 基址从"没有"变成具体值（或换了路）时，把那些**画不出图**的网格重画一遍
+   * （`.image-grid-needs-base` 是 xiangwo-images.ts 打的标记）；流式进行中不重画
+   * ——避免打断边收边渲染，收尾那次 renderTranscript 会用新基址重画。
+   */
+  function applyAgentBaseUrl(next) {
+    const value = typeof next === 'string' ? next : '';
+    if (value === agentBaseUrl) return;
+    agentBaseUrl = value;
+    if (sendAbort === undefined && transcript.querySelector('.image-grid-needs-base') !== null) {
+      renderTranscript();
+    }
+  }
 
   async function chatEndpoint() {
     if (chatTarget === undefined) chatTarget = await resolveXiangwoChatUrl(bridge);
+    applyAgentBaseUrl(chatTarget.baseUrl);
     return chatTarget;
   }
 
@@ -2624,6 +2519,12 @@ async function main() {
   renderHistory();
   renderPermission();
   applyPinned(false);
+  // [XG-CUSTOM 2026-10-03] 启动即解析 agent 基址：图片网格里的相对地址（/xg/img?u=…）靠它拼绝对
+  // （见 xiangwo-images.ts）。**不 await**：解析（远程主机时可能等 SSH 转发几秒）绝不拖住球上屏；
+  // 还没解析出来时历史网格先画「图片不可用」，基址到了再重画（见 applyAgentBaseUrl）。
+  void chatEndpoint().catch(() => {
+    /* 解析失败就保持空基址（相对地址的卡画「图片不可用」），发消息时还会再解析一次 */
+  });
   await refreshAvatar();
   // [XG-CUSTOM] 当前真实路由标识（send() 带进请求体）+ 工作区芯片。
   // 取的是**模型目录的 current**（而不是那个硬编码的 overlayModel）：目录里带着

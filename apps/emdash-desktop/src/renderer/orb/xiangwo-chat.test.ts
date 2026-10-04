@@ -6,6 +6,7 @@ import {
   interruptedNoteText,
   normalizeChatEndpoint,
   replyTextOf,
+  resolveXiangwoAssetUrl,
   resolveXiangwoChatUrl,
   retryStatusText,
   sendXiangwoChat,
@@ -13,8 +14,10 @@ import {
   streamXiangwoChat,
   waitingStatusText,
   wholeAnswerText,
+  xiangwoAgentBaseFromChatUrl,
   XiangwoNonRetryableError,
   XiangwoStreamFailure,
+  XIANGWO_FALLBACK_AGENT_BASE,
   XIANGWO_FALLBACK_CHAT_URL,
   XIANGWO_FIRST_BYTE_TIMEOUT_MS,
   XIANGWO_RETRY_DELAYS_MS,
@@ -93,6 +96,75 @@ describe('[XG-CUSTOM] normalizeChatEndpoint', () => {
       'http://h:8900/v1/chat/completions'
     );
     expect(normalizeChatEndpoint('  ')).toBe(XIANGWO_FALLBACK_CHAT_URL);
+  });
+});
+
+/* ------------------------------------------------------------------------------------------------
+ * [XG-CUSTOM 2026-10-03] agent 基址 + 相对资源地址（图片网格的 `/xg/img?u=…` 靠它拼绝对）
+ * ---------------------------------------------------------------------------------------------- */
+
+describe('[XG-CUSTOM] agent 基址与相对地址解析', () => {
+  it('主进程给的 baseUrl 优先（去掉尾斜杠），没给就从聊天端点反推', async () => {
+    const fromMain = await resolveXiangwoChatUrl({
+      resolveXiangwoChatUrl: async () => ({
+        url: 'http://10.239.5.174:8900/v1/chat/completions',
+        baseUrl: 'http://10.239.5.174:8900/',
+      }),
+    });
+    expect(fromMain.baseUrl).toBe('http://10.239.5.174:8900');
+
+    const derived = await resolveXiangwoChatUrl({
+      resolveXiangwoChatUrl: async () => ({ url: 'http://127.0.0.1:49801' }),
+    });
+    expect(derived.baseUrl).toBe('http://127.0.0.1:49801');
+  });
+
+  it('桥接缺失 / 抛错 / 坏返回值 → 基址回落本机 8900', async () => {
+    expect((await resolveXiangwoChatUrl(undefined)).baseUrl).toBe(XIANGWO_FALLBACK_AGENT_BASE);
+    expect(
+      (
+        await resolveXiangwoChatUrl({
+          resolveXiangwoChatUrl: async () => ({ url: 'http://h:8900', baseUrl: 'not-a-url' }),
+        })
+      ).baseUrl
+    ).toBe('http://h:8900');
+    expect(
+      (
+        await resolveXiangwoChatUrl({
+          resolveXiangwoChatUrl: async () => {
+            throw new Error('ipc down');
+          },
+        })
+      ).baseUrl
+    ).toBe(XIANGWO_FALLBACK_AGENT_BASE);
+  });
+
+  it('xiangwoAgentBaseFromChatUrl：端点 → 基址', () => {
+    expect(xiangwoAgentBaseFromChatUrl('http://h:8900/v1/chat/completions')).toBe('http://h:8900');
+    expect(xiangwoAgentBaseFromChatUrl('http://h:8900/v1/')).toBe('http://h:8900');
+    expect(xiangwoAgentBaseFromChatUrl('http://h:8900')).toBe('http://h:8900');
+    expect(xiangwoAgentBaseFromChatUrl('nonsense')).toBe('');
+    expect(xiangwoAgentBaseFromChatUrl('')).toBe('');
+  });
+
+  it('resolveXiangwoAssetUrl：相对 `/xg/img?u=…` 按 base 拼成绝对；拼不出来给空串', () => {
+    expect(
+      resolveXiangwoAssetUrl(
+        'http://10.239.5.174:8900/',
+        '/xg/img?u=https%3A%2F%2Fp3-pc-sign.douyinpic.com%2Fa.jpg'
+      )
+    ).toBe('http://10.239.5.174:8900/xg/img?u=https%3A%2F%2Fp3-pc-sign.douyinpic.com%2Fa.jpg');
+    // 绝对地址原样（不再套 base）
+    expect(resolveXiangwoAssetUrl('http://h:8900', 'https://cdn/a.jpg')).toBe('https://cdn/a.jpg');
+    // 协议相对 → 用 base 的协议补全；没有 base 按 https
+    expect(resolveXiangwoAssetUrl('http://h:8900', '//cdn/a.jpg')).toBe('http://cdn/a.jpg');
+    expect(resolveXiangwoAssetUrl('', '//cdn/a.jpg')).toBe('https://cdn/a.jpg');
+    // 没有可用 base → 空串（调用方画「图片不可用」占位，绝不让网格崩）
+    expect(resolveXiangwoAssetUrl('', '/xg/img?u=1')).toBe('');
+    expect(resolveXiangwoAssetUrl(undefined, '/xg/img?u=1')).toBe('');
+    // 空/坏输入
+    expect(resolveXiangwoAssetUrl('http://h:8900', '')).toBe('');
+    expect(resolveXiangwoAssetUrl('http://h:8900', null)).toBe('');
   });
 });
 

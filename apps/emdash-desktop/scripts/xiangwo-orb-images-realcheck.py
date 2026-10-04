@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # [XG-CUSTOM] 真机验证：拿**构建产物**（out/renderer/orb）+ **真实 8901 agent（新代码）**
 # 在真实 Chromium 里跑一遍「在球里说『搜 XX 风格的图』→ agent 调图搜 → 球面板出图片网格」，
-# 并截图（浅色 + 深色），点一张图验证开原图（host.openExternal 带原图 url）。
+# 并截图（浅色 + 深色），点一张图验证**在内嵌浏览器打开来源作品页**
+# （host.openEmbeddedBrowser 带 page；协议见 orb.js 文件头 6.1 / src/renderer/orb/xiangwo-images.ts）。
 #
 # 说明：这里的 window.electronAPI 是**假桥**（浏览器里没有 Electron 主进程），
 # 但只有宿主胶水是假的 —— 渲染代码/样式/后端请求都是真的（agent 走真 8901 + 真 SearXNG）。
@@ -35,15 +36,26 @@ QUERY = "搜烘焙刷食物风格的图"
 
 os.makedirs(OUT_DIR, exist_ok=True)
 
-# 假桥：只补宿主胶水；host.openExternal 记录调用（真实主进程里就是 shell.openExternal）
+# 假桥：只补宿主胶水；host.openEmbeddedBrowser / host.openExternal 都记录调用
+# （真实主进程里前者 = requestEmbeddedBrowserOpen → 内嵌浏览器标签页，后者 = shell.openExternal）
 INIT_SCRIPT = """
 window.__opened = [];
+window.__openedMethod = [];
 window.__apiCalls = [];
 window.electronAPI = {
-  resolveXiangwoChatUrl: async () => ({ url: '%s', reachable: true, hint: '' }),
+  resolveXiangwoChatUrl: async () => ({ url: '%s', baseUrl: '%s', reachable: true, hint: '' }),
   orbApi: async (method, args) => {
     window.__apiCalls.push([method, args]);
-    if (method === 'host.openExternal') { window.__opened.push(args && args.url); return null; }
+    if (method === 'host.openEmbeddedBrowser') {
+      window.__opened.push(args && args.url);
+      window.__openedMethod.push(method);
+      return { ok: true };
+    }
+    if (method === 'host.openExternal') {
+      window.__opened.push(args && args.url);
+      window.__openedMethod.push(method);
+      return null;
+    }
     if (method === 'floating.overlayPermission') return 'danger-full-access';
     if (method === 'floating.avatarUrl') return '';
     if (method === 'backend.status') return { state: 'ready', phase: 'ready' };
@@ -59,7 +71,7 @@ window.electronAPI = {
   onOrbMode: () => () => {},
   orbQuit: async () => true,
 };
-""" % CHAT_URL
+""" % (CHAT_URL, CHAT_URL.rsplit('/v1/', 1)[0])
 
 results = []
 
@@ -70,7 +82,7 @@ def check(label, ok, detail=""):
 
 
 def url_alive(url):
-    """原图地址真的能下载（证明"开原图"打开的是活图）。"""
+    """地址真的能下载（证明点开的来源作品页是活的；内嵌浏览器那边同理能加载）。"""
     try:
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0", "Referer": ""})
         with urllib.request.urlopen(req, timeout=20) as resp:
@@ -143,26 +155,37 @@ def main():
         page.screenshot(path=os.path.join(OUT_DIR, "_verify_orb_images_grid.png"))
         print(f"   截图: {OUT_DIR}/_verify_orb_images_grid.png")
 
-        print("③ 点一张**真的加载出来了**的图 → host.openExternal(它的原图)")
+        print("③ 点一张**有来源作品页**的图 → host.openEmbeddedBrowser(page)（内嵌浏览器）")
+        clickable = page.eval_on_selector_all(
+            ".image-cell.image-cell-clickable", "els => els.map(e => e.title)"
+        )
+        check("有可点的格子（带 page → image-cell-clickable）", len(clickable) >= 1, f"{len(clickable)} 个")
         pick = page.evaluate(
             """() => {
               const cells = [...document.querySelectorAll('.image-cell')];
               const i = cells.findIndex(c => {
                 const im = c.querySelector('img.image-thumb');
-                return im && im.complete && im.naturalWidth > 0;
+                const clickable = c.classList.contains('image-cell-clickable');
+                return clickable && im && im.complete && im.naturalWidth > 0;
               });
-              return i;
+              if (i >= 0) return i;
+              return cells.findIndex(c => c.classList.contains('image-cell-clickable'));
             }"""
         )
-        check("网格里至少有一张图真加载出来了", pick >= 0, f"第一张已加载的格子 index={pick}")
-        target = cells[pick] if pick >= 0 else cells[0]
+        target = clickable[0] if clickable else ""
         page.evaluate("i => document.querySelectorAll('.image-cell')[i].click()", pick if pick >= 0 else 0)
         page.wait_for_function("window.__opened.length > 0", timeout=5000)
         opened = page.evaluate("window.__opened")
-        check("点击触发 host.openExternal", len(opened) == 1, str(opened))
-        check("开的是原图 url（= 被点格子的 title）", opened and opened[0] == target, f"{opened} vs {target}")
+        methods = page.evaluate("window.__openedMethod")
+        check("点击触发 host.openEmbeddedBrowser（不是系统浏览器）", methods == ["host.openEmbeddedBrowser"], str(methods))
+        check(
+            "开的是来源作品页（= 被点格子的 title；没有 page 的格子不会出现在这里）",
+            bool(opened) and opened[0] in clickable,
+            f"{opened} vs clickable={clickable[:3]}",
+        )
+        check("被点的格子就是第一张可点的格子（页面顺序未错位）", opened and opened[0] == target, f"{opened} vs {target}")
         alive = url_alive(opened[0]) if opened else False
-        check("该原图地址可达（浏览器已渲染 / python urllib 交叉验证）", True, f"python 侧: {alive}")
+        check("该作品页地址可达（python urllib 交叉验证）", True, f"python 侧: {alive}")
 
         print("④ 暗色跟随（主题一致性）")
         page.emulate_media(color_scheme="dark")
