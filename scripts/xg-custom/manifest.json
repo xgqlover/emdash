@@ -1861,8 +1861,8 @@
       ],
       "hash": "c5feb71affe902a2a6c8d06361f5bd373114e947",
       "origin": "new",
-      "firstCommit": "ffd0b05a6|2026-10-04|feat(orb): [XG-CUSTOM] 图片网格相对地址按 agent 基址拼绝对 + 点击在内嵌浏览器开来源页",
-      "lastCommit": "ffd0b05a6|2026-10-04|feat(orb): [XG-CUSTOM] 图片网格相对地址按 agent 基址拼绝对 + 点击在内嵌浏览器开来源页",
+      "firstCommit": "e60319d08|2026-10-04|feat(orb): [XG-CUSTOM] 图片网格相对地址按 agent 基址拼绝对 + 点击在内嵌浏览器开来源页",
+      "lastCommit": "e60319d08|2026-10-04|feat(orb): [XG-CUSTOM] 图片网格相对地址按 agent 基址拼绝对 + 点击在内嵌浏览器开来源页",
       "note": "项我球主进程服务（窗口/脚本/聊天目标）"
     },
     "apps/emdash-desktop/src/main/host/xiangwo-orb-api.ts": {
@@ -2770,8 +2770,8 @@
       ],
       "hash": "f0102677cdab1b9ac5f7cc9559ac930768bc3472",
       "origin": "new",
-      "firstCommit": "ffd0b05a6|2026-10-04|feat(orb): [XG-CUSTOM] 图片网格相对地址按 agent 基址拼绝对 + 点击在内嵌浏览器开来源页",
-      "lastCommit": "ffd0b05a6|2026-10-04|feat(orb): [XG-CUSTOM] 图片网格相对地址按 agent 基址拼绝对 + 点击在内嵌浏览器开来源页",
+      "firstCommit": "e60319d08|2026-10-04|feat(orb): [XG-CUSTOM] 图片网格相对地址按 agent 基址拼绝对 + 点击在内嵌浏览器开来源页",
+      "lastCommit": "e60319d08|2026-10-04|feat(orb): [XG-CUSTOM] 图片网格相对地址按 agent 基址拼绝对 + 点击在内嵌浏览器开来源页",
       "note": "项我球 orb（球壳 + 聊天/图片网格渲染）"
     },
     "apps/emdash-desktop/src/renderer/orb/xiangwo-images.ts": {
@@ -2786,8 +2786,8 @@
       ],
       "hash": "083a3f7da777348a6e668b5f98b8795ef25ca284",
       "origin": "new",
-      "firstCommit": "ffd0b05a6|2026-10-04|feat(orb): [XG-CUSTOM] 图片网格相对地址按 agent 基址拼绝对 + 点击在内嵌浏览器开来源页",
-      "lastCommit": "ffd0b05a6|2026-10-04|feat(orb): [XG-CUSTOM] 图片网格相对地址按 agent 基址拼绝对 + 点击在内嵌浏览器开来源页",
+      "firstCommit": "e60319d08|2026-10-04|feat(orb): [XG-CUSTOM] 图片网格相对地址按 agent 基址拼绝对 + 点击在内嵌浏览器开来源页",
+      "lastCommit": "e60319d08|2026-10-04|feat(orb): [XG-CUSTOM] 图片网格相对地址按 agent 基址拼绝对 + 点击在内嵌浏览器开来源页",
       "note": "项我球 orb（球壳 + 聊天/图片网格渲染）"
     },
     "apps/emdash-desktop/tsconfig.node.json": {
