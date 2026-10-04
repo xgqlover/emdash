@@ -100,6 +100,10 @@ import {
   waitingStatusText,
   XIANGWO_HEARTBEAT_STATUS,
 } from './xiangwo-chat';
+// [XG-CUSTOM 2026-10-04] 侧边枝历史「拉回」：球重开/换机器后从后端把对话取回来。
+// （后端 `/sidebar/history` 一直有、侧边枝一直在落盘，但前端**从没调用过** →
+//  会话只活在 localStorage，清缓存/换机就没了 = 用户说的「侧边也没有重新记忆」）
+import { buildSidebarHistoryUrl, fetchSidebarHistory, historyToMessages } from './xiangwo-history';
 // [XG-CUSTOM 2026-10-03] 图片协议 xiangwo-images 的解析/渲染整体挪进 ./xiangwo-images.ts
 // （相对地址按 agent 基址拼绝对 + 整卡点击走内嵌浏览器 + 单卡加载失败退化）：纯逻辑 + DOM
 // 都能被 vitest 直接断言（见 xiangwo-images.test.ts），这里只保留"接线"。
@@ -136,6 +140,12 @@ const DOCK_HOVER_DELAY_MS = 800;
  * （照上游 floating.js 的 DOCK_DRAG_OFF_PX = 24 = 球宽/3，与主进程 ORB_DOCK_DRAG_OFF 同值）。
  */
 const DOCK_DRAG_OFF_PX = 24;
+/**
+ * [XG-CUSTOM 2026-10-04] 从后端拉回侧边枝历史的超时（ms）。
+ * 球常驻、拉历史是"锦上添花"，所以给一个短超时：宁可这次没恢复，也绝不因为
+ * 远端主机 SSH 隧道慢而让切 bot 卡住。失败静默（下次切回来再拉一次）。
+ */
+const HISTORY_RESTORE_TIMEOUT_MS = 8000;
 /**
  * [XG-CUSTOM] 系统前缀。除了路由/来源，还带上**权限档**（D-1：让权限芯片真的生效）。
  * 说明：8900 后端目前**不解析**该字段（它只认 messages 里的 text），所以我们只保证"发出去"，
@@ -669,6 +679,76 @@ async function main() {
     renderHistory();
     renderTranscript();
     await api.floating.setSessionId(current.id);
+    // [XG-CUSTOM 2026-10-04] 切到该 bot 后（且本地没内容时）从后端拉回侧边枝历史
+    await restoreFromBackend(nextBotId);
+  }
+
+  /**
+   * [XG-CUSTOM 2026-10-04] 这个 bot 在本地有没有「有内容」的会话。
+   *
+   * 只看 messages 非空 —— `startConversation()` 会把一条**空**会话立刻写进桶，
+   * 所以「桶里有没有条目」不能当判据（否则换机器时永远判成"本地已有"，永远不恢复）。
+   */
+  function hasLocalMessages(botId) {
+    return loadBucket(botId).some(
+      (item) => Array.isArray(item.messages) && item.messages.length > 0
+    );
+  }
+
+  /**
+   * [XG-CUSTOM 2026-10-04] 从后端把该 bot 的侧边枝历史拉回来（清缓存/换机器后接着聊）。
+   *
+   * 规则（保守优先，宁可少恢复也不覆盖）：
+   *   ① 本地已有消息 → 什么都不做（本地是权威，绝不覆盖用户看得见的对话）
+   *   ② 默认 bot（空串「项我」）→ 直接跳过：后端没有它的侧边枝
+   *      （`_suagent_log_turn` 取 `_sidebar_branch_ids.get('')` 取不到 → 直接 return），
+   *      见 `sidebar-agent/OPS.md` §2026-10-04
+   *   ③ 拉到的历史为空 / 拉取失败 → 什么都不做：不提示、不打断、不崩
+   *   ④ 拉的期间用户切走了 / 已经开始聊了 → 丢弃本次结果
+   *
+   * 每一步都留 trace（照 `history-migrated` 的惯例）——拉历史是异步且"静默成功"的，
+   * 没有 trace 就只能靠肉眼读面板状态，排查"为什么没恢复"会很痛。
+   */
+  async function restoreFromBackend(botId) {
+    if (botId === '') return;
+    if (hasLocalMessages(botId)) {
+      trace('history-restore-skip', { bot: botId, reason: 'local-messages' });
+      return;
+    }
+    // 基址优先用已经解析好的（图片网格那条路）；没有就问一次主进程
+    const target = agentBaseUrl === '' ? await chatEndpoint().catch(() => undefined) : undefined;
+    const url = buildSidebarHistoryUrl(
+      agentBaseUrl !== '' ? agentBaseUrl : (target?.baseUrl ?? ''),
+      botId
+    );
+    if (url === '') {
+      trace('history-restore-skip', { bot: botId, reason: 'no-agent-base' });
+      return;
+    }
+    const history = await fetchSidebarHistory({
+      url,
+      signal: AbortSignal.timeout(HISTORY_RESTORE_TIMEOUT_MS),
+    });
+    if (history === undefined || history.messages.length === 0) {
+      trace('history-restore-skip', { bot: botId, reason: 'empty-or-failed' });
+      return;
+    }
+    if (currentBotId !== botId || hasLocalMessages(botId)) {
+      trace('history-restore-skip', { bot: botId, reason: 'switched-or-started' });
+      return;
+    }
+    current = {
+      id: newId(),
+      title: history.title !== '' ? history.title : '（已从后端拉回）',
+      messages: historyToMessages(history),
+    };
+    conversations = [current];
+    saveBucket(botId, conversations);
+    renderHistory();
+    renderTranscript();
+    await api.floating.setSessionId(current.id);
+    status.textContent = `已从后端拉回 ${current.messages.length} 条侧边历史`;
+    trace('history-restored', { bot: botId, messages: current.messages.length });
   }
 
   function startConversation(id) {

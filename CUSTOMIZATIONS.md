@@ -318,3 +318,36 @@ const url = (await services.forwardManualPreview(port)) ?? 'http://127.0.0.1:<po
 `NAS与网线OPS.md` 第十三节。
 
 **升级找回**：`grep -rn "resolveToolWindowUrl\|computeToolWindowTarget" apps/emdash-desktop/src`
+
+---
+
+### 16. [XG-CUSTOM 2026-10-04] 侧边枝历史拉回（球重开/换机器不丢对话）
+
+**要解决什么**：侧边**一直在写**侧边枝（`agent.py` 的 `_suagent_log_turn(..., source="sidebar")`，
+`agent.py:4618/4619`），后端 `GET /sidebar/history?bot=&session_id=` 也**一直实现着**
+（`agent.py:9448` → `_sidebar_history_json` `agent.py:4765`），但 **emdash 前端从没调用过它**（0 命中）
+→ 球的会话只活在 localStorage，**清缓存/换机器就全丢**（用户原话「侧边也没有重新记忆」）。
+
+**改法**：新增 `renderer/orb/xiangwo-history.ts`（纯逻辑：拼 URL / 规范化 / 取数，**永不抛**，基址为空就返回空串不发请求）；
+`orb.js` 加 `restoreFromBackend(botId)` + `hasLocalMessages(botId)`，由 `switchBot()` 触发；
+常量 `HISTORY_RESTORE_TIMEOUT_MS = 8000`。规则保守优先：
+① 本地已有消息 → 不覆盖（本地是权威）② 默认 bot（空串「项我」）→ 直接跳过（后端没有它的侧边枝）
+③ 拉到空 / 拉取失败 → 静默降级（不提示、不打断）④ 拉的期间用户切走 → 丢弃本次结果。
+
+**⚠️ 判据是「有没有"有内容"的会话」而不是「桶里有没有条目」** —— `startConversation()` 会把一条**空**会话
+立刻写进桶，用后者会导致换机器时永远判成"本地已有"，**永远不恢复**。
+
+**涉及文件**：`renderer/orb/xiangwo-history.ts`（新）、`renderer/orb/xiangwo-history.test.ts`（新）、
+`renderer/orb/orb.js`（import + 常量 + 两个函数 + `switchBot` 里一次调用 + trace）、
+`scripts/xiangwo-orb-history-harness.mjs`（新）。
+
+**验证**：`vitest run src/renderer/orb/` → **67 passed**（18 新）；
+`tsgo --noEmit -p tsconfig.browser.json` → **exit 0**；
+`node scripts/xiangwo-orb-history-harness.mjs`（需先 `pnpm run build:renderer`）→ **17/17**（4 场景：空桶拉回 / 本地有内容零请求 / 默认 bot 零请求 / 拉取抛错静默降级）；
+真后端实测 `GET /sidebar/history?bot=sxsj` → **50 条**真数据。
+**侧线回归**：B 线 `xiangwo-orb-images-harness.mjs` 仍 **47/47**（⚠️ 它要跑 5 分钟以上，别误判成卡住）。
+
+**⚠️ 为什么必须用 harness 验**：恢复分支只在「本地桶为空」时触发，而球的 UI **没有删除会话入口**，
+真机上造不出这个前置条件 → GUI 走不到这条分支。
+
+**升级找回**：`grep -rn "restoreFromBackend\|xiangwo-history\|history-restore" apps/emdash-desktop/src apps/emdash-desktop/scripts`
