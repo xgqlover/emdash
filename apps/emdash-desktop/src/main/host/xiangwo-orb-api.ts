@@ -1,4 +1,5 @@
 import { readFileSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
+import { isHostCommand, listHostCommands, requiresApproval } from './xiangwo-host-commands'; // [XG-CUSTOM 2026-10-05]
 import { extname, join } from 'node:path';
 // [XG-CUSTOM] 项我控制球 API 适配层。
 //
@@ -48,6 +49,26 @@ export function configureOrbEmbeddedBrowserOpen(
 ): void {
   openEmbeddedBrowserImpl = open;
 }
+/**
+ * [XG-CUSTOM 2026-10-05] 「指挥主界面」命令的**执行实现**（由 boot 注入，运行在主窗口侧）。
+ *
+ * 用户要求：「**球要用到的网页，跟别的功能主界面要同步支持**」。
+ * ⇒ 事实源 = **主界面自己的命令目录**（`@core/primitives/commands/api`，350 个命令）；
+ *   本模块只暴露 `xiangwo-host-commands.ts` 白名单里的子集，**不给每个功能单开 IPC**。
+ *
+ * 为什么是"注入"而不是直接执行：命令由**渲染进程**的 `keybindingDispatcher` 执行，
+ * 主进程发不到；所以沿用 `configureOrbEmbeddedBrowserOpen` 同一套模式 —— boot 把
+ * "往主窗口发命令"的函数注进来。null = 还没注入（单测复位也用它）。
+ */
+export type OrbHostCommandRun = (id: string, args?: unknown) => unknown | Promise<unknown>;
+
+let hostCommandImpl: OrbHostCommandRun | null = null;
+
+/** 注入命令执行实现（boot 调一次）。传 null = 复位（单测用）。 */
+export function configureOrbHostCommands(run: OrbHostCommandRun | null): void {
+  hostCommandImpl = run;
+}
+
 
 /** 球原点（屏幕坐标，球本身左上角） */
 export type OrbBallPoint = { x: number; y: number };
@@ -888,6 +909,24 @@ export async function routeOrbApi(
       const open = openEmbeddedBrowserImpl;
       if (open === null) return { ok: false, reason: 'unavailable' };
       return { ok: open(bot === '' ? { url } : { url, bot }) };
+    }
+    // [XG-CUSTOM 2026-10-05] 球的「指挥主界面」动作面 —— **只放白名单命令**
+    //   （白名单与判据见 `./xiangwo-host-commands`；这里只做「查表 + 受控转发」）
+    //   🔴 三条：① 表外一律拒 ② 写类必须用户批准（本层只拦不批）③ 绝不暴露任意 IPC 频道
+    case 'host.listCommands':
+      return { ok: true, commands: listHostCommands() };
+    case 'host.runCommand': {
+      const id = typeof payload.id === 'string' ? payload.id.trim() : '';
+      if (!isHostCommand(id)) return { ok: false, reason: 'unknown-command' };
+      if (requiresApproval(id)) return { ok: false, reason: 'needs-approval' };
+      const run = hostCommandImpl;
+      if (run === null) return { ok: false, reason: 'unavailable' };
+      try {
+        const result = await run(id, payload.args);
+        return { ok: true, result };
+      } catch (error) {
+        return { ok: false, reason: 'failed', message: String(error) };
+      }
     }
     case 'floating.relaunch':
       app.relaunch();

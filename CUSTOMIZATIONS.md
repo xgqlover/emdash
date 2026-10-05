@@ -570,3 +570,36 @@ app 侧 `deployment-builder` 的 webhook 分支还差一条单测（core 侧已�
    - 验证：`_test_xg_style_vocab.py` **4/4 组**；真实提示块 621 字符，含 17 条对照
    - **踩坑**：首版解析器用 `\S+\s*$` 要求"值后就是行尾" → **带行尾注释的映射被静默丢掉**（`高饱和/撞色`、`强排版/字体` 两条），
      且续行注释被误当映射 → 改为**先剥行尾注释**再解析（测试抓到的）
+
+### 20. [XG-CUSTOM 2026-10-05] 「球指挥主界面」动作面（第一刀：白名单 + 受控 IPC）
+
+**用户要求**：「**球要用到的网页，跟别的功能主界面要同步支持**」。
+
+**现状清点**（2026-10-05）：主界面有 **22 个功能区 / 350 个命令**（typed `CommandCatalog`
++ palette 组装器 + 渲染侧 `keybindingDispatcher`），而球只够得着 **5 个 method**
+（`host.openEmbeddedBrowser`/`host.openExternal`/`backend.*`/`debug.trace`）。
+⇒ **正确做法不是给每个功能单开一条 IPC**（必然两边漂移），而是**以主界面命令目录为事实源**，
+只暴露"允许外部触发"的子集。
+
+**本次落地**：
+1. `main/host/xiangwo-host-commands.ts`（新）—— **白名单（唯一事实源）**：8 条命令
+   （`app.commandPalette`·`app.settings`·`app.navigateBack/Forward`·`view.task`·`app.toggleTheme` 为 read；
+   `app.newTask`·`app.newProject` 为 **write**）+ `listHostCommands/findHostCommand/isHostCommand/requiresApproval`。
+   🔴 三条硬约束写进文件头：① **表外一律拒**（默认不可触发）② **写类必须用户批准**
+   （`requiresApproval` 对**表外 id 也返回 true** → 默认从严）③ **只放命令 id**，绝不暴露任意 IPC 频道。
+2. `main/host/xiangwo-orb-api.ts`（改）—— 新增 `configureOrbHostCommands(run)` 注入点
+   （照已有 `configureOrbEmbeddedBrowserOpen` 同一模式：命令在**渲染进程**执行，主进程发不到，故由 boot 注入）
+   + 两个 method：`host.listCommands`（回白名单）· `host.runCommand`（**查表 → 写类拦下 → 转发 → 结构化回执**
+   `{ok}|{ok:false,reason:unknown-command|needs-approval|unavailable|failed}`）。
+3. `main/host/xiangwo-host-commands.test.ts`（新，**6 项**）：结构不变量（id 唯一/形如 `x.y`/标题非空）·
+   ★表外不可执行 · ★写类必须审批 · ★**表外 id 的审批判定也从严** · 返回副本不可篡改白名单 · 首批集合快照。
+
+**验证**：`tsgo --noEmit -p tsconfig.node.json` **0 错误**；`vitest` **36 passed**（白名单 6 + 球原有 30 零回归）。
+
+**⚠️ 还没做的三件（下一步）**：
+① **boot 注入**：主窗口需把 `configureOrbHostCommands(...)` 接上真实执行器（渲染侧 `keybindingDispatcher`
+   的命令执行路径）—— 这是它真正"能动主界面"的最后一环；
+② **球渲染侧**：解析动作块（如 `[XG-ACTION]{...}[/XG-ACTION]`）→ 调 `bridge.orbApi('host.runCommand', …)`
+   （**preload 无需改**：球已有通用 `orbApi(method,args)` 通道）；
+③ **agent 侧**：加工具（如 `emdash_action`）+ 工具描述里治**撞名**（"要在用户 emdash 里做 X → 用它，
+   别用 `wego.browser_goto`"）—— 即 `mu-OPS.md §15.6` 记的那个缺口。
