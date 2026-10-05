@@ -114,15 +114,23 @@ export class AutomationScheduler {
     this.drainQueue();
   }
 
-  runNow(deployment: AutomationDeployment): AutomationRun {
+  /**
+   * 立即跑一次。[XG-CUSTOM 2026-10-05] 加了 `triggerKind` 入参：
+   * 事件（webhook）摄取走的是**同一条**造 run 的路，但要把来源记成 `webhook`
+   * —— 否则排查时看不出"这次是事件触发的，还是用户手点的"（默认仍是 `manual`，老调用点不变）。
+   */
+  runNow(
+    deployment: AutomationDeployment,
+    triggerKind: 'manual' | 'webhook' = 'manual'
+  ): AutomationRun {
     const run = this.insertRun(deployment, {
       status: 'queued',
-      triggerKind: 'manual',
+      triggerKind,
       scheduledAt: null,
       deadlineAt: null,
     });
     if (!run) {
-      throw new Error(`Failed to insert manual automation run for ${deployment.automationId}`);
+      throw new Error(`Failed to insert ${triggerKind} automation run for ${deployment.automationId}`);
     }
     this.drainQueue();
     return this.runStore.getRun(run.id) ?? run;

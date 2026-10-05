@@ -20,7 +20,9 @@ export const automationRunStatuses = [
 
 export const automationRunStatusSchema = z.enum(automationRunStatuses);
 
-export const automationRunTriggerKindSchema = z.enum(['cron', 'manual']);
+// [XG-CUSTOM 2026-10-05] 加 `webhook`：事件触发跑出来的 run 要能和"手动点一下"区分开
+//（排查时第一件事就是"这次是谁触发的"；这一列存文本 → 加枚举值不需要迁移）
+export const automationRunTriggerKindSchema = z.enum(['cron', 'manual', 'webhook']);
 
 export const automationRunErrorStepSchema = z.enum([
   'queue',

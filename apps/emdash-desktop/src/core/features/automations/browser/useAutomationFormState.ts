@@ -233,7 +233,8 @@ export function useAutomationFormState(
 
   function applyTemplate(template: BuiltinAutomationTemplate) {
     setName(template.name);
-    setCronExpr(template.defaultTrigger.expr);
+    // [XG-CUSTOM 2026-10-05] expr 现在可选（webhook 触发没有它）→ 兜底空串
+    setCronExpr(template.defaultTrigger.expr ?? '');
     initialConversation.setPrompt(template.defaultConversationConfig.initialPrompt);
   }
 

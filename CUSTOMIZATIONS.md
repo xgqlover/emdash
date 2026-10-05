@@ -433,3 +433,29 @@ agent 侧（记忆系统仓）：`xg_mcp_approval.py`、`xg_mcp_market.py`、`ag
 agent 侧端到端：read-only 档调写类工具 → **出审批卡**（`要执行 openviking.forget 吗？` + 影响面 + 三选项），
 带回 `批准执行一次：openviking.forget` → 日志 `[MCP 审批] 已授予 once:…` → **工具真被执行**（留痕 `openviking.forget 756ms 226B`）；
 市场卡实测返回 **3 服务器 / 58 工具 / 写类 17 / 调用 2 次**（密钥只键名）。
+
+### 19. [XG-CUSTOM 2026-10-05] automations 触发源扩到 `cron | webhook`（第 3 项 · 第一切片）
+
+**要解决什么**：实测 emdash 的 automations **只支持 cron**（`triggerConfig={expr,tz}`、
+`triggerKind:'cron'|'manual'`），OpenHands 那边是 `AutomationTrigger{type,source,on,filter}`（事件触发 +
+**JMESPath payload 过滤**）。这是调研里 emdash 唯一真实的能力缺口（其余如"运行错误留痕"我们反而更强）。
+
+**这一轮落了什么（可独立验证的地基）**
+1. **触发源 v2**（`primitives/automations/api/config.ts`）：`kind?: 'cron'|'webhook'`（**缺省=cron**）
+   + `token` / `filter` / `promptTemplate`。**形状有意不用判别联合**：判别联合会丢掉输出类型里的
+   `expr`/`tz`，连累 8 个既有调用点报 TS2339；现在**旧数据与旧写入方零改动**（实测 automations 57 项测试全过）。
+   **不需要 SQL 迁移**（版本号/形状都在 JSON 列里）。
+2. **事件载荷过滤器**（新 `scheduling/webhook-filter.ts` + 12 项测试）：自写**极小表达式语言**
+   （路径/数组下标 + `== != contains startsWith endsWith exists notExists` + `&&`/`||`），
+   **不用 eval、不引依赖**；**空 filter=全匹配**，**解析失败=不匹配（fail-closed）**，
+   注入样本（`constructor.constructor`、`__proto__`、模板串）一律只是"不匹配"，不抛不执行。
+3. **run 触发来源加 `webhook`**（`api/run.ts`）+ **`scheduler.runNow(deployment, 'manual'|'webhook')`**
+   —— 事件摄取将与"手动点一下"走**同一条造 run 的路**，但来源可区分（排查第一问就是"谁触发的"）。
+
+**验证**：`packages/core` automations **95 passed**（含 webhook-filter 12）；app 侧 automations **57 passed**
+（13 文件，含 `main-db` 的迁移/投影测试 ⇒ 旧行不受影响）；`tsgo --noEmit` browser **0 错误** / node **0 错误**。
+
+**⚠️ 明确没做的（下一轮）**：**摄取端**（localhost webhook 监听 + token 校验，照 `TuiHookServer` 姿态）、
+**部署路径**（webhook 触发不该排 cron 计划，应直接 `runNow(..., 'webhook')`；目前 `deployment-builder`
+兜底空 expr → 被 `cron_invalid` 明确拒绝，不会静默排假计划）、**UI**（表单里选触发源 + 显示 token/URL）。
+这三件都要先定**端口与开关策略**（默认关、固定端口还是临时端口），属安全取舍，留给用户拍板。

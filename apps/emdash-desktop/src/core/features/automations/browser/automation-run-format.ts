@@ -31,6 +31,9 @@ export function formatRunTriggerKindLabel(kind: AutomationRunTriggerKind): strin
       return 'Triggered by schedule';
     case 'manual':
       return 'Triggered manually';
+    // [XG-CUSTOM 2026-10-05] 事件触发（webhook）—— 加这个枚举值让 switch 重新穷尽
+    case 'webhook':
+      return 'Triggered by event';
   }
 }
 
