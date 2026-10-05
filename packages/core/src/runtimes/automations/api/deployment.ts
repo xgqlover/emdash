@@ -89,14 +89,27 @@ export const automationAgentConfigSchema = z.discriminatedUnion('type', [
   automationTuiAgentConfigSchema,
 ]);
 
+// [XG-CUSTOM 2026-10-05] 事件触发配置：有它 = 这个部署由 webhook 触发（与 `schedule` 互斥）
+export const automationWebhookTriggerSchema = z.object({
+  token: nonBlankStringSchema,
+  /** 受限过滤表达式（见 node/scheduling/webhook-filter.ts）；缺省 = 全匹配 */
+  filter: z.string().optional(),
+});
+
 export const automationDeploymentSchema = z.object({
   automationId: automationIdSchema,
   revision: z.number().int().positive(),
   enabled: z.boolean(),
   name: nonBlankStringSchema,
-  schedule: automationScheduleSchema,
+  /**
+   * cron 计划。[XG-CUSTOM 2026-10-05] **null = 不是 cron 触发**（事件触发的部署没有计划，
+   * 调度器见到它会跳过 —— 不能给它排一条假计划）。
+   */
+  schedule: automationScheduleSchema.nullable(),
   agent: automationAgentConfigSchema,
   workspace: automationWorkspaceConfigSchema,
+  /** [XG-CUSTOM 2026-10-05] 事件触发（webhook）配置；只有 kind=webhook 的 automation 才有 */
+  webhook: automationWebhookTriggerSchema.optional(),
 });
 
 export const automationRunConfigSnapshotSchema = automationDeploymentSchema.pick({
@@ -116,5 +129,6 @@ export type AutomationSchedule = z.infer<typeof automationScheduleSchema>;
 export type AutomationAcpAgentConfig = z.infer<typeof automationAcpAgentConfigSchema>;
 export type AutomationTuiAgentConfig = z.infer<typeof automationTuiAgentConfigSchema>;
 export type AutomationAgentConfig = z.infer<typeof automationAgentConfigSchema>;
+export type AutomationWebhookTrigger = z.infer<typeof automationWebhookTriggerSchema>;
 export type AutomationDeployment = z.infer<typeof automationDeploymentSchema>;
 export type AutomationRunConfigSnapshot = z.infer<typeof automationRunConfigSnapshotSchema>;

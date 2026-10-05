@@ -483,3 +483,31 @@ agent 侧端到端：read-only 档调写类工具 → **出审批卡**（`要执
 **还差（下一轮）**：把摄取端**接进运行时** —— `deploy` 输入带上 `trigger`（kind/token/filter），
 runtime 在 `reconcile()` 里维护 token→automation 映射并调 `AutomationWebhookServer.ensureStarted()`；
 以及 **UI**（表单选触发源 + 显示 token/URL）。
+
+### 19c. [XG-CUSTOM 2026-10-05] 事件触发**接进运行时**（第 3 项 · 第三片，端到端可用）
+
+**改动**（四两拨千斤，`.schedule` 全仓只有 5 处读取点，都在 scheduler）：
+1. `api/deployment.ts`：`schedule` 改**可空**（`null` = 不是 cron 触发）+ 新增 `webhook:{token, filter?}`。
+   两形状互斥；`automationRunConfigSnapshotSchema` 跟着可空（webhook run 的快照本来就没有计划）。
+2. `scheduling/scheduler.ts`：`createScheduledRun` 遇 `schedule === null` **直接跳过**
+   （**不排假计划**）；"重新部署导致计划变化"的比较也先判空。
+3. `node/runtime.ts`：
+   - `deploy()` **按触发源分开校验**：cron 验表达式；webhook 验**过滤表达式**（`parseWebhookFilter`，
+     非法直接拒 —— 不给"看起来能跑其实永远不触发"的配置）；
+   - 新增 `webhookTargets()`（来自 `listEnabledDeployments()`，只含有 webhook 配置的）+ `refreshWebhookIntake()`
+     （**await**：deploy 返回成功时监听已就绪）；`deploy`/`remove` 后都刷新；
+   - `start()` 起监听、`dispose()` 关监听；新增只读 `webhookListeningPort` 便于观测/测试；
+   - `AutomationsRuntimeOptions.webhookPort`（测试传 0 让系统分配）。
+4. `deployment-builder.ts`（app 侧）：webhook 触发 → `schedule:null` + `webhook:{token,filter}`
+   （token 非法 → `invalid-definition/automation_not_configured`）；cron 触发照旧。
+
+**验证**：新 `webhook-intake.test.ts` **8/8** 端到端（真起 runtime + **真发 HTTP**）：
+没有 webhook 部署不起监听 · 只有 cron 也不起 · 部署后监听就绪 + 事件命中 → **多出一条 `triggerKind='webhook'` 的 run** ·
+过滤不匹配 → 204 且**不产生 run** · 坏 token → 403/401 且不产生 run · 非法过滤表达式 → **部署被拒** ·
+移除 → 监听关掉（连不上） · 禁用 → 监听直接关（比 403 更彻底）。
+`packages/core` automations **111 passed（14 文件）** · app 侧 automations **57 passed** ·
+core / app-node typecheck **各 0 错误** · oxfmt 干净。
+
+**⚠️ 已知待办**：① **UI**（表单选触发源 + 显示 token/URL —— 现在只能用 API/DB 配 webhook）；
+② app 侧 `deployment-builder` 的 webhook 分支**还差一条单测**（core 侧已端到端覆盖）；
+③ 事件载荷注进 prompt 的 `promptTemplate`（字段已备好，尚未接）。

@@ -7,7 +7,11 @@ import { eq } from 'drizzle-orm';
 import { storedGitSettingsFromRow } from '@core/features/projects/api/node/settings/effective-settings';
 import type { WorkspaceIdentity } from '@core/features/workspaces/api/node/workspace-identity-service';
 import type { Automation, AutomationDefinitionError } from '@core/primitives/automations/api';
-import { getLocalTimeZone } from '@core/primitives/automations/api';
+import {
+  getLocalTimeZone,
+  isWebhookTrigger,
+  validateTriggerConfig,
+} from '@core/primitives/automations/api';
 import { hostPathFromNative } from '@core/primitives/desktop-runtime/api';
 import { resolveEffectiveSettings, type RepoFacts } from '@core/primitives/project-settings/api';
 import { projectHostRef, type Project } from '@core/primitives/projects/api';
@@ -175,6 +179,34 @@ async function buildAutomationDeploymentOnce(
           },
           title,
         };
+
+  // [XG-CUSTOM 2026-10-05] **事件触发与 cron 触发的部署形状不同**：
+  //   webhook → `schedule: null` + `webhook: {token, filter}`（调度器见到 null 会跳过它，
+  //             由摄取端命中事件时 `runNow(..., 'webhook')`）；
+  //   cron    → 照旧给 `schedule`（表达式为空会被 runtime 以 cron_invalid 明确拒绝）。
+  if (isWebhookTrigger(automation.triggerConfig)) {
+    const invalid = validateTriggerConfig(automation.triggerConfig);
+    if (invalid !== null) {
+      return err({
+        type: 'invalid-definition',
+        reason: 'automation_not_configured',
+        message: invalid,
+      });
+    }
+    return ok({
+      automationId: automation.id,
+      revision: automation.revision,
+      enabled: automation.enabled,
+      name: automation.name.trim(),
+      schedule: null,
+      webhook: {
+        token: (automation.triggerConfig.token ?? '').trim(),
+        filter: automation.triggerConfig.filter,
+      },
+      agent,
+      workspace,
+    });
+  }
 
   return ok({
     automationId: automation.id,

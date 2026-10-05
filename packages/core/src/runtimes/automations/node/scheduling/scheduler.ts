@@ -130,7 +130,9 @@ export class AutomationScheduler {
       deadlineAt: null,
     });
     if (!run) {
-      throw new Error(`Failed to insert ${triggerKind} automation run for ${deployment.automationId}`);
+      throw new Error(
+        `Failed to insert ${triggerKind} automation run for ${deployment.automationId}`
+      );
     }
     this.drainQueue();
     return this.runStore.getRun(run.id) ?? run;
@@ -202,7 +204,10 @@ export class AutomationScheduler {
       }
       if (run.status !== 'scheduled') continue;
 
+      // [XG-CUSTOM 2026-10-05] schedule 现在可空（事件触发的部署没有 cron 计划）→ 判空再比字段
       const scheduleChanged =
+        deployment.schedule === null ||
+        run.configSnapshot.schedule === null ||
         run.configSnapshot.schedule.expr !== deployment.schedule.expr ||
         run.configSnapshot.schedule.tz !== deployment.schedule.tz;
       if (scheduleChanged) {
@@ -227,6 +232,9 @@ export class AutomationScheduler {
     const existing = this.runStore.getScheduledRun(deployment.automationId);
     if (existing) return existing;
 
+    // [XG-CUSTOM 2026-10-05] 事件触发的部署没有 cron 计划（schedule=null）→ 调度器跳过它，
+    // 由摄取端命中事件时直接 runNow(..., 'webhook')
+    if (deployment.schedule === null) return null;
     const times = nextRunTimes(deployment.schedule, now);
     if (!times) return null;
     return this.insertRun(deployment, {
