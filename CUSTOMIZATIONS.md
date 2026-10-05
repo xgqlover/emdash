@@ -533,3 +533,18 @@ core / app-node typecheck **各 0 错误** · oxfmt 干净。
 **至此第 3 项（事件/webhook 触发）四项齐活**：schema+过滤器 → 摄取端 → 运行时接线 → UI。
 仍留两个小尾巴（都不阻塞使用）：`promptTemplate`（把事件载荷注进 prompt）未接；
 app 侧 `deployment-builder` 的 webhook 分支还差一条单测（core 侧已端到端覆盖）。
+
+### 19e. [XG-CUSTOM 2026-10-05] 本版 exe 的**构建点对应关系**（可追溯）
+
+| 项 | 值 |
+|---|---|
+| 版本 | **`1.2.17-xiangwo`**（`ae945ee7c` bump；含今日全部改动） |
+| 打包 run | **#37269583576**（`release-prod.yml`，`--ref main`） |
+| **构建用的 commit** | **`ae945ee7c`**（= 版本 bump 那个提交） |
+| 之后的两个提交 | `02d863c6f`（webhook-filter 的 **Expr 拆分**，纯类型）+ `f4503b5b2`（**补定制标记**，纯注释）——**都在构建点之后**，只影响源码可读性/类型，不影响运行时行为，故此包**无需重打** |
+| 产物位置 | draft release `v1.2.17-xiangwo` 的 asset `emdash-x64.exe` → 拷到 `~/Desktop/emdash-x64-v1.2.17-xiangwo.exe` |
+
+**打标审计（今天）**：emdash 侧改动 **31 个文件**，**30 个带 `[XG-CUSTOM]` 标记**；唯一没有的 `package.json`
+是**惯例如此**（版本号 `-xiangwo` 后缀即标记，历次 bump 都不标注）。
+审计中修掉一个真缺口：`AutomationSettingsFields.tsx` 漏标 → 补上时**第一版把 `//` 注释插进了 JSX 子节点**
+（那里是**文本内容、会被渲染出来**）→ 已改为模块级注释（类型检查不会发现这个问题，属"看起来过了其实脏了"）。
