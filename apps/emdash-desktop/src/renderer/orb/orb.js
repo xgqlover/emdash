@@ -1,3 +1,10 @@
+// [XG-CUSTOM 2026-10-05] 动作块（球指挥主界面：`[XG-ACTION]`→ host.runCommand；协议见 ./xiangwo-action.ts）
+import {
+  actionFailureText,
+  parseXiangwoActionBlock,
+  runXiangwoAction,
+  stripXiangwoActionBlocks,
+} from './xiangwo-action';
 // [XG-CUSTOM] 项我控制球面板 —— 移植自开源项目 mini-yifan/deepseek-harness-orb（MIT）
 // 源文件：apps/desktop/renderer/floating.js（球 + 面板 + 聊天 UI）。
 //
@@ -834,8 +841,16 @@ async function main() {
         message.role === 'assistant'
           ? parseXiangwoMcpBlock(withImages.text)
           : { text: withImages.text };
+      // [XG-CUSTOM 2026-10-05] 动作块：**先取出动作、把块从正文去掉**，再交给提问卡解析
+      const actions = message.role === 'assistant' ? parseXiangwoActionBlock(withMcp.text) : [];
+      const withAction =
+        message.role === 'assistant'
+          ? { text: stripXiangwoActionBlocks(withMcp.text) }
+          : { text: withMcp.text };
       const parsed =
-        message.role === 'assistant' ? parseQuestionBlock(withMcp.text) : { text: withMcp.text };
+        message.role === 'assistant'
+          ? parseQuestionBlock(withAction.text)
+          : { text: withAction.text };
       if (parsed.text !== '' || message.streaming === true) {
         const bubble = document.createElement('div');
         bubble.className = 'transcript-bubble';
@@ -862,6 +877,23 @@ async function main() {
       }
       if (parsed.question !== undefined) {
         row.append(renderQuestionCard(message, parsed.question));
+      }
+      // [XG-CUSTOM 2026-10-05] 执行动作（best-effort）：成功不吵；**失败如实说一句**（不假装成功）
+      //   白名单在**主进程**判（`host.runCommand`），球侧只负责发与回报 —— 见 ./xiangwo-action.ts
+      for (const action of actions) {
+        void runXiangwoAction(action, (method, payload) => {
+          const call = bridge.orbApi;
+          return typeof call === 'function'
+            ? call(method, payload)
+            : { ok: false, reason: 'unavailable' };
+        }).then((result) => {
+          if (result.ok) return;
+          const notice = document.createElement('div');
+          notice.className = 'transcript-action-notice';
+          notice.textContent = actionFailureText(action, result);
+          row.append(notice);
+          transcript.scrollTop = transcript.scrollHeight;
+        });
       }
       transcript.append(row);
     }

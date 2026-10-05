@@ -651,3 +651,16 @@ app 侧 `deployment-builder` 的 webhook 分支还差一条单测（core 侧已�
 
 **⚠️ 还没接进 `orb.js` 的解析链**（与 images/mcp/question 三块并列）—— 下一步做，
 连同第 1 件（boot 注入）与第 3 件（agent 工具 + `presentToUser`），做完再 bump `1.2.19` 打一次 exe。
+
+### 23. [XG-CUSTOM 2026-10-05] 动作块接进球渲染链（A 方案第 2 件收尾）
+
+`renderer/orb/orb.js`：解析链从 `images → mcp → question` 扩为 **`images → mcp → action → question`**：
+先 `parseXiangwoActionBlock` 取出动作，再 `stripXiangwoActionBlocks` 把块从正文去掉（别把 JSON 显示给用户），
+最后交给提问卡解析；渲染完成后**逐个执行**（`runXiangwoAction` → `bridge.orbApi('host.runCommand', …)`）——
+**成功不吵，失败在气泡下补一句如实的话**（`actionFailureText`，如"「app.newTask」属于写操作，需要你确认后我才能执行"）。
+`orbApi` 不可用 → 回 `{ok:false, reason:'unavailable'}`（不假装成功）。
+
+**验证**：`oxfmt orb.js` 语法自检通过；`xiangwo-action.test.ts` + `xiangwo-mcp.test.ts` 通过；browser typecheck 0 错误。
+
+**A 方案剩余**：第 1 件（boot 注入执行器 —— 主窗口把 `configureOrbHostCommands(run)` 接上命令执行路径）
+· 第 3 件（agent 工具 `emdash_action` + "用户要看"时带 `presentToUser` + 治 wego 撞名）。
