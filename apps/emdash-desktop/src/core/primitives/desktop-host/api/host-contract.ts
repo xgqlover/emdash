@@ -63,7 +63,11 @@ export type DesktopHostEvent =
     };
 
 
-// [XG-CUSTOM] 专家交接平台 topic 数据模型（对应 wego-lite/expert-handoff/expert_topics.json）
+// [XG-CUSTOM] 专家交接平台 topic 数据模型
+// ⚠️ 2026-10-05 更正真相源：`xiangwo-agent/expert_topics.json`（475KB / 319 topics）。
+//    原注写的是 `wego-lite/expert-handoff/expert_topics.json` —— 那是**已废弃的副本**
+//    （25KB、停在 2026-09-19、无任何 import），已归档到
+//    `工作区/_归档/死交接台-2026-10-05/`。**别按旧注去找数据源。**
 export interface ExpertHandoffTopic {
   id: number;
   bot: string;
