@@ -9,6 +9,9 @@ import { WorkspaceSettingsSection } from '@core/features/tasks/contributions/bro
 import { t } from '@renderer/lib/i18n';
 import type { AutomationFormState } from '../useAutomationFormState';
 
+// [XG-CUSTOM 2026-10-05] 本文件加的东西：触发源切换（On schedule / On event）+ 事件触发的
+// token / filter / 回调地址三块（协议与安全约定见 primitives/automations/api/config.ts）
+
 interface AutomationSettingsFieldsProps {
   state: AutomationFormState;
   cronError: string | null;
