@@ -23,7 +23,7 @@ import { useInitialConversationState } from '@core/features/tasks/contributions/
 import { agentSupportsAcp, agentSupportsInitialPromptDelivery } from '@core/primitives/agents/api';
 import type { Automation } from '@core/primitives/automations/api';
 import type { StoredAutomationTaskConfig, TriggerConfig } from '@core/primitives/automations/api';
-import { getLocalTimeZone } from '@core/primitives/automations/api';
+import { getLocalTimeZone, validateTriggerConfig } from '@core/primitives/automations/api';
 import type { BuiltinAutomationTemplate } from './automation-template';
 
 const DEFAULT_CRON = toCron(DEFAULT_CRON_STATE);
@@ -95,6 +95,13 @@ export function useAutomationFormState(
     seedTrigger?.expr ?? initialTemplate?.defaultTrigger.expr ?? DEFAULT_CRON
   );
   const [cronTz] = useState<string>(seedTrigger?.tz ?? getLocalTimeZone());
+  // [XG-CUSTOM 2026-10-05] **触发源选择**：cron（默认，含历史数据）或 webhook（事件）。
+  // 旧数据没有 kind → 视为 cron；webhook 的 token/filter 从这里进 triggerConfig。
+  const [triggerKind, setTriggerKind] = useState<'cron' | 'webhook'>(
+    seedTrigger?.kind === 'webhook' ? 'webhook' : 'cron'
+  );
+  const [webhookToken, setWebhookToken] = useState<string>(seedTrigger?.token ?? '');
+  const [webhookFilter, setWebhookFilter] = useState<string>(seedTrigger?.filter ?? '');
 
   const effectiveProjectId =
     projectId && asAvailableProject(getProjectStore(projectId))
@@ -186,13 +193,25 @@ export function useAutomationFormState(
     }
   }, [setUseChatUi, shouldForceChatUi, useChatUi]);
 
+  // [XG-CUSTOM 2026-10-05] 两种触发源形状不同：cron 要表达式；webhook 要 token（filter 可选）
+  const triggerConfig: TriggerConfig =
+    triggerKind === 'webhook'
+      ? {
+          kind: 'webhook',
+          token: webhookToken.trim(),
+          ...(webhookFilter.trim() === '' ? {} : { filter: webhookFilter.trim() }),
+        }
+      : { kind: 'cron', expr: cronExpr.trim(), tz: cronTz };
+
   const canSave =
     name.trim().length > 0 &&
     prompt.trim().length > 0 &&
     !!provider &&
     providerSupportsAutomationPrompt &&
     !!effectiveProjectId &&
-    workspaceConfig.isValid;
+    workspaceConfig.isValid &&
+    // [XG-CUSTOM 2026-10-05] 触发源也要配好：webhook 缺 token 时**不许保存**（否则等于开了个裸接口）
+    validateTriggerConfig(triggerConfig) === null;
 
   function buildTaskConfig(targetProjectId: string): StoredAutomationTaskConfig | null {
     const effectiveRepoWsId =
@@ -229,8 +248,6 @@ export function useAutomationFormState(
     return JSON.parse(JSON.stringify(result)) as StoredAutomationTaskConfig;
   }
 
-  const triggerConfig: TriggerConfig = { expr: cronExpr.trim(), tz: cronTz };
-
   function applyTemplate(template: BuiltinAutomationTemplate) {
     setName(template.name);
     // [XG-CUSTOM 2026-10-05] expr 现在可选（webhook 触发没有它）→ 兜底空串
@@ -247,6 +264,13 @@ export function useAutomationFormState(
     cronExpr,
     setCronExpr,
     cronTz,
+    // [XG-CUSTOM 2026-10-05] 触发源（表单渲染「On schedule / On event」）
+    triggerKind,
+    setTriggerKind,
+    webhookToken,
+    setWebhookToken,
+    webhookFilter,
+    setWebhookFilter,
     initialConversation,
     workspaceConfig,
     isUnborn,

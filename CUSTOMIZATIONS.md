@@ -511,3 +511,25 @@ core / app-node typecheck **各 0 错误** · oxfmt 干净。
 **⚠️ 已知待办**：① **UI**（表单选触发源 + 显示 token/URL —— 现在只能用 API/DB 配 webhook）；
 ② app 侧 `deployment-builder` 的 webhook 分支**还差一条单测**（core 侧已端到端覆盖）；
 ③ 事件载荷注进 prompt 的 `promptTemplate`（字段已备好，尚未接）。
+
+### 19d. [XG-CUSTOM 2026-10-05] 事件触发 **UI**（第 3 项 · 最后一公里，至此可用）
+
+**落了什么**（表单里能选、能填、能存、能校验）：
+- `useAutomationFormState.ts`：新增 `triggerKind`（`cron`/`webhook`，从 seed 读回）+ `webhookToken` / `webhookFilter`；
+  `triggerConfig` 按触发源产出**两种形状**；`canSave` 加 `validateTriggerConfig(...) === null`
+  —— **webhook 缺 token 时不许保存**（否则等于开个裸接口）。
+- `components/AutomationSettingsFields.tsx`：触发源区加了 **On schedule / On event** 切换；
+  选 On event 时把 CronPicker 换成 **Callback token**（带 `Generate` 按钮，`crypto.randomUUID()`）+
+  **Event filter (optional)** + **Callback URL**（`http://127.0.0.1:7823/automation/<automationId>`，
+  并提示请求头 `x-emdash-automation-token`、保存后才有 automation id）。
+- 新增 `primitives/automations/api/config.test.ts`（**6 项**）：旧数据（无 kind）仍解析且判定为 cron ·
+  cron 缺表达式报错 · **webhook 缺 token/太短报错** · token 够长通过（filter 选填）。
+
+**验证**：`tsgo --noEmit` browser / node **各 0 错误**；app 侧 automations + primitives **63 passed（14 文件）**；oxfmt 干净。
+
+**踩坑**：`canSave` 与 `triggerConfig` 的顺序 —— 我把 `triggerConfig` 定义放在 `canSave` **之后**，
+触发 TDZ 报错（`TS2448/TS2454: used before its declaration`），移到前面即好（**以后加常量记得放在使用点之前**）。
+
+**至此第 3 项（事件/webhook 触发）四项齐活**：schema+过滤器 → 摄取端 → 运行时接线 → UI。
+仍留两个小尾巴（都不阻塞使用）：`promptTemplate`（把事件载荷注进 prompt）未接；
+app 侧 `deployment-builder` 的 webhook 分支还差一条单测（core 侧已端到端覆盖）。
