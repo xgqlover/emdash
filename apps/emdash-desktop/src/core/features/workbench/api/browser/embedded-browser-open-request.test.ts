@@ -149,4 +149,65 @@ describe('[XG-CUSTOM] openEmbeddedBrowserTab（从零开内嵌浏览器页）', 
     expect(ok).toBe(false);
     expect(mocks.paneOpen).not.toHaveBeenCalled();
   });
+
+  // [XG-CUSTOM 2026-10-05] 「开在 bot 自己的 project/task 下」
+  // 真机病根：用户在球里 @sxsj 打开网址，页落进了 babado 的「译文」任务 —— 旧实现只看
+  // 「主窗口当前正在看的 task」，而球面板的请求里没有 task 身份。emdash 里 project.id 就是 botId。
+  describe('[XG-CUSTOM 2026-10-05] botId 决定开在哪个 task 下', () => {
+    beforeEach(() => {
+      mocks.visibleTaskEntries = [
+        { projectId: 'babado', taskId: 'yiven' },
+        { projectId: 'sxsj', taskId: 'poster' },
+      ];
+    });
+
+    it('带着 botId 且该 bot 有自己的 task → 导航到它那个 task 再开页（不落在别人的会话里）', () => {
+      mocks.navigationRef.viewId = 'task';
+      mocks.navigationRef.params = { projectId: 'babado', taskId: 'yiven' };
+      const ok = openEmbeddedBrowserTab('https://g-mark.org/', 'bot-sxsj', 'sxsj');
+      expect(ok).toBe(true);
+      expect(mocks.navigate).toHaveBeenCalledWith({
+        viewId: 'task',
+        params: { projectId: 'sxsj', taskId: 'poster' },
+      });
+      expect(mocks.getTaskComposition).toHaveBeenCalledWith('sxsj', 'poster');
+      expect(mocks.paneOpen).toHaveBeenCalledWith('browser', {
+        initialUrl: 'https://g-mark.org/',
+        profileId: 'bot-sxsj',
+        botId: 'sxsj',
+      });
+    });
+
+    it('已经停在该 bot 的 task 上 → 就地开，不导航（不动用户视野）', () => {
+      mocks.navigationRef.viewId = 'task';
+      mocks.navigationRef.params = { projectId: 'sxsj', taskId: 'poster' };
+      const ok = openEmbeddedBrowserTab('https://g-mark.org/', 'bot-sxsj', 'sxsj');
+      expect(ok).toBe(true);
+      expect(mocks.navigate).not.toHaveBeenCalled();
+      expect(mocks.getTaskComposition).toHaveBeenCalledWith('sxsj', 'poster');
+    });
+
+    it('内部 bot（没有对应 project，如 xg-fetch）→ 退当前 task，零回归', () => {
+      mocks.navigationRef.viewId = 'task';
+      mocks.navigationRef.params = { projectId: 'babado', taskId: 'yiven' };
+      const ok = openEmbeddedBrowserTab('https://example.com/', 'bot-xg-fetch', 'xg-fetch');
+      expect(ok).toBe(true);
+      expect(mocks.navigate).not.toHaveBeenCalled();
+      expect(mocks.getTaskComposition).toHaveBeenCalledWith('babado', 'yiven');
+      expect(mocks.paneOpen).toHaveBeenCalledWith('browser', {
+        initialUrl: 'https://example.com/',
+        profileId: 'bot-xg-fetch',
+        botId: 'xg-fetch',
+      });
+    });
+
+    it('不带 botId（老调用方）→ 仍是"当前 task 优先"，与改动前逐字节一致', () => {
+      mocks.navigationRef.viewId = 'task';
+      mocks.navigationRef.params = { projectId: 'babado', taskId: 'yiven' };
+      const ok = openEmbeddedBrowserTab('https://example.com/', 'bot-sxsj');
+      expect(ok).toBe(true);
+      expect(mocks.navigate).not.toHaveBeenCalled();
+      expect(mocks.getTaskComposition).toHaveBeenCalledWith('babado', 'yiven');
+    });
+  });
 });

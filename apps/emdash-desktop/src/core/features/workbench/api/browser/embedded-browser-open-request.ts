@@ -30,24 +30,50 @@ import { getTaskComposition } from './task-composition-selectors';
 
 type TaskRef = { readonly projectId: string; readonly taskId: string };
 
+/** 主窗口当前正在看的 task（不是 task 视图 / 参数不全 → undefined）。 */
+function currentTaskRef(): TaskRef | undefined {
+  const ref = getNavigation().currentRef;
+  if (ref.viewId !== 'task') return undefined;
+  const params = ref.params as { projectId?: unknown; taskId?: unknown };
+  if (typeof params.projectId !== 'string' || typeof params.taskId !== 'string') return undefined;
+  return { projectId: params.projectId, taskId: params.taskId };
+}
+
 /**
  * 这次「从零开页」应该开在哪个 task view 里。
  *
- * 优先**当前正在看的 task**（不动用户视野）；否则退到侧边栏第一个可见 task 并**导航过去**
- * （"自动出现"必须真上屏：`<webview>` 只有被渲染才会 attach → 才会被绑定）。
+ * [XG-CUSTOM 2026-10-05] **先认 bot 自己的 project** —— 用户明确要求：
+ *   在球里 @sxsj 说「打开网址」，就该开在 **sxsj 那个 project 的 task** 里，
+ *   而不是「我屏幕上当前正在看哪个 task」。
+ *   真机病根（2026-10-05）：用户在球里 @sxsj 打开网址，页落进了 **babado 的「译文」任务** ——
+ *   旧实现只看 `getNavigation().currentRef`，而球面板的请求里**没有 task 身份**
+ *   （`renderer/XiangwoFloatingPanel.tsx` 只发 `messages` + `[XIANGWO_ROUTE=R0][XIANGWO_SOURCE=sidebar]`）。
+ *   emdash 里 **`project.id` 就是 botId**（`sxsj` / `babado` / …，见 `emdash4.db` 的 projects 表），
+ *   所以拿 botId 去 `visibleTaskEntries` 里找同 project 的 task 即可（同一个 project 有多个 task 时取
+ *   侧边栏第一个，够用且可预期）。
+ *   botId 找不到对应 project（**内部 bot**：`xg-fetch` / `xg-fetch-cold*` 这类没有 project 的）
+ *   → 退回旧行为（当前 task），零回归 —— 它们靠"复用已有页"干活，不该因为找不到 project 就失败。
+ *
+ * 找不到 bot 的 task 时：优先**当前正在看的 task**（不动用户视野）；否则退到侧边栏第一个可见 task
+ * 并**导航过去**（"自动出现"必须真上屏：`<webview>` 只有被渲染才会 attach → 才会被绑定）。
  * 一个 task 都没有 → undefined，调用方如实回报失败，不假装成功。
  */
-function resolveTargetTask(): { ref: TaskRef; needsNavigation: boolean } | undefined {
-  const ref = getNavigation().currentRef;
-  if (ref.viewId === 'task') {
-    const params = ref.params as { projectId?: unknown; taskId?: unknown };
-    if (typeof params.projectId === 'string' && typeof params.taskId === 'string') {
-      return {
-        ref: { projectId: params.projectId, taskId: params.taskId },
-        needsNavigation: false,
-      };
+function resolveTargetTask(botId?: string): { ref: TaskRef; needsNavigation: boolean } | undefined {
+  const current = currentTaskRef();
+  const wanted = typeof botId === 'string' ? botId.trim() : '';
+  if (wanted !== '') {
+    const mine = getSidebarStore().visibleTaskEntries.find((entry) => entry.projectId === wanted);
+    if (mine !== undefined) {
+      const ref = { projectId: mine.projectId, taskId: mine.taskId };
+      const alreadyThere =
+        current !== undefined &&
+        current.projectId === ref.projectId &&
+        current.taskId === ref.taskId;
+      // 不在那儿 → 必须导航过去，否则 <webview> 不会上屏、也就不会被绑定
+      return { ref, needsNavigation: !alreadyThere };
     }
   }
+  if (current !== undefined) return { ref: current, needsNavigation: false };
   const first = getSidebarStore().visibleTaskEntries[0];
   if (first === undefined) return undefined;
   return {
@@ -65,9 +91,11 @@ function resolveTargetTask(): { ref: TaskRef; needsNavigation: boolean } | undef
  * [XG-CUSTOM 2026-10-03] `botId` 也一起透传：开页的 provider 要按它按需建/复用该 bot 的
  * profile（未绑定时建 `bot-<botId>`），否则 agent 用 bot 身份开的页会落到 default，
  * `/json/list` 里 `profile`/`botId` 永远为空。
+ * [XG-CUSTOM 2026-10-05] `botId` 同时决定**开在哪个 task 下**（见 `resolveTargetTask`）：
+ * 页开进 bot 自己的 project 的 task，而不是用户当前视野里的那个 task。
  */
 export function openEmbeddedBrowserTab(url: string, profileId?: string, botId?: string): boolean {
-  const target = resolveTargetTask();
+  const target = resolveTargetTask(botId);
   if (target === undefined) {
     console.warn(
       '[XG-CUSTOM] 项我要开内嵌浏览器，但 emdash 里没有任何 task（内嵌浏览器标签页挂在 task view 下）',
