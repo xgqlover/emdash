@@ -459,3 +459,27 @@ agent 侧端到端：read-only 档调写类工具 → **出审批卡**（`要执
 **部署路径**（webhook 触发不该排 cron 计划，应直接 `runNow(..., 'webhook')`；目前 `deployment-builder`
 兜底空 expr → 被 `cron_invalid` 明确拒绝，不会静默排假计划）、**UI**（表单里选触发源 + 显示 token/URL）。
 这三件都要先定**端口与开关策略**（默认关、固定端口还是临时端口），属安全取舍，留给用户拍板。
+
+### 19b. [XG-CUSTOM 2026-10-05] 事件触发**摄取端**（第 3 项 · 第二切片）
+
+**落了什么**：`packages/core/src/runtimes/automations/node/webhook-server.ts` —— 只做"把 HTTP 事件安全收进来
++ 过滤 + 回调"，**不碰调度、不碰数据库**（命中后由调用方去 `scheduler.runNow(deployment, 'webhook')`）。
+
+安全姿态（照抄仓库既有 `TuiHookServer` + 每 automation 一个 token）：
+① **只绑 127.0.0.1**；② **没有 webhook automation 就根本不起监听**（`ensureStarted()` 返回 null，不白占端口）；
+③ **token 常量时间比较**（长度不同也不抛）；④ 路径/方法不对 404、缺 token 401、token 错或 id 未知 403
+（不暴露"id 存不存在"）、坏 JSON 400、body 超 1MB 413；⑤ 过滤不匹配 **204（收到但不跑）**、命中 **202**。
+
+**端口策略（本切片定，可覆盖）**：默认 `127.0.0.1:7823`，`EMDASH_AUTOMATION_WEBHOOK_PORT` 可改。
+选固定端口的理由：外部脚本 / git hook 要能把地址写死；只绑 loopback + token 已足够防本机误触发。
+
+**踩坑**：超体积时**不能 `req.destroy()`** —— 立刻断开会变成 `UND_ERR_SOCKET: other side closed`，
+客户端根本拿不到那个 413（仓库既有的 `TuiHookServer` 就是 destroy，同款症状）。改成"回完 413 继续排空请求体"。
+
+**验证**：`webhook-server.test.ts` **8/8**（真起服务器 + 真 HTTP：路由/鉴权/体积/格式/命中/过滤不匹配与
+**畸形表达式都 204 不回调**/目标清空自动停/stop 后连不上）；`packages/core` automations **103 passed**；
+`pnpm run typecheck`（core）**0 错误**；oxfmt 干净。
+
+**还差（下一轮）**：把摄取端**接进运行时** —— `deploy` 输入带上 `trigger`（kind/token/filter），
+runtime 在 `reconcile()` 里维护 token→automation 映射并调 `AutomationWebhookServer.ensureStarted()`；
+以及 **UI**（表单选触发源 + 显示 token/URL）。
