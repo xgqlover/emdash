@@ -37,6 +37,11 @@
 //      用户答完（或取消）后卡片置为已答态、禁用交互，并把**答案文本**作为一条 user 消息发回去。
 //      字段上限：questions ≤8 问；每问 options ≤12 个、每项文字 ≤120 字（问句/副文案 ≤200）；
 //      header/question 至少给一个；allowCustom 选填（默认 true）；multiSelect 选填（默认单选）。
+//      [XG-CUSTOM 2026-10-05] 另支持两个字段（照 assistant-ui `option-list.tsx` 的语义，**抄语义不引库**）：
+//        · `maxSelections`：多选上限（缺省/0 = 不限）。到顶后再点新选项 → 忽略 + 提示"最多选 N 项"（不静默）。
+//        · `defaultValue`（别名 `default` / `preselect`）：预选项数组（只接受**选项里真有**的 label）。
+//          用户**提交过**的卡片会按问题 `id` 记住选择，下次同一 id 自动预选（存 localStorage，不进对话记录）；
+//          agent 显式给的 `defaultValue` 优先级高于记忆。
 //      解析失败 / 坏 JSON / 一问都没有 → 整段当普通文本渲染（绝不吞消息）。
 //      落盘只有 `message.answer` 那段**文本**（没有 DOM、没有草稿结构，见 persistConversations）。
 //   6.1) [XG-CUSTOM] **图片协议 xiangwo-images**（治「agent 说已推到侧边栏、用户什么都看不到」）：
@@ -314,6 +319,9 @@ const QUESTION_MAX_OPTIONS = 12;
 const QUESTION_TEXT_MAX = 200; // question / detail / title
 const QUESTION_ITEM_MAX = 120; // header / 选项文字 / 选项说明
 const QUESTION_ID_MAX = 40;
+// [XG-CUSTOM 2026-10-05] 提问卡"记住上次选择"的存储（localStorage，按问题 id 存）
+const QUESTION_MEMORY_KEY = 'xg-question-memory';
+const QUESTION_MEMORY_MAX = 60;
 
 // 「(推荐)」后缀正则 —— **照抄上游** floating.js:9 的 RECOMMENDED_SUFFIX
 // （半角 `(推荐)`/`(recommended)` 与全角 `（推荐）`/`（recommended）` 都认，只认结尾）。
@@ -373,6 +381,30 @@ function normalizeQuestion(raw, index) {
       if (options.length >= QUESTION_MAX_OPTIONS) break;
     }
   }
+  // [XG-CUSTOM 2026-10-05] 补两个来自 assistant-ui `option-list.tsx` 的语义（照抄语义，不引库）：
+  //   · `maxSelections`：多选上限（缺省/0 = 不限）；
+  //   · `defaultValue`（别名 `default` / `preselect`）：预选项 —— 用来"记忆上次选择"或让 agent 指定推荐组合。
+  // 预选项**只接受确实存在于 options 里的 label**（否则脏数据会把不存在的选项标成已选）。
+  const maxSelections =
+    Number.isFinite(raw.maxSelections) && raw.maxSelections > 0
+      ? Math.min(Math.floor(raw.maxSelections), Math.max(1, options.length))
+      : 0;
+  const preselect = [];
+  const candidates = Array.isArray(raw.defaultValue ?? raw.default ?? raw.preselect)
+    ? (raw.defaultValue ?? raw.default ?? raw.preselect)
+    : [raw.defaultValue ?? raw.default ?? raw.preselect];
+  for (const candidate of candidates) {
+    const label = typeof candidate === 'string' ? candidate.trim() : '';
+    if (label === '' || preselect.includes(label)) continue;
+    if (!options.some((option) => option.label === label)) continue;
+    preselect.push(label);
+  }
+  const cappedPreselect =
+    raw.multiSelect === true
+      ? maxSelections > 0
+        ? preselect.slice(0, maxSelections)
+        : preselect
+      : preselect.slice(0, 1);
   return {
     id: rawId === '' ? `q${String(index + 1)}` : rawId.slice(0, QUESTION_ID_MAX),
     header,
@@ -380,6 +412,8 @@ function normalizeQuestion(raw, index) {
     question: question === '' ? header : question,
     detail,
     multiSelect: raw.multiSelect === true,
+    maxSelections,
+    preselect: cappedPreselect,
     options,
   };
 }
@@ -819,10 +853,53 @@ async function main() {
   const questionDrafts = new WeakMap();
 
   /** 取（没有就建）某条助手消息的草稿数组；问题数变了就重建（协议变了/历史重载） */
+  // [XG-CUSTOM 2026-10-05] 「记住上次选择」：按**问题 id** 记住上次勾了什么，下次同一 id 的卡片自动预选
+  // （照 assistant-ui `option-list.tsx` 的 `defaultValue` 语义）。存 localStorage —— 球自己的 webContents、
+  // 跟 profile 走；不落主进程文件、不进对话记录。失败（隐私模式/配额）就当没记忆，不影响作答。
+  function readQuestionMemory() {
+    try {
+      const raw = JSON.parse(window.localStorage.getItem(QUESTION_MEMORY_KEY) ?? '{}');
+      return raw !== null && typeof raw === 'object' ? raw : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function rememberQuestionChoice(id, selected) {
+    if (typeof id !== 'string' || id === '' || !Array.isArray(selected) || selected.length === 0) {
+      return;
+    }
+    try {
+      const memory = readQuestionMemory();
+      memory[id] = selected.slice(0, QUESTION_MAX_OPTIONS);
+      const keys = Object.keys(memory);
+      for (const stale of keys.slice(0, Math.max(0, keys.length - QUESTION_MEMORY_MAX))) {
+        delete memory[stale];
+      }
+      window.localStorage.setItem(QUESTION_MEMORY_KEY, JSON.stringify(memory));
+    } catch {
+      /* 隐私模式/配额满：记忆失败不影响作答 */
+    }
+  }
+
   function draftState(message, questions) {
     let drafts = questionDrafts.get(message);
     if (!Array.isArray(drafts) || drafts.length !== questions.length) {
-      drafts = questions.map(() => ({ selected: [], custom: '', skipped: false }));
+      const memory = readQuestionMemory();
+      drafts = questions.map((item) => {
+        // 优先级：agent 显式给的 preselect > 上次的选择；两者都过滤成"选项里真有的"并受 maxSelections 约束
+        const wanted = item.preselect.length > 0 ? item.preselect : (memory[item.id] ?? []);
+        const valid = (Array.isArray(wanted) ? wanted : []).filter(
+          (label) =>
+            typeof label === 'string' && item.options.some((option) => option.label === label)
+        );
+        const capped = item.multiSelect
+          ? item.maxSelections > 0
+            ? valid.slice(0, item.maxSelections)
+            : valid
+          : valid.slice(0, 1);
+        return { selected: capped, custom: '', skipped: false };
+      });
       questionDrafts.set(message, drafts);
     }
     return drafts;
@@ -908,6 +985,10 @@ async function main() {
         paint();
         return;
       }
+      // [XG-CUSTOM 2026-10-05] 记住这次的选择（下次同一问题 id 的卡片自动预选；照 assistant-ui defaultValue 语义）
+      questions.forEach((item, order) => {
+        rememberQuestionChoice(item.id, drafts[order]?.selected ?? []);
+      });
       const text = composeQuestionAnswer(questions, drafts);
       trace('question-submit', { count: questions.length, text });
       commit(text, false);
@@ -976,9 +1057,17 @@ async function main() {
           if (interactive) {
             button.addEventListener('click', () => {
               if (item.multiSelect) {
-                draft.selected = chosen
-                  ? draft.selected.filter((entry) => entry !== option.label)
-                  : [...draft.selected, option.label];
+                // [XG-CUSTOM 2026-10-05] maxSelections 上限：到顶后**忽略新增**并出人话提示
+                // （照 assistant-ui option-list 的 maxSelections；不再静默吞点击）
+                if (chosen) {
+                  draft.selected = draft.selected.filter((entry) => entry !== option.label);
+                } else if (item.maxSelections > 0 && draft.selected.length >= item.maxSelections) {
+                  error = `最多选 ${String(item.maxSelections)} 项（先取消一个再选）`;
+                  paint();
+                  return;
+                } else {
+                  draft.selected = [...draft.selected, option.label];
+                }
               } else {
                 draft.selected = [option.label];
                 draft.custom = '';

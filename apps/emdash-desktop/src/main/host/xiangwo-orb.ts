@@ -1,3 +1,5 @@
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 // [XG-CUSTOM] 项我控制球（orb）—— 独立置顶小窗：平时是一颗球，悬停展开成面板。
 //
 // 目标：球出现在 **emdash 窗口之外**（屏幕边缘常驻），点开就是 emdash 的控制入口
@@ -12,8 +14,6 @@
 // [XG-CUSTOM] 与 renderer/orb/orb.js 的契约：渲染进程只经 `electronAPI.orbApi(method, args)` 调宿主
 // （路由在 ./xiangwo-orb-api.ts）；球的拖动是渲染进程自绘的（orbDrag/orbDragEnd IPC → setBounds + 落盘位置）。
 import { BrowserWindow, app, ipcMain, screen } from 'electron';
-import { readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { log } from '@main/lib/logger';
 import { APP_ORIGIN } from './protocol';
 import {
@@ -120,7 +120,8 @@ function orbTrace(event: string, detail: Record<string, unknown> = {}): void {
   log.warn(`[xiangwo-orb-trace] ${event}`, detail);
 }
 
-const clamp = (v: number, lo: number, hi: number): number => Math.min(Math.max(v, lo), Math.max(lo, hi));
+const clamp = (v: number, lo: number, hi: number): number =>
+  Math.min(Math.max(v, lo), Math.max(lo, hi));
 
 /**
  * [XG-CUSTOM] 落盘的位置记忆（userData/xiangwo-orb.json）。
@@ -265,7 +266,11 @@ export function dockedTabBounds(side: OrbDockSide, ballY: number, bounds: Rect):
 }
 
 /** [XG-CUSTOM] 吸边动画的终点：球整个滑到屏幕外（再多留 ORB_DOCK_OFF_GAP） */
-function offScreenBallOrigin(side: OrbDockSide, ballY: number, bounds: Rect): { x: number; y: number } {
+function offScreenBallOrigin(
+  side: OrbDockSide,
+  ballY: number,
+  bounds: Rect
+): { x: number; y: number } {
   return {
     x:
       side === 'left'
@@ -294,8 +299,7 @@ function insideBallOrigin(
   };
 }
 
-const easeInOutCubic = (t: number): number =>
-  t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
+const easeInOutCubic = (t: number): number => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 
 const easeOutCubic = (t: number): number => 1 - (1 - t) ** 3;
 
@@ -384,7 +388,12 @@ function orbWindowCenter(): { x: number; y: number } {
  * @param bounds 所在显示器的屏幕矩形
  * @returns 实际停靠的侧别
  */
-function applyDockedTab(win: BrowserWindow, side: OrbDockSide, ballY: number, bounds: Rect): OrbDockSide {
+function applyDockedTab(
+  win: BrowserWindow,
+  side: OrbDockSide,
+  ballY: number,
+  bounds: Rect
+): OrbDockSide {
   const y = clampBallY(ballY, bounds);
   orbDocked = { side, y };
   cancelOrbAnim();
@@ -518,7 +527,8 @@ function ballAnchorFor(
   height: number
 ): { x: number; y: number } {
   return {
-    x: direction.horizontal === 'left' ? width - ORB_CHROME_INSET - ORB_BALL_SIZE : ORB_CHROME_INSET,
+    x:
+      direction.horizontal === 'left' ? width - ORB_CHROME_INSET - ORB_BALL_SIZE : ORB_CHROME_INSET,
     y: direction.vertical === 'up' ? height - ORB_CHROME_INSET - ORB_BALL_SIZE : ORB_CHROME_INSET,
   };
 }
@@ -535,6 +545,78 @@ function orbBallAnchor(): { x: number; y: number } {
     return ballAnchorFor(direction, bounds.width, bounds.height);
   }
   return { x: ORB_CHROME_INSET, y: ORB_CHROME_INSET };
+}
+
+/** [XG-CUSTOM 2026-10-05] display 事件监听器的清理句柄（建窗时注册，closed 时注销，防重复注册） */
+let removeDisplayGuards: (() => void) | undefined;
+
+/** [XG-CUSTOM 2026-10-05] 球在**屏幕坐标系**里的原点 = 窗口 bounds + 窗口内锚点 */
+function orbBallOrigin(): OrbBallPoint {
+  const win = orbWindow;
+  if (win === null || win.isDestroyed()) return { x: 0, y: 0 };
+  const b = win.getBounds();
+  const a = orbBallAnchor();
+  return { x: b.x + a.x, y: b.y + a.y };
+}
+
+/**
+ * [XG-CUSTOM 2026-10-05] **显示器变化后重夹**（多屏 / 改分辨率 / 拔插外接屏）。
+ *
+ * 为什么要有它：上游 orb **没有**任何 display 事件监听（2026-10-05 实测
+ * `getAllDisplays|display-added|display-removed|display-metrics-changed` 在它的 floating-window.ts
+ * 与 main.ts 里 **0 命中**，只用 `getDisplayNearestPoint`）—— 所以拔掉一块屏之后，球会留在
+ * **已经不存在的坐标**上（用户看不见球，只能删配置文件救）。我们补上，就是反超。
+ *
+ * 三种态分别处理（不新造几何，全复用既有函数）：
+ * - **停靠态**：按新屏幕的 `bounds` 重算细条位置（细条贴的是屏幕真边，不是 work-area）；
+ * - **球态**：用 `clampBall` 夹回最近的 work-area，并更新位置记忆（否则下次启动又跳回去）；
+ * - **展开态**：只保证整窗还在工作区内（不动球锚点，避免面板锚错角；下次收起会自然夹回）。
+ */
+function reclampOrbForDisplays(reason: string): void {
+  const win = orbWindow;
+  if (win === null || win.isDestroyed()) return;
+  const ball = orbBallOrigin();
+  const { bounds, workArea } = displayForPoint(ball);
+
+  if (orbDocked !== undefined) {
+    const tab = dockedTabBounds(orbDocked.side, orbDocked.y, bounds);
+    cancelOrbAnim();
+    setOrbBounds(win, tab, `display-${reason}`);
+    applyOrbShape(visualMode());
+    repaintOrbWindow(win);
+    notifyMode();
+    orbTrace('main-display-reclamp', {
+      reason,
+      mode: 'docked',
+      side: orbDocked.side,
+      to: [tab.x, tab.y],
+    });
+    return;
+  }
+
+  if (orbMode === 'ball') {
+    const clamped = clampBall(ball, workArea);
+    setOrbBounds(win, collapsedBounds(clamped), `display-${reason}`);
+    applyOrbShape(visualMode());
+    repaintOrbWindow(win);
+    notifyMode();
+    saveOrbState({ ball: clamped });
+    orbTrace('main-display-reclamp', {
+      reason,
+      mode: 'ball',
+      from: [ball.x, ball.y],
+      to: [clamped.x, clamped.y],
+    });
+    return;
+  }
+
+  const b = win.getBounds();
+  const x = clamp(b.x, workArea.x, workArea.x + workArea.width - b.width);
+  const y = clamp(b.y, workArea.y, workArea.y + workArea.height - b.height);
+  if (x !== b.x || y !== b.y) {
+    setOrbBounds(win, { ...b, x, y }, `display-${reason}`);
+    orbTrace('main-display-reclamp', { reason, mode: 'panel', from: [b.x, b.y], to: [x, y] });
+  }
 }
 
 /**
@@ -805,8 +887,7 @@ function applyOrbShape(mode: OrbVisualMode): void {
     const scale = SHAPE_UNIT_IS_DIP
       ? 1
       : screen.getDisplayNearestPoint(win.getBounds()).scaleFactor || 1;
-    const shape =
-      mode === 'docked' ? dockShape() : mode === 'panel' ? panelShape() : ballShape();
+    const shape = mode === 'docked' ? dockShape() : mode === 'panel' ? panelShape() : ballShape();
     win.setShape(scaleShape(shape, scale));
   } catch {
     /* 塑形失败：保持矩形窗口（就是塑形之前的表现） */
@@ -816,7 +897,10 @@ function applyOrbShape(mode: OrbVisualMode): void {
 /** 跨平台置顶：macOS 用 panel + 所有空间可见；Windows/Linux 用 screen-saver 档（压过其它窗口） */
 function presentOverlay(win: BrowserWindow): void {
   if (process.platform === 'darwin') {
-    win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true, skipTransformProcessType: true });
+    win.setVisibleOnAllWorkspaces(true, {
+      visibleOnFullScreen: true,
+      skipTransformProcessType: true,
+    });
     return;
   }
   win.setAlwaysOnTop(true, 'screen-saver');
@@ -830,7 +914,7 @@ function notifyMode(): void {
     'xiangwo:orb-mode',
     orbMode === 'panel' ? 'panel' : 'ball',
     pinned,
-    orbMode === 'panel' ? panelDirection ?? null : null,
+    orbMode === 'panel' ? (panelDirection ?? null) : null,
     orbDocked?.side ?? null
   );
 }
@@ -1039,7 +1123,12 @@ async function clampOrbBall(canDock = true): Promise<OrbBallOutcome> {
   applyOrbShape('ball');
   repaintOrbWindow(win);
   saveOrbState({ ball });
-  orbTrace('main-clampBall', { ball, requested: origin, canDock, fromTarget: target !== undefined });
+  orbTrace('main-clampBall', {
+    ball,
+    requested: origin,
+    canDock,
+    fromTarget: target !== undefined,
+  });
   return { ball, docked: null, ...(side !== undefined ? { dockRefused: true } : {}) };
 }
 
@@ -1109,7 +1198,7 @@ function registerOrbIpc(): void {
   ipcMain.handle('xiangwo:orb-mode', () => [
     orbMode,
     pinned,
-    orbMode === 'panel' ? panelDirection ?? null : null,
+    orbMode === 'panel' ? (panelDirection ?? null) : null,
     orbDocked?.side ?? null,
   ]);
   // [XG-CUSTOM] orb.js 的宿主 API：把 Orb 的 rpc('floating.*') 全接到这里（路由见 xiangwo-orb-api.ts）
@@ -1150,9 +1239,15 @@ export function createXiangwoOrbWindow(openMain: () => void): BrowserWindow {
       : dockedTabBounds(
           savedDock.side,
           savedDock.y,
-          screenBoundsFor({ x: initialBall.x + ORB_BALL_SIZE / 2, y: initialBall.y + ORB_BALL_SIZE / 2 })
+          screenBoundsFor({
+            x: initialBall.x + ORB_BALL_SIZE / 2,
+            y: initialBall.y + ORB_BALL_SIZE / 2,
+          })
         );
-  orbDocked = savedDock === undefined || dockBounds === undefined ? undefined : { ...savedDock, y: dockBounds.y };
+  orbDocked =
+    savedDock === undefined || dockBounds === undefined
+      ? undefined
+      : { ...savedDock, y: dockBounds.y };
   const bounds = dockBounds ?? collapsedBounds(initialBall);
 
   orbWindow = new BrowserWindow({
@@ -1185,6 +1280,19 @@ export function createXiangwoOrbWindow(openMain: () => void): BrowserWindow {
       preload: join(app.getAppPath(), 'out', 'preload', 'index.mjs'),
     },
   });
+  // [XG-CUSTOM 2026-10-05] **屏幕捕获排除自己**（抄上游 orb 的 overlayWindowExcludeIds 语义）：
+  // 球是常驻置顶浮窗，任何截屏/录屏都会把它拍进去（包括 agent 自己的截图工具）。打开内容保护后：
+  //   · Windows 10 2004+ → SetWindowDisplayAffinity(WDA_EXCLUDEFROMCAPTURE)
+  //   · macOS            → NSWindowSharingNone
+  //   · **Linux 不支持**（Electron 只实现 win32/darwin）→ 这里按平台守卫，避免无效调用。
+  // 注意：这会让**用户自己的录屏**里也看不到球 —— 这是"不挡别人画面"的代价，属预期行为。
+  if (process.platform === 'win32' || process.platform === 'darwin') {
+    try {
+      orbWindow.setContentProtection(true);
+    } catch (err) {
+      orbTrace('main-content-protection-skip', { error: String(err) });
+    }
+  }
   presentOverlay(orbWindow);
   // [XG-CUSTOM] 再显式压一次全透明底色（构造参数在部分平台会被默认底色覆盖）
   orbWindow.setBackgroundColor('#00000000');
@@ -1233,6 +1341,35 @@ export function createXiangwoOrbWindow(openMain: () => void): BrowserWindow {
       to: [want.width, want.height],
     });
   });
+  // [XG-CUSTOM 2026-10-05] **显示器变化重夹**（多屏 / 改分辨率 / 拔插外接屏）——
+  // 上游 orb 没有这个监听（实测 0 命中），拔屏后球会留在不存在的坐标上；我们补上。
+  // `display-metrics-changed` 在一次分辨率变化里会连发多次 → 250ms 防抖，避免动画被打断/抖动。
+  {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const onChange = (reason: string) => (): void => {
+      if (timer !== undefined) clearTimeout(timer);
+      timer = setTimeout(() => {
+        timer = undefined;
+        reclampOrbForDisplays(reason);
+      }, 250);
+    };
+    const onAdded = onChange('display-added');
+    const onRemoved = onChange('display-removed');
+    const onMetricsChanged = onChange('display-metrics-changed');
+    screen.on('display-added', onAdded);
+    screen.on('display-removed', onRemoved);
+    screen.on('display-metrics-changed', onMetricsChanged);
+    removeDisplayGuards = (): void => {
+      if (timer !== undefined) {
+        clearTimeout(timer);
+        timer = undefined;
+      }
+      screen.removeListener('display-added', onAdded);
+      screen.removeListener('display-removed', onRemoved);
+      screen.removeListener('display-metrics-changed', onMetricsChanged);
+    };
+  }
+
   // [XG-CUSTOM] 不用 win.on('move'/'moved') 记位置：球现在是自绘指针拖动（orb.js），
   // 位置由渲染进程 orbDrag/orbDragEnd 驱动，收尾时已经会 saveOrbState（球态或停靠态）。
   orbWindow.webContents.on('did-finish-load', () => {
@@ -1245,6 +1382,9 @@ export function createXiangwoOrbWindow(openMain: () => void): BrowserWindow {
     orbWindow = null;
     orbDocked = undefined;
     cancelOrbAnim();
+    // [XG-CUSTOM 2026-10-05] 注销 display 监听（下次重建再注册，防重复注册/泄漏）
+    removeDisplayGuards?.();
+    removeDisplayGuards = undefined;
   });
   orbMode = 'ball';
   return orbWindow;

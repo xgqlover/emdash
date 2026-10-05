@@ -19,7 +19,12 @@ const state = vi.hoisted(() => {
   const userData = { dir: '' };
   const displays: Display[] = [];
   const handlers = new Map<string, (...args: never[]) => unknown>();
-  return { userData, displays, handlers };
+  // [XG-CUSTOM 2026-10-05] screen.on/removeListener 的假实现 + 触发入口（测「显示器变化重夹」）
+  const screenListeners = new Map<string, ((...args: never[]) => void)[]>();
+  const screenEmit = (event: string): void => {
+    for (const fn of screenListeners.get(event) ?? []) fn();
+  };
+  return { userData, displays, handlers, screenListeners, screenEmit };
 });
 
 const PRIMARY: Display = {
@@ -134,6 +139,9 @@ class FakeBrowserWindow {
   setBackgroundColor(): void {}
   setMenuBarVisibility(): void {}
   setVisibleOnAllWorkspaces(): void {}
+  // [XG-CUSTOM 2026-10-05] 球在 win32/darwin 上会开内容保护（屏幕捕获排除自己）；
+  // 真 Electron 一定有这个方法，假窗口补个 no-op。
+  setContentProtection(): void {}
   loadURL(): Promise<void> {
     return Promise.resolve();
   }
@@ -166,6 +174,19 @@ vi.mock('electron', () => ({
           point.y < display.bounds.y + display.bounds.height
       );
       return hit ?? state.displays[0];
+    },
+    // [XG-CUSTOM 2026-10-05] 真实 Electron 的 screen 一定有 on/removeListener；
+    // 之前 mock 没给 → 新加的多屏监听一注册就炸（28 个用例全挂），所以补上。
+    on: (event: string, fn: (...args: never[]) => void): void => {
+      const list = state.screenListeners.get(event) ?? [];
+      list.push(fn);
+      state.screenListeners.set(event, list);
+    },
+    removeListener: (event: string, fn: (...args: never[]) => void): void => {
+      state.screenListeners.set(
+        event,
+        (state.screenListeners.get(event) ?? []).filter((listener) => listener !== fn)
+      );
     },
   },
   BrowserWindow: FakeBrowserWindow,
@@ -236,6 +257,7 @@ beforeEach(async () => {
   // 每个用例都用全新的模块实例（模块级 orbDocked / 窗口引用 / IPC 注册表都要重来）
   vi.resetModules();
   state.handlers.clear();
+  state.screenListeners.clear();
   FakeBrowserWindow.instances.length = 0;
   FakeBrowserWindow.wmClampOffScreen = false;
   FakeBrowserWindow.screenBounds = { ...PRIMARY.bounds };
@@ -257,15 +279,15 @@ describe('xiangwo orb 边缘停靠（主进程）', () => {
     const bounds: Rect = { x: 0, y: 0, width: 1920, height: 1080 };
 
     it('压住右边缘不足球宽 1/5 不吸边', () => {
-      expect(dockSideForBallOrigin({ x: 1920 - ORB_BALL_SIZE + ORB_DOCK_OVERLAP - 1, y: 100 }, bounds)).toBe(
-        undefined
-      );
+      expect(
+        dockSideForBallOrigin({ x: 1920 - ORB_BALL_SIZE + ORB_DOCK_OVERLAP - 1, y: 100 }, bounds)
+      ).toBe(undefined);
     });
 
     it('刚好压住球宽 1/5 就吸边', () => {
-      expect(dockSideForBallOrigin({ x: 1920 - ORB_BALL_SIZE + ORB_DOCK_OVERLAP, y: 100 }, bounds)).toBe(
-        'right'
-      );
+      expect(
+        dockSideForBallOrigin({ x: 1920 - ORB_BALL_SIZE + ORB_DOCK_OVERLAP, y: 100 }, bounds)
+      ).toBe('right');
     });
 
     it('左边缘同理（对称）', () => {
@@ -391,7 +413,11 @@ describe('xiangwo orb 边缘停靠（主进程）', () => {
 
     it('没有拖动过程（直接 clamp）时退回"窗口位置"判定，不会凭空吸边', async () => {
       // 球停在屏内（默认位），直接 floating.clamp：
-      const clamped = await call<{ docked: string | null }>('xiangwo:orb-api', 'floating.clamp', {});
+      const clamped = await call<{ docked: string | null }>(
+        'xiangwo:orb-api',
+        'floating.clamp',
+        {}
+      );
       expect(clamped.docked).toBeNull();
       expect(orb().getBounds().width).toBe(96);
     });
@@ -514,7 +540,9 @@ describe('xiangwo orb 边缘停靠（主进程）', () => {
 
       const bounds = orb().getBounds();
       expect(bounds.width).toBe(96);
-      expect(bounds.x).toBeLessThanOrEqual(PRIMARY.workArea.x + PRIMARY.workArea.width - ORB_BALL_SIZE);
+      expect(bounds.x).toBeLessThanOrEqual(
+        PRIMARY.workArea.x + PRIMARY.workArea.width - ORB_BALL_SIZE
+      );
       expect(savedFile().dock).toBeUndefined();
     });
 
@@ -531,7 +559,11 @@ describe('xiangwo orb 边缘停靠（主进程）', () => {
         `${JSON.stringify({ running: true })}\n`,
         'utf8'
       );
-      const clamped = await call<{ docked: string | null }>('xiangwo:orb-api', 'floating.clamp', {});
+      const clamped = await call<{ docked: string | null }>(
+        'xiangwo:orb-api',
+        'floating.clamp',
+        {}
+      );
       expect(clamped.docked).toBeNull();
       expect(orb().getBounds().width).toBe(96);
     });
@@ -540,7 +572,10 @@ describe('xiangwo orb 边缘停靠（主进程）', () => {
   describe('多显示器', () => {
     it('停靠目标屏 = 球所在那块屏（第二屏的右沿）', async () => {
       state.displays.push(SECONDARY);
-      const result = await dragTo(SECONDARY.bounds.x + SECONDARY.bounds.width - ORB_BALL_SIZE + 20, 200);
+      const result = await dragTo(
+        SECONDARY.bounds.x + SECONDARY.bounds.width - ORB_BALL_SIZE + 20,
+        200
+      );
       expect(result.docked).toBe('right');
       const bounds = orb().getBounds();
       expect(bounds.x).toBe(SECONDARY.bounds.x + SECONDARY.bounds.width - ORB_DOCK_TAB_WIDTH);
@@ -563,11 +598,69 @@ describe('xiangwo orb 边缘停靠（主进程）', () => {
       const win = orb();
       win.sent.length = 0;
       await dragTo(1920 - ORB_BALL_SIZE + 20, 300);
-      expect(win.sent.some((args) => args[0] === 'xiangwo:orb-mode' && args[4] === 'right')).toBe(true);
+      expect(win.sent.some((args) => args[0] === 'xiangwo:orb-mode' && args[4] === 'right')).toBe(
+        true
+      );
 
       win.sent.length = 0;
       await call('xiangwo:orb-api', 'floating.unsnap', {});
-      expect(win.sent.some((args) => args[0] === 'xiangwo:orb-mode' && args[4] === null)).toBe(true);
+      expect(win.sent.some((args) => args[0] === 'xiangwo:orb-mode' && args[4] === null)).toBe(
+        true
+      );
     });
+  });
+});
+
+// [XG-CUSTOM 2026-10-05] 显示器变化重夹：上游 orb 没有 display 事件监听（实测 0 命中），
+// 拔掉球所在的那块屏之后球会留在已经不存在的坐标上（用户看不见球）—— 这两条就是那个补丁的回归网。
+describe('[XG-CUSTOM] 显示器变化后重夹（多屏 / 改分辨率 / 拔插外接屏）', () => {
+  /** 250ms 防抖 + 余量 */
+  const afterDebounce = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 320));
+
+  it('拔掉球所在的外接屏 → 球被夹回主屏 work-area，并写回位置记忆', async () => {
+    const win = orb();
+    const size = win.getBounds().width;
+    state.displays.push(SECONDARY);
+    // 假窗口自己会往 screenBounds 里夹 → 先铺成两屏的并集，才放得到第二块屏上
+    FakeBrowserWindow.screenBounds = { x: 0, y: 0, width: 3200, height: 1080 };
+    win.setBounds({ x: 2500, y: 300, width: size, height: size });
+    expect(win.getBounds().x).toBeGreaterThan(1900);
+
+    // 拔屏：只剩主屏
+    state.displays.length = 0;
+    state.displays.push(PRIMARY);
+    state.screenEmit('display-removed');
+    await afterDebounce();
+
+    const b = win.getBounds();
+    // ⚠️ 断言的是**球**，不是窗口：窗口 = 球 + 一圈 12px 透明 chrome（ORB_CHROME_INSET），
+    // 所以窗口右缘可以合法地探出 work-area 12px（第一版断言写错过：1932 vs 1920）。
+    const ball = { x: b.x + 12, y: b.y + 12 };
+    expect(ball.x).toBeGreaterThanOrEqual(PRIMARY.workArea.x);
+    expect(ball.x + ORB_BALL_SIZE).toBeLessThanOrEqual(PRIMARY.workArea.x + PRIMARY.workArea.width);
+    expect(ball.y + ORB_BALL_SIZE).toBeLessThanOrEqual(
+      PRIMARY.workArea.y + PRIMARY.workArea.height
+    );
+    expect(savedFile().ball?.x).toBeLessThan(1920);
+  });
+
+  it('停靠态遇到显示器变化 → 细条按新屏幕边重算（不会留在旧屏幕坐标上）', async () => {
+    const win = orb();
+    await dragTo(1920 - ORB_BALL_SIZE + 20, 300); // 吸到主屏右沿
+    expect(win.getBounds().width).toBe(ORB_DOCK_TAB_WIDTH);
+
+    // 主屏变窄（模拟改分辨率 / 换屏）
+    state.displays[0] = {
+      bounds: { x: 0, y: 0, width: 1280, height: 720 },
+      workArea: { x: 0, y: 0, width: 1280, height: 700 },
+      scaleFactor: 1,
+    };
+    FakeBrowserWindow.screenBounds = { ...state.displays[0].bounds };
+    state.screenEmit('display-metrics-changed');
+    await afterDebounce();
+
+    // 细条贴的是**屏幕真边**（display.bounds，不是 work-area）
+    expect(win.getBounds().x).toBe(1280 - ORB_DOCK_TAB_WIDTH);
+    expect(win.getBounds().width).toBe(ORB_DOCK_TAB_WIDTH);
   });
 });

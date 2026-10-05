@@ -351,3 +351,44 @@ const url = (await services.forwardManualPreview(port)) ?? 'http://127.0.0.1:<po
 真机上造不出这个前置条件 → GUI 走不到这条分支。
 
 **升级找回**：`grep -rn "restoreFromBackend\|xiangwo-history\|history-restore" apps/emdash-desktop/src apps/emdash-desktop/scripts`
+
+### 17. [XG-CUSTOM 2026-10-05] 球浮窗三补丁（多屏重夹 / 捕获排除）+ 提问卡三语义（上限 / 预选 / 记忆）
+
+**要解决什么**（两条线汇到一起：开源调研 + 当天实测）
+1. **多屏/DPI**：上游 orb **没有任何 display 事件监听**（2026-10-05 实测 `getAllDisplays|display-added|
+   display-removed|display-metrics-changed` 在它的 `floating-window.ts` 与 `main.ts` 里 **0 命中**，只用
+   `getDisplayNearestPoint`）→ **拔掉球所在的那块屏之后，球留在已经不存在的坐标上**（用户看不见球，
+   只能删 `xiangwo-orb.json` 救）。这是我们可以**反超**上游的点。
+2. **屏幕捕获**：球是常驻置顶浮窗 → 任何截屏/录屏都会把它拍进去（包括 agent 自己的截图工具）。
+3. **提问卡**：选项是模型即兴生成的；**没有多选上限**（挑风格能勾满 12 个）、**没有预选/记忆**
+   （每次都要从头点）—— 而 `assistant-ui` 的 `option-list.tsx` 早就把 `defaultValue` + `maxSelections`
+   定成语义了（MIT，抄语义不引库）。
+
+**改法**
+1. `main/host/xiangwo-orb.ts`：新增 `orbBallOrigin()`（窗口 bounds + 窗口内锚点 = 屏幕坐标球原点）+
+   `reclampOrbForDisplays(reason)` —— **停靠态**按新屏幕 `bounds` 重算细条（细条贴屏幕真边）／
+   **球态** `clampBall` 夹回最近 work-area + `saveOrbState` 写回位置记忆／**展开态**只保证整窗在工作区内
+   （不动球锚点，避免面板锚错角）。建窗时注册 `screen.on('display-added'|'display-removed'|
+   'display-metrics-changed')`，**250ms 防抖**（`display-metrics-changed` 一次改分辨率会连发），
+   `closed` 时注销（模块级 `removeDisplayGuards`，防重复注册/泄漏）。
+2. 同文件：win32/darwin 上 `setContentProtection(true)`（Windows `WDA_EXCLUDEFROMCAPTURE`；macOS
+   `NSWindowSharingNone`；**Linux 不支持** → 平台守卫 + try/catch + trace）。
+   ⚠️ 代价是**用户自己的录屏里也看不到球** —— 这是"不挡别人画面"的预期取舍。
+3. `renderer/orb/orb.js`：`normalizeQuestion` 解析 `maxSelections`（上限）与 `defaultValue`
+   （别名 `default`/`preselect`，**只接受 options 里确实存在的 label**，防脏数据造出幽灵已选项）；
+   多选点击**到顶后忽略 + 出「最多选 N 项（先取消一个再选）」**（不静默吞点击）；`draftState` 预选优先级
+   = agent 显式 `preselect` > **上次记忆**；`submitAll` 写入 `localStorage['xg-question-memory']`
+   （按问题 id，最多 60 条，隐私模式/配额失败静默）；`agent.py` 的 `_XG_QUESTION_CARD_INSTRUCTION`
+   补上两个字段的用法说明（模型才知道能用）。
+4. 测试基础设施：`xiangwo-orb.test.ts` 的 `electron.screen` **mock 补 `on`/`removeListener`**（真实 Electron
+   一定有；不补的话新监听一注册就把 28 个用例全带崩）+ 新增 2 条回归用例。
+
+**涉及文件**：`main/host/xiangwo-orb.ts`、`main/host/xiangwo-orb.test.ts`、`renderer/orb/orb.js`、
+`scripts/xiangwo-orb-question-harness.mjs`（新）、`CUSTOMIZATIONS.md`；agent 侧
+`xiangwo-agent/agent.py`（在记忆系统仓）。
+
+**验证**：`vitest run src/main/host/xiangwo-orb.test.ts` → **30 passed**（2 新）；
+`tsgo --noEmit`（browser+node+scripts 三个项目）→ **exit 0**；`oxfmt --check` → clean；
+五个渲染侧 harness 串行跑 → **156 项断言 0 失败**（chat 44 · history 17 · images 47 · selection 39 ·
+**question 9/9 新写**，后者跑的是 `pnpm run build:renderer` 的产物）。
+⚠️ 提问卡此前是**唯一没有测试**的卡片（chat/history/images/selection 都有 harness），第 4 条 harness 就是补这个洞。
