@@ -42,7 +42,7 @@ function currentTaskRef(): TaskRef | undefined {
 /**
  * 这次「从零开页」应该开在哪个 task view 里。
  *
- * [XG-CUSTOM 2026-10-05] **先认 bot 自己的 project** —— 用户明确要求：
+ * [XG-CUSTOM] 2026-10-05 —— **先认 bot 自己的 project** —— 用户明确要求：
  *   在球里 @sxsj 说「打开网址」，就该开在 **sxsj 那个 project 的 task** 里，
  *   而不是「我屏幕上当前正在看哪个 task」。
  *   真机病根（2026-10-05）：用户在球里 @sxsj 打开网址，页落进了 **babado 的「译文」任务** ——
@@ -91,7 +91,7 @@ function resolveTargetTask(botId?: string): { ref: TaskRef; needsNavigation: boo
  * [XG-CUSTOM 2026-10-03] `botId` 也一起透传：开页的 provider 要按它按需建/复用该 bot 的
  * profile（未绑定时建 `bot-<botId>`），否则 agent 用 bot 身份开的页会落到 default，
  * `/json/list` 里 `profile`/`botId` 永远为空。
- * [XG-CUSTOM 2026-10-05] `botId` 同时决定**开在哪个 task 下**（见 `resolveTargetTask`）：
+ * [XG-CUSTOM] 2026-10-05 —— `botId` 同时决定**开在哪个 task 下**（见 `resolveTargetTask`）：
  * 页开进 bot 自己的 project 的 task，而不是用户当前视野里的那个 task。
  */
 export function openEmbeddedBrowserTab(url: string, profileId?: string, botId?: string): boolean {

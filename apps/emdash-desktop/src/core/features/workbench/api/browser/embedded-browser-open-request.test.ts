@@ -150,10 +150,10 @@ describe('[XG-CUSTOM] openEmbeddedBrowserTab（从零开内嵌浏览器页）', 
     expect(mocks.paneOpen).not.toHaveBeenCalled();
   });
 
-  // [XG-CUSTOM 2026-10-05] 「开在 bot 自己的 project/task 下」
+  // [XG-CUSTOM] 2026-10-05 —— 「开在 bot 自己的 project/task 下」
   // 真机病根：用户在球里 @sxsj 打开网址，页落进了 babado 的「译文」任务 —— 旧实现只看
   // 「主窗口当前正在看的 task」，而球面板的请求里没有 task 身份。emdash 里 project.id 就是 botId。
-  describe('[XG-CUSTOM 2026-10-05] botId 决定开在哪个 task 下', () => {
+  describe('[XG-CUSTOM] 2026-10-05 —— botId 决定开在哪个 task 下', () => {
     beforeEach(() => {
       mocks.visibleTaskEntries = [
         { projectId: 'babado', taskId: 'yiven' },
