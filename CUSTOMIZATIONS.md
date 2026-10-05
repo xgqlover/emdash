@@ -630,3 +630,24 @@ app 侧 `deployment-builder` 的 webhook 分支还差一条单测（core 侧已�
 与 **agent 工具**目前**都不带 `presentToUser`** ⇒ 现在实际仍按旧行为（false）。
 要真正修好用户看到的那个现象，需：① 事件 schema 加 `presentToUser` ② agent 侧在"用户要看"时置 true
 （可与 `mu-OPS.md §15.6` 的 `emdash_open` 工具一起做）。渲染侧已就绪，字段一到即生效。
+
+### 22. [XG-CUSTOM 2026-10-05] 球侧动作块 `[XG-ACTION]`（球指挥主界面·客户端的客户端）
+
+**属于**：A 方案三件套里的第 2 件（球渲染侧）。**第 1 件（boot 注入执行器）与第 3 件（agent 工具）仍未做**。
+
+**新增** `renderer/orb/xiangwo-action.ts` + `xiangwo-action.test.ts`（**8 项**）：
+- `parseXiangwoActionBlock(text)`：解析 ```` ```xiangwo-action ```` 块（单个/数组多动作）；
+  **坏 JSON / 缺 id → 跳过不抛**（宁可少做一个动作，也不因一段坏块打断整条回复）
+- `stripXiangwoActionBlocks(text)`：把动作块从正文里去掉（别把 JSON 显示给用户）
+- `runXiangwoAction(action, run)`：交给注入的 `run`（球里 = `orbApi('host.runCommand', …)`）；
+  **不抛** —— 异常收敛成 `{ok:false, reason:'failed'}`；主进程回的 `reason` **原样带出来**
+- `actionFailureText(action, result)`：四种原因（`needs-approval`/`unknown-command`/`unavailable`/其它）
+  → 各一句**不粉饰**的人话（"写操作需要你确认" / "不在可执行清单里，我没做" / "通道还没接上" …）
+
+**三条约定（写进文件头）**：① 声明式（只传 id + 参数，**不传代码**）② **白名单只在服务端**判
+（球侧只校验格式，避免两边漂移）③ 回执如实（不假装成功）。
+
+**验证**：`vitest` **8 项通过** · `tsgo -p tsconfig.browser.json` **0 错误**。
+
+**⚠️ 还没接进 `orb.js` 的解析链**（与 images/mcp/question 三块并列）—— 下一步做，
+连同第 1 件（boot 注入）与第 3 件（agent 工具 + `presentToUser`），做完再 bump `1.2.19` 打一次 exe。
