@@ -603,3 +603,30 @@ app 侧 `deployment-builder` 的 webhook 分支还差一条单测（core 侧已�
    （**preload 无需改**：球已有通用 `orbApi(method,args)` 通道）；
 ③ **agent 侧**：加工具（如 `emdash_action`）+ 工具描述里治**撞名**（"要在用户 emdash 里做 X → 用它，
    别用 `wego.browser_goto`"）—— 即 `mu-OPS.md §15.6` 记的那个缺口。
+
+### 21. [XG-CUSTOM 2026-10-05] 修「agent 开的页只在后台跑、用户看不到」（presentToUser 分叉）
+
+**用户报的真问题**：agent 经 emdash 通道开页**成功**（9223 通道 8.8s 加载成功），
+但**只在后台运行** —— 用户在 emdash 里看不到那个网页界面。
+
+**根因（读代码定位）**：`embedded-browser-open-request.ts::resolveTargetTask(botId)` 带 `botId` 时
+**优先开进 bot 自己的 project 的 task**（注释原话：「页开进 bot 自己的 project 的 task，
+而不是用户当前视野里的那个 task」）。这是**有意的隔离**（agent 自查资料不搅乱用户视图），
+但"**用户要看**"也走同一条路 ⇒ 页开在视野之外。
+
+**修法（把两种意图分开）**：
+1. 决策逻辑抽成**纯函数** `pickTargetTask({presentToUser, current, botEntry, first})`（**可离线测**）：
+   - `presentToUser=true`（用户要求看 / 球上点卡片）→ **开在用户当前 task**；没 task 才退到第一个（且必须导航）
+   - `presentToUser=false`（agent 自用）→ **维持原行为**（bot task 优先 → 当前 → 第一个），零回归
+2. `resolveTargetTask(botId, presentToUser)` 改成**薄适配**（只收集输入）
+3. `openEmbeddedBrowserTab(url, profileId?, botId?, presentToUser)` 加参数并透传
+4. 订阅处从事件读 `presentToUser`（`'presentToUser' in event` 收窄，**不用 any**；字段缺省 = false = 旧行为）
+
+**验证**：新 `embedded-browser-open-request.test.ts` **6 项**
+（presentToUser 优先用户 task / 没 task 退第一个且导航 / 都没有 → undefined / agent 自用仍是 bot task / 已在 bot task 不导航 / 无 botEntry 用当前）；
+`tsgo` browser + node **各 0 错误**。
+
+**⚠️ 还差一步才算端到端**：**主进程生产方**（`requestEmbeddedBrowserOpen` 事件 / agent relay / `[XG-PREVIEW]`）
+与 **agent 工具**目前**都不带 `presentToUser`** ⇒ 现在实际仍按旧行为（false）。
+要真正修好用户看到的那个现象，需：① 事件 schema 加 `presentToUser` ② agent 侧在"用户要看"时置 true
+（可与 `mu-OPS.md §15.6` 的 `emdash_open` 工具一起做）。渲染侧已就绪，字段一到即生效。

@@ -58,28 +58,78 @@ function currentTaskRef(): TaskRef | undefined {
  * 并**导航过去**（"自动出现"必须真上屏：`<webview>` 只有被渲染才会 attach → 才会被绑定）。
  * 一个 task 都没有 → undefined，调用方如实回报失败，不假装成功。
  */
-function resolveTargetTask(botId?: string): { ref: TaskRef; needsNavigation: boolean } | undefined {
-  const current = currentTaskRef();
-  const wanted = typeof botId === 'string' ? botId.trim() : '';
-  if (wanted !== '') {
-    const mine = getSidebarStore().visibleTaskEntries.find((entry) => entry.projectId === wanted);
-    if (mine !== undefined) {
-      const ref = { projectId: mine.projectId, taskId: mine.taskId };
-      const alreadyThere =
-        current !== undefined &&
-        current.projectId === ref.projectId &&
-        current.taskId === ref.taskId;
-      // 不在那儿 → 必须导航过去，否则 <webview> 不会上屏、也就不会被绑定
-      return { ref, needsNavigation: !alreadyThere };
-    }
+/**
+ * [XG-CUSTOM 2026-10-05] **目标 task 的选择（纯函数，可离线测）** —— 从 `resolveTargetTask` 抽出。
+ *
+ * 为什么要有它（用户报的真问题）：agent 经 emdash 通道开页时**只在后台跑、用户看不到**。
+ * 根因：`resolveTargetTask` 带 `botId` 时**优先开进 bot 自己的 task**（隔离设计，本该如此），
+ * 但"**用户要看**"这个场景也走了同一条路 ⇒ 页开在用户视野之外。
+ *
+ * 语义（两种意图分开）：
+ *   · `presentToUser=true`（用户明确要求看 / 球上点击卡片）→ **开在用户当前 task**；
+ *     当前没 task 才退到第一个（且必须导航过去）。
+ *   · `presentToUser=false`（agent 自发查资料）→ **维持原行为**：先 bot 自己的 task（隔离），
+ *     再当前，最后第一个 —— 与改动前逐字节一致。
+ */
+export interface PickTargetTaskInput {
+  /** 用户要求看（true）/ agent 自用（false） */
+  readonly presentToUser: boolean;
+  /** 用户当前视野里的 task */
+  readonly current?: { projectId: string; taskId: string } | undefined;
+  /** 按 botId 找到的、该 bot 自己的 task（隔离用） */
+  readonly botEntry?: { projectId: string; taskId: string } | undefined;
+  /** 兜底：可见的第一个 task */
+  readonly first?: { projectId: string; taskId: string } | undefined;
+}
+
+export interface PickedTargetTask {
+  readonly ref: { projectId: string; taskId: string };
+  readonly needsNavigation: boolean;
+}
+
+export function pickTargetTask(input: PickTargetTaskInput): PickedTargetTask | undefined {
+  const { current, botEntry, first, presentToUser } = input;
+  const same = (
+    a: { projectId: string; taskId: string },
+    b: { projectId: string; taskId: string }
+  ) => a.projectId === b.projectId && a.taskId === b.taskId;
+
+  // ① 用户要看 → 优先当前视野（已经在看的话不需要导航）
+  if (presentToUser) {
+    if (current !== undefined) return { ref: current, needsNavigation: false };
+    if (first !== undefined) return { ref: first, needsNavigation: true };
+    return undefined;
+  }
+
+  // ② agent 自用 → 维持原行为：bot 自己的 task 优先（隔离）
+  if (botEntry !== undefined) {
+    const alreadyThere = current !== undefined && same(current, botEntry);
+    return { ref: botEntry, needsNavigation: !alreadyThere };
   }
   if (current !== undefined) return { ref: current, needsNavigation: false };
-  const first = getSidebarStore().visibleTaskEntries[0];
-  if (first === undefined) return undefined;
-  return {
-    ref: { projectId: first.projectId, taskId: first.taskId },
-    needsNavigation: true,
-  };
+  if (first !== undefined) return { ref: first, needsNavigation: true };
+  return undefined;
+}
+
+function resolveTargetTask(
+  botId?: string,
+  presentToUser = false
+): { ref: TaskRef; needsNavigation: boolean } | undefined {
+  // [XG-CUSTOM 2026-10-05] 决策逻辑抽到纯函数 `pickTargetTask`（可离线测）；
+  // 这里只负责"收集输入"：当前视野 / 按 botId 找到的 bot task / 可见的第一个。
+  const current = currentTaskRef();
+  const wanted = typeof botId === 'string' ? botId.trim() : '';
+  const entries = getSidebarStore().visibleTaskEntries;
+  const mine = wanted === '' ? undefined : entries.find((entry) => entry.projectId === wanted);
+  const first = entries[0];
+  return pickTargetTask({
+    presentToUser,
+    ...(current !== undefined
+      ? { current: { projectId: current.projectId, taskId: current.taskId } }
+      : {}),
+    ...(mine !== undefined ? { botEntry: { projectId: mine.projectId, taskId: mine.taskId } } : {}),
+    ...(first !== undefined ? { first: { projectId: first.projectId, taskId: first.taskId } } : {}),
+  });
 }
 
 /**
@@ -94,8 +144,14 @@ function resolveTargetTask(botId?: string): { ref: TaskRef; needsNavigation: boo
  * [XG-CUSTOM] 2026-10-05 —— `botId` 同时决定**开在哪个 task 下**（见 `resolveTargetTask`）：
  * 页开进 bot 自己的 project 的 task，而不是用户当前视野里的那个 task。
  */
-export function openEmbeddedBrowserTab(url: string, profileId?: string, botId?: string): boolean {
-  const target = resolveTargetTask(botId);
+export function openEmbeddedBrowserTab(
+  url: string,
+  profileId?: string,
+  botId?: string,
+  presentToUser = false
+): boolean {
+  // [XG-CUSTOM 2026-10-05] presentToUser=true（用户要看）→ 开在**用户当前 task**，见 pickTargetTask
+  const target = resolveTargetTask(botId, presentToUser);
   if (target === undefined) {
     console.warn(
       '[XG-CUSTOM] 项我要开内嵌浏览器，但 emdash 里没有任何 task（内嵌浏览器标签页挂在 task view 下）',
@@ -140,7 +196,9 @@ export function useEmbeddedBrowserOpenRequests(): void {
         const off = await client.events.subscribe(undefined, {
           onEvent: (event) => {
             if (event.type !== 'open-in-embedded-browser') return;
-            openEmbeddedBrowserTab(event.url, event.profileId, event.botId);
+            // [XG-CUSTOM 2026-10-05] 用户要看的页 → presentToUser（agent 自用则不带，维持隔离）
+            const present = 'presentToUser' in event && event.presentToUser === true;
+            openEmbeddedBrowserTab(event.url, event.profileId, event.botId, present);
           },
           onGap: () => {},
         });
