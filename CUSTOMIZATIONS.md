@@ -392,3 +392,44 @@ const url = (await services.forwardManualPreview(port)) ?? 'http://127.0.0.1:<po
 五个渲染侧 harness 串行跑 → **156 项断言 0 失败**（chat 44 · history 17 · images 47 · selection 39 ·
 **question 9/9 新写**，后者跑的是 `pnpm run build:renderer` 的产物）。
 ⚠️ 提问卡此前是**唯一没有测试**的卡片（chat/history/images/selection 都有 harness），第 4 条 harness 就是补这个洞。
+
+### 18. [XG-CUSTOM 2026-10-05] 球上的 MCP 双卡：写操作**审批卡** + **工具市场卡**
+
+**要解决什么**（两条都是"看得见/有得选"）：
+1. **写类 MCP 工具一刀切拒绝**：只读档下调 `mcp_call` 调写类工具，`_perm_check_tool()` 只回一句
+   "请把面板权限切到工作区内修改" —— 用户**没有任何选择**（要么去改全局档位，要么放弃）。
+   而球上明明有**提问卡**（选项 + 推荐徽标 + 作答回传），写操作审批正是它该用的地方。
+2. **58 个工具没有任何"一眼看全"的地方**：配置要手改 `~/.xiangwo/mcp.json`，工具要靠 `mcp_list`
+   现查（日志 27 次），调用统计当天才补上（P0-1 留痕）。对照 OpenHands `features/mcp-page/`
+   （installed-server-card / mcp-server-health / save-as-secret-toggle + `mcp-section-filter.ts` 分面过滤）。
+
+**改法**
+1. **审批卡**（`xiangwo-agent/xg_mcp_approval.py`，agent.py 只加 4 处薄接线）：
+   - 复用手搓提问卡协议承载审批语义（**抄 assistant-ui approval-card 的语义，不引库**）：
+     四态/影响面 → 我们用"选项 + detail 摊开 `服务器·工具·参数·为什么`"表达；
+   - **安全核心：审批只对那一个 `server.tool` 生效** —— 选项文字里带完整 key
+     （`批准执行一次：openviking.write`），回传时按 key 精确授予，**批准 A 不能授权 B**；
+   - 两种力度：`批准执行一次`（用完即弃）/ `总是允许`（本进程会话内有效）；
+   - 解析失败 = **不授予**（安全侧失败，宁可再问一次）；`danger-full-access` 档不生效（保持"完全"语义）；
+     workspace-write 档只对写类动作二次确认（`XIANGWO_MCP_APPROVE_WORKSPACE=0` 可关）。
+2. **工具市场卡**（新协议 `xiangwo-mcp`）：
+   - agent 侧 `xiangwo-agent/xg_mcp_market.py` 生成块：服务器 / 传输 / 目标 / 健康 / 工具数 /
+     写类工具 / 调用统计（来自 `xg_mcp_tools` 的留痕）/ **密钥只回显键名**（值在 agent 侧脱敏）；
+   - 渲染侧 `renderer/orb/xiangwo-mcp.ts`（解析 + 卡片 + **分面过滤**：一个输入框同时过滤服务器名与工具名）
+     + `orb.css` 样式 + `orb.js` 接线（解析链：images → **mcp** → question）+ 右键菜单「MCP 工具市场」；
+   - 数据全部来自**已有真源**，不造第二份；默认用目录缓存（**不阻塞**），要现场枚举才 probe。
+
+**涉及文件**：`renderer/orb/xiangwo-mcp.ts`（新）、`xiangwo-mcp.test.ts`（新）、`orb.js`、`orb.css`、
+`main/host/xiangwo-orb-api.ts`（动作类型 + 菜单项）、`scripts/xiangwo-orb-mcp-harness.mjs`（新）；
+agent 侧（记忆系统仓）：`xg_mcp_approval.py`、`xg_mcp_market.py`、`agent.py`、`tools_registry.py`。
+
+**⚠️ 踩坑记录（加工具必须改两张表）**：`tools_registry.py` 里加了 `TOOLS`（描述/参数）**还不够** ——
+`TOOL_CATEGORIES`（场景过滤表）没登记 → 被 `should_list` **静默滤掉**，模型回答"我没有 mcp_market 这个工具"。
+再加 `_PERM_READONLY_TOOLS`（只读档白名单）没加 → 出卡前被"只读档"拦。**两处都补上才生效**（实测各卡一次）。
+
+**验证**：`vitest run src/renderer/orb/xiangwo-mcp.test.ts` → **15 passed**；
+`node scripts/xiangwo-orb-mcp-harness.mjs`（需先 build:renderer）→ **15/15**（含 ★解析链回归：同一条消息里
+市场块 + 提问块 → 两张卡都渲染、正文两块都摘掉）；提问卡 harness **9/9** 回归；`tsgo --noEmit -p tsconfig.browser.json` → exit 0；
+agent 侧端到端：read-only 档调写类工具 → **出审批卡**（`要执行 openviking.forget 吗？` + 影响面 + 三选项），
+带回 `批准执行一次：openviking.forget` → 日志 `[MCP 审批] 已授予 once:…` → **工具真被执行**（留痕 `openviking.forget 756ms 226B`）；
+市场卡实测返回 **3 服务器 / 58 工具 / 写类 17 / 调用 2 次**（密钥只键名）。

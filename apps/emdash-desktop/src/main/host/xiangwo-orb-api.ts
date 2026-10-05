@@ -1,3 +1,5 @@
+import { readFileSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
+import { extname, join } from 'node:path';
 // [XG-CUSTOM] 项我控制球 API 适配层。
 //
 // 移植自开源项目 mini-yifan/deepseek-harness-orb（MIT）的 apps/desktop/renderer/floating.js：
@@ -16,8 +18,6 @@ import {
   type BrowserWindow,
   type MenuItemConstructorOptions,
 } from 'electron';
-import { readFileSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
-import { extname, join } from 'node:path';
 import { log } from '@main/lib/logger';
 
 /** 球相对工作区的展开方向（渲染进程据此加 expand-left/right/up/down 类） */
@@ -104,7 +104,11 @@ const ORB_PERMISSION_FILE = 'xiangwo-orb-permission.json';
  * 里的 dataUrl），上限 2MB；没放就返回空串，球继续用内置的「项」字（不是空白）✓
  */
 const ORB_AVATAR_META_FILE = 'xiangwo-orb-avatar.json';
-const ORB_AVATAR_BYTES = ['xiangwo-orb-avatar.png', 'xiangwo-orb-avatar.gif', 'xiangwo-orb-avatar.webp'];
+const ORB_AVATAR_BYTES = [
+  'xiangwo-orb-avatar.png',
+  'xiangwo-orb-avatar.gif',
+  'xiangwo-orb-avatar.webp',
+];
 const ORB_AVATAR_MAX_BYTES = 2 * 1024 * 1024;
 /**
  * [XG-CUSTOM] 模型选择的落盘文件。**注意**：8900 实测不支持选模型（见 `orbModelCatalog`），
@@ -381,7 +385,10 @@ function isOrbAvatarMime(value: unknown): value is OrbAvatarMime {
  */
 function readAvatarUrl(): string {
   const meta = readJsonObject(orbFile(ORB_AVATAR_META_FILE));
-  if (typeof meta.dataUrl === 'string' && /^data:image\/(?:gif|png|webp);base64,/.test(meta.dataUrl)) {
+  if (
+    typeof meta.dataUrl === 'string' &&
+    /^data:image\/(?:gif|png|webp);base64,/.test(meta.dataUrl)
+  ) {
     return meta.dataUrl;
   }
   const metaMime = isOrbAvatarMime(meta.mime) ? meta.mime : undefined;
@@ -538,7 +545,9 @@ export type OrbContextMenuAction =
   | 'quit'
   | 'pick-avatar'
   | 'restore-avatar'
-  | 'toggle-selection';
+  | 'toggle-selection'
+  // [XG-CUSTOM 2026-10-05] MCP 工具市场（球上渲染成市场卡；数据来自 xiangwo-agent/xg_mcp_market.py）
+  | 'mcp-market';
 
 /** 换头像 / 划词开关要回传的值：`avatarChanged` 让渲染进程知道要不要重刷 `<img id="ball-avatar">` */
 export type OrbContextMenuResult = {
@@ -641,6 +650,9 @@ async function popupOrbContextMenu(
         writeOverlayModelSelection(selection);
       }),
     },
+    { type: 'separator' },
+    // [XG-CUSTOM 2026-10-05] 一眼看全"接了哪些 MCP / 健康吗 / 工具多少 / 调用统计 / 哪些要审批"
+    { label: 'MCP 工具市场', click: pick('mcp-market') },
     { label: '换头像…', click: pick('pick-avatar') },
     {
       label: '恢复默认头像',
@@ -728,7 +740,6 @@ async function pickOrbAvatar(win: BrowserWindow | null): Promise<OrbContextMenuR
   }
   return { action: 'pick-avatar', avatarChanged: true };
 }
-
 
 /**
  * 按 method 路由一次球 API 调用。

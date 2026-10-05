@@ -834,7 +834,6 @@ body:not(.expanded) {
   box-shadow: none !important;
 }
 
-
 /* ─────────────────────────────────────────────────────────────────────────
  * [XG-CUSTOM] 提问卡（补上游被删掉的 #question/.question-card + .question-pager）：
  * agent 在回复里带 fenced JSON 提问块（协议见 orb.js 头部 6)）→ 渲染成这张卡。
@@ -1279,7 +1278,6 @@ body.has-avatar #ball-mark {
   display: none;
 }
 
-
 /* [XG-CUSTOM] 第二行里的 🖼️/📎：跟第一行工具条按钮同观感，但**不做绝对定位**
  * （它们跟着 #options 的 flex 排；第一行那批是 absolute 定位所以不能一起写）。 */
 #image,
@@ -1330,7 +1328,6 @@ body.has-avatar #ball-mark {
 body.drop-active #panel {
   box-shadow: inset 0 0 0 2px var(--pin);
 }
-
 
 /* ─────────────────────────────────────────────────────────────────────────
  * [XG-CUSTOM] agent 网页计数 + 清理菜单（浏览器 page 开太多会把机器拖死）。
@@ -1475,4 +1472,140 @@ body.drop-active #panel {
   font-size: 11px;
   line-height: 1.4;
   color: var(--pin);
+}
+
+/* [XG-CUSTOM 2026-10-05] MCP 工具市场卡（协议 xiangwo-mcp；渲染见 ./xiangwo-mcp.ts）
+ * 风格跟提问卡/图片卡一致：白底 + --border + 14px 圆角；球面板只有 380px 宽，所以一切都要能换行。 */
+.mcp-market {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 92%;
+  margin-top: 8px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: var(--white);
+  color: var(--black);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mcp-market-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mcp-market-title {
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.mcp-market-age {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+/* 分面过滤：一个输入框同时过滤服务器名与工具名 */
+.mcp-market-filter {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 6px 10px;
+  background: var(--input-bg);
+  color: var(--black);
+  font: inherit;
+  font-size: 12px;
+}
+
+.mcp-market-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mcp-server {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px 10px;
+  background: var(--input-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mcp-server-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.mcp-server-name {
+  font-weight: 600;
+  font-size: 12.5px;
+}
+
+.mcp-badge {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 1px 7px;
+  font-size: 11px;
+  background: var(--white);
+  white-space: nowrap;
+}
+
+/* 健康三态：可用 / 退化（枚举失败、有失败调用）/ 未启用 */
+.mcp-health-ok {
+  border-color: var(--pin);
+  color: var(--pin);
+}
+
+.mcp-health-warn {
+  border-color: #c98a00;
+  color: #c98a00;
+}
+
+.mcp-health-off {
+  opacity: 0.55;
+}
+
+.mcp-server-counts {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.mcp-server-target,
+.mcp-server-secrets {
+  font-size: 11px;
+  opacity: 0.65;
+  word-break: break-all;
+}
+
+.mcp-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.mcp-tool {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 11px;
+  background: var(--white);
+  white-space: nowrap;
+}
+
+/* 写类工具：执行前会出审批卡（标题加了 title 提示） */
+.mcp-tool-write {
+  border-color: #c98a00;
+  color: #8a6000;
+}
+
+.mcp-tool-more {
+  opacity: 0.6;
 }

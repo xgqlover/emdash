@@ -117,6 +117,8 @@ import {
   parseXiangwoImagesBlock,
   renderXiangwoImageGrid,
 } from './xiangwo-images';
+// [XG-CUSTOM 2026-10-05] MCP 工具市场卡（协议 xiangwo-mcp；解析/渲染/过滤见 ./xiangwo-mcp.ts）
+import { parseXiangwoMcpBlock, renderXiangwoMcpMarket } from './xiangwo-mcp';
 
 const bridge = window.electronAPI ?? {};
 
@@ -276,7 +278,10 @@ function ballDebug() {
     panelRect:
       panel === null
         ? null
-        : [Math.round(panel.getBoundingClientRect().width), Math.round(panel.getBoundingClientRect().height)],
+        : [
+            Math.round(panel.getBoundingClientRect().width),
+            Math.round(panel.getBoundingClientRect().height),
+          ],
     ball: [Math.round(rect.x), Math.round(rect.y), Math.round(rect.width), Math.round(rect.height)],
     ballPointerEvents: style.pointerEvents,
     // [XG-CUSTOM] TEMP-TRACE：这几项是"球到底画没画"的直接证据
@@ -367,10 +372,19 @@ function normalizeQuestionOption(raw) {
  */
 function normalizeQuestion(raw, index) {
   if (raw === null || typeof raw !== 'object') return undefined;
-  const header = (typeof raw.header === 'string' ? raw.header.trim() : '').slice(0, QUESTION_ITEM_MAX);
-  const question = (typeof raw.question === 'string' ? raw.question.trim() : '').slice(0, QUESTION_TEXT_MAX);
+  const header = (typeof raw.header === 'string' ? raw.header.trim() : '').slice(
+    0,
+    QUESTION_ITEM_MAX
+  );
+  const question = (typeof raw.question === 'string' ? raw.question.trim() : '').slice(
+    0,
+    QUESTION_TEXT_MAX
+  );
   if (header === '' && question === '') return undefined;
-  const detail = (typeof raw.detail === 'string' ? raw.detail.trim() : '').slice(0, QUESTION_TEXT_MAX);
+  const detail = (typeof raw.detail === 'string' ? raw.detail.trim() : '').slice(
+    0,
+    QUESTION_TEXT_MAX
+  );
   const rawId = typeof raw.id === 'string' ? raw.id.trim() : '';
   const options = [];
   if (Array.isArray(raw.options)) {
@@ -816,10 +830,12 @@ async function main() {
         message.role === 'assistant'
           ? parseXiangwoImagesBlock(message.text ?? '')
           : { text: message.text ?? '' };
-      const parsed =
+      const withMcp =
         message.role === 'assistant'
-          ? parseQuestionBlock(withImages.text)
+          ? parseXiangwoMcpBlock(withImages.text)
           : { text: withImages.text };
+      const parsed =
+        message.role === 'assistant' ? parseQuestionBlock(withMcp.text) : { text: withMcp.text };
       if (parsed.text !== '' || message.streaming === true) {
         const bubble = document.createElement('div');
         bubble.className = 'transcript-bubble';
@@ -836,6 +852,10 @@ async function main() {
             bridge,
           })
         );
+      }
+      if (withMcp.market !== undefined) {
+        // [XG-CUSTOM 2026-10-05] MCP 工具市场：服务器卡 + 健康徽标 + 写类标记 + 分面过滤
+        row.append(renderXiangwoMcpMarket(document, withMcp.market));
       }
       if (parsed.question !== undefined) {
         row.append(renderQuestionCard(message, parsed.question));
@@ -1493,7 +1513,12 @@ async function main() {
   // [XG-CUSTOM] 交互模型：单击球 = 切换开/关。收起态 → 打开并保持（pin），展开态 → closePanel()。
   // pin 先本地生效（立刻有描边反馈），再用主进程返回值对账，整体只有一次 IPC 往返 → 跟手。
   async function openPanel() {
-    trace('open-panel', { pinned, expanded, domVisible: panelVisible(), mode: await panelOpenState() });
+    trace('open-panel', {
+      pinned,
+      expanded,
+      domVisible: panelVisible(),
+      mode: await panelOpenState(),
+    });
     if (!pinned) {
       applyPinned(true);
       void bridge.orbTogglePin?.().then((next) => applyPinned(next));
@@ -1502,7 +1527,12 @@ async function main() {
   }
 
   async function closePanel() {
-    trace('close-panel', { pinned, expanded, domVisible: panelVisible(), mode: await panelOpenState() });
+    trace('close-panel', {
+      pinned,
+      expanded,
+      domVisible: panelVisible(),
+      mode: await panelOpenState(),
+    });
     if (pinned) {
       applyPinned(false);
       void bridge.orbTogglePin?.().then((next) => applyPinned(next));
@@ -1921,7 +1951,8 @@ async function main() {
     if (pagesSnapshot.length === 0) {
       const empty = document.createElement('div');
       empty.className = 'pages-empty';
-      empty.textContent = pagesMenuHint.textContent === '' ? '当前没有 agent 打开的网页' : pagesMenuHint.textContent;
+      empty.textContent =
+        pagesMenuHint.textContent === '' ? '当前没有 agent 打开的网页' : pagesMenuHint.textContent;
       pagesMenuList.append(empty);
       if (pagesCloseAll !== null) pagesCloseAll.disabled = true;
       return;
@@ -2071,7 +2102,9 @@ async function main() {
       const anchor = selection.anchorNode;
       const inTranscript =
         anchor !== null &&
-        (transcript.contains(anchor) || transcript === anchor || transcript.contains(anchor.parentNode));
+        (transcript.contains(anchor) ||
+          transcript === anchor ||
+          transcript.contains(anchor.parentNode));
       if (!inTranscript) return undefined;
       const range = selection.getRangeAt(0);
       const rect = range.getBoundingClientRect();
@@ -2170,7 +2203,10 @@ async function main() {
       const maxTop = Math.max(minTop, panelRect.bottom - barHeight - 8);
       const above = found.rect.top - barHeight - 6;
       // 选区上方放不下就翻到下方（仍夹在面板内），永远不越出面板
-      const top = Math.max(minTop, Math.min(above >= minTop ? above : found.rect.bottom + 6, maxTop));
+      const top = Math.max(
+        minTop,
+        Math.min(above >= minTop ? above : found.rect.bottom + 6, maxTop)
+      );
       selectionBar.style.left = `${Math.round(left)}px`;
       selectionBar.style.top = `${Math.round(top)}px`;
       selectionBar.style.visibility = '';
@@ -2539,7 +2575,8 @@ async function main() {
    */
   function editState(target) {
     const element = target instanceof Element ? target : null;
-    const field = element === null ? null : element.closest('input, textarea, [contenteditable="true"]');
+    const field =
+      element === null ? null : element.closest('input, textarea, [contenteditable="true"]');
     const editable =
       field !== null &&
       (field.isContentEditable === true ||
@@ -2575,7 +2612,8 @@ async function main() {
     trace('contextmenu-action', { action });
     if (result !== null && typeof result === 'object') {
       if (result.avatarChanged === true) await refreshAvatar();
-      if (typeof result.message === 'string' && result.message !== '') status.textContent = result.message;
+      if (typeof result.message === 'string' && result.message !== '')
+        status.textContent = result.message;
       if (typeof result.selectionEnabled === 'boolean') {
         selectionToolbarEnabled = result.selectionEnabled;
         status.textContent = result.selectionEnabled ? '划词工具条：已启用' : '划词工具条：已停用';
@@ -2585,8 +2623,12 @@ async function main() {
     else if (action === 'toggle-panel') {
       const { open } = await panelOpenState();
       await (open ? closePanel() : openPanel());
-    }
-    else if (action === 'quit') void bridge.orbQuit?.();
+    } else if (action === 'mcp-market') {
+      // [XG-CUSTOM 2026-10-05] 工具市场：展开面板 + 发一条**能稳定触发 mcp_market** 的消息
+      // （卡片的解析/渲染/过滤见 ./xiangwo-mcp.ts；数据由 agent 侧 xg_mcp_market.py 生成）
+      if (!expanded) await openPanel();
+      void send('打开 MCP 工具市场（调用 mcp_market，把块原样贴出来）');
+    } else if (action === 'quit') void bridge.orbQuit?.();
   }
 
   bridge.onOrbMode?.((mode, isPinned, direction, dockedSide) => {
