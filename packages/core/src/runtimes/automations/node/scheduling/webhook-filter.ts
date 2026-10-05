@@ -30,7 +30,12 @@ type Comparison = {
   value?: string | number | boolean;
 };
 
-type Expr = { kind: 'and' | 'or'; left: Expr; right: Expr } | { kind: 'cmp'; cmp: Comparison };
+// ⚠️ 三个成员分开写（别把 'and'|'or' 塞进同一个成员）：那样判别收窄会失效，
+//    `evaluate()` 里的 `expr.cmp` 会报 TS2339（实测踩到）。
+type Expr =
+  | { kind: 'and'; left: Expr; right: Expr }
+  | { kind: 'or'; left: Expr; right: Expr }
+  | { kind: 'cmp'; cmp: Comparison };
 
 const OPS: Op[] = ['==', '!=', 'contains', 'startsWith', 'endsWith', 'exists', 'notExists'];
 
