@@ -4,7 +4,7 @@
 //      ③ 卡片渲染（标题计数/传输与健康徽标/密钥**只显示键名**/写类工具标记/工具名折叠）
 //      ④ **分面过滤**（一个输入框同时过滤服务器名与工具名）⑤ 落历史紧凑块（裁工具名且仍可解析）
 import { JSDOM } from 'jsdom';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   compactXiangwoMcpBlock,
   normalizeXiangwoMcpMarket,
@@ -221,5 +221,39 @@ describe('xiangwo-mcp 落历史紧凑块', () => {
     expect(reparsed.market?.servers[0].tools).toHaveLength(XIANGWO_MCP_STORE_TOOLS_MAX);
     expect(reparsed.market?.servers[0].toolCount).toBe(60); // 计数不缩水
     expect(reparsed.market?.totals.tools).toBe(60);
+  });
+});
+
+describe('xiangwo-mcp 体检 / 密钥开关', () => {
+  it('密钥键名**默认隐藏**，勾选「显示密钥键名」后才显示', () => {
+    const el = renderXiangwoMcpMarket(doc(), normalizeXiangwoMcpMarket(MARKET)!);
+    const secrets = [...el.querySelectorAll<HTMLElement>('.mcp-server-secrets')];
+    expect(secrets.length).toBeGreaterThan(0);
+    expect(secrets.every((node) => node.hidden)).toBe(true);
+
+    const box = el.querySelector<HTMLInputElement>('.mcp-market-toggle input');
+    expect(box).not.toBeNull();
+    box!.checked = true;
+    box!.dispatchEvent(new (box!.ownerDocument.defaultView as typeof window).Event('change'));
+    expect(secrets.every((node) => !node.hidden)).toBe(true);
+
+    box!.checked = false;
+    box!.dispatchEvent(new (box!.ownerDocument.defaultView as typeof window).Event('change'));
+    expect(secrets.every((node) => node.hidden)).toBe(true);
+  });
+
+  it('「重新体检」按钮把 probe 请求交给 onAction（agent 侧会现场枚举）', () => {
+    const onAction = vi.fn();
+    const el = renderXiangwoMcpMarket(doc(), normalizeXiangwoMcpMarket(MARKET)!, { onAction });
+    const button = el.querySelector<HTMLButtonElement>('.mcp-market-action');
+    expect(button?.textContent).toBe('重新体检');
+    button!.dispatchEvent(
+      new (button!.ownerDocument.defaultView as typeof window).MouseEvent('click', {
+        bubbles: true,
+      })
+    );
+    expect(onAction).toHaveBeenCalledTimes(1);
+    expect(String(onAction.mock.calls[0]![0])).toContain('probe');
+    expect(String(onAction.mock.calls[0]![0])).toContain('mcp_market');
   });
 });

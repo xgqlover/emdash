@@ -548,3 +548,25 @@ app 侧 `deployment-builder` 的 webhook 分支还差一条单测（core 侧已�
 是**惯例如此**（版本号 `-xiangwo` 后缀即标记，历次 bump 都不标注）。
 审计中修掉一个真缺口：`AutomationSettingsFields.tsx` 漏标 → 补上时**第一版把 `//` 注释插进了 JSX 子节点**
 （那里是**文本内容、会被渲染出来**）→ 已改为模块级注释（类型检查不会发现这个问题，属"看起来过了其实脏了"）。
+
+### 19f. [XG-CUSTOM 2026-10-05] 事件触发收尾四项（promptTemplate / builder 单测 / 市场卡体检 / 归一表）
+
+1. **`promptTemplate`（事件载荷进 prompt）** —— `scheduling/webhook-prompt.ts`（新）+ 接线：
+   - 三态：**没配模板 = 原样**（零行为变化）· 有 `{{payload}}` = 替换成**缩进过的 JSON** · 无占位符 = **追加**（不丢事件信息）
+   - 载荷**超长截断**（4000 字符，避免一次事件撑爆上下文）；非 JSON 不炸
+   - 接线：`automationWebhookTriggerSchema.promptTemplate` → app `deployment-builder` → runtime `onEvent`
+     用 `withWebhookPrompt()` 把渲染结果装进**新部署对象**（不改原对象；`configSnapshot` 里因此能看到渲染后的 prompt）
+   - 验证：`webhook-prompt.test.ts` **8 项** + `webhook-intake.test.ts` 加 **2 条端到端**（快照里能看到渲染值 / 没配模板保持原文）
+2. **app 侧 builder 的 webhook 分支单测** —— `deployment-builder.test.ts` 加 **2 条**：
+   webhook → `schedule:null` + `webhook{token,filter,promptTemplate}`；**token 太短 → 拒绝部署**（`invalid-definition/automation_not_configured`）
+3. **工具市场卡「体检 / 密钥开关」**（对 OpenHands `mcp-server-health` + `save-as-secret-toggle` 的等价物）：
+   - **密钥键名默认隐藏**（截图/投屏不该顺手暴露"接了哪些密钥"），勾选「显示密钥键名」才展开
+   - **「重新体检」按钮** → 发一条消息让 agent 走 `mcp_market(probe=true)`（**现场重新枚举**，慢 ~2s；缺省仍用目录缓存不阻塞）
+   - 验证：`xiangwo-mcp.test.ts` **17 项**（+2 新）
+4. **风格池归一表** —— `xiangwo-agent/xg_style_normalize.yaml`（新，17 条映射）+ `xg_style_vocab.py` 读它并注进提示块：
+   `高饱和/撞色→波普` · `复古印刷→复古` · **`强排版/字体→波普`**（若要偏现代主义排版改一行到 极简留白）·
+   `插画/图形→插画` · `侘寂风→日式侘寂` · `中式国风/国风→国潮` · `海报设计→海报` · `VI→VI系统` …
+   - **硬约束（测试强制）**：每个映射目标**必须是 `sxsj-style-tags.yaml` 里真实存在的标签**（写错就静默失效）
+   - 验证：`_test_xg_style_vocab.py` **4/4 组**；真实提示块 621 字符，含 17 条对照
+   - **踩坑**：首版解析器用 `\S+\s*$` 要求"值后就是行尾" → **带行尾注释的映射被静默丢掉**（`高饱和/撞色`、`强排版/字体` 两条），
+     且续行注释被误当映射 → 改为**先剥行尾注释**再解析（测试抓到的）

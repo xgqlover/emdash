@@ -232,4 +232,48 @@ describe('buildAutomationDeployment', () => {
     });
     expect(mocks.resolveWorktreePool).not.toHaveBeenCalled();
   });
+
+  // [XG-CUSTOM 2026-10-05] 事件触发分支：webhook → schedule:null + webhook{token,filter,promptTemplate}
+  it('webhook 触发 → schedule 为 null，并把 token/filter/promptTemplate 带进部署', async () => {
+    mocks.rows.push([
+      {
+        base: JSON.stringify({ baseRemote: 'origin', pushRemote: 'fork' }),
+        shareable: JSON.stringify({ preservePatterns: ['.env.local'] }),
+      },
+    ]);
+    const result = await buildAutomationDeployment(dependencies, {
+      ...automationFixture(),
+      triggerConfig: {
+        kind: 'webhook',
+        token: 'token-1234567890',
+        filter: 'action == "opened"',
+        promptTemplate: '处理：{{payload}}',
+      },
+    });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect(result.data.schedule).toBeNull();
+    expect(result.data.webhook).toMatchObject({
+      token: 'token-1234567890',
+      filter: 'action == "opened"',
+      promptTemplate: '处理：{{payload}}',
+    });
+  });
+
+  it('webhook 触发但 token 太短 → 拒绝部署（不给"开个裸接口"的配置）', async () => {
+    mocks.rows.push([
+      {
+        base: JSON.stringify({ baseRemote: 'origin', pushRemote: 'fork' }),
+        shareable: JSON.stringify({ preservePatterns: ['.env.local'] }),
+      },
+    ]);
+    const result = await buildAutomationDeployment(dependencies, {
+      ...automationFixture(),
+      triggerConfig: { kind: 'webhook', token: 'short' },
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.error).toMatchObject({ type: 'invalid-definition', reason: 'automation_not_configured' });
+  });
+
 });

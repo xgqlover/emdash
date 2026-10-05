@@ -202,6 +202,7 @@ async function buildAutomationDeploymentOnce(
       webhook: {
         token: (automation.triggerConfig.token ?? '').trim(),
         filter: automation.triggerConfig.filter,
+        promptTemplate: automation.triggerConfig.promptTemplate,
       },
       agent,
       workspace,

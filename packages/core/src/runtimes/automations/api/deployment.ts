@@ -94,6 +94,11 @@ export const automationWebhookTriggerSchema = z.object({
   token: nonBlankStringSchema,
   /** 受限过滤表达式（见 node/scheduling/webhook-filter.ts）；缺省 = 全匹配 */
   filter: z.string().optional(),
+  /**
+   * [XG-CUSTOM 2026-10-05] prompt 模板：用 `{{payload}}` 把事件载荷注进 prompt。
+   * 没配 → 原样用部署自带的 prompt（零行为变化）；配了没占位符 → 载荷**追加**在后面。
+   */
+  promptTemplate: z.string().optional(),
 });
 
 export const automationDeploymentSchema = z.object({

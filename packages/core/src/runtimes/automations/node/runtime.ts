@@ -40,6 +40,7 @@ import { AutomationRunTransitions, type OnRunChanged } from './runs/transitions'
 import { validateAutomationSchedule } from './scheduling/cron';
 import { AutomationScheduler } from './scheduling/scheduler';
 import { parseWebhookFilter } from './scheduling/webhook-filter';
+import { withWebhookPrompt } from './scheduling/webhook-prompt';
 import { AutomationWebhookServer, type WebhookTarget } from './webhook-server';
 
 export type AutomationsRuntimeOptions = {
@@ -100,10 +101,11 @@ export class AutomationsRuntime {
     // 命中后与"手动点一下"走同一条造 run 的路，但来源记成 `webhook`（便于排查"谁触发的"）。
     this.webhookServer = new AutomationWebhookServer({
       listTargets: () => this.webhookTargets(),
-      onEvent: (target) => {
+      onEvent: (target, payloadText) => {
         const deployment = this.deploymentStore.getDeployment(target.automationId);
         if (!deployment || !deployment.enabled) return;
-        this.scheduler.runNow(deployment, 'webhook');
+        // [XG-CUSTOM 2026-10-05] 把事件载荷按 `promptTemplate` 渲染进 prompt（没配模板 → 原样）
+        this.scheduler.runNow(withWebhookPrompt(deployment, payloadText), 'webhook');
       },
       logger,
       port: options.webhookPort,

@@ -174,7 +174,16 @@ export function summarizeXiangwoMcpMarket(market: XiangwoMcpMarket): string {
 }
 
 /** 渲染市场卡片（含**分面过滤**：一个输入框同时过滤服务器与工具名） */
-export function renderXiangwoMcpMarket(doc: Document, market: XiangwoMcpMarket): HTMLElement {
+export type XiangwoMcpCardOptions = {
+  /** 「重新体检」按钮 → 交给调用方发一条消息（agent 侧 `mcp_market(probe=true)` 会现场枚举） */
+  onAction?: (text: string) => void;
+};
+
+export function renderXiangwoMcpMarket(
+  doc: Document,
+  market: XiangwoMcpMarket,
+  options: XiangwoMcpCardOptions = {}
+): HTMLElement {
   const root = doc.createElement('div');
   root.className = 'mcp-market';
 
@@ -243,6 +252,9 @@ export function renderXiangwoMcpMarket(doc: Document, market: XiangwoMcpMarket):
     if (server.secretKeys.length > 0) {
       const secrets = doc.createElement('div');
       secrets.className = 'mcp-server-secrets';
+      // [XG-CUSTOM 2026-10-05] 密钥键名**默认隐藏**（截图/投屏时不该顺手暴露"接了哪些密钥"），
+      // 需要时用底部的「显示密钥键名」勾选框打开。
+      secrets.hidden = true;
       // 只显示**键名**：值在 agent 侧已脱敏，这里也不回显
       secrets.textContent = `密钥：${server.secretKeys.join('、')}`;
       card.append(secrets);
@@ -274,6 +286,31 @@ export function renderXiangwoMcpMarket(doc: Document, market: XiangwoMcpMarket):
     });
   }
   root.append(body);
+
+  // [XG-CUSTOM 2026-10-05] 体检 / 密钥开关（照 OpenHands mcp-server-health + save-as-secret-toggle 的语义）
+  const footer = doc.createElement('div');
+  footer.className = 'mcp-market-actions';
+  const probe = doc.createElement('button');
+  probe.type = 'button';
+  probe.className = 'mcp-market-action';
+  probe.textContent = '重新体检';
+  probe.addEventListener('click', () => {
+    options.onAction?.('刷新 MCP 工具市场（调用 mcp_market 且 probe=true，把块原样贴出来）');
+  });
+  const secretsToggle = doc.createElement('label');
+  secretsToggle.className = 'mcp-market-toggle';
+  const secretsBox = doc.createElement('input');
+  secretsBox.type = 'checkbox';
+  const secretsText = doc.createElement('span');
+  secretsText.textContent = '显示密钥键名';
+  secretsToggle.append(secretsBox, secretsText);
+  secretsBox.addEventListener('change', () => {
+    for (const el of root.querySelectorAll<HTMLElement>('.mcp-server-secrets')) {
+      el.hidden = !secretsBox.checked;
+    }
+  });
+  footer.append(probe, secretsToggle);
+  root.append(footer);
 
   filter.addEventListener('input', () => {
     const needle = filter.value.trim().toLowerCase();

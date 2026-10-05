@@ -148,6 +148,30 @@ describe('事件触发摄取端 ↔ AutomationsRuntime', () => {
     expect(runs[0]).toMatchObject({ automationId: 'auto-hook', triggerKind: 'webhook' });
   });
 
+  it('配了 promptTemplate → 事件载荷被渲染进 run 的 prompt（快照里可见）', async () => {
+    await runtime.deploy(
+      webhookDeployment({
+        webhook: { token: TOKEN, promptTemplate: '处理事件：\n{{payload}}' },
+      })
+    );
+    const port = runtime.webhookListeningPort;
+    expect(await postEvent(port, 'auto-hook', { token: TOKEN, body: '{"action":"opened"}' })).toBe(202);
+    const runs = runsOf('auto-hook');
+    expect(runs).toHaveLength(1);
+    const snapshot = runs[0]!.configSnapshot as { agent?: { start?: { initialQueue?: { text?: string }[] } } };
+    const prompt = snapshot.agent?.start?.initialQueue?.[0]?.text ?? '';
+    expect(prompt).toContain('处理事件：');
+    expect(prompt).toContain('"action": "opened"');
+    expect(prompt).not.toContain('{{payload}}');
+  });
+
+  it('没配 promptTemplate → prompt 保持部署自带的原文（零行为变化）', async () => {
+    await runtime.deploy(webhookDeployment());
+    await postEvent(runtime.webhookListeningPort, 'auto-hook', { token: TOKEN });
+    const snapshot = runsOf('auto-hook')[0]!.configSnapshot as { agent?: { start?: { initialQueue?: { text?: string }[] } } };
+    expect(snapshot.agent?.start?.initialQueue?.[0]?.text).toBe('Handle the event');
+  });
+
   it('过滤不匹配 → 204 且**不产生 run**', async () => {
     const port = (await runtime.deploy(webhookDeployment()), runtime.webhookListeningPort);
     expect(await postEvent(port, 'auto-hook', { token: TOKEN, body: '{"action":"closed"}' })).toBe(

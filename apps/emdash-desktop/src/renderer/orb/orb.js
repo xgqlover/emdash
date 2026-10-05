@@ -855,7 +855,10 @@ async function main() {
       }
       if (withMcp.market !== undefined) {
         // [XG-CUSTOM 2026-10-05] MCP 工具市场：服务器卡 + 健康徽标 + 写类标记 + 分面过滤
-        row.append(renderXiangwoMcpMarket(document, withMcp.market));
+        renderXiangwoMcpMarket(document, withMcp.market, {
+          // [XG-CUSTOM 2026-10-05] 卡片上的「重新体检」按钮 → 发一条消息让 agent 现场枚举（probe=true）
+          onAction: (text) => void send(text),
+        });
       }
       if (parsed.question !== undefined) {
         row.append(renderQuestionCard(message, parsed.question));
