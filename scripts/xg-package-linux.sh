@@ -73,13 +73,29 @@ fi
 echo "   ✅ 顶层包 $TOP ≥ $EXPECT_TOP，且 @emdash/core 在包里"
 
 echo "=== ⑤ 原子替换（先备份在用的那份，名字带 .bak- 不会被 pre-check 当脏）==="
+# ⚠️ 必须用 `mv`（rename）而不是就地覆盖：正在跑的实例把 AppImage 以 FUSE 只读挂载着，
+#    覆盖同一 inode 会让它的后续读失败（可能崩）；rename 只换目录项，**跑着的旧实例照旧活着**，
+#    等 `systemctl --user restart emdash` 或下次登录才切到新包（2026-10-05 实测：12:17 替换时
+#    11:38 起的那个实例继续正常工作）。
 REL="$APP_ABS/release"
+KEEP_BAK=${XG_KEEP_BAK:-3}                # 只留最近 N 份备份（每份 ~320MB，别把盘堆满）
 if [ -f "$REL/emdash-x86_64.AppImage" ]; then
   BAK="$REL/emdash-x86_64.AppImage.bak-$(date +%Y%m%d-%H%M)"
   cp -p "$REL/emdash-x86_64.AppImage" "$BAK" && echo "   旧包备份 → $BAK"
 fi
 mv -f "$PKG" "$REL/emdash-x86_64.AppImage" || { echo "❌ 替换失败"; exit 1; }
 rm -rf "$APP_ABS/release-new"          # 收走解包目录（~1GB），别堆在仓库里
+# 备份只留最近 KEEP_BAK 份（按 mtime；`ls -t` 不认 `--time-style`，这里只用路径）
+ls -t "$REL"/emdash-x86_64.AppImage.bak-* 2>/dev/null | tail -n "+$((KEEP_BAK + 1))" | while read -r old; do
+  rm -f "$old" && echo "   清理旧备份（只留最近 $KEEP_BAK 份）→ $(basename "$old")"
+done
+# 清掉「被 kill -9 / 异常退出」留下的 FUSE 挂载点（活着的实例别动）
+for m in $(mount | awk '/mount_emdash/ {print $3}'); do
+  pid=$(ls -l /proc/*/exe 2>/dev/null | grep -c "$m" || true)
+  if [ "${pid:-0}" -eq 0 ]; then
+    (fusermount3 -u "$m" 2>/dev/null || fusermount -u "$m" 2>/dev/null) && echo "   清掉残留挂载 $m"
+  fi
+done
 ls -l --time-style=+%m-%d\ %H:%M "$REL/emdash-x86_64.AppImage"
 md5sum "$REL/emdash-x86_64.AppImage"
-echo "=== ✅ 完成（重启 emdash 才生效；旧包备份可随时换回）==="
+echo "=== ✅ 完成。让新包生效： systemctl --user restart emdash   （⚠️ 别 kill，Restart=always 会立刻拉回旧 PID）==="
