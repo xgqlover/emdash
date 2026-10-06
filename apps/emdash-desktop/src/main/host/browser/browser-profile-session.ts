@@ -16,7 +16,7 @@ import {
 // [XG-CUSTOM] bot ⟷ profile 绑定快照（设置 → 浏览器的 profiles[].botId）
 import { setXiangwoBrowserProfileBindings } from './xiangwo-bot-browser-profile';
 // [XG-CUSTOM] 内嵌浏览器代理解析（env → 配置文件 → 非 Linux 缺省；见该文件头）
-import { resolveXiangwoBrowserProxy } from './xiangwo-browser-proxy';
+import { resolveXiangwoBrowserProxy, systemProxyIsConfigured } from './xiangwo-browser-proxy';
 
 // Web permissions the embedded browser may use without asking. Everything else
 // (camera, microphone, geolocation, notifications, USB/HID/serial, …) is denied:
@@ -63,26 +63,45 @@ export function configureBrowserProfileSession(partition: string): Session {
   //   = 「跟随系统代理」。我们以前"不调 setProxy"来表示 off，其实那也是**跟随系统** —— 说一套做一套。
   //   现在：`proxy` → setProxy({proxyRules})；`off` → setProxy({mode:'direct'})（真直连）；
   //   `system` → setProxy({mode:'system'})（明确跟随系统，等于上游行为）。
+  //   [XG-CUSTOM] 2026-10-06 **B 方案（系统优先）**：只有"什么都没显式配"（source==='default'）时，
+  //   先问一句系统有没有代理（`ses.resolveProxy`）—— 有就**跟随系统**（用户的梯子立刻生效 = 上游行为），
+  //   没有才回落我们那条 socks5 缺省。显式配的（env / 配置文件）永远赢。
   if (browserProxy !== undefined) {
-    const { proxy, mode, source } = browserProxy;
-    const config =
-      mode === 'proxy'
-        ? { proxyRules: proxy ?? '' }
-        : mode === 'direct'
-          ? { mode: 'direct' as const }
-          : { mode: 'system' as const };
-    ses
-      .setProxy(config)
-      .then(() => {
-        log.info('Browser proxy applied', { mode, proxy, source });
-      })
-      .catch((error: unknown) => {
-        log.warn('Browser proxy setup failed (keeping current connection settings)', {
-          mode,
-          proxy,
-          error: String(error),
-        });
+    void (async () => {
+      let mode = browserProxy.mode;
+      let proxy = browserProxy.proxy;
+      const source = browserProxy.source;
+      if (source === 'default') {
+        try {
+          const probe = await ses.resolveProxy('https://github.com/');
+          if (systemProxyIsConfigured(probe)) {
+            mode = 'system';
+            proxy = undefined;
+            log.info('Browser proxy: 系统已有代理 → 跟随系统（不覆盖用户自己的梯子）', {
+              probe: String(probe).slice(0, 120),
+            });
+          } else {
+            log.info('Browser proxy: 系统没有代理 → 用内置 socks5 缺省', {
+              probe: String(probe).slice(0, 60),
+            });
+          }
+        } catch (error: unknown) {
+          log.warn('Browser proxy: 系统代理探测失败，按缺省处理', { error: String(error) });
+        }
+      }
+      const config =
+        mode === 'proxy'
+          ? { proxyRules: proxy ?? '' }
+          : mode === 'direct'
+            ? { mode: 'direct' as const }
+            : { mode: 'system' as const };
+      await ses.setProxy(config);
+      log.info('Browser proxy applied', { mode, proxy, source });
+    })().catch((error: unknown) => {
+      log.warn('Browser proxy setup failed (keeping current connection settings)', {
+        error: String(error),
       });
+    });
   }
 
   ses.setUserAgent(stripEmbeddedBrowserTokens(ses.getUserAgent(), app.getName()));

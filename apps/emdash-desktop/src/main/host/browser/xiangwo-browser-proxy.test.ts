@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   resolveXiangwoBrowserProxy,
   XIANGWO_BROWSER_PROXY_DEFAULT,
+  applySystemFirstDefault,
+  systemProxyIsConfigured,
   XIANGWO_BROWSER_PROXY_ENV,
   XIANGWO_BROWSER_PROXY_FILE,
 } from './xiangwo-browser-proxy';
@@ -174,5 +176,53 @@ describe('system / direct 两种显式语义', () => {
         readConfigFile: () => undefined,
       })
     ).toEqual({ proxy: XIANGWO_BROWSER_PROXY_DEFAULT, mode: 'proxy', source: 'default' });
+  });
+});
+
+// ── [XG-CUSTOM] 2026-10-06 「系统优先」（B 方案）：判系统有没有代理 + 决定最终走哪条 ──
+describe('systemProxyIsConfigured / applySystemFirstDefault（系统优先）', () => {
+  it('resolveProxy 结果解析：DIRECT 不算、任何非 DIRECT 段都算', () => {
+    expect(systemProxyIsConfigured('DIRECT')).toBe(false);
+    expect(systemProxyIsConfigured('')).toBe(false);
+    expect(systemProxyIsConfigured(undefined)).toBe(false);
+    expect(systemProxyIsConfigured('PROXY 127.0.0.1:7890')).toBe(true);
+    expect(systemProxyIsConfigured('SOCKS5 127.0.0.1:1080')).toBe(true);
+    expect(systemProxyIsConfigured('PROXY a:1; PROXY b:2')).toBe(true);
+    expect(systemProxyIsConfigured('DIRECT; PROXY c:3')).toBe(true);
+    expect(systemProxyIsConfigured('direct; ')).toBe(false);
+  });
+
+  it('系统有代理 + 什么都没配 → **跟随系统**（用户的梯子生效）', () => {
+    const settings = {
+      proxy: XIANGWO_BROWSER_PROXY_DEFAULT,
+      mode: 'proxy' as const,
+      source: 'default' as const,
+    };
+    expect(applySystemFirstDefault(settings, true)).toEqual({
+      proxy: undefined,
+      mode: 'system',
+      source: 'default',
+    });
+  });
+
+  it('系统没代理 + 什么都没配 → 保留内置 socks5 缺省（零回归）', () => {
+    const settings = {
+      proxy: XIANGWO_BROWSER_PROXY_DEFAULT,
+      mode: 'proxy' as const,
+      source: 'default' as const,
+    };
+    expect(applySystemFirstDefault(settings, false)).toEqual(settings);
+  });
+
+  it('**显式配的永远赢**：env / file 不受系统探测影响', () => {
+    for (const source of ['env', 'file'] as const) {
+      const settings = { proxy: 'socks5://1.2.3.4:1080', mode: 'proxy' as const, source };
+      expect(applySystemFirstDefault(settings, true)).toEqual(settings);
+      expect(applySystemFirstDefault(settings, false)).toEqual(settings);
+    }
+  });
+
+  it('都没解析出来（undefined）→ 仍是 undefined', () => {
+    expect(applySystemFirstDefault(undefined, true)).toBeUndefined();
   });
 });

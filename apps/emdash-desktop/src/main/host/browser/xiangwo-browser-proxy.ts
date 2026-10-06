@@ -135,6 +135,44 @@ function fromConfigFile(deps: XiangwoBrowserProxyDeps): XiangwoBrowserProxySetti
 }
 
 /**
+ * [XG-CUSTOM] 2026-10-06 —— **判"系统里到底有没有代理"**（喂 Electron `ses.resolveProxy(url)` 的结果串）。
+ *
+ * 为什么要判：用户 Windows 上**很可能已经有**一套能上外网的代理/梯子，而上游 emdash 的内嵌浏览器
+ * 是"跟随系统代理"（它浏览器侧没有代理代码）。我们以前的缺省硬把流量拽到 Linux 的 socks5，等于把它架空。
+ * 现在缺省改成「**系统有代理就跟随系统；没有才回落我们那条 socks5**」——判定就在这个纯函数里。
+ *
+ * `resolveProxy` 的返回形态（Electron 文档 / 实测）：
+ *   `"DIRECT"` · `"PROXY 127.0.0.1:7890"` · `"SOCKS5 127.0.0.1:1080"` · `"PROXY a:1; PROXY b:2"` · `"DIRECT; PROXY c:3"`
+ * 语义：**只要有一段不是 DIRECT，就算"系统配了代理"**。
+ */
+export function systemProxyIsConfigured(probe: unknown): boolean {
+  const text = typeof probe === 'string' ? probe.trim() : '';
+  if (text === '') return false;
+  return text
+    .split(';')
+    .map((part) => part.trim().toUpperCase())
+    .some((part) => part !== '' && part !== 'DIRECT');
+}
+
+/**
+ * [XG-CUSTOM] 2026-10-06 —— 「**系统代理优先，没有才回落我们的缺省**」（用户 2026-10-06 拍板 B）。
+ *
+ * 只对 `source === 'default'`（即**什么都没显式配**）生效：
+ *   · 环境变量 / 配置文件配过（`env` / `file`）→ **原样返回**，显式永远赢；
+ *   · 系统有代理 → 改成 `mode: 'system'`（Electron 跟随系统 = 上游行为）；
+ *   · 系统没代理 → 保留我们的 socks5 缺省（不与改动前的行为分叉）。
+ */
+export function applySystemFirstDefault(
+  settings: XiangwoBrowserProxySettings | undefined,
+  systemHasProxy: boolean
+): XiangwoBrowserProxySettings | undefined {
+  if (settings === undefined) return undefined;
+  if (settings.source !== 'default') return settings;
+  if (!systemHasProxy) return settings;
+  return { proxy: undefined, mode: 'system', source: 'default' };
+}
+
+/**
  * 解析内嵌浏览器代理（见文件头优先级）。
  * @param deps 依赖（单测注入；缺省读 process.env / process.platform）
  * @returns `undefined` = 什么都没配（直连）；`proxy: undefined` = 显式关闭（直连，且不套缺省）

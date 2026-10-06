@@ -816,8 +816,10 @@ grep -n "HTTP_PROXY\|HTTPS_PROXY\|ALL_PROXY\|NO_PROXY" packages/core/src/primiti
 - `off/none/direct/no/0/false` ⇒ **`setProxy({mode:'direct'})`**（真直连）。
   ⚠️ 旧代码这里是"**不调** setProxy" ⇒ 那其实是 **跟随系统** —— 说一套做一套，本轮修掉；
 - **新增** `system/auto/default/os/sys` ⇒ **`setProxy({mode:'system'})`**（= 上游行为）；
-- `socks5://…`/`http://…` ⇒ `setProxy({proxyRules})`（不变）；**什么都不配且非 Linux** ⇒ 仍是那条 socks5 缺省
-  （**本轮不动缺省**，零回归；要不要改成"系统优先、没有才回落"是另一个决定）。
+- `socks5://…`/`http://…` ⇒ `setProxy({proxyRules})`（不变）；
+- **[B 方案，用户 10-06 拍板] 什么都不配且非 Linux ⇒ 系统优先**：先 `ses.resolveProxy('https://github.com/')`
+  探一句（`systemProxyIsConfigured()`），**系统有代理 → `mode:'system'`（跟随系统 = 上游行为，用户的梯子立刻生效）**；
+  系统没有 → 才用我们那条 socks5 缺省。显式配的（env / 配置文件）**永远赢**（`applySystemFirstDefault()` 纯函数，可离线测）。
 
 **验证**：`vitest --project node xiangwo-browser-proxy.test.ts` → **12 passed**
 （含新增 5 条：`system` / `auto|default|os|SYS` / 配置文件 `system` / `off`=direct / 缺省零回归）；
