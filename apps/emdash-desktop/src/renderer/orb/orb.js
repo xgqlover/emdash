@@ -1,6 +1,7 @@
 // [XG-CUSTOM 2026-10-05] 动作块（球指挥主界面：`[XG-ACTION]`→ host.runCommand；协议见 ./xiangwo-action.ts）
 import {
   actionFailureText,
+  dropOpenUrlActionsAlreadyOpened,
   openXiangwoUrls,
   parseXiangwoActionBlock,
   parseXiangwoOpenUrlBlock,
@@ -911,7 +912,12 @@ async function main() {
           transcript.scrollTop = transcript.scrollHeight;
         });
       }
-      for (const action of actions) {
+      // [XG-CUSTOM] 2026-10-06 「球开网页」收敛：`xiangwo-open-url` 块**已经开过**的 URL，
+      //   直连表那份（`xiangwo-action` + id=host.openEmbeddedBrowser）**不再重复开** ——
+      //   两套机制最后都调同一个 `host.openEmbeddedBrowser`，不去重就会开两个标签页。
+      //   只按 URL 去重、只对"开网页"这一个 id 生效（别的动作零影响）。
+      const actionsToRun = dropOpenUrlActionsAlreadyOpened(actions, openUrls);
+      for (const action of actionsToRun) {
         void runXiangwoAction(action, (method, payload) => {
           const call = bridge.orbApi;
           return typeof call === 'function'

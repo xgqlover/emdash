@@ -142,6 +142,44 @@ export async function runXiangwoAction(
   }
 }
 
+/**
+ * [XG-CUSTOM] 2026-10-06 —— 「球开网页」**收敛成一套**：同一条回复里两种块都出现时，**只开一次**。
+ *
+ * 背景：渲染侧现在同时认两种块，而它们最后都调同一个 `host.openEmbeddedBrowser`：
+ *   ① ` ```xiangwo-open-url ` 块（方案 A，修复文档点名的写法）→ `openXiangwoUrls()`
+ *   ② ` ```xiangwo-action {"id":"host.openEmbeddedBrowser","args":{"url":…}}` → 直连表 → `runXiangwoAction()`
+ * 模型若把两种块都发出来（或同一个 URL 发两遍），页会被开两遍 —— 多一个标签页。
+ *
+ * 语义（只做过滤，不改顺序、不改对象）：
+ *   · **只对"开网页"这一个 id 生效**，别的动作（`app.settings` 之类）原样返回，零影响；
+ *   · URL 空/不合法/不在 `openedUrls` 里 → **保留**（该开的还是要开）；
+ *   · `openedUrls` 为空 → 原样返回（调用方零回归）。
+ *
+ * 现在的分工（**一套**）：agent 语言侧只发 ①/② 中**一种**（当前发 ②，因为用户手上的 exe
+ * 里还没有 ① 的解析器；下次打包后可切到 ①），渲染侧两种都认 + 这里去重。
+ */
+export function dropOpenUrlActionsAlreadyOpened(
+  actions: readonly XiangwoAction[],
+  openedUrls: readonly string[]
+): XiangwoAction[] {
+  if (actions.length === 0 || openedUrls.length === 0) return [...actions];
+  const opened = new Set(
+    openedUrls.map((u) => (typeof u === 'string' ? u.trim() : '')).filter((u) => u !== '')
+  );
+  if (opened.size === 0) return [...actions];
+  return actions.filter((action) => {
+    if (action.id !== XIANGWO_OPEN_EMBEDDED_BROWSER_ID) return true;
+    const args = action.args;
+    const url =
+      typeof args === 'object' &&
+      args !== null &&
+      typeof (args as Record<string, unknown>).url === 'string'
+        ? ((args as Record<string, unknown>).url as string).trim()
+        : '';
+    return !(url !== '' && opened.has(url));
+  });
+}
+
 /** 失败原因 → 给用户看的一句话（不粉饰）。 */
 export function actionFailureText(action: XiangwoAction, result: XiangwoActionResult): string {
   // [XG-CUSTOM] 2026-10-06 开网页这条路的两种失败要单独说清（别的动作走原来的话术，零回归）。

@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   actionFailureText,
+  dropOpenUrlActionsAlreadyOpened,
   openXiangwoUrls,
   parseXiangwoOpenUrlBlock,
   stripXiangwoOpenUrlBlocks,
@@ -246,5 +247,86 @@ describe('xiangwo-open-url（方案 A）', () => {
     expect(boom.ok).toBe(false);
     expect(boom.reason).toBe('failed');
     expect(await openXiangwoUrls([], async () => ({ ok: true }))).toEqual({ ok: true });
+  });
+});
+
+// ── [XG-CUSTOM 2026-10-06] 「球开网页」收敛：两种块都出现时只开一次 ──
+describe('dropOpenUrlActionsAlreadyOpened（收敛：防开两次）', () => {
+  const openAction = (url: string) => ({
+    id: XIANGWO_OPEN_EMBEDDED_BROWSER_ID,
+    args: { url },
+  });
+
+  it('open-url 块开过的同一个 URL → 直连表那份被丢掉', () => {
+    const acts = [openAction('https://a.example/x')];
+    expect(dropOpenUrlActionsAlreadyOpened(acts, ['https://a.example/x'])).toEqual([]);
+  });
+
+  it('URL 不同（或带/不带空白）→ 都保留（该开的还得开）', () => {
+    const acts = [openAction('https://a.example/x'), openAction('https://b.example/y')];
+    const kept = dropOpenUrlActionsAlreadyOpened(acts, ['https://b.example/y']);
+    expect(kept.map((a) => (a.args as { url: string }).url)).toEqual(['https://a.example/x']);
+  });
+
+  it('空白差异也算同一个 URL（trim 后比较）', () => {
+    expect(
+      dropOpenUrlActionsAlreadyOpened(
+        [openAction('  https://a.example/x  ')],
+        ['https://a.example/x']
+      )
+    ).toEqual([]);
+  });
+
+  it('**只对"开网页"这一个 id 生效**：别的动作（app.settings 等）永不被丢', () => {
+    const acts = [
+      { id: 'app.settings' },
+      { id: 'app.newTask', args: { url: 'https://a.example' } },
+    ];
+    expect(dropOpenUrlActionsAlreadyOpened(acts, ['https://a.example'])).toHaveLength(2);
+  });
+
+  it('零回归：openedUrls 为空 / 没有 url / url 非法 → 原样返回', () => {
+    const acts = [openAction('https://a.example/x')];
+    expect(dropOpenUrlActionsAlreadyOpened(acts, [])).toEqual(acts);
+    expect(
+      dropOpenUrlActionsAlreadyOpened(
+        [{ id: XIANGWO_OPEN_EMBEDDED_BROWSER_ID }],
+        ['https://a.example']
+      )
+    ).toHaveLength(1);
+    expect(
+      dropOpenUrlActionsAlreadyOpened(
+        [{ id: XIANGWO_OPEN_EMBEDDED_BROWSER_ID, args: {} }],
+        ['https://a.example']
+      )
+    ).toHaveLength(1);
+    expect(
+      dropOpenUrlActionsAlreadyOpened([openAction('not-a-url')], ['https://a.example'])
+    ).toHaveLength(1);
+  });
+
+  it('保序且不动原对象（只做过滤）', () => {
+    const first = { id: 'app.settings' };
+    const second = openAction('https://a.example/x');
+    const kept = dropOpenUrlActionsAlreadyOpened([first, second], ['https://a.example/x']);
+    expect(kept).toEqual([first]);
+    expect(kept[0]).toBe(first);
+  });
+
+  it('端到端形状：同一条回复里两种块 + 同一 URL → 只走一次 open-url 路径', () => {
+    const reply = [
+      '给你开一下',
+      '```xiangwo-open-url',
+      '{"url":"https://a.example/x"}',
+      '```',
+      '```xiangwo-action',
+      '{"id":"host.openEmbeddedBrowser","args":{"url":"https://a.example/x"}}',
+      '```',
+    ].join('\n');
+    const openUrls = parseXiangwoOpenUrlBlock(reply);
+    const actions = parseXiangwoActionBlock(reply);
+    expect(openUrls).toEqual(['https://a.example/x']);
+    expect(actions).toHaveLength(1);
+    expect(dropOpenUrlActionsAlreadyOpened(actions, openUrls)).toEqual([]);
   });
 });
