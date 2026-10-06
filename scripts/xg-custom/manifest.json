@@ -8,7 +8,7 @@
   },
   "stats": {
     "files": 146,
-    "markers": 835,
+    "markers": 838,
     "newFiles": 73,
     "modifiedFiles": 73
   },
@@ -297,28 +297,34 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/browser/ensure-bot-browser-profile.test.ts": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        12
+        12,
+        84
       ],
       "anchors": [
-        "describe('"
+        "describe('",
+        "describe('uniqueBotProfileName / 自动建 profile 的命名', () => {"
       ],
-      "hash": "f47d102cbe90d92c6e039a0b7b33a51b98fe7b70",
+      "hash": "33158cb00abaecf697fba4bc222282999e9de4c3",
       "origin": "new",
       "firstCommit": "c6ea7b383|2026-10-03|fix(browser): [XG-CUSTOM] 复用内嵌页时也要导航（修「打开网址无反应」）",
       "lastCommit": "c6ea7b383|2026-10-03|fix(browser): [XG-CUSTOM] 复用内嵌页时也要导航（修「打开网址无反应」）",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/browser/ensure-bot-browser-profile.ts": {
-      "markers": 1,
+      "markers": 3,
       "lines": [
-        1
+        1,
+        35,
+        85
       ],
       "anchors": [
-        "import {"
+        "import {",
+        "export function uniqueBotProfileName(botId: string, profiles: readonly BrowserProfile[]): string {",
+        "name: uniqueBotProfileName(botId, profiles),"
       ],
-      "hash": "051400f1bc871a877b64d6248331960cee121a82",
+      "hash": "1c0726dd2b285c1f39fb0d08983acf4f6b0653a2",
       "origin": "new",
       "firstCommit": "c6ea7b383|2026-10-03|fix(browser): [XG-CUSTOM] 复用内嵌页时也要导航（修「打开网址无反应」）",
       "lastCommit": "c6ea7b383|2026-10-03|fix(browser): [XG-CUSTOM] 复用内嵌页时也要导航（修「打开网址无反应」）",
