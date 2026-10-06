@@ -2,6 +2,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   actionFailureText,
+  openXiangwoUrls,
+  parseXiangwoOpenUrlBlock,
+  stripXiangwoOpenUrlBlocks,
   parseXiangwoActionBlock,
   runXiangwoAction,
   stripXiangwoActionBlocks,
@@ -180,5 +183,68 @@ describe('runXiangwoAction · 开网页直连', () => {
     });
     expect(got).toEqual({ ok: true });
     expect(calls[0]).toEqual(['host.runCommand', { id: 'app.settings' }]);
+  });
+});
+
+// [XG-CUSTOM 2026-10-05] `xiangwo-open-url`（方案 A）回归。
+describe('xiangwo-open-url（方案 A）', () => {
+  it('解析单个 url（对象形式）并剥离块', () => {
+    const text =
+      '好的，帮你打开\n```xiangwo-open-url\n{"url":"https://www.g-mark.org/zh-CN/gallery/winners"}\n```\n';
+    expect(parseXiangwoOpenUrlBlock(text)).toEqual([
+      'https://www.g-mark.org/zh-CN/gallery/winners',
+    ]);
+    expect(stripXiangwoOpenUrlBlocks(text)).toBe('好的，帮你打开');
+  });
+
+  it('数组多 url + 去重 + **只收 http(s)**', () => {
+    const text =
+      '```xiangwo-open-url\n[{"url":"https://a.example"},{"url":"https://a.example"},"http://b.example","ftp://c","javascript:alert(1)"]\n```';
+    expect(parseXiangwoOpenUrlBlock(text)).toEqual(['https://a.example', 'http://b.example']);
+  });
+
+  it('★坏 JSON / 空块 → 跳过不抛；纯文本块 → 也认（宽容）', () => {
+    expect(parseXiangwoOpenUrlBlock('```xiangwo-open-url\n{不是 json}\n```')).toEqual([]);
+    expect(parseXiangwoOpenUrlBlock('```xiangwo-open-url\n\n```')).toEqual([]);
+  });
+
+  it('★无块 → 空数组（零副作用，旧回复不受影响）', () => {
+    expect(parseXiangwoOpenUrlBlock('普通回复，没有块')).toEqual([]);
+    expect(stripXiangwoOpenUrlBlocks('普通回复')).toBe('普通回复');
+  });
+
+  it('★执行：走 host.openEmbeddedBrowser（已注入的通道），逐个调', async () => {
+    const calls: unknown[] = [];
+    const got = await openXiangwoUrls(
+      ['https://a.example', 'https://b.example'],
+      async (method, payload) => {
+        calls.push([method, payload]);
+        return { ok: true };
+      }
+    );
+    expect(got).toEqual({ ok: true });
+    expect(calls).toEqual([
+      ['host.openEmbeddedBrowser', { url: 'https://a.example' }],
+      ['host.openEmbeddedBrowser', { url: 'https://b.example' }],
+    ]);
+  });
+
+  it('★失败如实回报（不假装开好了）：拿不到通道 → unavailable', async () => {
+    const got = await openXiangwoUrls(['https://a.example'], async () => ({
+      ok: false,
+      reason: 'unavailable',
+    }));
+    expect(got.ok).toBe(false);
+    expect(got.reason).toBe('unavailable');
+    expect(got.message).toContain('https://a.example');
+  });
+
+  it('★run 抛异常 → failed，不抛；空数组 → 直接 ok', async () => {
+    const boom = await openXiangwoUrls(['https://a.example'], async () => {
+      throw new Error('桥断了');
+    });
+    expect(boom.ok).toBe(false);
+    expect(boom.reason).toBe('failed');
+    expect(await openXiangwoUrls([], async () => ({ ok: true }))).toEqual({ ok: true });
   });
 });

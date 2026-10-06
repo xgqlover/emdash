@@ -161,3 +161,81 @@ export function actionFailureText(action: XiangwoAction, result: XiangwoActionRe
       return `「${action.id}」执行失败${result.message ? `：${result.message}` : ''}。`;
   }
 }
+
+// ── [XG-CUSTOM 2026-10-05] `xiangwo-open-url` 块：**让 emdash 主界面开网页**（方案 A）──
+//
+// 为什么另开一条而**不走白名单**（同一天 `emdash内嵌浏览器开错机器-修复OPS-2026-10-06` §TASK 4 的方案 A）：
+//   `host.openEmbeddedBrowser` 是**球已有的独立 orbApi 方法，而且 boot 已经注入好了**
+//   （`background.ts` 的 `configureOrbEmbeddedBrowserOpen` → `requestEmbeddedBrowserOpen`
+//    → 主窗口 `openEmbeddedBrowserTab`）—— 球里点图片卡片走的就是它。
+//   ⇒ 「让主界面开网页」**不需要** `configureOrbHostCommands` 注入、**不需要**动
+//   CommandCatalog 白名单，**只需要球渲染侧认这个块**。做完**立刻可用**。
+//   （方案 B：走白名单 + boot 注入命令执行器 —— 攒到下次打包，见台账 20/23。）
+
+export const XIANGWO_OPEN_URL_RE = /```xiangwo-open-url\s*\n([\s\S]*?)```/g;
+
+/** 解析块内容（`{"url":"https://…"}` 或 `["https://…", …]`）。**只收 http(s)**，其余跳过。 */
+export function parseXiangwoOpenUrlBlock(text: string): string[] {
+  const out: string[] = [];
+  const source = text ?? '';
+  const push = (value: unknown): void => {
+    const url = typeof value === 'string' ? value.trim() : '';
+    if (/^https?:\/\//.test(url) && !out.includes(url)) out.push(url);
+  };
+  for (const match of source.matchAll(XIANGWO_OPEN_URL_RE)) {
+    const body = (match[1] ?? '').trim();
+    if (body === '') continue;
+    try {
+      const parsed: unknown = JSON.parse(body);
+      if (Array.isArray(parsed)) {
+        for (const item of parsed) {
+          if (typeof item === 'object' && item !== null)
+            push((item as Record<string, unknown>).url);
+          else push(item);
+        }
+      } else if (typeof parsed === 'object' && parsed !== null) {
+        push((parsed as Record<string, unknown>).url);
+      } else {
+        push(parsed);
+      }
+    } catch {
+      // 坏 JSON 静默跳过（宁可少开一个页，也不要因一段坏块打断整条回复）
+    }
+  }
+  return out;
+}
+
+/** 去掉块（别把 JSON 显示给用户）。 */
+export function stripXiangwoOpenUrlBlocks(text: string): string {
+  return (text ?? '').replace(XIANGWO_OPEN_URL_RE, '').trim();
+}
+
+/**
+ * 逐个交给注入的 `run`（球里 = `orbApi('host.openEmbeddedBrowser', {url})`）。
+ * **不抛**：异常/失败收敛成 `{ok:false, reason}`，**如实回报**（不假装开好了）。
+ */
+export async function openXiangwoUrls(
+  urls: readonly string[],
+  run: (method: string, payload: Record<string, unknown>) => Promise<unknown>
+): Promise<XiangwoActionResult> {
+  if (urls.length === 0) return { ok: true };
+  const failed: string[] = [];
+  let reason = '';
+  for (const url of urls) {
+    try {
+      const raw = await run('host.openEmbeddedBrowser', { url });
+      const record =
+        typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>) : {};
+      if (record.ok !== true) {
+        failed.push(url);
+        reason = typeof record.reason === 'string' ? record.reason : 'failed';
+      }
+    } catch (error) {
+      failed.push(url);
+      reason = 'failed';
+      void error;
+    }
+  }
+  if (failed.length === 0) return { ok: true };
+  return { ok: false, reason: reason === '' ? 'failed' : reason, message: failed.join(' ') };
+}

@@ -748,3 +748,23 @@ daemon 默认端口 **7456**（`apps/daemon/src/server.ts`）。它本身是**�
 **验证**：`pnpm run typecheck`（`tsgo --noEmit` × browser/node/release 三个 tsconfig）→ **exit 0**；
 台账 `check.mjs` → **漏标 0**（本轮新增行全部带 `[XG-CUSTOM]`）。
 ⚠️ **未验**：真实点开卡片（要重新打包 + 用户点桌面图标，见「一、AI 不要自己启动 emdash」）。
+
+### 24. [XG-CUSTOM 2026-10-05] 方案 A：`xiangwo-open-url` 块 —— **让 emdash 主界面开网页**（不用白名单/不用 boot）
+
+**为什么走这条路**（同日 `emdash内嵌浏览器开错机器-修复OPS-2026-10-06` §TASK 4 的「方案 A（最省）」）：
+`host.openEmbeddedBrowser` 是**球已有的独立 orbApi 方法，且 boot 已注入**（`background.ts`
+的 `configureOrbEmbeddedBrowserOpen` → `requestEmbeddedBrowserOpen` → 主窗口 `openEmbeddedBrowserTab`；
+球里点图片卡片走的就是它）。⇒ **不需要** `configureOrbHostCommands` 注入、**不需要**动
+CommandCatalog 白名单 —— **只要球渲染侧认这个块，做完立刻可用**。
+
+**本次落地**：
+- `renderer/orb/xiangwo-action.ts` 追加：`parseXiangwoOpenUrlBlock`（**只收 http(s)**、数组/对象都认、
+  去重、坏 JSON 跳过不抛）· `stripXiangwoOpenUrlBlocks` · `openXiangwoUrls(urls, run)`
+  （逐个调 `host.openEmbeddedBrowser`；**失败如实回报** `{ok:false, reason}`，不假装开好了）
+- `renderer/orb/orb.js`：解析链扩为 **`images → mcp → action → open-url → question`**；
+  渲染后逐个开页，失败在气泡下补一句如实的话（`unavailable` → "这条开页通道没接上…"）
+- 测试：`xiangwo-action.test.ts` 新增 7 项（全 **22 项**通过）；orb 全量 **106 项**通过；browser typecheck 0 错误
+
+**方案 B（正统，攒到下次打包）**：boot 注入 `configureOrbHostCommands`（接 `keybindingDispatcher`；
+注意 `openAffine/openWeKnora` 是 `hostOperations`、**不是** CommandCatalog 命令，需桥接）
++ 白名单加一条能开浏览器的命令 + agent 输出 `xiangwo-action` 块。

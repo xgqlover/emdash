@@ -1,9 +1,12 @@
 // [XG-CUSTOM 2026-10-05] 动作块（球指挥主界面：`[XG-ACTION]`→ host.runCommand；协议见 ./xiangwo-action.ts）
 import {
   actionFailureText,
+  openXiangwoUrls,
   parseXiangwoActionBlock,
+  parseXiangwoOpenUrlBlock,
   runXiangwoAction,
   stripXiangwoActionBlocks,
+  stripXiangwoOpenUrlBlocks,
 } from './xiangwo-action';
 // [XG-CUSTOM] 项我控制球面板 —— 移植自开源项目 mini-yifan/deepseek-harness-orb（MIT）
 // 源文件：apps/desktop/renderer/floating.js（球 + 面板 + 聊天 UI）。
@@ -847,10 +850,17 @@ async function main() {
         message.role === 'assistant'
           ? { text: stripXiangwoActionBlocks(withMcp.text) }
           : { text: withMcp.text };
-      const parsed =
+      // [XG-CUSTOM 2026-10-05] `xiangwo-open-url` 块（方案 A）：让 emdash 主界面开网页 ——
+      //   **复用已注入的 `host.openEmbeddedBrowser`**（bootstrap 里 configureOrbEmbeddedBrowserOpen），
+      //   所以不需要 boot 注入 hostCommands、也不动白名单。解析完把块从正文去掉。
+      const openUrls =
+        message.role === 'assistant' ? parseXiangwoOpenUrlBlock(withAction.text) : [];
+      const withOpen =
         message.role === 'assistant'
-          ? parseQuestionBlock(withAction.text)
+          ? { text: stripXiangwoOpenUrlBlocks(withAction.text) }
           : { text: withAction.text };
+      const parsed =
+        message.role === 'assistant' ? parseQuestionBlock(withOpen.text) : { text: withOpen.text };
       if (parsed.text !== '' || message.streaming === true) {
         const bubble = document.createElement('div');
         bubble.className = 'transcript-bubble';
@@ -882,6 +892,25 @@ async function main() {
       //   白名单在**主进程**判（`host.runCommand`），球侧只负责发与回报 —— 见 ./xiangwo-action.ts
       // [XG-CUSTOM] 2026-10-06 例外：`host.openEmbeddedBrowser`（开网页）**不查白名单**，走
       //   xiangwo-action.ts 的直连表 → 同一个 `bridge.orbApi`。这里不用改，路由在那边判。
+      if (openUrls.length > 0) {
+        // [XG-CUSTOM 2026-10-05] 让主界面开页：成功不吵；**失败如实说**（不假装开好了）
+        void openXiangwoUrls(openUrls, (method, payload) => {
+          const call = bridge.orbApi;
+          return typeof call === 'function'
+            ? call(method, payload)
+            : { ok: false, reason: 'unavailable' };
+        }).then((result) => {
+          if (result.ok) return;
+          const notice = document.createElement('div');
+          notice.className = 'transcript-action-notice';
+          notice.textContent =
+            result.reason === 'unavailable'
+              ? '这条开页通道没接上（你那边没有可用的内嵌浏览器），我没能帮你把页面打开。'
+              : `有页面没打开成功：${result.message ?? ''}`;
+          row.append(notice);
+          transcript.scrollTop = transcript.scrollHeight;
+        });
+      }
       for (const action of actions) {
         void runXiangwoAction(action, (method, payload) => {
           const call = bridge.orbApi;
