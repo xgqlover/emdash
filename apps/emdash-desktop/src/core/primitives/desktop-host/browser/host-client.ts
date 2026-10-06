@@ -40,6 +40,11 @@ export async function openAffine() {
   return (await getHostClient()).openAffine();
 }
 
+// [XG-CUSTOM 2026-10-06] OpenDesign 窗口（设计工作台，7456）
+export async function openOpenDesign() {
+  return (await getHostClient()).openOpenDesign();
+}
+
 
 // [XG-CUSTOM] 专家交接平台：列前专家主题 / 接下 / 删除
 export async function expertHandoffByExpert(expert: string) {

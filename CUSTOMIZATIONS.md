@@ -717,3 +717,34 @@ url 用白名单式判断只认 `http(s)`，非法**一次调用都不发**；**
 ② `xiangwo-browser-relay.ts` 那处过期「缺省 12s」注释与超时文案未接分档；
 ③ Windows 真机 A/B（`/json/list` 多出该页、日志 `[web_render] 内嵌浏览器目标 = http://127.0.0.1:9224`）
 要等用户那台在线并装上本版 exe。
+
+---
+
+### 25. [XG-CUSTOM 2026-10-06] OpenDesign 集成卡片（设计工作台 7456）
+
+**要解决什么**：把 open-design 集进 emdash。用户原话「**你不会看下 weknora 怎么集的**」
+⇒ **照 WeKnora / Kaneo / AFFiNE 模板**，不发明新机制。
+（HippoBuddy 当年只有一个 `data-panel="opendesign"` 的**浅入口**（打开本地目录 + 打开官网），
+而 HippoBuddy 已退役 ⇒ 那个面板的新家就是这里。）
+
+**open-design 是谁**：上游 `nexu-io/open-design`（**Apache-2.0**，最新 tag **`open-design-v0.24.1`**，
+star 9.9 万）；本地副本 = **`工具链/open-design`**（v0.24.1 / commit `89e64d8`）。
+daemon 默认端口 **7456**（`apps/daemon/src/server.ts`）。它本身是**开源 + 云模型订阅**双轨，本地 BYOK 免费。
+
+**照 Kaneo/AFFiNE 模板改 5 处**：
+| # | 文件 | 加什么 |
+|---|---|---|
+| 1 | `main/host/window.ts` | `createOpenDesignWindow(url='http://127.0.0.1:7456')`（单例窗口 1400×900，照 `createWeKnoraWindow`） |
+| 2 | `main/bootstrap/boot/wiring.ts` | import `createOpenDesignWindow` + handler `openOpenDesign`（走 `services.resolveToolWindowUrl(7456)`） |
+| 3 | `core/primitives/desktop-host/api/host-contract.ts` | `openOpenDesign` procedure |
+| 4 | `core/primitives/desktop-host/browser/host-client.ts` | `openOpenDesign()` |
+| 5 | `core/features/settings/browser/components/IntegrationsCard.tsx` | import + 🎨「OpenDesign」卡片（「本地工具」组末尾） |
+
+⚠️ **地址必须走 `resolveToolWindowUrl(7456)`，不写死 `127.0.0.1`** ——
+否则 Windows 客户端白屏（就是定制 **#15** 那个坑，别再犯）。
+
+**升级找回**：`grep -rn "openOpenDesign\|createOpenDesignWindow" apps/emdash-desktop/src`
+
+**验证**：`pnpm run typecheck`（`tsgo --noEmit` × browser/node/release 三个 tsconfig）→ **exit 0**；
+台账 `check.mjs` → **漏标 0**（本轮新增行全部带 `[XG-CUSTOM]`）。
+⚠️ **未验**：真实点开卡片（要重新打包 + 用户点桌面图标，见「一、AI 不要自己启动 emdash」）。

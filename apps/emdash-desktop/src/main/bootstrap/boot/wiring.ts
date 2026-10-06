@@ -46,6 +46,7 @@ import {
   applyNativeTheme,
   createAffineWindow,
   createKaneoWindow,
+  createOpenDesignWindow,
   createOpenVikingWindow,
   createT8Window,
   createWeKnoraWindow,
@@ -344,6 +345,13 @@ export function createDesktopWireOptions(
         // [XG-CUSTOM] 2026-10-03 隧道 → 主机直连 → 本机
         const url = await services.resolveToolWindowUrl(3010);
         createAffineWindow(url);
+        return { success: true };
+      },
+      // [XG-CUSTOM 2026-10-06] OpenDesign 窗口（设计工作台：原型/落地页/幻灯片/图/视频，7456）
+      openOpenDesign: async () => {
+        // [XG-CUSTOM] 2026-10-03 范式：隧道 → 主机直连 → 本机（Windows 上 127.0.0.1 不是主机）
+        const url = await services.resolveToolWindowUrl(7456);
+        createOpenDesignWindow(url);
         return { success: true };
       },
       // [XG-CUSTOM] 专家交接平台：wire RPC → expert_handoff.py（session 隔离版 CLI）

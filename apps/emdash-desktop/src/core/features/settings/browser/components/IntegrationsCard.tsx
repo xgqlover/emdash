@@ -6,7 +6,7 @@ import { isIssueIntegration } from '@core/features/integrations/api/browser/inte
 import { useIntegrationsContext } from '@core/features/integrations/contributions/browser/integrations-provider';
 import { supportsIntegrationReconnect } from '@core/manifests/browser/integration-auth-contributions';
 import { useOpenModal } from '@core/manifests/browser/modal-api';
-import { openAffine, openKaneo, openOpenViking, openT8, openWeKnora } from '@core/primitives/desktop-host/browser/host-client'; // [XG-CUSTOM]
+import { openAffine, openKaneo, openOpenDesign, openOpenViking, openT8, openWeKnora } from '@core/primitives/desktop-host/browser/host-client'; // [XG-CUSTOM]
 import type { ConnectionStatus, IssueProviderType } from '@core/primitives/issue-providers/api';
 import { IntegrationDetailSidebar } from './IntegrationDetailSidebar';
 import { IntegrationGridCard } from './IntegrationGridCard';
@@ -175,6 +175,19 @@ const IntegrationsCard: React.FC = () => {
             <span className="flex min-w-0 flex-1 flex-col gap-0.5">
               <span className="text-sm font-medium text-foreground">Kaneo</span>
               <span className="truncate text-sm text-foreground-muted">工作流枢纽（工作项 · 交接 · 依赖 · 审计）</span>
+            </span>
+            <span className="text-sm text-foreground-muted">打开 ↗</span>
+          </button>
+          {/* [XG-CUSTOM 2026-10-06] OpenDesign 本地工具卡片（设计工作台：原型/落地页/幻灯片/图/视频） */}
+          <button
+            type="button"
+            onClick={() => void openOpenDesign()}
+            className="group relative flex w-full items-center gap-4 rounded-lg border border-border bg-background-1 p-4 text-left text-card-foreground transition-all hover:bg-background-2"
+          >
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-background-2 text-2xl">🎨</span>
+            <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span className="text-sm font-medium text-foreground">OpenDesign</span>
+              <span className="truncate text-sm text-foreground-muted">设计工作台（原型 · 落地页 · 幻灯片 · 图片 · 视频，本地优先）</span>
             </span>
             <span className="text-sm text-foreground-muted">打开 ↗</span>
           </button>

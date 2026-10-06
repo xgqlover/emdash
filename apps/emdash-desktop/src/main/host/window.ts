@@ -533,6 +533,45 @@ export function createWeKnoraWindow(url = 'http://127.0.0.1:9037'): BrowserWindo
   return weKnoraWindow;
 }
 
+// [XG-CUSTOM 2026-10-06] OpenDesign 窗口：本地优先设计工作台（daemon 7456）。
+// 上游 nexu-io/open-design（Apache-2.0），本地副本 = 工具链/open-design（v0.24.1）。
+// 设置→集成里 OpenDesign 卡片点「打开」→ 弹出这个窗口加载 OpenDesign UI。
+// ⚠️ 照 WeKnora/Kaneo 模板；地址由 wiring.ts 的 resolveToolWindowUrl(7456) 解析，不写死 127.0.0.1。
+let openDesignWindow: BrowserWindow | null = null;
+
+export function createOpenDesignWindow(url = 'http://127.0.0.1:7456'): BrowserWindow {
+  if (openDesignWindow && !openDesignWindow.isDestroyed()) {
+    openDesignWindow.show();
+    openDesignWindow.focus();
+    return openDesignWindow;
+  }
+  openDesignWindow = new BrowserWindow({
+    width: 1400,
+    height: 900,
+    minWidth: 900,
+    minHeight: 600,
+    title: 'OpenDesign 设计工作台',
+    backgroundColor: nativeTheme.shouldUseDarkColors ? '#111111' : '#fcfcfc',
+    ...(import.meta.env.DEV && { icon: devIcon }),
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      sandbox: true,
+    },
+    show: false,
+  });
+  void openDesignWindow.loadURL(url);
+  openDesignWindow.once('ready-to-show', () => {
+    openDesignWindow?.show();
+    openDesignWindow?.focus();
+  });
+  openDesignWindow.show();
+  openDesignWindow.on('closed', () => {
+    openDesignWindow = null;
+  });
+  return openDesignWindow;
+}
+
 // [XG-CUSTOM] OpenViking 窗口：自进化上下文数据库 Studio（1933，viking:// 虚拟文件系统）。
 // 设置→集成里 OpenViking 卡片点「打开」→ 弹出这个窗口加载 OpenViking Studio。
 let openVikingWindow: BrowserWindow | null = null;
