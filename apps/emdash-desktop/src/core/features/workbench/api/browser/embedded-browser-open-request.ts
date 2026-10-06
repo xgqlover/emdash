@@ -148,7 +148,10 @@ export function openEmbeddedBrowserTab(
   url: string,
   profileId?: string,
   botId?: string,
-  presentToUser = false
+  // [XG-CUSTOM 2026-10-06] **默认 true** —— 用户的话：「我跟哪个 bot 聊天，他打开的不是自己 bot 仓下
+  //   聊天下面的网页吗」⇒ 默认就开在**用户正在看的那个 task**（= 他聊天的那个 bot 的会话下面）。
+  //   要回到"agent 自用、开在 bot 自己 task"的隔离行为 → 显式传 false。
+  presentToUser = true
 ): boolean {
   // [XG-CUSTOM 2026-10-05] presentToUser=true（用户要看）→ 开在**用户当前 task**，见 pickTargetTask
   const target = resolveTargetTask(botId, presentToUser);
@@ -177,6 +180,14 @@ export function openEmbeddedBrowserTab(
       : {}),
     ...(typeof botId === 'string' && botId.trim() !== '' ? { botId: botId.trim() } : {}),
   });
+  // [XG-CUSTOM 2026-10-06] **切到前台**：`paneLayout.open` 只是把 browser 面板开/复用出来，
+  //   若它不是当前激活标签，用户就"看不到"（页在渲染、CDP 也连得上，但不在眼前）。
+  //   用現成的 activateLastTabOfKind 把那类标签激活 —— 失败不致命（try 掉，别拖垮开页）。
+  try {
+    taskView.activateLastTabOfKind('browser');
+  } catch (error) {
+    console.warn('[XG-CUSTOM] 激活 browser 标签失败（页面已开，可能不在前台）', error);
+  }
   taskView.setFocusedRegion('main');
   return true;
 }

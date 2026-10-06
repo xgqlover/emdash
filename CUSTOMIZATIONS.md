@@ -856,3 +856,21 @@ grep -n "HTTP_PROXY\|HTTPS_PROXY\|ALL_PROXY\|NO_PROXY" packages/core/src/primiti
 **未覆盖**：① 只在 **task view** 里能搜到（Home/全局视图不显示 —— "开在当前 task"的必然结果）；② **原生菜单里没有它**
 （菜单是 `main/host/menu.ts` 硬编码模板，要进菜单得改 main，本轮没碰）；③ `openUrlModal` 的**渲染**没做自动化验证
 （本机 `--project browser` 起不来：Playwright chromium 未安装；CI 也跳过 browser 项目），逻辑由 node 单测覆盖。
+
+### 26. [XG-CUSTOM 2026-10-06] 开页**默认落在"你正在聊的那个 task"** + 开完**切到前台**
+
+**用户原话**：「我跟哪个 bot 聊天，他打开的**不是自己 bot 仓下聊天下面的网页**吗」
+—— 即：页该开在**用户当前正在看的那个 task**（他聊天的那个 bot 的会话下面），而且**要看得见**。
+
+**改了两处**（`core/features/workbench/api/browser/embedded-browser-open-request.ts`）：
+1. **`openEmbeddedBrowserTab(url, profileId?, botId?, presentToUser = true)`** ——
+   `presentToUser` **默认翻成 true**（用户视角优先）。要回到"agent 自用、开在 bot 自己 task"的隔离行为 →
+   **显式传 false**。依据：`pickTargetTask({presentToUser:true})` → 用户当前 task（没 task 才退第一个并导航）。
+2. **开完把那个 browser 标签切到前台**：`paneLayout.open('browser', …)` 只是**开/复用**面板，
+   若它不是当前激活标签，用户就"看不到"（页在渲染、CDP 也连得上，但不在眼前 —— 这正是
+   "只在后台运行"的第二半）。用现成的 `taskView.activateLastTabOfKind('browser')`
+   （已在 `task-composition.ts:485` 的 kind 联合里：`'conversation' | 'file' | 'diff' | 'browser' | 'terminal'`），
+   `try` 包裹（激活失败不拖垮开页），随后仍 `setFocusedRegion('main')`。
+
+**验证**：`tsgo -p tsconfig.browser.json` **0 错误**；`workbench/api/browser` 全量 **77 项通过**（10 文件）。
+**⚠️ 需打包才到你 Windows 客户端**（渲染侧改动）。
