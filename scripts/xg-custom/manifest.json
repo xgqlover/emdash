@@ -8,7 +8,7 @@
   },
   "stats": {
     "files": 146,
-    "markers": 820,
+    "markers": 821,
     "newFiles": 73,
     "modifiedFiles": 73
   },
@@ -153,8 +153,8 @@
       ],
       "hash": "42a80a4b7d2c77ae474f8a2da45978fa8e5cd6e2",
       "origin": "modified",
-      "firstCommit": "626aa8ef0|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
-      "lastCommit": "626aa8ef0|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
+      "firstCommit": "13acb278f|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
+      "lastCommit": "13acb278f|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/browser/browser-pane.tsx": {
@@ -169,8 +169,8 @@
       ],
       "hash": "e1cc556274b7deaae34a146d6600a101eb7ec9df",
       "origin": "modified",
-      "firstCommit": "626aa8ef0|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
-      "lastCommit": "626aa8ef0|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
+      "firstCommit": "13acb278f|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
+      "lastCommit": "13acb278f|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/browser/browser-session-store.test.ts": {
@@ -217,8 +217,8 @@
       ],
       "hash": "8a5b6a1ab3508a2bc5c7312d7d9c5f240d814608",
       "origin": "new",
-      "firstCommit": "626aa8ef0|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
-      "lastCommit": "626aa8ef0|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
+      "firstCommit": "13acb278f|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
+      "lastCommit": "13acb278f|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/browser/browser-webview-bind.ts": {
@@ -240,8 +240,8 @@
       ],
       "hash": "64af5f3745bbadfb6ba726e6655bd742a22415f6",
       "origin": "new",
-      "firstCommit": "626aa8ef0|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
-      "lastCommit": "626aa8ef0|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
+      "firstCommit": "13acb278f|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
+      "lastCommit": "13acb278f|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/browser/browser-webview-events.test.ts": {
@@ -256,8 +256,8 @@
       ],
       "hash": "702ae7bc25863ea21bea292f887d5f8817292ab3",
       "origin": "modified",
-      "firstCommit": "626aa8ef0|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
-      "lastCommit": "626aa8ef0|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
+      "firstCommit": "13acb278f|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
+      "lastCommit": "13acb278f|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/browser/browser-webview-events.ts": {
@@ -278,8 +278,8 @@
       ],
       "hash": "4ee632eb1039fc1e87457152c619f2f7483bf481",
       "origin": "modified",
-      "firstCommit": "626aa8ef0|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
-      "lastCommit": "626aa8ef0|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
+      "firstCommit": "13acb278f|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
+      "lastCommit": "13acb278f|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/browser/browser-webview-types.ts": {
@@ -292,8 +292,8 @@
       ],
       "hash": "15eb94ae0cb627f883c419b494ad5778f4878d00",
       "origin": "modified",
-      "firstCommit": "626aa8ef0|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
-      "lastCommit": "626aa8ef0|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
+      "firstCommit": "13acb278f|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
+      "lastCommit": "13acb278f|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/browser/ensure-bot-browser-profile.test.ts": {
@@ -1504,8 +1504,8 @@
       ],
       "hash": "0e2216792fe7507261fe88ee22ba9336f89094d1",
       "origin": "modified",
-      "firstCommit": "626aa8ef0|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
-      "lastCommit": "626aa8ef0|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
+      "firstCommit": "13acb278f|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
+      "lastCommit": "13acb278f|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
       "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
     },
     "apps/emdash-desktop/src/main/host/browser/browser-webcontents-registry.ts": {
@@ -2855,7 +2855,7 @@
       ],
       "hash": "5ea0e17ab03aa3fa8cbf5c1defed51cc6a6b1199",
       "origin": "new",
-      "firstCommit": "626aa8ef0|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
+      "firstCommit": "13acb278f|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
       "lastCommit": "2c4155785|2026-10-05|feat(orb): [XG-CUSTOM 2026-10-05] 球侧动作块 [XG-ACTION]（A 方案第 2 件）",
       "note": "项我球 orb（球壳 + 聊天/图片网格渲染）"
     },
@@ -2887,7 +2887,7 @@
       ],
       "hash": "f4497bcc6255e461d6a777780be4e69208bf8aaf",
       "origin": "new",
-      "firstCommit": "626aa8ef0|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
+      "firstCommit": "13acb278f|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
       "lastCommit": "2c4155785|2026-10-05|feat(orb): [XG-CUSTOM 2026-10-05] 球侧动作块 [XG-ACTION]（A 方案第 2 件）",
       "note": "项我球 orb（球壳 + 聊天/图片网格渲染）"
     },
@@ -3310,14 +3310,16 @@
       "note": "中文化台账 + 还原器 apply.mjs"
     },
     "scripts/xg-package-linux.sh": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        2
+        2,
+        33
       ],
       "anchors": [
-        "2026-10-05 —— 本机 AppImage 打包**唯一推荐入口** —— 顺手堵上「静默缺包」这条坑。"
+        "2026-10-05 —— 本机 AppImage 打包**唯一推荐入口** —— 顺手堵上「静默缺包」这条坑。",
+        "UA=\"pnpm/10.28.2 npm/? node/$(node -v) $(uname -s | tr '[:upper:]' '[:lower:]') $(uname -m)\""
       ],
-      "hash": "f4c686ae4375c088761c2f8928b7a0c1f82c455c",
+      "hash": "e55f646556c7c495d5b1452395820c710233948c",
       "origin": "new",
       "firstCommit": "b9973dba1|2026-10-05|chore(xg-custom): 标记规范化（裸 [XG-CUSTOM] 才入账）+ 新增本机打包入口 xg-package-linux.sh",
       "lastCommit": "b9973dba1|2026-10-05|chore(xg-custom): 标记规范化（裸 [XG-CUSTOM] 才入账）+ 新增本机打包入口 xg-package-linux.sh",
