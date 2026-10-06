@@ -874,3 +874,25 @@ grep -n "HTTP_PROXY\|HTTPS_PROXY\|ALL_PROXY\|NO_PROXY" packages/core/src/primiti
 
 **验证**：`tsgo -p tsconfig.browser.json` **0 错误**；`workbench/api/browser` 全量 **77 项通过**（10 文件）。
 **⚠️ 需打包才到你 Windows 客户端**（渲染侧改动）。
+
+### 27. [XG-CUSTOM 2026-10-06] 修「原始标记裸露」：球兼容旧推图标记 `[XG-IMG]…[/XG-IMG]`
+
+**用户报的现象**：对话里直接显示 `[XG-IMG]/persistent/home/…/sketch-…html.png[/XG-IMG]` 这样的**原始标记**。
+
+**根因**：协议**两代并存** —— 现行是围栏块 ```` ```xiangwo-images ````（`XIANGWO_IMAGES_BLOCK_RE`），
+而 agent 的**旧推图路径**发的是 `[XG-IMG]<地址>[/XG-IMG]`。球**只认围栏块** ⇒ 旧标记认不出、
+**以纯文本裸露**在气泡里。
+
+**修法**（`renderer/orb/xiangwo-images.ts`）：新增 `XIANGWO_IMAGES_LEGACY_RE`，在
+`parseXiangwoImagesBlock` 里：
+- 先按现行围栏块解析（**保持既有契约**：坏 JSON / 全非法项 → 块留在正文，"不吞消息"）
+- 再收 `[XG-IMG]` 旧标记（**一条地址一张图**，走同一个 `normalizeXiangwoImages`），
+  且**无论能否归一，一律从正文剥掉** —— 那是机器标记，**用户不该看到**
+- 空标记 `[XG-IMG][/XG-IMG]` 也剥（不留残渣）
+
+**测试**：新增 `xiangwo-images-legacy.test.ts` **5 项**（旧标记成图且剥净 / 多条 / 空标记 / 与围栏块混用 /
+无块零副作用）；`renderer/orb` 全量 **124 项通过（6 文件）**。
+
+**⚠️ 另记（不是我的改动，但当前 typecheck 红）**：`core/features/browser/browser/open-url-command.ts:121`
+与它的测试引用 `BrowserTabOpenTarget.setFocusedRegion` —— **该属性不存在**（`TS2339`/`TS2353`）。
+那是并发会话正在做的 `browser.openUrl` 命令 WIP，**未动**。

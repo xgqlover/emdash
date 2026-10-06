@@ -29,6 +29,10 @@ export const XIANGWO_IMAGES_STORE_MAX = 24;
 
 /** 图片块的正则（单独成段的 fenced JSON） */
 export const XIANGWO_IMAGES_BLOCK_RE = /```xiangwo-images\s*([\s\S]*?)```/;
+// [XG-CUSTOM 2026-10-06] **旧标记兼容**：agent 的推图老路径发的是 `[XG-IMG]<地址>[/XG-IMG]`，
+//   球此前只认上面的围栏块 ⇒ 旧标记**认不出、以原始文本裸露在对话里**（用户实际撞到过）。
+//   现在两条都认（旧标记按"一条地址一张图"归一），认不出也**至少剥掉**、不裸露。
+export const XIANGWO_IMAGES_LEGACY_RE = /\[XG-IMG\]([\s\S]*?)\[\/XG-IMG\]/g;
 
 /** 归一化后的一条图片 */
 export type XiangwoImageItem = {
@@ -146,15 +150,37 @@ export function parseXiangwoImagesBlock(textValue: unknown): {
   images?: XiangwoImagesPayload;
 } {
   const source = typeof textValue === 'string' ? textValue : '';
-  const match = XIANGWO_IMAGES_BLOCK_RE.exec(source);
-  if (match === null) return { text: source };
-  try {
-    const payload = normalizeXiangwoImages(JSON.parse(match[1].trim()));
-    if (payload === undefined) return { text: source };
-    return { text: source.replace(match[0], '').trim(), images: payload };
-  } catch {
-    return { text: source };
+  let text = source;
+  let payload: XiangwoImagesPayload | undefined;
+
+  // ① 优先围栏块（现行协议）
+  const match = XIANGWO_IMAGES_BLOCK_RE.exec(text);
+  if (match !== null) {
+    try {
+      payload = normalizeXiangwoImages(JSON.parse(match[1].trim()));
+    } catch {
+      payload = undefined;
+    }
+    // 归一成功才剥。**既有契约**（见 xiangwo-images.test.ts「坏 JSON 不吞消息」）：
+    // 坏 JSON / 全非法项 → 块留在正文里，别把用户的内容悄悄吞掉；
+    // 而下面的 `[XG-IMG]` 旧标记**一律剥** —— 那是机器标记，用户不该看到（本次修的就是它）。
+    if (payload !== undefined) text = text.replace(match[0], '');
   }
+
+  // ② [XG-CUSTOM 2026-10-06] 旧标记 `[XG-IMG]<地址>[/XG-IMG]`：收成"一条地址一张图"。
+  //    ★无论能不能归一，**都要从正文里剥掉** —— 绝不把原始标记显示给用户。
+  const legacy: string[] = [];
+  for (const m of text.matchAll(XIANGWO_IMAGES_LEGACY_RE)) {
+    const raw = (m[1] ?? '').trim();
+    if (raw !== '') legacy.push(raw);
+  }
+  // ★空标记也要剥（`[XG-IMG][/XG-IMG]` 不留残渣）；payload 的键是 **images**（见 XiangwoImagesPayload）
+  text = text.replace(XIANGWO_IMAGES_LEGACY_RE, '');
+  if (payload === undefined && legacy.length > 0) {
+    payload = normalizeXiangwoImages({ images: legacy.map((url) => ({ url })) });
+  }
+
+  return payload === undefined ? { text: text.trim() } : { text: text.trim(), images: payload };
 }
 
 /**
