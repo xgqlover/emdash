@@ -1,10 +1,12 @@
-// [XG-CUSTOM 2026-10-05] 动作块解析/执行回归（jsdom 无关，纯函数）。
+// [XG-CUSTOM] 2026-10-05 —— 动作块解析/执行回归（jsdom 无关，纯函数）。
 import { describe, expect, it } from 'vitest';
 import {
   actionFailureText,
   parseXiangwoActionBlock,
   runXiangwoAction,
   stripXiangwoActionBlocks,
+  XIANGWO_DIRECT_ACTIONS,
+  XIANGWO_OPEN_EMBEDDED_BROWSER_ID,
 } from './xiangwo-action';
 
 describe('parseXiangwoActionBlock', () => {
@@ -69,5 +71,114 @@ describe('runXiangwoAction', () => {
     expect(actionFailureText(a, { ok: false, reason: 'unknown-command' })).toContain(
       '不在可执行清单'
     );
+  });
+});
+
+// [XG-CUSTOM] 2026-10-06 「用文字指挥 emdash 开网页」：动作块 → 直连 host.openEmbeddedBrowser。
+//   背景：白名单（`host.runCommand`）里**没有开网页的命令**，但 `host.openEmbeddedBrowser` 本就是
+//   独立、已接好的 orbApi 方法（球里点图片卡片走的就是它）。所以这条路**不查白名单**。
+describe('runXiangwoAction · 开网页直连', () => {
+  it('★开网页块 → 走 host.openEmbeddedBrowser（不是 host.runCommand），url 原样透传', async () => {
+    const calls: Array<[string, Record<string, unknown>]> = [];
+    const got = await runXiangwoAction(
+      { id: XIANGWO_OPEN_EMBEDDED_BROWSER_ID, args: { url: 'https://example.com/a?b=1' } },
+      async (method, payload) => {
+        calls.push([method, payload]);
+        return { ok: true };
+      }
+    );
+    expect(got).toEqual({ ok: true });
+    expect(calls).toEqual([['host.openEmbeddedBrowser', { url: 'https://example.com/a?b=1' }]]);
+    // 反证：绝不能同时（或代替地）去打白名单那条
+    expect(calls.filter(([method]) => method === 'host.runCommand')).toEqual([]);
+  });
+
+  it('解析出来的块同样直连（端到端：块 → run 的 method）', async () => {
+    const block =
+      '```xiangwo-action\n' +
+      '{"id":"host.openEmbeddedBrowser","args":{"url":"http://localhost:3080","bot":"xg"}}\n```';
+    const actions = parseXiangwoActionBlock(`开好了\n${block}`);
+    expect(actions).toEqual([
+      { id: 'host.openEmbeddedBrowser', args: { url: 'http://localhost:3080', bot: 'xg' } },
+    ]);
+    const calls: Array<[string, Record<string, unknown>]> = [];
+    await runXiangwoAction(actions[0]!, async (method, payload) => {
+      calls.push([method, payload]);
+      return { ok: true };
+    });
+    expect(calls[0]).toEqual([
+      'host.openEmbeddedBrowser',
+      { url: 'http://localhost:3080', bot: 'xg' },
+    ]);
+  });
+
+  it('bot 选填：空 / 非字符串 / 不传 → payload 里没有 bot 键', async () => {
+    const argsList: unknown[] = [
+      { url: 'https://a.example' },
+      { url: 'https://a.example', bot: '  ' },
+      { url: 'https://a.example', bot: 42 },
+    ];
+    for (const args of argsList) {
+      const calls: Array<[string, Record<string, unknown>]> = [];
+      const got = await runXiangwoAction(
+        { id: XIANGWO_OPEN_EMBEDDED_BROWSER_ID, args },
+        async (method, payload) => {
+          calls.push([method, payload]);
+          return { ok: true };
+        }
+      );
+      expect(got).toEqual({ ok: true });
+      expect(calls[0]).toEqual(['host.openEmbeddedBrowser', { url: 'https://a.example' }]);
+    }
+  });
+
+  it('★非法 url（javascript: / 空串 / 缺 url / 非字符串 / file:）→ ok:false + bad-url，且一次调用都没发', async () => {
+    const badArgs: unknown[] = [
+      { url: 'javascript:alert(1)' },
+      { url: '' },
+      { url: '   ' },
+      {},
+      { url: 123 },
+      { url: 'file:///etc/passwd' },
+      { url: 'data:text/html,<b>x</b>' },
+      'https://example.com', // args 整个不是对象
+      undefined,
+    ];
+    for (const args of badArgs) {
+      let called = 0;
+      const action: { id: string; args?: unknown } = { id: XIANGWO_OPEN_EMBEDDED_BROWSER_ID };
+      if (args !== undefined) action.args = args;
+      const got = await runXiangwoAction(action, async () => {
+        called += 1;
+        return { ok: true };
+      });
+      expect(got).toEqual({ ok: false, reason: 'bad-url' });
+      expect(called).toBe(0); // 不假装成功、也不回退系统浏览器
+    }
+  });
+
+  it('★主进程回 ok:false 照原样带出（unavailable 不粉饰）', async () => {
+    const got = await runXiangwoAction(
+      { id: XIANGWO_OPEN_EMBEDDED_BROWSER_ID, args: { url: 'https://example.com' } },
+      async () => ({ ok: false, reason: 'unavailable' })
+    );
+    expect(got).toEqual({ ok: false, reason: 'unavailable' });
+    expect(actionFailureText({ id: XIANGWO_OPEN_EMBEDDED_BROWSER_ID }, got)).toContain('没接上');
+  });
+
+  it('★直连表只登记开网页这一个 id（不许顺手放开别的）', () => {
+    expect(Object.keys(XIANGWO_DIRECT_ACTIONS)).toEqual([XIANGWO_OPEN_EMBEDDED_BROWSER_ID]);
+    expect(XIANGWO_DIRECT_ACTIONS['host.runCommand']).toBeUndefined();
+    expect(XIANGWO_DIRECT_ACTIONS['host.openExternal']).toBeUndefined();
+  });
+
+  it('★普通命令零回归：app.settings 仍然走 host.runCommand', async () => {
+    const calls: unknown[] = [];
+    const got = await runXiangwoAction({ id: 'app.settings' }, async (method, payload) => {
+      calls.push([method, payload]);
+      return { ok: true };
+    });
+    expect(got).toEqual({ ok: true });
+    expect(calls[0]).toEqual(['host.runCommand', { id: 'app.settings' }]);
   });
 });

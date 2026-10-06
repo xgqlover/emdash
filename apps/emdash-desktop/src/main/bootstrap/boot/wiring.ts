@@ -152,6 +152,9 @@ export function startXiangwoCdpBridge(): void {
     // [XG-CUSTOM] 未绑定的 bot → 确定性的 `bot-<botId>`（[XG-CUSTOM 2026-10-03]）：桥用它挑页 +
     // 随开页请求下发给渲染进程（渲染进程按同一个 id 真的建出这个 profile），否则 botId 永远带上不去。
     newBotProfileId: (botId) => xiangwoNewBotProfileId(botId),
+    // [XG-CUSTOM 2026-10-06] 超时"按证据分档"用的只读计数：已 attach 但还没被绑定的 <webview> 数。
+    // 事故 2026-10-06：页其实开出来了（只是加载慢/失败、还没绑定），桥却报"没有页面被绑定"。
+    countPendingWebviews: () => browserWebContentsRegistry.countPendingWebviews(),
     log: (message, metadata) => log.info(`[XG-CUSTOM] ${message}`, metadata),
   });
   xiangwoCdpBridge = bridge;
@@ -186,6 +189,11 @@ export function requestEmbeddedBrowserOpen(request: XiangwoOpenBrowserRequest): 
       url: request.url,
       ...(profileId !== '' ? { profileId } : {}),
       ...(bot !== '' ? { botId: bot } : {}),
+      // [XG-CUSTOM] 2026-10-06 「用户要看」这一维**透传**给渲染进程：true = 开在**用户当前 task**
+      //   （可见），false/不带 = 维持原行为（先开进 bot 自己的 task，隔离使用）。
+      //   渲染侧消费者见 embedded-browser-open-request.ts 的 `presentToUser`（pickTargetTask 分叉）。
+      //   ⚠️ 只有显式 true 才下发 —— **不带时事件与改动前逐字节一致**（老调用方零回归）。
+      ...(request.presentToUser === true ? { presentToUser: true } : {}),
     });
   } catch (error) {
     log.warn('[XG-CUSTOM] 广播内嵌浏览器开页请求失败', {

@@ -70,8 +70,11 @@ export function bootBackground(services: ServicesBundle, runtimes: DesktopRuntim
   // wiring.ts 的 autostartXiangwoOrb（失败只打日志，绝不影响主窗口启动）。
   // [XG-CUSTOM 2026-10-03] 先接上「球里图片卡片点击 → 内嵌浏览器开来源页」的入口：接到同一条
   // requestEmbeddedBrowserOpen 广播（agent 9223 桥 / 反向通道用的就是它），不另造开页机制。
+  // [XG-CUSTOM 2026-10-06] 球侧来的开页请求 = **用户要看的页** ⇒ 显式带上 `presentToUser: true`
+  //   （否则会开进该 bot 自己的 task 里，用户在屏幕上什么都看不到 —— 真机事故就是这么来的）。
+  //   只加这一维；url/bot/profile 的语义与老行为逐字节一致。
   configureOrbEmbeddedBrowserOpen((request) => {
-    requestEmbeddedBrowserOpen(request);
+    requestEmbeddedBrowserOpen({ ...request, presentToUser: true });
     return true;
   });
   autostartXiangwoOrb();

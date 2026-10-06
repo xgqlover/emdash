@@ -79,7 +79,11 @@ describe('[XG-CUSTOM] resolveXiangwoBrowserProxy', () => {
     expect(resolved).toEqual({ proxy: undefined, source: 'file' });
   });
 
-  it('非 Linux 客户端缺省 socks5://100.125.4.119:1080，Linux 本机不设缺省', () => {
+  it('非 Linux 客户端缺省 socks5://10.239.5.174:1080（ZeroTier），Linux 本机不设缺省', () => {
+    // [XG-CUSTOM] 2026-10-06 —— 把「缺省是哪个地址」钉死在测试里：
+    // 原来写的是 Tailscale `100.125.4.119`，Windows 实测 0/12 全超时（`ERR_SOCKS_CONNECTION_FAILED`），
+    // ZeroTier `10.239.5.174` 才是 12/12 能通的那条。写死常量值 → 谁改回去这条就红。
+    expect(XIANGWO_BROWSER_PROXY_DEFAULT).toBe('socks5://10.239.5.174:1080');
     expect(
       resolveXiangwoBrowserProxy({ env: envOf({}), platform: 'win32', readConfigFile: () => undefined })
     ).toEqual({ proxy: XIANGWO_BROWSER_PROXY_DEFAULT, source: 'default' });

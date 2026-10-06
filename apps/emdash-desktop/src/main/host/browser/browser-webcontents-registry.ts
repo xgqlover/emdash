@@ -182,6 +182,21 @@ export class BrowserWebContentsRegistry {
     return bound;
   }
 
+  /**
+   * [XG-CUSTOM] 2026-10-06 —— 只读计数：**已 attach、但还没被 `bindWebContents` 绑定**的
+   * 内嵌 `<webview>` 有几个（就是 `handleWebviewAttached` 进来的 pending 集合大小）。
+   *
+   * 给 9223 桥 `POST /xg/open-browser` 超时时**按证据分档**用（xiangwo-cdp-bridge.ts::
+   * `openBrowserTimeoutResult`）：>0 ⇒ "页其实已经 attach 了，只是还没绑定"（加载慢 / 加载失败，
+   * 属可重试）；==0 且白名单也没有新页 ⇒ "渲染进程压根没开页"。
+   *
+   * 只读、不改变任何白名单/绑定语义：pending 集合本来就在 `handleWebviewAttached`（partition
+   * 校验之后）与 `bindWebContents`（绑定成功）两处增删，这里只是把它的**大小**报出去。
+   */
+  countPendingWebviews(): number {
+    return this.pendingWebContentsIds.size;
+  }
+
   openDevTools(browserId: string): boolean {
     const webContents = this.webContentsByBrowserId.get(browserId);
     if (!webContents || webContents.isDestroyed()) return false;

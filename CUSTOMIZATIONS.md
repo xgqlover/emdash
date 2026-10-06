@@ -664,3 +664,56 @@ app 侧 `deployment-builder` 的 webhook 分支还差一条单测（core 侧已�
 
 **A 方案剩余**：第 1 件（boot 注入执行器 —— 主窗口把 `configureOrbHostCommands(run)` 接上命令执行路径）
 · 第 3 件（agent 工具 `emdash_action` + "用户要看"时带 `presentToUser` + 治 wego 撞名）。
+
+### 24. [XG-CUSTOM 2026-10-06] 内嵌浏览器「开错机器/开不出来」三修 + 球指挥开网页（TASK 1 / 3 / 4）
+
+承接《emdash 内嵌浏览器开错机器-修复OPS-2026-10-06》四个坑里的三个（TASK 2 在 agent 侧，不涉及 emdash）。
+
+**TASK 1（P0 治本）· 缺省代理 Tailscale → ZeroTier**
+`main/host/browser/xiangwo-browser-proxy.ts`：`XIANGWO_BROWSER_PROXY_DEFAULT`
+`100.125.4.119`（Tailscale）→ **`10.239.5.174`（ZeroTier）**。真机口径（Windows → Linux 各 12 次）：
+ZeroTier **12/12、平均 6ms**，Tailscale **0/12 全超时**（`tailscale status` 走美国 Denver 中继）
+⇒ 改前 Windows 内嵌浏览器一开就 `ERR_SOCKS_CONNECTION_FAILED`。
+**同时删掉文件头那句「10.239.5.174 是旧的 ZeroTier 地址，已失效」**（实测正好相反，留着会被下一个人改回去），
+`browser-profile-session.ts` 的同款注释一并更正；单测把缺省值**写死断言**（谁改回去这条就红）。
+影响面只有**非 Linux 平台**的缺省；`xiangwo-browser-proxy.json` / `XIANGWO_BROWSER_PROXY` 优先级不变。
+
+**TASK 3（P1）· 内嵌页绑定不再只等 `dom-ready`**
+根因（真 Electron 40.10.2 + Xvfb 探针实测）两条：
+① **慢加载**（TCP 连上却永不回响应）20s 内**只有 `did-start-loading`/`did-attach`、没有 `dom-ready`**，
+且这两个时机 `getWebContentsId()` **会抛**（`createGuest()` 回包与事件转发的竞态）
+⇒ 旧实现只在 `dom-ready` 里 `bindWebContents` ⇒ **永不进白名单** ⇒ 桥误报「30s 内没有页面被绑定」；
+② 死域名那例 `dom-ready` **其实会来**（错误页也是真 document），真因是主框架 `loadError` 一到就把
+`<webview>` **换成错误视图** ⇒ React 卸载 ⇒ guest 销毁 ⇒ 白名单丢页。
+改法：新增 `core/features/browser/browser/browser-webview-bind.ts`（**幂等 + 250ms×至多 10s 退避重试 + 只 warn 不抛**），
+`browser-pane.tsx` 的 `onEarlyBind`/`onDomReady` 都走它；`browser-webview-events.ts` 在
+`did-start-loading`/`did-attach`/`did-fail-load`/`did-finish-load`/`did-stop-loading` 各给一次机会；
+`browser-webcontents-registry.ts` 加**只读** `countPendingWebviews()`；
+`xiangwo-cdp-bridge.ts` 超时结果**按证据分档** + `reason` 码
+（`attached-not-bound`／`profile-mismatch`／`no-webview-attached`／`unknown`，老调用方不接计数则文案逐字节不变），
+顺手把注释里过期的「缺省 12s」与 `XIANGWO_CDP_OPEN_BROWSER_WAIT_MS = 30_000` 对齐。
+⚠️ **安全闸门一个没放开**（partition 校验 / 主进程自建 WebContentsView / 白名单范围都没动）。
+
+**TASK 4a（P2）· 球动作块直连 `host.openEmbeddedBrowser`**
+`renderer/orb/xiangwo-action.ts` 加**直连方法表**（`XIANGWO_DIRECT_ACTIONS`，**只登记这一个 id**）：
+命中就 `run('host.openEmbeddedBrowser', {url[,bot]})`，**不走** `host.runCommand` —— 因为白名单 8 条 UI 命令
+**没有一条能开网页**，而这条 orbApi 方法本来就接好了（球里点图片卡片走的就是它）。
+url 用白名单式判断只认 `http(s)`，非法**一次调用都不发**；**白名单与 boot 注入都没动**。
+
+**TASK 4b 的 emdash 半边 · `presentToUser` 透传链接通**
+`core/primitives/browser/api/browser.ts`（事件类型 + `presentToUser?`）→ `wiring.ts`（**只有显式 true 才下发**）
+→ `xiangwo-cdp-bridge.ts`（POST 体只认**布尔 true**，透传给广播）→ `background.ts`（**球侧来的请求 = 用户要看的页**，
+恒带 true）。消费者（`embedded-browser-open-request.ts` 的 `pickTargetTask` 分叉）是 10-05 写的，
+**此前没有任何调用方下发过这一维 ⇒ 一直是死码**，本轮接通（页开进**用户当前 task**，而不是 bot 自己的 task）。
+⚠️ 已知限制：**复用已绑定页**时它仍留在原来那个 task；反向通道（`xiangwo-browser-relay.ts` 的 `open`）没接这一维。
+
+**验证**：`vitest --project node`（`main/host/browser` + `core/features/browser` + `renderer/orb`）
+**27 文件 / 339 项全绿**；`tsgo --noEmit -p tsconfig.browser.json` **rc=0**、
+`tsgo --noEmit -p tsconfig.node.json` **rc=0**；台账 `check.mjs` 刷新为 **144 文件 / 813 处**、**0 处丢失零漂移**；
+`xiangwo-browser-proxy.test.ts` 7 项（含缺省值写死）；本机实测代理经 `10.239.5.174:1080` **HTTP=200**。
+
+**未覆盖 / 留给下一单**：① 失败页（主框架 loadError）仍会从 `/json/list` 消失 —— 要"加载失败也留在白名单"
+得把错误视图改成**覆盖层**或给 webview 加 `hidden`（**改用户可见 UI**，本轮没做）；
+② `xiangwo-browser-relay.ts` 那处过期「缺省 12s」注释与超时文案未接分档；
+③ Windows 真机 A/B（`/json/list` 多出该页、日志 `[web_render] 内嵌浏览器目标 = http://127.0.0.1:9224`）
+要等用户那台在线并装上本版 exe。

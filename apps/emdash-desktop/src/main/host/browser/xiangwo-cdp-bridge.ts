@@ -137,7 +137,27 @@ export type XiangwoOpenBrowserRequest = {
   bot?: string;
   /** 显式 profile（优先级高于 bot）；不带 = 由渲染进程按 defaultProfileId 决定 */
   profile?: string;
+  // [XG-CUSTOM] 2026-10-06 「用户要看」这一维（POST 体里的 `presentToUser`）：
+  //   true  = 这一页是**给用户看的**（球里开网页 / 用户说「打开这个网址」）→ 渲染进程把页开进
+  //           **用户当前 task**（看得见），而不是该 bot 自己的 task（真机事故：页开在用户视野之外，
+  //           用户在屏幕上什么都没看到，而回报是"打开了"）。
+  //   不带/false = **维持原行为**（先开进 bot 自己的 task，隔离使用）⇒ 老调用方零回归。
+  presentToUser?: boolean;
 };
+
+/**
+ * [XG-CUSTOM 2026-10-06] `/xg/open-browser` 超时时"为什么没等到页"的**可判别码** ——
+ * agent 按它决定"重试 / 换 profile / 落回旧链路"（详见 `openBrowserTimeoutResult`）。
+ */
+export type XiangwoOpenBrowserTimeoutReason =
+  /** 有 `<webview>` 已 attach、还没绑定（加载慢 / 加载失败）⇒ 页**已开出来**，可重试 */
+  | 'attached-not-bound'
+  /** 有新页被绑定了，但不是请求的 profile（别的 bot 的页）⇒ 不凑数 */
+  | 'profile-mismatch'
+  /** 渲染进程压根没开页（没停在 task 视图 / 没有可用 task） */
+  | 'no-webview-attached'
+  /** 调用方没接只读计数（老调用方）⇒ 文案与改动前逐字节一致 */
+  | 'unknown';
 
 /** 只要能读出对端地址的 socket（`net.Socket`/`Duplex` 就长这样；单测可注入任意对象） */
 export function peerAddressOfSocket(socket: unknown): string | undefined {
@@ -193,8 +213,24 @@ export type XiangwoCdpBridgeOptions = {
    * 不传 = 未绑定的 bot 走老行为（不做 profile 精确匹配）。
    */
   newBotProfileId?: (botId: string) => string;
-  /** [XG-CUSTOM] 「从零开页」等待新 target 出现的上限（缺省 12s；0 = 不等，只广播） */
+  /**
+   * [XG-CUSTOM] 「从零开页」等待新 target 出现的上限（缺省 = `XIANGWO_CDP_OPEN_BROWSER_WAIT_MS`
+   * = 30s；0 = 不等，只广播）。
+   * [XG-CUSTOM 2026-10-06] 这句原来写「缺省 12s」—— 常量早在 [XG-CUSTOM 2026-10-03] 就改成 30s 了，
+   * 注释没跟上（见 xiangwo-browser-relay.ts 同样一处待改）。这里与常量对齐，别再写死秒数。
+   */
   openBrowserWaitMs?: number;
+  /**
+   * [XG-CUSTOM 2026-10-06] 只读计数：主进程**已 attach、但还没被 `bindWebContents` 绑定**的
+   * 内嵌 `<webview>` 数量（接 `browserWebContentsRegistry.countPendingWebviews()`）。
+   *
+   * 为什么需要它：`/xg/open-browser` 超时原是"一刀切"的 `ok:false + 人话`，无法区分
+   *   ① 有 webview 已 attach 只是还没绑定（页面加载慢 / 加载失败 ⇒ **页其实开出来了**，可重试）
+   *   ② 渲染进程压根没开页（没停在 task 视图 / 没有可用 task）
+   * 两者对 agent 的下一步动作完全不同，所以超时时用这个计数**按证据分档**（见 `XiangwoOpenBrowserTimeoutReason`）。
+   * 不传 = 退回旧文案（老行为，逐字节一致）。
+   */
+  countPendingWebviews?: () => number;
 };
 
 type Attachment = {
@@ -299,6 +335,8 @@ export class XiangwoCdpBridge {
   private readonly newBotProfileId: ((botId: string) => string) | null;
   /** [XG-CUSTOM] 「从零开页」等待新 target 的上限 */
   private readonly openBrowserWaitMs: number;
+  /** [XG-CUSTOM 2026-10-06] 只读：已 attach 但还没被绑定的 `<webview>` 数（超时时按证据分档用） */
+  private readonly countPendingWebviews: (() => number) | null;
   /** 实际生效的来源白名单（start() 时算好；连接层每条连接都查它） */
   private peers: readonly XiangwoCdpAllowedPeer[] = XIANGWO_CDP_LOOPBACK_PEERS;
   /** 没带 Host 头的请求（HTTP/1.0）回填 ws 地址用的 authority */
@@ -324,6 +362,8 @@ export class XiangwoCdpBridge {
     this.lookupBotProfile = options.lookupBotProfile ?? null;
     this.newBotProfileId = options.newBotProfileId ?? null;
     this.openBrowserWaitMs = options.openBrowserWaitMs ?? XIANGWO_CDP_OPEN_BROWSER_WAIT_MS;
+    // [XG-CUSTOM 2026-10-06] 只读计数（缺省 null = 超时文案退回旧版，老调用方逐字节一致）
+    this.countPendingWebviews = options.countPendingWebviews ?? null;
     this.log = options.log ?? (() => {});
     const advertisedHost = this.host === XIANGWO_CDP_ANY_HOST ? XIANGWO_CDP_HOST : this.host;
     this.advertisedAuthority = `${advertisedHost}:${this.port}`;
@@ -570,11 +610,17 @@ export class XiangwoCdpBridge {
    *   3. 等待超时 / 渲染进程没法开（比如没停在 task 视图）→ `ok:false` + 人话，
    *      调用方（agent）据此落回旧链路，**不静默假装成功**；
    *   4. 请求体没带 bot/profile → 与改动前**逐字节一致**（复用第一个已绑定的页）。
+   *   5. [XG-CUSTOM] 2026-10-06 请求体带 `"presentToUser": true`（**布尔 true** 才算）→ 广播时
+   *      原样透传，渲染进程把页开进**用户当前 task**（用户看得见）。不带 = 老行为。
+   *      ⚠️ 只影响「从零新开这一跳」；**复用已绑定页**时它仍在原来那个 task 里（本轮不动 —
+   *      把已有标签页搬到别的 task 是另一件事，别拿来当"开在用户眼前"的保证）。
    */
   private async handleOpenBrowserRequest(req: IncomingMessage, res: ServerResponse): Promise<void> {
     let url = '';
     let bot = '';
     let profile = '';
+    // [XG-CUSTOM] 2026-10-06 「用户要看的页」标记（POST 体的 presentToUser）；缺省 false = 老行为
+    let presentToUser = false;
     try {
       const body = await readJsonBody(req);
       if (typeof body === 'object' && body !== null) {
@@ -584,8 +630,12 @@ export class XiangwoCdpBridge {
           botId?: unknown;
           profile?: unknown;
           profileId?: unknown;
+          presentToUser?: unknown;
         };
         if (typeof raw.url === 'string') url = raw.url.trim();
+        // [XG-CUSTOM] 2026-10-06 「用户要看」：只认**布尔 true**（字符串 "true"/1 一律不算，
+        // 免得旧调用方传个 "false" 反而把页开去用户视野外）。不带 = 老行为。
+        if (raw.presentToUser === true) presentToUser = true;
         // [XG-CUSTOM] bot/profile：可选，只接受非空字符串（别把对象/数字带进来当 profileId）
         if (typeof raw.bot === 'string') bot = raw.bot.trim();
         if (typeof raw.profile === 'string') profile = raw.profile.trim();
@@ -665,6 +715,8 @@ export class XiangwoCdpBridge {
       this.requestOpenBrowser({
         url,
         ...(bot !== '' ? { bot } : {}),
+        // [XG-CUSTOM] 2026-10-06 「用户要看」——原样透传给渲染进程（wiring 再透传进事件）。
+        ...(presentToUser ? { presentToUser: true } : {}),
         // [XG-CUSTOM 2026-10-03] 把**已解析好的 profileId** 一起带给渲染进程（显式 profile、
         // 已绑定 bot 的那个 profile、或未绑定 bot 的确定性 `bot-<botId>`）。
         // 只带 bot 名字的话，渲染进程会各自按自己的快照再解析一遍 → 主进程等的 profile 与实际
@@ -682,12 +734,7 @@ export class XiangwoCdpBridge {
     });
     const appeared = await this.waitForNewTarget(known, this.openBrowserWaitMs, wantedProfile);
     if (appeared === null) {
-      this.writeOpenBrowserResult(res, {
-        ok: false,
-        error:
-          `已请求 emdash 开内嵌浏览器，但 ${String(Math.round(this.openBrowserWaitMs / 1000))}s 内` +
-          '没有页面被绑定（渲染进程可能没停在 task 视图 / 没有可用的 task）',
-      });
+      this.writeOpenBrowserResult(res, this.openBrowserTimeoutResult(known, wantedProfile));
       return;
     }
     // [XG-CUSTOM] 新页也可能是"被绑定了但 initialUrl 还没落地"（url 为空 / about:blank）——
@@ -717,6 +764,76 @@ export class XiangwoCdpBridge {
       ...(appeared.profileId !== undefined ? { profile: appeared.profileId } : {}),
       ...(pageBotId !== undefined ? { botId: pageBotId } : {}),
     });
+  }
+
+  /**
+   * [XG-CUSTOM 2026-10-06] `/xg/open-browser` 超时的回包：**按证据分档**，带可判别的 `reason` 码。
+   *
+   * 为什么要分档（真机事故 2026-10-06）：旧文案只有一句「30s 内没有页面被绑定（渲染进程可能没停在
+   * task 视图 / 没有可用的 task）」—— 而当时的真相是**页已经开出来了**（屏幕上真有新标签、地址栏也
+   * 填了 URL），只是渲染进程还没 `bindWebContents`（加载慢 / 加载失败），于是白名单为空、桥把它
+   * 误报成"没开出来"。agent 两条路要做的下一步完全不同：
+   *
+   *   · `attached-not-bound`  —— 有 `<webview>` 已 attach、还没绑定（加载慢 / 加载失败）。
+   *                              **页已开出来**：稍后重试 `Page.navigate` / 重新 `POST` 均可，别放弃。
+   *   · `profile-mismatch`    —— 确实有新页被绑定了，但不是请求的那个 profile（别的 bot 的页）。
+   *                              不拿别人的页凑数（串登录态），调用方要么指定 profile、要么等自己那页。
+   *   · `no-webview-attached` —— 渲染进程压根没开页（没停在 task 视图 / 没有可用 task）。
+   *   · `unknown`             —— 调用方没接只读计数（老调用方）：文案与改动前**逐字节一致**。
+   *
+   * 全部判据都是**只读**的：`countPendingWebviews()`（registry 的 pending 集合大小）+
+   * `liveTargets()`（白名单）—— 不新增任何主进程能力、不放开白名单。
+   */
+  private openBrowserTimeoutResult(
+    known: ReadonlySet<string>,
+    wantedProfile: string | null
+  ): Record<string, unknown> {
+    const seconds = String(Math.round(this.openBrowserWaitMs / 1000));
+    const pending = this.countPendingWebviews?.() ?? 0;
+    const freshTargets =
+      this.countPendingWebviews === null
+        ? []
+        : this.liveTargets().filter((target) => !known.has(target.browserId));
+
+    if (pending > 0) {
+      return {
+        ok: false,
+        reason: 'attached-not-bound' satisfies XiangwoOpenBrowserTimeoutReason,
+        attachedWebviews: pending,
+        error:
+          `已请求 emdash 开内嵌浏览器：${seconds}s 内有 ${String(pending)} 个 <webview> 已 attach ` +
+          '但还没被绑定（页面加载慢或加载失败）—— 这一页**其实已经开出来了**，' +
+          '稍后重试或直接在 /json/list 里找它，别当"没开出来"处理',
+      };
+    }
+    if (freshTargets.length > 0) {
+      return {
+        ok: false,
+        reason: 'profile-mismatch' satisfies XiangwoOpenBrowserTimeoutReason,
+        boundNewWebviews: freshTargets.length,
+        error:
+          `已请求 emdash 开内嵌浏览器：${seconds}s 内确实有新页被绑定（${String(freshTargets.length)} 个），` +
+          `但没有一个属于请求的 profile${
+            wantedProfile === null ? '' : `（${wantedProfile}）`
+          }—— 不拿别的 bot 的页凑数`,
+      };
+    }
+    if (this.countPendingWebviews === null) {
+      return {
+        ok: false,
+        reason: 'unknown' satisfies XiangwoOpenBrowserTimeoutReason,
+        error:
+          `已请求 emdash 开内嵌浏览器，但 ${seconds}s 内` +
+          '没有页面被绑定（渲染进程可能没停在 task 视图 / 没有可用的 task）',
+      };
+    }
+    return {
+      ok: false,
+      reason: 'no-webview-attached' satisfies XiangwoOpenBrowserTimeoutReason,
+      error:
+        `已请求 emdash 开内嵌浏览器，但 ${seconds}s 内渲染进程既没有 <webview> attach、` +
+        '也没有页面被绑定（可能没停在 task 视图 / 没有可用的 task）',
+    };
   }
 
   /**

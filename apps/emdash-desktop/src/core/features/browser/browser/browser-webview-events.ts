@@ -6,7 +6,22 @@ import type { BrowserWebviewElement, BrowserWebviewEventMap } from './browser-we
 export function bindBrowserWebviewEvents(
   browserId: string,
   webview: BrowserWebviewElement,
-  options: { onDomReady?: () => void } = {}
+  options: {
+    onDomReady?: () => void;
+    /**
+     * [XG-CUSTOM] 2026-10-06 —— 早绑定钩子：在 `dom-ready` **之前**的每个可用时机都调一次
+     * （`did-start-loading` / `did-attach` / `did-fail-load` / `did-finish-load` / `did-stop-loading`）。
+     *
+     * 病根：内嵌页进 9223 CDP 白名单的唯一入口是 `bindWebContents`，而它旧实现只在
+     * `dom-ready` 里调 —— 页面加载慢/失败（没有 document、dom-ready 迟迟不来）时**永远不绑**，
+     * `/json/list` 恒空 ⇒ 桥把"页其实开出来了"误报成"没开出来"（真机事故 2026-10-06）。
+     *
+     * 这里只负责**尽早、多次**地叫这个钩子；幂等 / 退避重试 / 只 warn 不抛都在被调方
+     * （`browser-webview-bind.ts::createWebviewWebContentsBinder`）。
+     * 钩子抛错也只 `console.warn` —— 尽力而为的自动路径，不能影响页面事件处理本身。
+     */
+    onEarlyBind?: () => void;
+  } = {}
 ): () => void {
   let isDomReady = false;
   const historySyncTimers = new Set<ReturnType<typeof setTimeout>>();
@@ -56,7 +71,28 @@ export function bindBrowserWebviewEvents(
     options.onDomReady?.();
   };
 
+  // [XG-CUSTOM] 2026-10-06 —— 早绑定：每个早于/晚于 dom-ready 的事件都给一次机会。
+  // 单独 try/catch：钩子（绑定器）必须"绝不抛"，这里再兜一层，保证页面状态同步不受影响。
+  const runEarlyBind = (
+    trigger:
+      | 'did-attach'
+      | 'did-start-loading'
+      | 'did-fail-load'
+      | 'did-finish-load'
+      | 'did-stop-loading'
+  ) => {
+    try {
+      options.onEarlyBind?.();
+    } catch (error) {
+      console.warn(`[XG-CUSTOM] 内嵌浏览器早绑定钩子抛错（trigger=${trigger}，已忽略）`, error);
+    }
+  };
+
+  const onEarlyAttach = () => runEarlyBind('did-attach');
+  const onFinishLoad = () => runEarlyBind('did-finish-load');
+
   const onStartLoading = () => {
+    runEarlyBind('did-start-loading');
     browserSessionStore.updateSession(browserId, {
       faviconUrl: null,
       isLoading: true,
@@ -65,6 +101,7 @@ export function bindBrowserWebviewEvents(
   };
 
   const onStopLoading = () => {
+    runEarlyBind('did-stop-loading');
     if (!isDomReady) return;
     const currentUrl = webview.getURL() || BROWSER_DEFAULT_URL;
     browserSessionStore.updateSession(browserId, {
@@ -91,6 +128,9 @@ export function bindBrowserWebviewEvents(
   };
 
   const onFailLoad = (event: BrowserWebviewEventMap['did-fail-load']) => {
+    // [XG-CUSTOM] 2026-10-06 —— 失败页同样要绑（error page 也是一个已 attach 的 webview）：
+    // 放在 -3 提前 return 之前，保证"取消的加载"也走一次早绑定。
+    runEarlyBind('did-fail-load');
     if (event.errorCode === -3) return;
     if (event.isMainFrame) {
       browserSessionStore.updateSession(browserId, {
@@ -137,6 +177,9 @@ export function bindBrowserWebviewEvents(
   };
 
   webview.addEventListener('dom-ready', onDomReady);
+  // [XG-CUSTOM] 2026-10-06 —— 早绑定钩子（都早于 dom-ready；详见 options.onEarlyBind 注释）
+  webview.addEventListener('did-attach', onEarlyAttach);
+  webview.addEventListener('did-finish-load', onFinishLoad);
   webview.addEventListener('did-start-loading', onStartLoading);
   webview.addEventListener('did-stop-loading', onStopLoading);
   webview.addEventListener('did-navigate', onNavigate);
@@ -150,6 +193,8 @@ export function bindBrowserWebviewEvents(
     for (const timer of historySyncTimers) clearTimeout(timer);
     historySyncTimers.clear();
     webview.removeEventListener('dom-ready', onDomReady);
+    webview.removeEventListener('did-attach', onEarlyAttach);
+    webview.removeEventListener('did-finish-load', onFinishLoad);
     webview.removeEventListener('did-start-loading', onStartLoading);
     webview.removeEventListener('did-stop-loading', onStopLoading);
     webview.removeEventListener('did-navigate', onNavigate);

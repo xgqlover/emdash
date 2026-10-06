@@ -49,8 +49,9 @@ export function configureBrowserProfileSession(partition: string): Session {
 
   // [XG-CUSTOM] 内嵌浏览器走 socks5 代理上外网（Windows 客户端连 Linux 主机的 socks5-proxy.py）。
   // 取值优先级：环境变量 XIANGWO_BROWSER_PROXY → userData/xiangwo-browser-proxy.json →
-  // 非 Linux 客户端缺省 socks5://100.125.4.119:1080（Windows 打包版照旧能配，见
-  // host/browser/xiangwo-browser-proxy.ts 的文件头）。任何异常/缺值都只是"不用代理"，
+  // 非 Linux 客户端缺省 socks5://10.239.5.174:1080 ([XG-CUSTOM] 2026-10-06 由 Tailscale 地址改为
+  // ZeroTier · Windows 实测后者 12/12、前者 0/12；Windows 打包版照旧能配，见
+  // host/browser/xiangwo-browser-proxy.ts 的文件头)。任何异常/缺值都只是"不用代理"，
   // **绝不因为变量缺失而崩**。只影响浏览器 partition session，不影响 emdash 主连接。
   const browserProxy = resolveXiangwoBrowserProxy({
     readConfigFile: (fileName) => readFileSync(join(app.getPath('userData'), fileName), 'utf8'),

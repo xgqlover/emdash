@@ -878,6 +878,59 @@ describe('[XG-CUSTOM] XiangwoCdpBridge /xg/open-browser（从零开页）', () =
     const r = await postOpen(base, { url: 'https://example.com' });
     expect(r['ok']).toBe(false);
     expect(String(r['error'])).toContain('没有页面被绑定');
+    // 没接只读计数（老调用方）→ 码是 unknown，文案与改动前逐字节一致
+    expect(r['reason']).toBe('unknown');
+  });
+
+  // ── [XG-CUSTOM 2026-10-06] 超时文案**按证据分档** ─────────────────────────────
+  //
+  // 真机事故：agent 请求开页，屏幕上真的出现了新标签、地址栏也填了 URL，而 `/json/list` 是 `[]`，
+  // 桥只回一句「30s 内没有页面被绑定（渲染进程可能没停在 task 视图 / 没有可用的 task）」——
+  // 把"页已开出来、只是加载慢/还没绑定"误判成"压根没开"。分档后 agent 能按 `reason` 决定下一步。
+  it('超时但已有 <webview> attach（加载慢/失败）→ reason=attached-not-bound，明确说"页已开出来"', async () => {
+    let pending = 0;
+    const { base } = await startBridge(() => [], 500, {
+      openBrowserWaitMs: 120,
+      requestOpenBrowser: () => {
+        // 模拟渲染进程：标签页开出来了、webview 也 attach 了，但还没 bindWebContents
+        pending = 1;
+      },
+      countPendingWebviews: () => pending,
+    });
+    const r = await postOpen(base, { url: 'https://j-designcenter.com/' });
+    expect(r['ok']).toBe(false);
+    expect(r['reason']).toBe('attached-not-bound');
+    expect(r['attachedWebviews']).toBe(1);
+    expect(String(r['error'])).toContain('其实已经开出来了');
+  });
+
+  it('超时且渲染进程没 attach 任何 <webview> → reason=no-webview-attached', async () => {
+    const { base } = await startBridge(() => [], 500, {
+      openBrowserWaitMs: 120,
+      requestOpenBrowser: () => undefined,
+      countPendingWebviews: () => 0,
+    });
+    const r = await postOpen(base, { url: 'https://example.com' });
+    expect(r['ok']).toBe(false);
+    expect(r['reason']).toBe('no-webview-attached');
+    expect(String(r['error'])).toContain('既没有 <webview> attach');
+  });
+
+  it('超时里有"不是这个 profile"的新页 → reason=profile-mismatch（不拿别人的页凑数）', async () => {
+    const bound: EmbeddedBrowserTarget[] = [];
+    const { base } = await startBridge(() => bound, 500, {
+      openBrowserWaitMs: 200,
+      lookupBotProfile: (bot) => (bot === 'sxsj' ? 'bot-sxsj' : null),
+      requestOpenBrowser: () => {
+        setTimeout(() => bound.push(fakeBotTarget('task-babado', 'bot-babado', 'babado')), 30);
+      },
+      countPendingWebviews: () => 0,
+    });
+    const r = await postOpen(base, { url: 'https://example.com', bot: 'sxsj' });
+    expect(r['ok']).toBe(false);
+    expect(r['reason']).toBe('profile-mismatch');
+    expect(r['boundNewWebviews']).toBe(1);
+    expect(String(r['error'])).toContain('不拿别的 bot 的页凑数');
   });
 
   it('没接开页回调（老行为）→ ok:false，且不会去动别的浏览器', async () => {
@@ -1142,6 +1195,8 @@ describe('[XG-CUSTOM] bot ⟷ profile（/json/list 身份 + 按 bot 挑页）', 
     });
     const r = await postOpen(base, { url: 'https://example.com', bot: 'sxsj' });
     expect(r['ok']).toBe(false);
+    // [XG-CUSTOM 2026-10-06] 这条不接只读计数（老调用方）→ reason=unknown、文案与改动前一致
+    expect(r['reason']).toBe('unknown');
     expect(String(r['error'])).toContain('没有页面被绑定');
   });
 });

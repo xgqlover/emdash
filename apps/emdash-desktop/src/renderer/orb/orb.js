@@ -880,6 +880,8 @@ async function main() {
       }
       // [XG-CUSTOM 2026-10-05] 执行动作（best-effort）：成功不吵；**失败如实说一句**（不假装成功）
       //   白名单在**主进程**判（`host.runCommand`），球侧只负责发与回报 —— 见 ./xiangwo-action.ts
+      // [XG-CUSTOM] 2026-10-06 例外：`host.openEmbeddedBrowser`（开网页）**不查白名单**，走
+      //   xiangwo-action.ts 的直连表 → 同一个 `bridge.orbApi`。这里不用改，路由在那边判。
       for (const action of actions) {
         void runXiangwoAction(action, (method, payload) => {
           const call = bridge.orbApi;

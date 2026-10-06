@@ -216,6 +216,34 @@ describe('BrowserWebContentsRegistry', () => {
     );
   });
 
+  // [XG-CUSTOM] 2026-10-06 —— 只读计数：给 9223 桥的超时文案分档用（`countPendingWebviews()`）。
+  // 语义 = "已 attach、还没被绑定"的 <webview> 数：attach 之后 +1，绑定成功或销毁之后 -1。
+  it('counts attached-but-unbound webviews without touching any binding semantics', () => {
+    const registry = new BrowserWebContentsRegistry();
+    registry.registerSession({ browserId: 'browser-1', partition: PROFILE_PARTITION });
+
+    expect(registry.countPendingWebviews()).toBe(0);
+
+    const first = fakeWebContents();
+    const second = fakeWebContents();
+    registry.handleWebviewAttached(first);
+    registry.handleWebviewAttached(second);
+    expect(registry.countPendingWebviews()).toBe(2);
+
+    // 绑定成功 → 出 pending 集合（进白名单）
+    expect(registry.bindWebContents('browser-1', first)).toBe(true);
+    expect(registry.countPendingWebviews()).toBe(1);
+    expect(registry.listBoundBrowsers().map((target) => target.browserId)).toEqual(['browser-1']);
+
+    // 重复绑定不改变计数（幂等）
+    expect(registry.bindWebContents('browser-1', first)).toBe(true);
+    expect(registry.countPendingWebviews()).toBe(1);
+
+    // 还没绑的 webview 被销毁（加载失败后 React 卸载）→ 也从计数里消失
+    second.destroy();
+    expect(registry.countPendingWebviews()).toBe(0);
+  });
+
   it('cleans up bindings when the webContents is destroyed', () => {
     const registry = new BrowserWebContentsRegistry();
     registry.registerSession({ browserId: 'browser-1', partition: PROFILE_PARTITION });

@@ -387,4 +387,96 @@ describe('bindBrowserWebviewEvents', () => {
       canGoBack: true,
     });
   });
+
+  // ── [XG-CUSTOM] 2026-10-06 —— 早绑定钩子 ───────────────────────────────────────
+  //
+  // 病根（真机事故 2026-10-06）：内嵌页进 9223 白名单的唯一入口是 `bindWebContents`，旧实现只在
+  // `dom-ready` 里调 ⇒ 加载慢/失败时 `dom-ready` 迟迟不来就**永远不绑**，`/json/list` 恒空，
+  // 桥把"页其实开出来了"误报成"没开出来"。这几条钉住：所有早于 dom-ready 的时机都会叫钩子。
+  describe('[XG-CUSTOM] 早绑定钩子 onEarlyBind', () => {
+    function bindWithEarlyBind(browserId: string, webview: BrowserWebviewElement) {
+      const onEarlyBind = vi.fn();
+      const dispose = bindBrowserWebviewEvents(browserId, webview, { onEarlyBind });
+      disposers.push(dispose);
+      return onEarlyBind;
+    }
+
+    it('每个早于 dom-ready 的时机都叫一次钩子（慢页/失败页也能绑上）', () => {
+      const webview = new FakeBrowserWebview();
+      const onEarlyBind = bindWithEarlyBind('browser-early', asWebview(webview));
+
+      expect(onEarlyBind).not.toHaveBeenCalled();
+
+      webview.emit('did-start-loading');
+      expect(onEarlyBind).toHaveBeenCalledTimes(1);
+
+      webview.emit('did-attach');
+      expect(onEarlyBind).toHaveBeenCalledTimes(2);
+
+      // 主框架失败（死域名 / 代理坏）→ 也要绑：错误页同样是一个已 attach 的 webview
+      webview.emit('did-fail-load', {
+        errorCode: -105,
+        errorDescription: 'net::ERR_NAME_NOT_RESOLVED',
+        validatedURL: 'https://j-designcenter.com/',
+        isMainFrame: true,
+      });
+      expect(onEarlyBind).toHaveBeenCalledTimes(3);
+
+      webview.emit('did-finish-load');
+      webview.emit('did-stop-loading');
+      expect(onEarlyBind).toHaveBeenCalledTimes(5);
+    });
+
+    it('已取消的加载（errorCode -3）也走一次钩子', () => {
+      const webview = new FakeBrowserWebview();
+      const onEarlyBind = bindWithEarlyBind('browser-cancelled', asWebview(webview));
+
+      webview.emit('did-fail-load', {
+        errorCode: -3,
+        errorDescription: 'ERR_ABORTED',
+        validatedURL: 'https://example.com/',
+        isMainFrame: true,
+      });
+
+      expect(onEarlyBind).toHaveBeenCalledTimes(1);
+    });
+
+    it('钩子抛错只 console.warn，绝不影响页面事件处理本身', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      try {
+        const webview = new FakeBrowserWebview();
+        const session = browserSessionStore.createSession({
+          browserId: 'browser-throws',
+          projectId: 'project-1',
+          workspaceId: 'workspace-1',
+          taskId: 'task-1',
+        });
+        const dispose = bindBrowserWebviewEvents(session.browserId, asWebview(webview), {
+          onEarlyBind: () => {
+            throw new Error('绑定器炸了');
+          },
+        });
+        disposers.push(dispose);
+
+        expect(() => webview.emit('did-start-loading', {})).not.toThrow();
+        expect(warn).toHaveBeenCalled();
+        // 页面状态同步照常发生（抛错被就地吞掉）
+        expect(browserSessionStore.getSession(session.browserId)?.isLoading).toBe(true);
+      } finally {
+        warn.mockRestore();
+      }
+    });
+
+    it('dispose 之后不再叫钩子（也不会漏监听）', () => {
+      const webview = new FakeBrowserWebview();
+      const onEarlyBind = bindWithEarlyBind('browser-dispose', asWebview(webview));
+      webview.emit('did-attach');
+      expect(onEarlyBind).toHaveBeenCalledTimes(1);
+
+      disposers.splice(0).forEach((dispose) => dispose());
+      webview.emit('did-attach');
+      webview.emit('did-start-loading');
+      expect(onEarlyBind).toHaveBeenCalledTimes(1);
+    });
+  });
 });

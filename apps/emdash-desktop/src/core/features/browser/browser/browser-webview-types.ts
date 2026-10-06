@@ -1,5 +1,12 @@
 export type BrowserWebviewEventMap = {
   'dom-ready': Event;
+  // [XG-CUSTOM] 2026-10-06 —— 早绑定用的两个钩子（都早于 `dom-ready`）：
+  //   · `did-attach`  = Electron 文档「Fired when attached to the embedder web contents」
+  //   · `did-finish-load` = 加载完成/失败（error page 也会发）时收尾再试一次
+  // 实测事件序（Electron 40.10.2 / Linux + Xvfb，见 OPS.md【2026-10-06】TASK 3）：
+  //   did-start-loading → did-attach → (did-fail-load) → dom-ready → did-finish-load → did-stop-loading
+  'did-attach': Event;
+  'did-finish-load': Event;
   'did-start-loading': Event;
   'did-stop-loading': Event;
   'did-navigate': { url: string };

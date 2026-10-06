@@ -11,7 +11,16 @@ export type BrowserEvent =
   // [XG-CUSTOM 2026-10-03] `botId`：请求方 bot 名（agent 侧 `key=<botId>`）。渲染进程按它
   // **按需建/复用该 bot 的 profile**（未绑定时建 `bot-<botId>`）——丢了它，agent 开的页就落到
   // default，`/json/list` 的 `profile`/`botId` 永远是空的。
-  | { type: 'open-in-embedded-browser'; url: string; profileId?: string; botId?: string }
+  // [XG-CUSTOM 2026-10-06] `presentToUser`：**用户要看的页**（球里开网页 / 用户说「打开这个网址」）
+  // ⇒ 渲染进程 `pickTargetTask` 把页开进**用户当前 task**（用户看得见）；不带 = 老行为（先开进
+  // bot 自己的 task，隔离使用）。**只有显式 true 才下发**，不带时与改动前逐字节一致。
+  | {
+      type: 'open-in-embedded-browser';
+      url: string;
+      profileId?: string;
+      botId?: string;
+      presentToUser?: boolean;
+    }
   | { type: 'link-copied'; kind: 'image' | 'link' | 'url'; url: string };
 
 export const BROWSER_PARTITION_PREFIX = 'persist:emdash-browser';

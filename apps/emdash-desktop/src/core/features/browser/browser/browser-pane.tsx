@@ -21,6 +21,7 @@ import { decideBrowserReload } from './browser-navigation-controls';
 import { BrowserStartPage } from './browser-start-page';
 import { BrowserToolbar } from './browser-toolbar';
 import { canOpenBrowserUrlExternally, openBrowserUrlExternally } from './browser-toolbar-actions';
+import { createWebviewWebContentsBinder } from './browser-webview-bind';
 import { bindBrowserWebviewEvents } from './browser-webview-events';
 import {
   createBrowserWebviewAdapter,
@@ -244,20 +245,34 @@ export const BrowserPane = observer(function BrowserPane({
 
   useEffect(() => {
     if (!sessionBrowserId || !webviewElement) return;
-    return bindBrowserWebviewEvents(sessionBrowserId, webviewElement, {
+    // [XG-CUSTOM] 2026-10-06 —— 「早绑定」：webview 一 attach 就尽力把它绑进主进程白名单
+    // （= 进 9223 的 /json/list），不再只等 dom-ready。
+    // 病根（真机事故 2026-10-06）：agent 经 `POST /xg/open-browser` 开的页，屏幕上真开出来了、
+    // 地址栏也填了 URL，但加载慢/失败时 dom-ready 迟迟不来 ⇒ 从不 `bindWebContents`
+    // ⇒ `/json/list` 恒空 ⇒ 桥只能靠白名单判成败，误报「30s 内没有页面被绑定」。
+    // 幂等 / 退避重试 / 只 warn 不抛都在绑定器里（browser-webview-bind.ts）。
+    const binder = createWebviewWebContentsBinder({
+      webview: webviewElement,
+      isCurrent: () => webviewRef.current === webviewElement,
+      bind: async (webContentsId) =>
+        (await getBrowserClient()).bindWebContents({ browserId: sessionBrowserId, webContentsId }),
+    });
+    const dispose = bindBrowserWebviewEvents(sessionBrowserId, webviewElement, {
+      onEarlyBind: () => binder.bind(),
       onDomReady: () => {
         if (webviewRef.current !== webviewElement) return;
         // Browsers can share profile partitions, so the main process cannot infer
         // which browser a webview belongs to; bind it explicitly.
-        void getBrowserClient().then((client) =>
-          client.bindWebContents({
-            browserId: sessionBrowserId,
-            webContentsId: webviewElement.getWebContentsId(),
-          })
-        );
+        // [XG-CUSTOM] 2026-10-06 —— 改成走幂等绑定器：dom-ready 只是"最后一个"绑定时机，
+        // 早绑过之后这里是空操作（重复调 bindWebContents 返回 true 也不算失败）。
+        binder.bind();
         setAdapter(createBrowserWebviewAdapter(webviewElement));
       },
     });
+    return () => {
+      dispose();
+      binder.dispose();
+    };
   }, [sessionBrowserId, webviewElement]);
 
   useEffect(() => {
