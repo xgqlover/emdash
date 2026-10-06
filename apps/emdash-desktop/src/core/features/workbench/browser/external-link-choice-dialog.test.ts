@@ -28,6 +28,8 @@ describe('ExternalLinkChoiceDialog', () => {
     );
 
     expect(html).toContain('https://example.com/docs');
-    expect(html).toContain('aria-label="Copy link"');
+    // [XG-CUSTOM 2026-10-06] 组件已走 i18n（默认中文 `复制链接`）——原断言只认英文致测试恒失败。
+    //   这里同时接受中英：既保住「有复制动作」的意图，也不绑死语言。
+    expect(html).toMatch(/aria-label="(Copy link|复制链接)"/);
   });
 });

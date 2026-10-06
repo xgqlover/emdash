@@ -2,6 +2,8 @@ import { toast } from '@emdash/ui/react/primitives';
 import { useLayoutEffect, type ReactNode } from 'react';
 import { browserControlsRegistry } from '@core/features/browser/api/browser/browser-controls-registry';
 import type { BrowserTabResource } from '@core/features/browser/api/browser/browser-tab-resource';
+// [XG-CUSTOM] 2026-10-06 —— 复用开页：`task.openBrowser`（人主动"新开浏览器"）显式关掉复用
+import { openBrowserTabOrReuse } from '@core/features/browser/api/browser/open-browser-tab';
 // [XG-CUSTOM] 2026-10-06 —— 「打开网址…」（browser.openUrl）的纯逻辑：校验 / 决策 / 开页
 import {
   openUrlInBrowserPane,
@@ -201,8 +203,12 @@ const taskScopeImplementation = {
     availability: () => taskAvailability(params),
     execute: () => {
       const taskView = getTaskComposition(params.projectId, params.taskId);
-      taskView?.paneLayout.open('browser', {});
-      taskView?.setFocusedRegion('main');
+      if (!taskView) return;
+      // [XG-CUSTOM] 2026-10-06 —— 复用逻辑的**显式开关**：这个入口是人主动点「新开浏览器」，
+      //   语义就是"再给我一个浏览器标签" ⇒ `reuseExisting: false`（唯一被显式关掉复用的入口）。
+      //   另外它不带 url（开空白页），本来也就没有可导航的目标。
+      openBrowserTabOrReuse(taskView, { reuseExisting: false });
+      taskView.setFocusedRegion('main');
     },
   }),
   'task.browserGoBack': (params) => ({

@@ -12,6 +12,11 @@
 //   ③ 空 / 非法**如实提示**，绝不静默、也绝不回退到系统浏览器。
 //
 // 这里**不**碰 WebContentsView、**不**碰 9223 桥的白名单；开页只走 paneLayout.open('browser', …)（见下）。
+import {
+  openBrowserTabOrReuse,
+  type BrowserTabOpenTarget,
+} from '@core/features/browser/api/browser/open-browser-tab';
+
 const EXPLICIT_SCHEME_PATTERN = /^([a-zA-Z][a-zA-Z0-9+.-]*):/;
 const HTTP_SCHEME_PATTERN = /^https?$/i;
 // 冒号后面只有端口（`127.0.0.1:8080` / `localhost:5173` / `example.com:3000`）——
@@ -99,25 +104,28 @@ export function planOpenUrlCommand(
     : { kind: 'error', message: resolved.message };
 }
 
-/** 开页需要的最小能力面 —— 只取 task view 里的这两样，便于单测注入假实现。 */
-export interface OpenUrlBrowserTarget {
-  readonly paneLayout: {
-    open(kind: 'browser', args: { readonly initialUrl: string }): unknown;
-  };
+/**
+ * 开页需要的最小能力面 —— 复用判定 / 导航都在 `open-browser-tab.ts`（可注入假实现单测）；
+ * 这里只多要一个「把焦点切回主面板」（命令面板开完页后用户要能直接看/操作那一页）。
+ */
+export interface OpenUrlBrowserTarget extends BrowserTabOpenTarget {
   setFocusedRegion(region: 'main'): unknown;
 }
 
 /**
  * 真正开页的一步：与 `task.openBrowser` / 预览 pill / 外部链接确认框**同一条路** ——
- * `paneLayout.open('browser', { initialUrl })`，不新建 WebContentsView、不动 9223 白名单。
- * 返回是否开成（拿不到 task view 时 false，调用方如实提示）。
+ * `paneLayout.open('browser', { initialUrl })`（**已有同 profile 的 browser 标签时改为导航它**，
+ * 见 `open-browser-tab.ts`：用户真机「同一个 URL 叠了好几个标签」的根因就在这条路上）。
+ * 不新建 WebContentsView、不动 9223 白名单。返回是否开成（拿不到 task view 时 false，调用方如实提示）。
  */
 export function openUrlInBrowserPane(
   target: OpenUrlBrowserTarget | undefined,
   url: string
 ): boolean {
   if (target === undefined) return false;
-  target.paneLayout.open('browser', { initialUrl: url });
+  // [XG-CUSTOM] 2026-10-06 —— 复用：已有同 profile 的 browser 标签 → 导航它并切前台，不叠新标签。
+  // 决策（含 profile 对比）与导航都在 open-browser-tab.ts，纯函数有单测。
+  openBrowserTabOrReuse(target, { initialUrl: url });
   target.setFocusedRegion('main');
   return true;
 }

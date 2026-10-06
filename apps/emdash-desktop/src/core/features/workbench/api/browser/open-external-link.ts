@@ -1,4 +1,6 @@
 import { toast } from '@emdash/ui/react/primitives';
+// [XG-CUSTOM] 2026-10-06 —— 复用开页（同 profile 的已有 browser 标签 → 导航它，不叠新标签）
+import { openBrowserTabOrReuse } from '@core/features/browser/api/browser/open-browser-tab';
 import { getTaskComposition } from '@core/features/workbench/api/browser/task-composition-selectors';
 import { openModal } from '@core/manifests/browser/modal-api';
 import {
@@ -26,7 +28,9 @@ export function confirmOpenExternalLink(url: string, onError?: (error: unknown) 
   }).then((outcome) => {
     if (!outcome.success) return;
     if (outcome.data === 'emdash-browser') {
-      taskView?.paneLayout.open('browser', { initialUrl: normalizedUrl });
+      // [XG-CUSTOM] 2026-10-06 —— 复用开页：同一个 task 里已有同 profile 的 browser 标签 → 导航它，
+      // 不再叠新标签（用户"重复打开"的真机病根）。找不到 / profile 不同 → 与改动前逐字节一致：新开。
+      if (taskView !== undefined) openBrowserTabOrReuse(taskView, { initialUrl: normalizedUrl });
       taskView?.setFocusedRegion('main');
       return;
     }

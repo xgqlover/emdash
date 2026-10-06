@@ -43,6 +43,9 @@ export const BrowserPane = observer(function BrowserPane({
   const previewServers = usePreviewServers();
   const webviewRef = useRef<BrowserWebviewElement | null>(null);
   const focusUrlRef = useRef<() => void>(() => {});
+  // [XG-CUSTOM] 2026-10-06 —— 复用开页要「把已有标签导航到新 URL」：这里持最新的 navigateTo，
+  // 让注册进 browserControlsRegistry 的 controls 始终调得到它（见下面的 navigate 注册）。
+  const navigateRef = useRef<(url: string) => boolean>(() => false);
   const [adapter, setAdapter] = useState<BrowserWebviewAdapter | null>(null);
   const [webviewElement, setWebviewElement] = useState<BrowserWebviewElement | null>(null);
   const [webviewMount, setWebviewMount] = useState<{
@@ -190,6 +193,11 @@ export const BrowserPane = observer(function BrowserPane({
     [loadUrl]
   );
 
+  // [XG-CUSTOM] 2026-10-06 —— 复用开页的导航把手：与地址栏是**同一个** navigateTo。
+  useEffect(() => {
+    navigateRef.current = navigateTo;
+  }, [navigateTo]);
+
   const goBack = useCallback(() => {
     if (!adapter?.canGoBack()) return;
     adapter.goBack();
@@ -280,6 +288,8 @@ export const BrowserPane = observer(function BrowserPane({
     return browserControlsRegistry.register(sessionBrowserId, {
       adapter,
       focusUrl: () => focusUrlRef.current(),
+      // [XG-CUSTOM] 2026-10-06 —— 复用开页用（open-browser-tab.ts）：导航已有标签就走这条路。
+      navigate: (url) => navigateRef.current(url),
     });
   }, [adapter, sessionBrowserId]);
 

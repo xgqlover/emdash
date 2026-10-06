@@ -23,6 +23,8 @@
 // 内嵌浏览器标签页，主窗口/对话页不在可达范围内；不新增任何主进程能力。
 import { useEffect } from 'react';
 import { getBrowserClient } from '@core/features/browser/api/browser/client';
+// [XG-CUSTOM] 2026-10-06 —— 复用开页：同一个 task 里已有同 profile 的 browser 标签 → 导航它，不叠新的。
+import { openBrowserTabOrReuse } from '@core/features/browser/api/browser/open-browser-tab';
 import { taskViewDef } from '@core/features/tasks/contributions/views';
 import { getSidebarStore } from '@core/features/workbench/contributions/browser/app-stores';
 import { getNavigation } from '@core/primitives/navigation/browser/navigation-selectors';
@@ -173,23 +175,31 @@ export function openEmbeddedBrowserTab(
     });
     return false;
   }
-  taskView.paneLayout.open('browser', {
+  // [XG-CUSTOM] 2026-10-06 —— **同一个 task 里已有同 profile 的 browser 标签 → 导航它，不叠新标签**。
+  //   病根（用户真机实证）：球/agent 每说一次「打开 X」都会走到这里，而 `paneLayout.open` 对
+  //   `mount:'multi'` 的 browser provider = **每次新开一个 session** ⇒ 同一个 jagda.or.jp 叠了 4 个标签。
+  //   复用判定 / 导航都在 open-browser-tab.ts（纯判定有单测）；profile 不一致（别的 bot）仍新开 ——
+  //   跨 profile 复用 = 串身份/串登录态。拿不到已有页或导航不了时行为与改动前逐字节一致（新开）。
+  const outcome = openBrowserTabOrReuse(taskView, {
     initialUrl: url,
     ...(typeof profileId === 'string' && profileId.trim() !== ''
       ? { profileId: profileId.trim() }
       : {}),
     ...(typeof botId === 'string' && botId.trim() !== '' ? { botId: botId.trim() } : {}),
   });
-  // [XG-CUSTOM 2026-10-06] **切到前台**：`paneLayout.open` 只是把 browser 面板开/复用出来，
-  //   若它不是当前激活标签，用户就"看不到"（页在渲染、CDP 也连得上，但不在眼前）。
-  //   用現成的 activateLastTabOfKind 把那类标签激活 —— 失败不致命（try 掉，别拖垮开页）。
-  try {
-    taskView.activateLastTabOfKind('browser');
-  } catch (error) {
-    console.warn('[XG-CUSTOM] 激活 browser 标签失败（页面已开，可能不在前台）', error);
+  // [XG-CUSTOM] 2026-10-06 —— **切到前台**：新开的那条路（`paneLayout.open` 只把面板开/复用出来、
+  //   新标签自己会激活，但整块面板不一定是当前主面板）仍要激活一下 —— 这是改动前就有的行为，别丢。
+  //   复用那条路已经由 open-browser-tab.ts 精确激活了**命中的那一个**标签，这里不能再调
+  //   `activateLastTabOfKind`（它会去激活"最后一个"，可能是别的 profile 的页）。
+  if (outcome === 'opened') {
+    try {
+      taskView.activateLastTabOfKind('browser');
+    } catch (error) {
+      console.warn('[XG-CUSTOM] 激活 browser 标签失败（页面已开，可能不在前台）', error);
+    }
   }
   taskView.setFocusedRegion('main');
-  return true;
+  return outcome !== 'unavailable';
 }
 
 /**

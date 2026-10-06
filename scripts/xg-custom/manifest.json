@@ -7,10 +7,10 @@
     "base": "669a24fe673f4af1a507ddc33fc3f3ffe1039348"
   },
   "stats": {
-    "files": 159,
-    "markers": 865,
+    "files": 162,
+    "markers": 879,
     "newFiles": 79,
-    "modifiedFiles": 80
+    "modifiedFiles": 83
   },
   "files": {
     ".gitignore": {
@@ -144,7 +144,7 @@
       "anchors": [
         "navigate(url: string): boolean;"
       ],
-      "hash": "30cae263a747aae8ad3dba71ad91853c7705e649",
+      "hash": "8cc17b9635df301c300969af05c9f4be721c2025",
       "origin": "modified",
       "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
       "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
@@ -365,14 +365,16 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/browser/open-url-command.ts": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        126
       ],
       "anchors": [
-        "const EXPLICIT_SCHEME_PATTERN = /^([a-zA-Z][a-zA-Z0-9+.-]*):/;"
+        "import {",
+        "openBrowserTabOrReuse(target, { initialUrl: url });"
       ],
-      "hash": "843b408b0bdfeb3fd4190f0b3a1b5ed2d3c12e98",
+      "hash": "b61b4a6db006f5ec9f2761fb0094e63792ae0b68",
       "origin": "new",
       "firstCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
       "lastCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
@@ -1050,6 +1052,22 @@
       "lastCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
       "note": "中文化（任务界面）"
     },
+    "apps/emdash-desktop/src/core/features/tasks/browser/components/preview-servers/preview-server-pill.tsx": {
+      "markers": 2,
+      "lines": [
+        12,
+        105
+      ],
+      "anchors": [
+        "import { openBrowserTabOrReuse } from '@core/features/browser/api/browser/open-browser-tab';",
+        "openBrowserTabOrReuse(taskView, { initialUrl: url });"
+      ],
+      "hash": "9cefebec924d80b57116311ffc2b205c07d7ff27",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "note": "中文化（任务界面）"
+    },
     "apps/emdash-desktop/src/core/features/tasks/browser/context-bar/prompt-actions-menu.tsx": {
       "markers": 1,
       "lines": [
@@ -1121,18 +1139,22 @@
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/browser/task-scope.tsx": {
-      "markers": 3,
+      "markers": 5,
       "lines": [
         5,
-        79,
-        107
+        7,
+        81,
+        109,
+        207
       ],
       "anchors": [
+        "import { openBrowserTabOrReuse } from '@core/features/browser/api/browser/open-browser-tab';",
         "// [XG-CUSTOM] 2026-10-06 —— 「打开网址…」（browser.openUrl）的纯逻辑：校验 / 决策 / 开页 ⏎ import {",
         "async function openUrlInTaskBrowser(params: TaskScopeParams, rawUrl?: string): Promise<void> {",
-        "'browser.openUrl': (params) => ({"
+        "'browser.openUrl': (params) => ({",
+        "openBrowserTabOrReuse(taskView, { reuseExisting: false });"
       ],
-      "hash": "fb4fb3be0e85b230943ef0cf1781c9d4d362b19c",
+      "hash": "442b5cfbf2f9d790ddd625cacbb9c214d2c6e55e",
       "origin": "modified",
       "firstCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
       "lastCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
@@ -1169,28 +1191,70 @@
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/workbench/api/browser/embedded-browser-open-request.ts": {
-      "markers": 8,
+      "markers": 11,
       "lines": [
         1,
-        45,
-        139,
-        144,
-        160,
-        170,
-        189,
-        219
+        26,
+        47,
+        141,
+        146,
+        162,
+        172,
+        178,
+        190,
+        198,
+        229
       ],
       "anchors": [
         "项我定制（见 emdash/CUSTOMIZATIONS.md）",
+        "import { openBrowserTabOrReuse } from '@core/features/browser/api/browser/open-browser-tab';",
         "2026-10-05 —— **先认 bot 自己的 project** —— 用户明确要求：",
         "export function openEmbeddedBrowserTab(",
         "); ⏎ return false;",
-        "console.warn('"
+        "console.warn('",
+        "const outcome = openBrowserTabOrReuse(taskView, {",
+        "if (outcome === 'opened') {"
       ],
-      "hash": "ca029e53d7e164275d696da96e05e545cd2ca205",
+      "hash": "08ae72723057b126ddf265a93d16fa837f4b49bd",
       "origin": "new",
       "firstCommit": "9ec2107ba|2026-10-01|[XG-CUSTOM] 内嵌浏览器：从零开页（对齐 HippoBuddy 的 WebContentsView 升级）+ iframe 命名正名",
       "lastCommit": "9ec2107ba|2026-10-01|[XG-CUSTOM] 内嵌浏览器：从零开页（对齐 HippoBuddy 的 WebContentsView 升级）+ iframe 命名正名",
+      "note": "中文化 + 项我入口（侧边栏/home）"
+    },
+    "apps/emdash-desktop/src/core/features/workbench/api/browser/open-external-link.ts": {
+      "markers": 2,
+      "lines": [
+        2,
+        31
+      ],
+      "anchors": [
+        "import { openBrowserTabOrReuse } from '@core/features/browser/api/browser/open-browser-tab';",
+        "if (taskView !== undefined) openBrowserTabOrReuse(taskView, { initialUrl: normalizedUrl });"
+      ],
+      "hash": "378bff462e076f21b96c9c9b7514c96a799a03d9",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "note": "中文化 + 项我入口（侧边栏/home）"
+    },
+    "apps/emdash-desktop/src/core/features/workbench/api/browser/task-composition.ts": {
+      "markers": 4,
+      "lines": [
+        69,
+        72,
+        509,
+        524
+      ],
+      "anchors": [
+        "export type TaskTabKindName = 'conversation' | 'file' | 'diff' | 'browser' | 'terminal';",
+        "function panelViewOfTaskTabKind(kind: TaskTabKindName) {",
+        "lastTabEntryOfKind(kind: TaskTabKindName): TabEntry<unknown> | undefined {",
+        "activateTabOfKind(kind: TaskTabKindName, tabId: string): void {"
+      ],
+      "hash": "3d9109ac36dc8fda5bd615ed307a1c51f9b02380",
+      "origin": "modified",
+      "firstCommit": "f85e769d3|2026-09-14|refactor(source-control): consume live pull request details",
+      "lastCommit": "f85e769d3|2026-09-14|refactor(source-control): consume live pull request details",
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
     "apps/emdash-desktop/src/core/features/workbench/browser/home-view.tsx": {
@@ -3202,13 +3266,13 @@
       "markers": 2,
       "lines": [
         1,
-        339
+        341
       ],
       "anchors": [
         "图片协议 **xiangwo-images** 的解析 + 网格渲染（项我球面板）。",
         "button.append(fallbackOf('图片不可用'));"
       ],
-      "hash": "4afc0bf36a29fa328a12bd3c8b0ff0961f36b7db",
+      "hash": "c9ca6d1d5f45e45655b978fde5f02bbb7a4eed71",
       "origin": "new",
       "firstCommit": "e60319d08|2026-10-04|feat(orb): [XG-CUSTOM] 图片网格相对地址按 agent 基址拼绝对 + 点击在内嵌浏览器开来源页",
       "lastCommit": "e60319d08|2026-10-04|feat(orb): [XG-CUSTOM] 图片网格相对地址按 agent 基址拼绝对 + 点击在内嵌浏览器开来源页",

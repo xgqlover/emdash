@@ -9,6 +9,8 @@ import {
   Square,
 } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
+// [XG-CUSTOM] 2026-10-06 —— 复用开页（同 profile 的已有 browser 标签 → 导航它，不叠新标签）
+import { openBrowserTabOrReuse } from '@core/features/browser/api/browser/open-browser-tab';
 import {
   usePreviewServers,
   useTaskComposition,
@@ -100,7 +102,9 @@ export const PreviewServerPill = observer(function PreviewServerPill({
           disabled={!canOpen || Boolean(liveActionDisabledReason)}
           onClick={() => {
             if (canOpen && url) {
-              taskView.paneLayout.open('browser', { initialUrl: url });
+              // [XG-CUSTOM] 2026-10-06 —— 复用开页：同一个 task 里已有同 profile 的 browser 标签 →
+              // 导航它，不再每次叠一个新标签；没有 / profile 不同 → 与改动前一致：新开。
+              openBrowserTabOrReuse(taskView, { initialUrl: url });
               taskView.setFocusedRegion('main');
             }
           }}

@@ -64,6 +64,23 @@ import {
 import { getMementoClient } from '@core/primitives/mementos/browser';
 import { getNavigation } from '@core/primitives/navigation/browser/navigation-selectors';
 import { focusTracker } from '@core/primitives/telemetry/browser/focus-tracker';
+import type { TabEntry } from '@core/primitives/workbench-shell/browser/tabs/core/tab-provider';
+
+// [XG-CUSTOM] 2026-10-06 —— 可被「按 kind 找/激活标签」寻址的标签类别（与 activateLastTabOfKind 原签名一致）。
+export type TaskTabKindName = 'conversation' | 'file' | 'diff' | 'browser' | 'terminal';
+
+// [XG-CUSTOM] 2026-10-06 —— 从 activateLastTabOfKind 里原样抽出来的 kind → 主面板映射（行为不变）。
+function panelViewOfTaskTabKind(kind: TaskTabKindName) {
+  return kind === 'conversation'
+    ? ('agents' as const)
+    : kind === 'file'
+      ? ('editor' as const)
+      : kind === 'diff'
+        ? ('diff' as const)
+        : kind === 'browser'
+          ? ('browser' as const)
+          : ('terminal' as const);
+}
 
 export type RendererKind =
   | 'monaco'
@@ -482,22 +499,34 @@ export class TaskComposition {
     void this.space.release().catch((error: unknown) => getMementoClient().reportError(error));
   }
 
-  activateLastTabOfKind(kind: 'conversation' | 'file' | 'diff' | 'browser' | 'terminal'): void {
+  activateLastTabOfKind(kind: TaskTabKindName): void {
+    const entry = this.lastTabEntryOfKind(kind);
+    if (entry === undefined) return;
+    this.activateTabOfKind(kind, entry.tabId);
+  }
+
+  /**
+   * [XG-CUSTOM] 2026-10-06 —— 聚焦面板里某类标签的**最后一个** entry（不激活、只读）。
+   *
+   * 与 `activateLastTabOfKind` 同一个遍历范式（`tabOrder` 反向 + `entries.get(id)?.kind`），
+   * 多出来的只是**把 entry（含 `state`）交给调用方** —— 复用开页要靠它拿已有 browser 标签的
+   * `browserId` / `session.profileId`（见 core/features/browser/api/browser/open-browser-tab.ts）。
+   */
+  lastTabEntryOfKind(kind: TaskTabKindName): TabEntry<unknown> | undefined {
     const tabId = [...this.activePane.tabOrder]
       .reverse()
       .find((id) => this.activePane.entries.get(id)?.kind === kind);
-    if (!tabId) return;
-    const panelView =
-      kind === 'conversation'
-        ? 'agents'
-        : kind === 'file'
-          ? 'editor'
-          : kind === 'diff'
-            ? 'diff'
-            : kind === 'browser'
-              ? 'browser'
-              : 'terminal';
-    focusTracker.transition({ mainPanel: panelView }, 'panel_switch');
+    if (!tabId) return undefined;
+    return this.activePane.entries.get(tabId);
+  }
+
+  /**
+   * [XG-CUSTOM] 2026-10-06 —— 激活**指定的**那个标签（`activateLastTabOfKind` 只能激活"最后一个"，
+   * 而复用命中的可能不是最后一个）。行为与 `activateLastTabOfKind` 里那两行完全一致：
+   * 先 `focusTracker.transition` 把主面板切过去，再 `setActiveTab`。
+   */
+  activateTabOfKind(kind: TaskTabKindName, tabId: string): void {
+    focusTracker.transition({ mainPanel: panelViewOfTaskTabKind(kind) }, 'panel_switch');
     this.activePane.setActiveTab(tabId);
   }
 
