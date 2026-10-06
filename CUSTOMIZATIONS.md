@@ -824,3 +824,35 @@ grep -n "HTTP_PROXY\|HTTPS_PROXY\|ALL_PROXY\|NO_PROXY" packages/core/src/primiti
 **验证**：`vitest --project node xiangwo-browser-proxy.test.ts` → **12 passed**
 （含新增 5 条：`system` / `auto|default|os|SYS` / 配置文件 `system` / `off`=direct / 缺省零回归）；
 `tsgo --noEmit -p tsconfig.node.json` → **rc=0**；`oxfmt --check` 三文件 → 全绿。
+
+### 26. [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」（`browser.openUrl`）—— 把 Forward Port 的误会消掉
+
+**用户真机反馈**：想在 emdash 里"打开一个网址"，点工具栏那颗按钮弹出来的是 **Forward Port**
+（`preview-servers/manual-forward-dialog.tsx`：把**远端端口**隧道到本机预览 dev server，`5173` 只是占位）
+—— 跟"打开网址"不是一回事。
+
+**改法（13 个文件，全带裸 `[XG-CUSTOM] 2026-10-06`）**
+| 新增 | 说明 |
+|---|---|
+| `core/features/browser/contributions/commands.ts` | `defineCommand({ id:'browser.openUrl', title:'打开网址…', category:'Browser', icon:'globe', input: z.object({url:z.string()}).optional() })` + `BROWSER_COMMAND_DEFS`（`.optional()` 是硬要求：palette 项只能以 `undefined` 调用） |
+| `.../browser/contributions/palette.ts` | `defineCommandPaletteItem` + 中英 aliases（`open url`/`url`/`打开网址`/`网址`/`浏览器`）← **Ctrl+K 能搜到**就靠它 |
+| `.../browser/browser/open-url-command.ts` | 纯函数：`resolveOpenUrlInput`（**只收 http(s)**；无协议补 `https://`；`javascript:`/`file:`/`data:`/`mailto:` **一律拒**；`localhost:5173` 按 host:port 处理，不当协议）+ `planOpenUrlCommand`（prompt/open/error）+ `openUrlInBrowserPane`（**只**调 `paneLayout.open('browser',{initialUrl})` + `setFocusedRegion('main')`，target 可注入） |
+| `.../browser/browser/open-url-modal.tsx` | URL 输入框：复用**既有** `Dialog`/`Field`/`Input`/`Button`/`ConfirmButton`/`defineModal`（零新依赖、零自造 UI） |
+| `.../browser/browser/open-url-command.test.ts` | 10 条单测（含"run 确实调了 `paneLayout.open('browser',…)`"、拒各种危险 scheme） |
+| `.../browser/contributions/browser.ts` | `browserBrowserContributions = { views: [], modalDefs: [openUrlModal] }`（AGENTS.md 约定：modal 由所属 slice 暴露） |
+
+改动 7 个：`command-catalog.ts` / `command-palette-catalog.ts` / `browser-contributions.ts`（三处聚合）、
+`tasks/contributions/scopes.ts`（命令挂在 **taskViewScope**：执行体要"当前 task"）、
+`tasks/browser/task-scope.tsx`（`'browser.openUrl'` 实现：无 url → 弹框；有 url → 纯函数校验；空/非法/拿不到 task view 都 **toast 如实提示**，不回退系统浏览器）、
+`renderer/tests/browser/modal-catalog.test.ts`（expectedModalIds + `openUrlModal`）、
+`preview-servers/manual-forward-button.tsx`（**功能不变**，只加 tooltip 中文「转发远端端口（预览 dev server），不是打开网址」）。
+
+**用户怎么用**：进任意 task → **Ctrl+K** → 输入「打开网址」/`url` → 选「打开网址…」→ 粘贴（`https://g-mark.org` 或直接 `g-mark.org`）→ 回车 → 页开在**当前 task 的浏览器面板**里。
+
+**验证**：`vitest --project node`（browser + manifests/shared 片）→ **17 files / 104 tests passed**（含新 10 条）；
+`tsgo -p tsconfig.browser.json` / `-p tsconfig.node.json` → **rc=0**；`oxfmt --check` 13 文件 → 全绿；
+台账 `--gen` 后 158 文件、`--check` **rc=0（0 丢失 / 0 漏标）**。提交 `22e12772d` + `211ca6ba5`。
+
+**未覆盖**：① 只在 **task view** 里能搜到（Home/全局视图不显示 —— "开在当前 task"的必然结果）；② **原生菜单里没有它**
+（菜单是 `main/host/menu.ts` 硬编码模板，要进菜单得改 main，本轮没碰）；③ `openUrlModal` 的**渲染**没做自动化验证
+（本机 `--project browser` 起不来：Playwright chromium 未安装；CI 也跳过 browser 项目），逻辑由 node 单测覆盖。
