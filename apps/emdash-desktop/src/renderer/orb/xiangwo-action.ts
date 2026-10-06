@@ -45,11 +45,8 @@ function isHttpUrl(url: string): boolean {
  *   ② bot 选填，只有非空字符串才透传（空串等于没指定，与 ./xiangwo-images.ts 一致）；
  *   ③ payload 里只放这两个键 —— 多余参数**不转发**（少一个泄面）。
  */
-function buildOpenEmbeddedBrowserPayload(
-  args: unknown
-): { url: string; bot?: string } | null {
-  const record =
-    typeof args === 'object' && args !== null ? (args as Record<string, unknown>) : {};
+function buildOpenEmbeddedBrowserPayload(args: unknown): { url: string; bot?: string } | null {
+  const record = typeof args === 'object' && args !== null ? (args as Record<string, unknown>) : {};
   const url = typeof record.url === 'string' ? record.url.trim() : '';
   if (!isHttpUrl(url)) return null;
   const bot = typeof record.bot === 'string' ? record.bot.trim() : '';
@@ -149,8 +146,7 @@ export async function runXiangwoAction(
 export function actionFailureText(action: XiangwoAction, result: XiangwoActionResult): string {
   // [XG-CUSTOM] 2026-10-06 开网页这条路的两种失败要单独说清（别的动作走原来的话术，零回归）。
   if (action.id === XIANGWO_OPEN_EMBEDDED_BROWSER_ID) {
-    if (result.reason === 'unavailable')
-      return '球开网页这条通道没接上（主进程没注入），我没开。';
+    if (result.reason === 'unavailable') return '球开网页这条通道没接上（主进程没注入），我没开。';
     if (result.reason === 'bad-url')
       return '这个地址不是 http(s) 开头（或者为空），我没开（也不会替你去开系统浏览器）。';
   }

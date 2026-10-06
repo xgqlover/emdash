@@ -1594,7 +1594,7 @@
         "export const XIANGWO_BROWSER_PROXY_ENV = 'XIANGWO_BROWSER_PROXY';",
         "export const XIANGWO_BROWSER_PROXY_DEFAULT = 'socks5://10.239.5.174:1080';"
       ],
-      "hash": "fe72e4b88eb14068fde2120c5ef4c57e5c114952",
+      "hash": "f664e8f7322c3e76f94eb0bba3676c2b4096a5f1",
       "origin": "new",
       "firstCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
       "lastCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
@@ -2868,10 +2868,10 @@
         28,
         35,
         43,
-        104,
-        123,
-        131,
-        150
+        101,
+        120,
+        128,
+        147
       ],
       "anchors": [
         "2026-10-05 —— **球的「指挥主界面」动作块**（`[XG-ACTION]{…}[/XG-ACTION]`）解析 + 执行。",
@@ -2879,13 +2879,13 @@
         "export const XIANGWO_OPEN_EMBEDDED_BROWSER_ID = 'host.openEmbeddedBrowser';",
         "export const XIANGWO_DIRECT_ACTIONS: Readonly<Record<string, string>> = Object.freeze({",
         "function isHttpUrl(url: string): boolean {",
-        "function buildOpenEmbeddedBrowserPayload(",
+        "function buildOpenEmbeddedBrowserPayload(args: unknown): { url: string; bot?: string } | null {",
         "function toActionResult(raw: unknown): XiangwoActionResult {",
         "export async function runXiangwoAction(",
         "const directMethod = XIANGWO_DIRECT_ACTIONS[action.id];",
         "if (action.id === XIANGWO_OPEN_EMBEDDED_BROWSER_ID) {"
       ],
-      "hash": "f4497bcc6255e461d6a777780be4e69208bf8aaf",
+      "hash": "30cb19955a9b4185b9490c1752997d561b443c3d",
       "origin": "new",
       "firstCommit": "13acb278f|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
       "lastCommit": "2c4155785|2026-10-05|feat(orb): [XG-CUSTOM 2026-10-05] 球侧动作块 [XG-ACTION]（A 方案第 2 件）",

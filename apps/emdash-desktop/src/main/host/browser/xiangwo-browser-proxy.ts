@@ -50,10 +50,7 @@ export type XiangwoBrowserProxyDeps = {
   log?: (message: string, metadata?: Record<string, unknown>) => void;
 };
 
-type ProxyValue =
-  | { kind: 'proxy'; proxy: string }
-  | { kind: 'disabled' }
-  | { kind: 'invalid' };
+type ProxyValue = { kind: 'proxy'; proxy: string } | { kind: 'disabled' } | { kind: 'invalid' };
 
 function classifyProxyValue(value: unknown): ProxyValue {
   if (typeof value !== 'string') return { kind: 'invalid' };
