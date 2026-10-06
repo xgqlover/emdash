@@ -9,6 +9,11 @@ function createCommandLine(initialSwitches: string[] = []) {
   };
 }
 
+// [XG-CUSTOM] 2026-10-06 —— `configureChromiumCommandLine()` 现在**先**加两个与平台无关的
+// DoH 开关（`dns-over-https-mode` / `dns-over-https-templates`，见 chromium-doh.ts），
+// 再加 Linux 专有的 ozone / password-store ⇒ 下面的调用序号与次数相应后移。
+const DOH_SWITCH_NAMES = ['dns-over-https-mode', 'dns-over-https-templates'];
+
 describe('configureChromiumCommandLine', () => {
   it('configures Linux switches synchronously without requiring a D-Bus environment variable', () => {
     const commandLine = createCommandLine();
@@ -19,9 +24,11 @@ describe('configureChromiumCommandLine', () => {
       platform: 'linux',
     });
 
-    expect(commandLine.appendSwitch).toHaveBeenNthCalledWith(1, 'ozone-platform-hint', 'auto');
+    expect(commandLine.appendSwitch).toHaveBeenNthCalledWith(1, 'dns-over-https-mode', 'secure');
+    expect(commandLine.appendSwitch.mock.calls[1]?.[0]).toBe('dns-over-https-templates');
+    expect(commandLine.appendSwitch).toHaveBeenNthCalledWith(3, 'ozone-platform-hint', 'auto');
     expect(commandLine.appendSwitch).toHaveBeenNthCalledWith(
-      2,
+      4,
       'password-store',
       'gnome-libsecret'
     );
@@ -36,8 +43,10 @@ describe('configureChromiumCommandLine', () => {
       platform: 'linux',
     });
 
-    expect(commandLine.appendSwitch).toHaveBeenCalledOnce();
-    expect(commandLine.appendSwitch).toHaveBeenCalledWith('ozone-platform-hint', 'auto');
+    expect(commandLine.appendSwitch.mock.calls.map((call) => call[0])).toEqual([
+      ...DOH_SWITCH_NAMES,
+      'ozone-platform-hint',
+    ]);
   });
 
   it("leaves KDE to Chromium's KWallet selection", () => {
@@ -49,16 +58,18 @@ describe('configureChromiumCommandLine', () => {
       platform: 'linux',
     });
 
-    expect(commandLine.appendSwitch).toHaveBeenCalledOnce();
-    expect(commandLine.appendSwitch).toHaveBeenCalledWith('ozone-platform-hint', 'auto');
+    expect(commandLine.appendSwitch.mock.calls.map((call) => call[0])).toEqual([
+      ...DOH_SWITCH_NAMES,
+      'ozone-platform-hint',
+    ]);
   });
 
-  it('does nothing on non-Linux platforms', () => {
+  it('adds only the platform-independent DoH switches on non-Linux platforms', () => {
     const commandLine = createCommandLine();
 
     configureChromiumCommandLine({ commandLine, env: {}, platform: 'darwin' });
 
-    expect(commandLine.appendSwitch).not.toHaveBeenCalled();
+    expect(commandLine.appendSwitch.mock.calls.map((call) => call[0])).toEqual(DOH_SWITCH_NAMES);
     expect(commandLine.hasSwitch).not.toHaveBeenCalled();
   });
 });
