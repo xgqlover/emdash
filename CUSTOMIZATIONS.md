@@ -768,3 +768,30 @@ CommandCatalog 白名单 —— **只要球渲染侧认这个块，做完立刻�
 **方案 B（正统，攒到下次打包）**：boot 注入 `configureOrbHostCommands`（接 `keybindingDispatcher`；
 注意 `openAffine/openWeKnora` 是 `hostOperations`、**不是** CommandCatalog 命令，需桥接）
 + 白名单加一条能开浏览器的命令 + agent 输出 `xiangwo-action` 块。
+
+### 25. [XG-CUSTOM 2026-10-05] 方案 B 实施计划（已探明落点，待实施）
+
+**为什么当时没做**（诚实记录）：① 同日 `emdash内嵌浏览器开错机器-修复OPS-2026-10-06` 明确写
+「两条都要改 emdash + 走 CI 打包 ⇒ 不宜为它单独发版，攒着跟下一个改动一起打」② B 动的是
+**主界面命令执行路径**（比 A 危险）③ 当时空间见底。**但 B 才是"球指挥主界面其他功能"的正解。**
+
+**★ 已探明的落点（省掉下次再摸）**：
+
+| 事实 | 出处 |
+|---|---|
+| `CommandDef` **只是元数据**（id/title/category/`input` zod/keybinding），**没有执行函数** | `core/primitives/commands/api/define-command.ts:6-18` |
+| **执行在 view scope**：`execute(input, source?: CommandSource)`；默认 `source='programmatic'` | `core/primitives/view-scopes/api/define-view-scope.ts:57,64` · `.../browser/scopes.ts:68-70` |
+| 快捷键路径也是走它：`hit.command.execute(undefined, 'keybinding')` | `renderer/lib/keybindings/keybinding-dispatcher.ts:99` |
+| ⇒ **"按 id 执行一条命令"的现成入口 = 当前 view scope 的 `execute(id, input, 'programmatic')`** | 同上（`programmatic` 这个 source 本来就是给程序化调用留的） |
+| 球侧通道/白名单**已就绪**（本轮已做） | `main/host/xiangwo-orb-api.ts` `host.listCommands`/`host.runCommand` · `main/host/xiangwo-host-commands.ts` |
+
+**实施四步**：
+1. **主窗口渲染侧**加一个受控执行器：`runHostCommand(id, args)` →
+   `viewScope.execute(id, parsed, 'programmatic')`（**参数校验用命令自带的 `input` zod schema** —— 天然有校验）。
+2. **主进程 → 主窗口**：新事件（如 `xiangwo:host-command`）+ 回执回传；`mainWindow.webContents.send(...)`。
+3. **boot 注入**：`main/bootstrap/boot/phases/background.ts` 里调
+   `configureOrbHostCommands((id, args) => sendToMainWindow(id, args))`（**当前从未被调用** → 所以 `host.runCommand` 永远回 `unavailable`）。
+4. **白名单**：8 条已就绪；"开网页"**不必**加成命令（它有自己的通道，见条目 24 方案 A）。
+   若要统一，可把 `openEmbeddedBrowserTab` 作为一个 host operation 桥进来。
+
+**收尾**：测试（表外拒/写类需审批/参数不合 schema 拒/正常执行）+ bump 一版一起打包。
