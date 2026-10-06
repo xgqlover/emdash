@@ -8,7 +8,7 @@
   },
   "stats": {
     "files": 146,
-    "markers": 824,
+    "markers": 831,
     "newFiles": 73,
     "modifiedFiles": 73
   },
@@ -1476,21 +1476,23 @@
       "note": "gateway 定制（runtime broker / acp 入口）"
     },
     "apps/emdash-desktop/src/main/host/browser/browser-profile-session.ts": {
-      "markers": 5,
+      "markers": 6,
       "lines": [
         16,
         18,
         35,
         50,
-        52
+        52,
+        62
       ],
       "anchors": [
-        "import { resolveXiangwoBrowserProxy } from './xiangwo-browser-proxy';",
         "import { setXiangwoBrowserProfileBindings } from './xiangwo-bot-browser-profile';",
+        "import { resolveXiangwoBrowserProxy } from './xiangwo-browser-proxy';",
         "setXiangwoBrowserProfileBindings(browser);",
-        "const browserProxy = resolveXiangwoBrowserProxy({"
+        "const browserProxy = resolveXiangwoBrowserProxy({",
+        "if (browserProxy !== undefined) {"
       ],
-      "hash": "0a5985920b4f667e55e0441922096e12d0710c14",
+      "hash": "187655f9190265eb354be48f4b154a604a34baed",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1569,34 +1571,46 @@
       "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
     },
     "apps/emdash-desktop/src/main/host/browser/xiangwo-browser-proxy.test.ts": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
         13,
-        83
+        99,
+        128
       ],
       "anchors": [
         "describe('",
-        "expect(XIANGWO_BROWSER_PROXY_DEFAULT).toBe('socks5://10.239.5.174:1080');"
+        "expect(XIANGWO_BROWSER_PROXY_DEFAULT).toBe('socks5://10.239.5.174:1080');",
+        "describe('system / direct 两种显式语义', () => {"
       ],
-      "hash": "2c2b6f38b301304fb23c97b08ce8d012330810f2",
+      "hash": "a4440f9aea130fd13ba9c178529a78e26281abf5",
       "origin": "new",
       "firstCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
       "lastCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
       "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
     },
     "apps/emdash-desktop/src/main/host/browser/xiangwo-browser-proxy.ts": {
-      "markers": 3,
+      "markers": 8,
       "lines": [
         1,
-        13,
-        28
+        10,
+        14,
+        23,
+        40,
+        49,
+        54,
+        91
       ],
       "anchors": [
         "内嵌浏览器（per-profile session）的 socks5 代理解析。",
+        "2026-10-06 那条）",
+        "2026-10-06 —— 这里原来写的是 Tailscale IP `100.125.4.119`，并附了一句",
         "export const XIANGWO_BROWSER_PROXY_ENV = 'XIANGWO_BROWSER_PROXY';",
-        "export const XIANGWO_BROWSER_PROXY_DEFAULT = 'socks5://10.239.5.174:1080';"
+        "export const XIANGWO_BROWSER_PROXY_DEFAULT = 'socks5://10.239.5.174:1080';",
+        "const SYSTEM_PROXY_VALUES = new Set(['system', 'auto', 'default', 'os', 'sys']);",
+        "export type XiangwoBrowserProxyMode =",
+        "if (SYSTEM_PROXY_VALUES.has(lower)) return { kind: 'system' };"
       ],
-      "hash": "f664e8f7322c3e76f94eb0bba3676c2b4096a5f1",
+      "hash": "14f1cd7bf52a9608b8d8de17c566e443f92ce132",
       "origin": "new",
       "firstCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
       "lastCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",

@@ -13,10 +13,10 @@ import {
   isGoogleAuthUrl,
   stripEmbeddedBrowserTokens,
 } from './browser-user-agent';
-// [XG-CUSTOM] 内嵌浏览器代理解析（env → 配置文件 → 非 Linux 缺省；见该文件头）
-import { resolveXiangwoBrowserProxy } from './xiangwo-browser-proxy';
 // [XG-CUSTOM] bot ⟷ profile 绑定快照（设置 → 浏览器的 profiles[].botId）
 import { setXiangwoBrowserProfileBindings } from './xiangwo-bot-browser-profile';
+// [XG-CUSTOM] 内嵌浏览器代理解析（env → 配置文件 → 非 Linux 缺省；见该文件头）
+import { resolveXiangwoBrowserProxy } from './xiangwo-browser-proxy';
 
 // Web permissions the embedded browser may use without asking. Everything else
 // (camera, microphone, geolocation, notifications, USB/HID/serial, …) is denied:
@@ -59,21 +59,30 @@ export function configureBrowserProfileSession(partition: string): Session {
       log.warn(`[xiangwo-browser-proxy] ${message}`, metadata);
     },
   });
-  if (browserProxy?.proxy !== undefined) {
-    const proxy = browserProxy.proxy;
+  // [XG-CUSTOM] 2026-10-06 **三种语义显式化**（上游 emdash 浏览器侧**根本没有代理代码** ⇒ 它的原始行为
+  //   = 「跟随系统代理」。我们以前"不调 setProxy"来表示 off，其实那也是**跟随系统** —— 说一套做一套。
+  //   现在：`proxy` → setProxy({proxyRules})；`off` → setProxy({mode:'direct'})（真直连）；
+  //   `system` → setProxy({mode:'system'})（明确跟随系统，等于上游行为）。
+  if (browserProxy !== undefined) {
+    const { proxy, mode, source } = browserProxy;
+    const config =
+      mode === 'proxy'
+        ? { proxyRules: proxy ?? '' }
+        : mode === 'direct'
+          ? { mode: 'direct' as const }
+          : { mode: 'system' as const };
     ses
-      .setProxy({ proxyRules: proxy })
+      .setProxy(config)
       .then(() => {
-        log.info('Browser proxy enabled', { proxy, source: browserProxy.source });
+        log.info('Browser proxy applied', { mode, proxy, source });
       })
       .catch((error: unknown) => {
-        log.warn('Browser proxy setup failed (keeping direct connection)', {
+        log.warn('Browser proxy setup failed (keeping current connection settings)', {
+          mode,
           proxy,
           error: String(error),
         });
       });
-  } else if (browserProxy !== undefined) {
-    log.info('Browser proxy disabled by configuration', { source: browserProxy.source });
   }
 
   ses.setUserAgent(stripEmbeddedBrowserTokens(ses.getUserAgent(), app.getName()));

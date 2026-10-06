@@ -795,3 +795,30 @@ CommandCatalog 白名单 —— **只要球渲染侧认这个块，做完立刻�
    若要统一，可把 `openEmbeddedBrowserTab` 作为一个 host operation 桥进来。
 
 **收尾**：测试（表外拒/写类需审批/参数不合 schema 拒/正常执行）+ bump 一版一起打包。
+
+### 25. [XG-CUSTOM 2026-10-06] 内嵌浏览器代理**三种语义显式化** —— 顺带查明"上游有没有这个能力"
+
+用户问「搜国外网的上网能力是不是要加回 emdash 原代码能力（他是国外的作品）」。查证（可复核）：
+
+```bash
+git show origin/main:apps/emdash-desktop/src/main/host/browser/browser-profile-session.ts | grep -n proxy
+#  → 空。**上游浏览器侧根本没有代理代码**（它的内嵌浏览器 = Electron 缺省 = 跟随系统代理）。
+grep -n "HTTP_PROXY\|HTTPS_PROXY\|ALL_PROXY\|NO_PROXY" packages/core/src/primitives/agent-env/api/index.ts
+#  → 67/68/76 行：上游唯一的"代理原能力" = 把代理**环境变量透传**给它拉起的 agent CLI（这段我们没动、还在）。
+```
+
+⇒ 结论：**不是"加回"，而是"我们多加的那层要收敛"**。我们 fork 在非 Linux（Windows/macOS）上
+**缺省强制** `socks5://10.239.5.174:1080`（Linux 那台的代理）⇒ **会把用户 Windows 上本来能上外网的
+系统代理/梯子架空** —— 这很可能就是"agent 搜国外网搜不动"的一个主因。
+
+**改动**（`main/host/browser/xiangwo-browser-proxy.ts` + `browser-profile-session.ts`）
+- `XiangwoBrowserProxySettings` 增加**必填**的 `mode: 'proxy' | 'direct' | 'system'`，调用方必须显式处理三种语义；
+- `off/none/direct/no/0/false` ⇒ **`setProxy({mode:'direct'})`**（真直连）。
+  ⚠️ 旧代码这里是"**不调** setProxy" ⇒ 那其实是 **跟随系统** —— 说一套做一套，本轮修掉；
+- **新增** `system/auto/default/os/sys` ⇒ **`setProxy({mode:'system'})`**（= 上游行为）；
+- `socks5://…`/`http://…` ⇒ `setProxy({proxyRules})`（不变）；**什么都不配且非 Linux** ⇒ 仍是那条 socks5 缺省
+  （**本轮不动缺省**，零回归；要不要改成"系统优先、没有才回落"是另一个决定）。
+
+**验证**：`vitest --project node xiangwo-browser-proxy.test.ts` → **12 passed**
+（含新增 5 条：`system` / `auto|default|os|SYS` / 配置文件 `system` / `off`=direct / 缺省零回归）；
+`tsgo --noEmit -p tsconfig.node.json` → **rc=0**；`oxfmt --check` 三文件 → 全绿。

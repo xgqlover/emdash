@@ -6,7 +6,8 @@
 // Windows 上这个配置**原来只能靠进程环境变量**，而 Windows 的 emdash 通常是"启动项/快捷方式"
 // 拉起来的 —— 环境变量很容易丢，丢了浏览器就直连（等于没代理），而且用户看不出原因。
 // 所以这里补两个来源，并按优先级解析：
-//   1. 环境变量 `XIANGWO_BROWSER_PROXY`（保持旧行为；`off`/`none`/`direct` = 显式关掉代理）
+//   1. 环境变量 `XIANGWO_BROWSER_PROXY`（保持旧行为；`off`/`none`/`direct` = 显式**直连**；
+//      **`system`/`auto` = 跟随系统代理** —— 见下面 [XG-CUSTOM] 2026-10-06 那条）
 //   2. userData 里的 `xiangwo-browser-proxy.json`（`{"proxy":"socks5://10.239.5.174:1080"}`；
 //      同样支持 `"off"`）—— 打包后不用改快捷方式也能配
 //   3. 非 Linux 平台（Windows/macOS 客户端）缺省 `socks5://10.239.5.174:1080`（**ZeroTier** IP）
@@ -18,6 +19,17 @@
 //      与 `main/bootstrap/boot/wiring.ts` 的候选顺序（10.239.5.174 > tailscale）保持一致。
 //      Linux 本机（代理就在本机、浏览器直连本就正常）**不设缺省**，避免代理没跑时把浏览器搞死。
 // 任何异常（文件读不到/坏 JSON/值不合法）都只打日志、返回 undefined —— 绝不因为变量缺失而崩。
+//
+// [XG-CUSTOM] 2026-10-06 —— **三种语义显式化**（用户问「要不要把 emdash 原代码能力加回来」，查证结果如下）：
+//   · **上游 emdash 浏览器侧没有任何代理代码**（`git show origin/main:…/browser-profile-session.ts` 里
+//     搜不到 `proxy`）⇒ 上游内嵌浏览器就是 **Electron 缺省 = 跟随系统代理**。
+//   · 我们 fork 反而**多加了**：非 Linux（Windows/macOS）**缺省强制** `socks5://10.239.5.174:1080`
+//     ⇒ **会把用户 Windows 上那套本来能上外网的代理/梯子架空**（"搜国外网搜不动"的一个主因）。
+//   · 而且旧代码把 `off` 当成"不调 setProxy" ⇒ 那其实也是**跟随系统** —— 说一套做一套（已修）。
+//   ⇒ 现在：`off/none/direct` = **真直连**（`setProxy({mode:'direct'})`）；
+//           `system/auto/default/os/sys` = **跟随系统**（`setProxy({mode:'system'})`，= 上游行为）；
+//           `socks5://…`/`http://…` = 走该规则；**什么都不配且非 Linux** = 仍是我们那条 socks5 缺省
+//           （要不要把它改成"系统优先、没有才回落"是另一个决定，见 OPS「出网」一节）。
 
 export const XIANGWO_BROWSER_PROXY_ENV = 'XIANGWO_BROWSER_PROXY';
 
@@ -31,14 +43,28 @@ export const XIANGWO_BROWSER_PROXY_FILE = 'xiangwo-browser-proxy.json';
  */
 export const XIANGWO_BROWSER_PROXY_DEFAULT = 'socks5://10.239.5.174:1080';
 
-/** 显式"不用代理"的取值 */
+/** 显式"不用代理"的取值 —— 语义 = **直连**（`setProxy({mode:'direct'})`），不是"跟随系统" */
 const DISABLED_PROXY_VALUES = new Set(['', 'off', 'none', 'direct', 'no', '0', 'false']);
+
+/** [XG-CUSTOM] 2026-10-06 显式"跟随系统代理"的取值（**上游 emdash 的原始行为**） */
+const SYSTEM_PROXY_VALUES = new Set(['system', 'auto', 'default', 'os', 'sys']);
 
 export type XiangwoBrowserProxySource = 'env' | 'file' | 'default';
 
+/** [XG-CUSTOM] 2026-10-06 三种**显式**语义（别再靠"不调 setProxy"暗示，Electron 的缺省是 system）： */
+export type XiangwoBrowserProxyMode =
+  /** 走我们给的代理规则（`setProxy({ proxyRules })`） */
+  | 'proxy'
+  /** **直连**（`setProxy({ mode: 'direct' })`）—— `off/none/direct` 是**这个**，不是"跟随系统" */
+  | 'direct'
+  /** **跟随系统代理**（`setProxy({ mode: 'system' })`）—— 上游 emdash 的原始行为（它根本没有代理代码） */
+  | 'system';
+
 export type XiangwoBrowserProxySettings = {
-  /** Electron `ses.setProxy({ proxyRules })` 的取值；**undefined = 显式关闭代理（直连）** */
+  /** `mode === 'proxy'` 时的 Electron `proxyRules` 串；其它模式为 undefined */
   proxy: string | undefined;
+  /** 见 `XiangwoBrowserProxyMode`（**必填**，调用方必须显式处理三种语义） */
+  mode: XiangwoBrowserProxyMode;
   source: XiangwoBrowserProxySource;
 };
 
@@ -50,13 +76,21 @@ export type XiangwoBrowserProxyDeps = {
   log?: (message: string, metadata?: Record<string, unknown>) => void;
 };
 
-type ProxyValue = { kind: 'proxy'; proxy: string } | { kind: 'disabled' } | { kind: 'invalid' };
+type ProxyValue =
+  | { kind: 'proxy'; proxy: string }
+  | { kind: 'disabled' }
+  | { kind: 'system' }
+  | { kind: 'invalid' };
 
 function classifyProxyValue(value: unknown): ProxyValue {
   if (typeof value !== 'string') return { kind: 'invalid' };
   const proxy = value.trim();
   if (proxy === '') return { kind: 'invalid' };
-  if (DISABLED_PROXY_VALUES.has(proxy.toLowerCase())) return { kind: 'disabled' };
+  const lower = proxy.toLowerCase();
+  if (DISABLED_PROXY_VALUES.has(lower)) return { kind: 'disabled' };
+  // [XG-CUSTOM] 2026-10-06 「跟随系统代理」—— 上游 emdash 的原始行为；对"Windows 上已有一套能上外网的代理"
+  //   的人这才是对的（我们的 socks5 缺省会把它架空，见文件头）。
+  if (SYSTEM_PROXY_VALUES.has(lower)) return { kind: 'system' };
   // 代理规则串不能带空白/换行（Electron 会解析失败）
   if (/\s/.test(proxy)) return { kind: 'invalid' };
   return { kind: 'proxy', proxy };
@@ -91,12 +125,13 @@ function fromConfigFile(deps: XiangwoBrowserProxyDeps): XiangwoBrowserProxySetti
   }
   if (raw === undefined) return undefined;
   const value = classifyProxyValue(readConfigValue(raw));
-  if (value.kind === 'disabled') return { proxy: undefined, source: 'file' };
+  if (value.kind === 'disabled') return { proxy: undefined, mode: 'direct', source: 'file' };
+  if (value.kind === 'system') return { proxy: undefined, mode: 'system', source: 'file' };
   if (value.kind === 'invalid') {
     deps.log?.('内嵌浏览器代理配置无效，忽略', { file: XIANGWO_BROWSER_PROXY_FILE });
     return undefined;
   }
-  return { proxy: value.proxy, source: 'file' };
+  return { proxy: value.proxy, mode: 'proxy', source: 'file' };
 }
 
 /**
@@ -111,19 +146,23 @@ export function resolveXiangwoBrowserProxy(
   if (typeof env === 'string' && env.trim() !== '') {
     const value = classifyProxyValue(env);
     if (value.kind === 'disabled') {
-      deps.log?.('内嵌浏览器代理被显式关闭（环境变量）', { env: XIANGWO_BROWSER_PROXY_ENV });
-      return { proxy: undefined, source: 'env' };
+      deps.log?.('内嵌浏览器代理被显式关闭（直连，环境变量）', { env: XIANGWO_BROWSER_PROXY_ENV });
+      return { proxy: undefined, mode: 'direct', source: 'env' };
+    }
+    if (value.kind === 'system') {
+      deps.log?.('内嵌浏览器代理=跟随系统（环境变量）', { env: XIANGWO_BROWSER_PROXY_ENV });
+      return { proxy: undefined, mode: 'system', source: 'env' };
     }
     if (value.kind === 'invalid') {
       deps.log?.('内嵌浏览器代理取值无效，忽略', { env: XIANGWO_BROWSER_PROXY_ENV });
     } else {
-      return { proxy: value.proxy, source: 'env' };
+      return { proxy: value.proxy, mode: 'proxy', source: 'env' };
     }
   }
   const fromFile = fromConfigFile(deps);
   if (fromFile !== undefined) return fromFile;
   if ((deps.platform ?? process.platform) !== 'linux') {
-    return { proxy: XIANGWO_BROWSER_PROXY_DEFAULT, source: 'default' };
+    return { proxy: XIANGWO_BROWSER_PROXY_DEFAULT, mode: 'proxy', source: 'default' };
   }
   return undefined;
 }
