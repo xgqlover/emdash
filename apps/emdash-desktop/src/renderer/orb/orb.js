@@ -2,6 +2,7 @@
 import {
   actionFailureText,
   dropOpenUrlActionsAlreadyOpened,
+  createSideEffectPrimer,
   openXiangwoUrls,
   parseXiangwoActionBlock,
   parseXiangwoOpenUrlBlock,
@@ -816,6 +817,9 @@ async function main() {
     return current;
   }
 
+  // [XG-CUSTOM 2026-10-06] 副作用认领器（见 ./xiangwo-action.ts 的 createSideEffectPrimer）
+  const sideEffects = createSideEffectPrimer();
+
   function renderTranscript() {
     transcript.replaceChildren();
     if (current.messages.length === 0) {
@@ -893,9 +897,13 @@ async function main() {
       //   白名单在**主进程**判（`host.runCommand`），球侧只负责发与回报 —— 见 ./xiangwo-action.ts
       // [XG-CUSTOM] 2026-10-06 例外：`host.openEmbeddedBrowser`（开网页）**不查白名单**，走
       //   xiangwo-action.ts 的直连表 → 同一个 `bridge.orbApi`。这里不用改，路由在那边判。
-      if (openUrls.length > 0) {
+      // [XG-CUSTOM 2026-10-06] 🔴 **副作用恰好执行一次**：`renderTranscript()` 是整表重绘，而开页/动作
+      //   是**在渲染循环里执行**的 ⇒ 不认领就会每次重绘重放（真机：一次请求冒 4~5 个同样的页）。
+      //   历史消息（首帧就在的）一律跳过：避免开一次球就把旧消息里的页全开一遍。
+      const urlsToOpen = openUrls.filter((u) => sideEffects.claim(message, `open:${u}`));
+      if (urlsToOpen.length > 0) {
         // [XG-CUSTOM 2026-10-05] 让主界面开页：成功不吵；**失败如实说**（不假装开好了）
-        void openXiangwoUrls(openUrls, (method, payload) => {
+        void openXiangwoUrls(urlsToOpen, (method, payload) => {
           const call = bridge.orbApi;
           return typeof call === 'function'
             ? call(method, payload)
@@ -916,7 +924,9 @@ async function main() {
       //   直连表那份（`xiangwo-action` + id=host.openEmbeddedBrowser）**不再重复开** ——
       //   两套机制最后都调同一个 `host.openEmbeddedBrowser`，不去重就会开两个标签页。
       //   只按 URL 去重、只对"开网页"这一个 id 生效（别的动作零影响）。
-      const actionsToRun = dropOpenUrlActionsAlreadyOpened(actions, openUrls);
+      const actionsToRun = dropOpenUrlActionsAlreadyOpened(actions, openUrls).filter((action) =>
+        sideEffects.claim(message, `action:${action.id}:${JSON.stringify(action.args ?? {})}`)
+      );
       for (const action of actionsToRun) {
         void runXiangwoAction(action, (method, payload) => {
           const call = bridge.orbApi;
@@ -1845,7 +1855,9 @@ async function main() {
     sendAbort = controller;
     // [XG-CUSTOM] 流式：先把**空** assistant 气泡挂出来（message.streaming → renderTranscript 不跳过空文本），
     // 之后每个 delta 只改这个气泡（见 paintStreamingBubble）；结束/中断再定格标注。
-    const assistant = { role: 'assistant', text: '', streaming: true };
+    // [XG-CUSTOM 2026-10-06] `xgLive`：**只有本次会话新产生的消息**才允许执行副作用（开页/动作）——
+    //   历史消息（缓存/后端拉回）重绘时一律不执行，见 ./xiangwo-action.ts 的 createSideEffectPrimer。
+    const assistant = { role: 'assistant', text: '', streaming: true, xgLive: true };
     current.messages.push(assistant);
     renderTranscript();
     try {

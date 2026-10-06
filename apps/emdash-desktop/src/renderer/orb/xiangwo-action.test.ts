@@ -4,6 +4,7 @@ import {
   actionFailureText,
   dropOpenUrlActionsAlreadyOpened,
   openXiangwoUrls,
+  createSideEffectPrimer,
   parseXiangwoOpenUrlBlock,
   stripXiangwoOpenUrlBlocks,
   parseXiangwoActionBlock,
@@ -328,5 +329,58 @@ describe('dropOpenUrlActionsAlreadyOpened（收敛：防开两次）', () => {
     expect(openUrls).toEqual(['https://a.example/x']);
     expect(actions).toHaveLength(1);
     expect(dropOpenUrlActionsAlreadyOpened(actions, openUrls)).toEqual([]);
+  });
+});
+
+// ── [XG-CUSTOM] 2026-10-06 副作用只执行一次（治"一次请求冒 4~5 个同样的页"）──
+describe('createSideEffectPrimer（渲染重绘不重放副作用）', () => {
+  const live = () => ({ role: 'assistant', text: '', xgLive: true });
+
+  it('同一条实时消息 + 同一个 key → 只有第一次认领成功（重绘多少次都只开一次）', () => {
+    const p = createSideEffectPrimer();
+    const m = live();
+    expect(p.claim(m, 'open:https://a.example')).toBe(true);
+    for (let i = 0; i < 5; i += 1) {
+      expect(p.claim(m, 'open:https://a.example')).toBe(false);
+    }
+  });
+
+  it('流式后到的新 URL 仍各开一次（不重放、也不漏开）', () => {
+    const p = createSideEffectPrimer();
+    const m = live();
+    expect(p.claim(m, 'open:https://a.example')).toBe(true);
+    expect(p.claim(m, 'open:https://b.example')).toBe(true);
+    expect(p.claim(m, 'open:https://a.example')).toBe(false);
+  });
+
+  it('不同消息各自认领（两条消息各开各的）', () => {
+    const p = createSideEffectPrimer();
+    expect(p.claim(live(), 'open:https://a.example')).toBe(true);
+    expect(p.claim(live(), 'open:https://a.example')).toBe(true);
+  });
+
+  it('🔴 历史消息（没有 xgLive）永远不执行副作用 —— 重启/切会话重绘不会把旧页全开一遍', () => {
+    const p = createSideEffectPrimer();
+    const history = {
+      role: 'assistant',
+      text: '```xiangwo-open-url\n{"url":"https://old.example"}\n```',
+    };
+    expect(p.claim(history, 'open:https://old.example')).toBe(false);
+    expect(p.claim(history, 'open:https://old.example')).toBe(false);
+  });
+
+  it('动作类副作用同样按 key 去重（同一动作参数只跑一次）', () => {
+    const p = createSideEffectPrimer();
+    const m = live();
+    const key = 'action:view.task:{"taskId":"t1"}';
+    expect(p.claim(m, key)).toBe(true);
+    expect(p.claim(m, key)).toBe(false);
+    expect(p.claim(m, 'action:view.task:{"taskId":"t2"}')).toBe(true);
+  });
+
+  it('传进非对象（null/undefined）→ 一律不认领，不抛', () => {
+    const p = createSideEffectPrimer();
+    expect(p.claim(null as unknown as object, 'open:https://a.example')).toBe(false);
+    expect(p.claim(undefined as unknown as object, 'open:https://a.example')).toBe(false);
   });
 });

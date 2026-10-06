@@ -180,6 +180,43 @@ export function dropOpenUrlActionsAlreadyOpened(
   });
 }
 
+/**
+ * [XG-CUSTOM] 2026-10-06 —— **副作用只执行一次**的判定（治"一次请求冒出 4~5 个同样的页"）。
+ *
+ * 真机事故：球的 `renderTranscript()` 是**整表重绘**，而"开页/动作"是**在渲染循环里直接执行**的
+ * ⇒ 每重绘一次就把消息里的 `xiangwo-open-url` 块 / 动作块**重放一遍**（边流边重绘 → 4~5 个同页）。
+ * 而且重启/切会话后**历史消息也会被重新渲染**，若不拦就等于"开一次球把旧页全开一遍"。
+ *
+ * 判据（刻意做成**白名单**，不怕漏拦）：
+ *   · **只有本次会话里新产生的消息**（`message.xgLive === true`，由实时发送/流式路径打标）才允许执行副作用；
+ *   · 历史消息（本地缓存 / 后端拉回 / 任何没打标的）**一律不执行**；
+ *   · 非历史消息按 `key` 认领一次：**第一次 true，之后 false**。
+ * `key` 具体到 URL / 动作参数（不是"整条消息一次性"）——这样流式消息后续才出现的新 URL 仍各开一次，
+ * **既不重放，也不漏开**。
+ */
+export type SideEffectPrimer = {
+  /** 认领一次副作用：非 `xgLive` 的消息永远 false；同一 key 只成功一次 */
+  claim(message: object, key: string): boolean;
+};
+
+export function createSideEffectPrimer(): SideEffectPrimer {
+  const claimed = new WeakMap<object, Set<string>>();
+  return {
+    claim(message, key) {
+      if (typeof message !== 'object' || message === null) return false;
+      if ((message as { xgLive?: unknown }).xgLive !== true) return false;
+      let seen = claimed.get(message);
+      if (seen === undefined) {
+        seen = new Set<string>();
+        claimed.set(message, seen);
+      }
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    },
+  };
+}
+
 /** 失败原因 → 给用户看的一句话（不粉饰）。 */
 export function actionFailureText(action: XiangwoAction, result: XiangwoActionResult): string {
   // [XG-CUSTOM] 2026-10-06 开网页这条路的两种失败要单独说清（别的动作走原来的话术，零回归）。
