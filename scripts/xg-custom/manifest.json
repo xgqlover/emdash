@@ -7,9 +7,9 @@
     "base": "669a24fe673f4af1a507ddc33fc3f3ffe1039348"
   },
   "stats": {
-    "files": 152,
-    "markers": 852,
-    "newFiles": 73,
+    "files": 158,
+    "markers": 858,
+    "newFiles": 79,
     "modifiedFiles": 79
   },
   "files": {
@@ -328,6 +328,90 @@
       "origin": "new",
       "firstCommit": "c6ea7b383|2026-10-03|fix(browser): [XG-CUSTOM] 复用内嵌页时也要导航（修「打开网址无反应」）",
       "lastCommit": "c6ea7b383|2026-10-03|fix(browser): [XG-CUSTOM] 复用内嵌页时也要导航（修「打开网址无反应」）",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/browser/browser/open-url-command.test.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { describe, expect, it, vi } from 'vitest';"
+      ],
+      "hash": "445f5c2d178bf9cb2fe45b30a11db2e9f44558c9",
+      "origin": "new",
+      "firstCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
+      "lastCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/browser/browser/open-url-command.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "const EXPLICIT_SCHEME_PATTERN = /^([a-zA-Z][a-zA-Z0-9+.-]*):/;"
+      ],
+      "hash": "843b408b0bdfeb3fd4190f0b3a1b5ed2d3c12e98",
+      "origin": "new",
+      "firstCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
+      "lastCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/browser/browser/open-url-modal.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { Button, Dialog, Field, Input } from '@emdash/ui/react/primitives';"
+      ],
+      "hash": "53fca202f38c1b9ee606bf1a33df8909f0948bcc",
+      "origin": "new",
+      "firstCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
+      "lastCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/browser/contributions/browser.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { openUrlModal } from '../browser/open-url-modal';"
+      ],
+      "hash": "f701a92854b821cff337719aae33fba41cf2b395",
+      "origin": "new",
+      "firstCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
+      "lastCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/browser/contributions/commands.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { z } from 'zod';"
+      ],
+      "hash": "2a2eaef70d27e18e913676c6d421d471d63632a9",
+      "origin": "new",
+      "firstCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
+      "lastCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/browser/contributions/palette.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { defineCommandPaletteItem } from '@core/primitives/palette/api';"
+      ],
+      "hash": "03c2a10770e2b08febdb9c2ad4d41639124ae0fe",
+      "origin": "new",
+      "firstCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
+      "lastCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/contributions/settings.ts": {
@@ -942,8 +1026,8 @@
       ],
       "hash": "4c3f0b86c5b9b95afc7253a6440821b341d1adb5",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
+      "lastCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/browser/context-bar/prompt-actions-menu.tsx": {
@@ -1030,8 +1114,8 @@
       ],
       "hash": "fb4fb3be0e85b230943ef0cf1781c9d4d362b19c",
       "origin": "modified",
-      "firstCommit": "ad77f81a0|2026-09-16|fix(tasks): run best-effort teardown on archive",
-      "lastCommit": "ad77f81a0|2026-09-16|fix(tasks): run best-effort teardown on archive",
+      "firstCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
+      "lastCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/browser/task-titlebar.tsx": {
@@ -1060,8 +1144,8 @@
       ],
       "hash": "cb84b469a02395c3d0d70b83b92567fc5d2ab620",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
+      "lastCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/workbench/api/browser/embedded-browser-open-request.ts": {
@@ -1262,8 +1346,8 @@
       ],
       "hash": "99747874eb84b4b34c3d540180556ae0cf0af8e4",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
+      "lastCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/core/manifests/shared/command-palette-catalog.ts": {
@@ -1278,8 +1362,8 @@
       ],
       "hash": "15ffc7d68e12d28cbf196e9edd8182f2251215f0",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
+      "lastCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/core/primitives/browser/api/browser.test.ts": {
@@ -3115,8 +3199,8 @@
       ],
       "hash": "21a379ea122f62e977a40453881fb9819b62570d",
       "origin": "modified",
-      "firstCommit": "2e6fff7dd|2026-09-17|refactor(integrations): unify GitHub account and issue lifecycles",
-      "lastCommit": "2e6fff7dd|2026-09-17|refactor(integrations): unify GitHub account and issue lifecycles",
+      "firstCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
+      "lastCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/tsconfig.node.json": {
