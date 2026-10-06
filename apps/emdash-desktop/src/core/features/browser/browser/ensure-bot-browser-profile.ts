@@ -31,6 +31,30 @@ export type OpenProfileResolution = {
   botId: string;
 };
 
+/**
+ * [XG-CUSTOM] 2026-10-06 —— auto 建的 bot profile **显示名**：唯一、可辨、零回归。
+ *
+ * 历史事故（真机 + 数据实证）：`bot-sxsj` 的显示名直接取 `botId`（= `sxsj`），与老的手工
+ * profile `sxsj`（未绑定 bot）**撞名** ⇒ 设置页「浏览器配置文件」里两行都叫 `sxsj`，
+ * 一行 `id=sxsj`、一行 `id=bot-sxsj`。代码侧取 profile 一律按 **id / botId**（不按名字），所以
+ * 功能没坏；但**人**会挑错，也就解释不清"以 sxsj 身份打开却落到另一个 partition"这类现象。
+ *
+ * 规则：先用 `<botId>`（与改动前一致 ⇒ 无撞名时零回归）；撞名则 `<botId> (bot)`；
+ * 再撞则 `<botId> (bot 2)` / `(bot 3)` …
+ */
+export function uniqueBotProfileName(botId: string, profiles: readonly BrowserProfile[]): string {
+  const base = botId.slice(0, 40);
+  const taken = new Set(profiles.map((profile) => (profile.name ?? '').trim()));
+  if (!taken.has(base)) return base;
+  const withBot = `${base.slice(0, 32)} (bot)`;
+  if (!taken.has(withBot)) return withBot;
+  for (let index = 2; index < 100; index += 1) {
+    const candidate = `${base.slice(0, 28)} (bot ${index})`;
+    if (!taken.has(candidate)) return candidate;
+  }
+  return withBot;
+}
+
 export function resolveOpenProfile(input: {
   requestedProfileId?: string;
   botId?: string;
@@ -58,7 +82,10 @@ export function resolveOpenProfile(input: {
       : makeBotBrowserProfileId(botId, profiles);
   const createdProfile: BrowserProfile = {
     id: wantedProfileId,
-    name: botId.slice(0, 40),
+    // [XG-CUSTOM] 2026-10-06 名字要**唯一可辨**：原来直接取 `botId` ⇒ auto 建的 `bot-sxsj` 显示成 `sxsj`，
+    //   与老的手工 profile `sxsj` 撞名 —— 设置页出现两行 `sxsj`（一行未绑定、一行绑 sxsj），
+    //   人和 agent 都会挑错。规则见 `uniqueBotProfileName`。
+    name: uniqueBotProfileName(botId, profiles),
     botId,
   };
   return {

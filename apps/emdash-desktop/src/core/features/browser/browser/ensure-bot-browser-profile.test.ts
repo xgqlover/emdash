@@ -4,7 +4,7 @@
 // （没有就按需建 `bot-<botId>`），partition 才反推得出 bot 身份；落在 default /
 // `isolated-per-task` 上就永远是空 botId（agent 分不清"这一页是不是我的"）。
 import { describe, expect, it } from 'vitest';
-import { resolveOpenProfile } from './ensure-bot-browser-profile';
+import { resolveOpenProfile, uniqueBotProfileName } from './ensure-bot-browser-profile';
 
 const DEFAULT_PROFILE = { id: 'default', name: 'Default' };
 const SXSJ_PROFILE = { id: 'bot-sxsj', name: 'sxsj', botId: 'sxsj' };
@@ -78,5 +78,40 @@ describe('[XG-CUSTOM] resolveOpenProfile（botId → profile）', () => {
     const r = resolveOpenProfile({ botId: 'xg-mcp-probe', defaultProfileId: 'default' });
     expect(r.profileId).toBe('default');
     expect(r.createdProfile).toBeUndefined();
+  });
+});
+
+// ── [XG-CUSTOM] 2026-10-06 自动建的 bot profile 名字唯一可辨（治设置页两行同名 sxsj）──
+describe('uniqueBotProfileName / 自动建 profile 的命名', () => {
+  it('没撞名 → 仍用 botId（逐字节零回归）', () => {
+    expect(uniqueBotProfileName('babado', [])).toBe('babado');
+    expect(uniqueBotProfileName('babado', [{ id: 'default', name: 'Default' }])).toBe('babado');
+  });
+
+  it('已有一个同名手工 profile（老 sxsj）→ 退成 `sxsj (bot)`', () => {
+    const profiles = [
+      { id: 'default', name: 'Default' },
+      { id: 'sxsj', name: 'sxsj' },
+    ];
+    expect(uniqueBotProfileName('sxsj', profiles)).toBe('sxsj (bot)');
+  });
+
+  it('`(bot)` 也被占了 → `(bot 2)`', () => {
+    const profiles = [
+      { id: 'sxsj', name: 'sxsj' },
+      { id: 'bot-sxsj', name: 'sxsj (bot)' },
+    ];
+    expect(uniqueBotProfileName('sxsj', profiles)).toBe('sxsj (bot 2)');
+  });
+
+  it('resolveOpenProfile 建新 profile 时用的是唯一名，且 **id 仍是 bot-<botId>**（按 id 取不按名取）', () => {
+    const out = resolveOpenProfile({
+      botId: 'sxsj',
+      profiles: [{ id: 'sxsj', name: 'sxsj' }],
+      defaultProfileId: 'default',
+    });
+    expect(out.profileId).toBe('bot-sxsj');
+    expect(out.createdProfile?.name).toBe('sxsj (bot)');
+    expect(out.createdProfile?.botId).toBe('sxsj');
   });
 });
