@@ -37,6 +37,8 @@ let transfer: ReturnType<typeof deferred<string[]>>;
 beforeEach(async () => {
   vi.useFakeTimers();
   vi.stubEnv('DEV', false);
+  // [XG-CUSTOM 2026-10-06] 定制版默认**禁用**自动更新；生命周期用例要覆盖开启后的行为，这里显式打开
+  vi.stubEnv('XIANGWO_UPDATE', '1');
   updater.removeAllListeners();
   vi.clearAllMocks();
   mocks.getUpdater.mockReturnValue(updater);
@@ -53,6 +55,18 @@ afterEach(() => {
 });
 
 describe('desktop update lifecycle', () => {
+  // [XG-CUSTOM 2026-10-06] 定制版的**缺省**行为：不追官方更新（中文化不被覆盖）——
+  //   未设 XIANGWO_UPDATE 时 initialize 不激活，动作类接口**如实报"未激活"**，不假装可用。
+  it('默认禁用自动更新：未设 XIANGWO_UPDATE 时不激活，downloadUpdate/quitAndInstall 如实抛错', async () => {
+    vi.stubEnv('XIANGWO_UPDATE', '');
+    const disabled = new UpdateService();
+    await disabled.initialize();
+    expect(disabled.isActive).toBe(false); // getter，不是方法
+    expect(() => disabled.downloadUpdate()).toThrow('Update service is not active');
+    expect(() => disabled.quitAndInstall()).toThrow('Update service is not active');
+    disabled.dispose();
+  });
+
   it('acknowledges a download over Wire without waiting for the transfer or its deadline', async () => {
     const wire = createInProcessWire(
       updatesContract,

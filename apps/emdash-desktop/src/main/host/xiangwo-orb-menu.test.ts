@@ -396,13 +396,17 @@ describe('换头像：magic-byte 校验（照上游 orb-avatar.ts:85-172）', ()
 });
 
 describe('右键菜单项', () => {
-  it('基础项：打开主窗 / 面板 / 模型 / 换头像… / 恢复默认头像 / 划词开关 / 退出', async () => {
+  it('基础项：打开主窗 / 面板 / 模型 / MCP 工具市场 / 换头像… / 恢复默认头像 / 划词开关 / 退出', async () => {
     const labels = (await menuTemplate({})).map((item) => item.label);
     expect(labels).toEqual([
       '打开主窗口',
       '打开/收起面板',
       undefined, // separator
       '模型',
+      undefined, // separator
+      // [XG-CUSTOM 2026-10-05] 球上渲染市场卡（数据来自 xiangwo-agent/xg_mcp_market.py）
+      // [XG-CUSTOM 2026-10-06] 同步期望清单：该菜单项 10-05 就加进模板了，断言一直没跟上
+      'MCP 工具市场',
       '换头像…',
       '恢复默认头像',
       undefined, // separator

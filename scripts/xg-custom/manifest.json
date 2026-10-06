@@ -7,10 +7,10 @@
     "base": "669a24fe673f4af1a507ddc33fc3f3ffe1039348"
   },
   "stats": {
-    "files": 164,
-    "markers": 904,
+    "files": 167,
+    "markers": 907,
     "newFiles": 81,
-    "modifiedFiles": 83
+    "modifiedFiles": 86
   },
   "files": {
     ".gitignore": {
@@ -1651,6 +1651,20 @@
       "lastCommit": "6f7b6ca9b|2026-09-29|[XG-CUSTOM] 项我球（orb）：从开源 deepseek-harness-orb 移植球壳 + 接 emdash 后端",
       "note": "启动装配（注入 xiangwo 依赖 / 后台服务）"
     },
+    "apps/emdash-desktop/src/main/bootstrap/boot/phases/prepare-electron.ts": {
+      "markers": 1,
+      "lines": [
+        43
+      ],
+      "anchors": [
+        "configureDohHostResolver({ app });"
+      ],
+      "hash": "6e6fcbf110e57d47745a2e109ad0158f22b4fec1",
+      "origin": "modified",
+      "firstCommit": "76dc608ed|2026-09-02|fix(secrets): configure Linux secure storage before app ready",
+      "lastCommit": "76dc608ed|2026-09-02|fix(secrets): configure Linux secure storage before app ready",
+      "note": "启动装配（注入 xiangwo 依赖 / 后台服务）"
+    },
     "apps/emdash-desktop/src/main/bootstrap/boot/phases/services.ts": {
       "markers": 7,
       "lines": [
@@ -2212,15 +2226,43 @@
       "lastCommit": "b055afb66|2026-10-02|[XG-CUSTOM] 稳定联网：反向通道误判修复 + 多候选自动切换",
       "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
     },
+    "apps/emdash-desktop/src/main/host/chromium-command-line.test.ts": {
+      "markers": 1,
+      "lines": [
+        12
+      ],
+      "anchors": [
+        "const DOH_SWITCH_NAMES = ['dns-over-https-mode', 'dns-over-https-templates'];"
+      ],
+      "hash": "0e3a803059b6465c105c413380ec98739a55cfb3",
+      "origin": "modified",
+      "firstCommit": "76dc608ed|2026-09-02|fix(secrets): configure Linux secure storage before app ready",
+      "lastCommit": "76dc608ed|2026-09-02|fix(secrets): configure Linux secure storage before app ready",
+      "note": "renderer/main 侧定制"
+    },
+    "apps/emdash-desktop/src/main/host/chromium-command-line.ts": {
+      "markers": 1,
+      "lines": [
+        21
+      ],
+      "anchors": [
+        "configureDohCommandLine({ commandLine, env });"
+      ],
+      "hash": "926d1f5e08d350c4e3f3b0af92dcb70bce33e551",
+      "origin": "modified",
+      "firstCommit": "76dc608ed|2026-09-02|fix(secrets): configure Linux secure storage before app ready",
+      "lastCommit": "76dc608ed|2026-09-02|fix(secrets): configure Linux secure storage before app ready",
+      "note": "renderer/main 侧定制"
+    },
     "apps/emdash-desktop/src/main/host/updates/update-service.ts": {
       "markers": 1,
       "lines": [
         77
       ],
       "anchors": [
-        "// 否则用户点「更新」会被官方 AppImage 覆盖，中文化全部丢失。 ⏎ return;"
+        "if (process.env.XIANGWO_UPDATE !== '1') return;"
       ],
-      "hash": "ee7a9b1aa85eb69ecd69b563324dff5060b8c2d0",
+      "hash": "26802542b35c657b012dde57ef259d2315bcbc59",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -2423,7 +2465,7 @@
       "anchors": [
         "import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';"
       ],
-      "hash": "0745a1a3d43ca8405d95f76fd71b8e8aa1fc0bb0",
+      "hash": "bd5c6bc8e93a08052b63a2797d1015b352d69ea0",
       "origin": "new",
       "firstCommit": "1fb9fa8ef|2026-10-01|[XG-CUSTOM] 项我球最后两项缺口：模型菜单（诚实版）+ 换头像 UI + 菜单三项补齐",
       "lastCommit": "1fb9fa8ef|2026-10-01|[XG-CUSTOM] 项我球最后两项缺口：模型菜单（诚实版）+ 换头像 UI + 菜单三项补齐",

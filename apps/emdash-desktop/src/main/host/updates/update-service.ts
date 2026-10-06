@@ -74,9 +74,13 @@ export class UpdateService implements Disposable {
 
     if (import.meta.env.DEV) return;
 
-    // [XG-CUSTOM] 定制版禁用自动更新：本版是本地中文化+修复版，不追官方更新，
+    // [XG-CUSTOM] 定制版**默认禁用**自动更新：本版是本地中文化+修复版，不追官方更新，
     // 否则用户点「更新」会被官方 AppImage 覆盖，中文化全部丢失。
-    return;
+    // [XG-CUSTOM 2026-10-06] 由"无条件禁用"改成"**默认禁用 + 可显式开启**"（用户行为零变化）：
+    //   · 设 `XIANGWO_UPDATE=1` ⇒ 启用（自动化测试 / 明确要追更新时）；
+    //   · 否则照旧提前返回 ⇒ `this.active` 保持 false，`downloadUpdate()` / `quitAndInstall()`
+    //     会**如实**抛 `Update service is not active`（不假装可用）。
+    if (process.env.XIANGWO_UPDATE !== '1') return;
 
     this.setupAutoUpdater();
     this.setupEventListeners();
