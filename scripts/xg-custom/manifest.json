@@ -1609,8 +1609,8 @@
       ],
       "hash": "85805b3125ecc548515b1db8526c9497d4cdfcc3",
       "origin": "modified",
-      "firstCommit": "76dc608ed|2026-09-02|fix(secrets): configure Linux secure storage before app ready",
-      "lastCommit": "76dc608ed|2026-09-02|fix(secrets): configure Linux secure storage before app ready",
+      "firstCommit": "7be484518|2026-10-06|[XG-CUSTOM 2026-10-06] DoH 诊断日志补齐入口那一跳（pino logger 传进 configureChromiumCommandLine，命令行开关轨迹也落 emdash.log）",
+      "lastCommit": "7be484518|2026-10-06|[XG-CUSTOM 2026-10-06] DoH 诊断日志补齐入口那一跳（pino logger 传进 configureChromiumCommandLine，命令行开关轨迹也落 emdash.log）",
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/entry/preload.ts": {
@@ -2299,7 +2299,7 @@
         "expect(lines).toContain('",
         "it('XIANGWO_DOH=off ⇒ 一次都不调用（零回归回退），不探测', async () => {"
       ],
-      "hash": "046779e57808bf749efff03a9a05e319be9ce256",
+      "hash": "6358f733e343a919175cc6e1e726f7d6c213cc6f",
       "origin": "new",
       "firstCommit": "54f137328|2026-10-06|feat(dns): [XG-CUSTOM 2026-10-06] 内嵌浏览器 DNS 走我们自己的 DoH（治假 AAAA 沉洞 → ERR_TIMED_OUT）+ bump 1.2.27-xiangwo",
       "lastCommit": "54f137328|2026-10-06|feat(dns): [XG-CUSTOM 2026-10-06] 内嵌浏览器 DNS 走我们自己的 DoH（治假 AAAA 沉洞 → ERR_TIMED_OUT）+ bump 1.2.27-xiangwo",
@@ -2342,7 +2342,7 @@
         "warn('",
         "warn(`"
       ],
-      "hash": "3a6a21245efbd955119d8100eb237a8bbe7d58dd",
+      "hash": "00d9467cb1c0bc3f1cf101e173bc099533848a7b",
       "origin": "new",
       "firstCommit": "54f137328|2026-10-06|feat(dns): [XG-CUSTOM 2026-10-06] 内嵌浏览器 DNS 走我们自己的 DoH（治假 AAAA 沉洞 → ERR_TIMED_OUT）+ bump 1.2.27-xiangwo",
       "lastCommit": "54f137328|2026-10-06|feat(dns): [XG-CUSTOM 2026-10-06] 内嵌浏览器 DNS 走我们自己的 DoH（治假 AAAA 沉洞 → ERR_TIMED_OUT）+ bump 1.2.27-xiangwo",

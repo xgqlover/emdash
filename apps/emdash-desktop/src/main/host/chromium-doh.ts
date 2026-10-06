@@ -21,7 +21,7 @@
  * 环境变量（都可回退）：
  *   · `XIANGWO_DOH=0` / `off`      ⇒ **两条路都不配**，逐字节回到改动前（继续走系统解析器）
  *   · `XIANGWO_DOH_TEMPLATE=<url>` ⇒ 覆盖模板（默认见 `DEFAULT_DOH_TEMPLATE`）
- *   · `XIANGWO_DOH_PROBE_MS=<n>`   ⇒ 可达性探测超时（默认 `DOH_PROBE_TIMEOUT_MS`，上限 1500ms）
+ *   · `XIANGWO_DOH_PROBE_MS=<n>`   ⇒ 可达性探测超时（默认 `DOH_PROBE_TIMEOUT_MS`，上限 3500ms）
  *   · `XIANGWO_DOH_PROBE=0` / `off`⇒ 跳过探测，直接按模板配 secure（旧行为，排障用）
  *
  * [XG-CUSTOM] 2026-10-06 —— **第三轮：把"到底有没有生效"变成可读证据 + secure 不许闭死**。
@@ -43,8 +43,8 @@ export const DEFAULT_DOH_TEMPLATE = 'https://xg.xgqsxsj.dpdns.org/dns-query';
 const DOH_OFF_VALUES = new Set(['0', 'off']);
 
 /** 可达性探测超时：默认 1.2s（启动最多等这么久），硬上限 1.5s（用户要求别阻塞启动更久）。 */
-export const DOH_PROBE_TIMEOUT_MS = 1200;
-export const DOH_PROBE_TIMEOUT_MAX_MS = 1500;
+export const DOH_PROBE_TIMEOUT_MS = 3000;
+export const DOH_PROBE_TIMEOUT_MAX_MS = 3500;
 
 export type DohCommandLineSwitch = { name: string; value: string };
 
@@ -217,7 +217,7 @@ export function decideDohHostResolverConfig(options: {
   return { configure: true, mode: 'secure', template: plan.template, reason: 'probe-ok' };
 }
 
-/** 探测超时（毫秒）：默认 1.2s，`XIANGWO_DOH_PROBE_MS` 可调，硬上限 1.5s。 */
+/** 探测超时（毫秒）：默认 3s（实测本机到 Worker 往返 ~2.6s，原来的 1.2s 会误判不可达），`XIANGWO_DOH_PROBE_MS` 可调，硬上限 3.5s。 */
 export function resolveProbeTimeoutMs(env: NodeJS.ProcessEnv = {}): number {
   const raw = Number.parseInt((env.XIANGWO_DOH_PROBE_MS ?? '').trim(), 10);
   if (!Number.isFinite(raw) || raw <= 0) return DOH_PROBE_TIMEOUT_MS;

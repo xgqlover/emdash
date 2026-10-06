@@ -226,10 +226,10 @@ describe('decideDohHostResolverConfig', () => {
 });
 
 describe('resolveProbeTimeoutMs', () => {
-  it('缺省 = 1.2s，且永远不超过硬上限 1.5s', () => {
+  it('缺省 = 3s，且永远不超过硬上限 3.5s', () => {
     expect(resolveProbeTimeoutMs({})).toBe(DOH_PROBE_TIMEOUT_MS);
     expect(resolveProbeTimeoutMs({ XIANGWO_DOH_PROBE_MS: '800' })).toBe(800);
-    expect(resolveProbeTimeoutMs({ XIANGWO_DOH_PROBE_MS: '99999' })).toBe(1500);
+    expect(resolveProbeTimeoutMs({ XIANGWO_DOH_PROBE_MS: '99999' })).toBe(3500);
     expect(resolveProbeTimeoutMs({ XIANGWO_DOH_PROBE_MS: 'abc' })).toBe(DOH_PROBE_TIMEOUT_MS);
   });
 });
