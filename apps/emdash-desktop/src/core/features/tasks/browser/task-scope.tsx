@@ -2,6 +2,11 @@ import { toast } from '@emdash/ui/react/primitives';
 import { useLayoutEffect, type ReactNode } from 'react';
 import { browserControlsRegistry } from '@core/features/browser/api/browser/browser-controls-registry';
 import type { BrowserTabResource } from '@core/features/browser/api/browser/browser-tab-resource';
+// [XG-CUSTOM] 2026-10-06 —— 「打开网址…」（browser.openUrl）的纯逻辑：校验 / 决策 / 开页
+import {
+  openUrlInBrowserPane,
+  planOpenUrlCommand,
+} from '@core/features/browser/browser/open-url-command';
 import {
   runGitFetch,
   runGitPublishCurrentBranch,
@@ -70,7 +75,45 @@ async function createConversation(params: TaskScopeParams, target?: 'right'): Pr
   taskView?.setFocusedRegion('main');
 }
 
+/**
+ * [XG-CUSTOM] 2026-10-06 —— `browser.openUrl`（「打开网址…」）的执行体。
+ *
+ * 两条入口：① 命令面板（Ctrl+K）选中 → 没有 url → 弹既有 modal 输入；
+ *          ② 带 url 的 programmatic/menu 调用 → 直接用纯函数校验/决策。
+ * 校验与决策都在 `@core/features/browser/browser/open-url-command`（纯函数，有单测），这里只做 UI + 开页；
+ * 空/非法**如实提示**（toast），不静默、不回退系统浏览器。
+ */
+async function openUrlInTaskBrowser(params: TaskScopeParams, rawUrl?: string): Promise<void> {
+  const plan = planOpenUrlCommand(typeof rawUrl === 'string' ? { url: rawUrl } : undefined);
+  if (plan.kind === 'error') {
+    toast.error('打开网址失败', { description: plan.message });
+    return;
+  }
+
+  let url = plan.kind === 'open' ? plan.url : undefined;
+  if (url === undefined) {
+    const outcome = await openModal('openUrlModal');
+    if (!outcome.success) return;
+    url = outcome.data;
+  }
+
+  const taskView = getTaskComposition(params.projectId, params.taskId);
+  if (!openUrlInBrowserPane(taskView, url)) {
+    toast.error('打开网址失败', { description: '当前 task 还没准备好，请稍后再试' });
+  }
+}
+
 const taskScopeImplementation = {
+  // [XG-CUSTOM] 2026-10-06 —— 「打开网址…」（命令面板 Ctrl+K 触发）。
+  //   带 url（programmatic/menu 调用）→ 直接按纯函数决策；不带 url（命令面板点进来的唯一形态）→ 弹输入框。
+  //   开页**只走** paneLayout.open('browser', { initialUrl })，与 task.openBrowser / 预览 pill 同一条路：
+  //   不新建 WebContentsView、不动 9223 桥白名单、不回退系统浏览器。
+  'browser.openUrl': (params) => ({
+    availability: () => taskAvailability(params),
+    execute: (input) => {
+      void openUrlInTaskBrowser(params, input?.url);
+    },
+  }),
   'task.newConversation': (params) => ({
     availability: () => taskAvailability(params),
     execute: () => {

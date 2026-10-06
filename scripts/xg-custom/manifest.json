@@ -7,10 +7,10 @@
     "base": "669a24fe673f4af1a507ddc33fc3f3ffe1039348"
   },
   "stats": {
-    "files": 146,
-    "markers": 838,
+    "files": 152,
+    "markers": 852,
     "newFiles": 73,
-    "modifiedFiles": 73
+    "modifiedFiles": 79
   },
   "files": {
     ".gitignore": {
@@ -930,6 +930,22 @@
       "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "note": "中文化（任务界面）"
     },
+    "apps/emdash-desktop/src/core/features/tasks/browser/components/preview-servers/manual-forward-button.tsx": {
+      "markers": 2,
+      "lines": [
+        31,
+        42
+      ],
+      "anchors": [
+        "title=\"转发远端端口（预览 dev server），不是打开网址\"",
+        "<Tooltip.Content>"
+      ],
+      "hash": "4c3f0b86c5b9b95afc7253a6440821b341d1adb5",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "note": "中文化（任务界面）"
+    },
     "apps/emdash-desktop/src/core/features/tasks/browser/context-bar/prompt-actions-menu.tsx": {
       "markers": 1,
       "lines": [
@@ -1000,6 +1016,24 @@
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化（任务界面）"
     },
+    "apps/emdash-desktop/src/core/features/tasks/browser/task-scope.tsx": {
+      "markers": 3,
+      "lines": [
+        5,
+        79,
+        107
+      ],
+      "anchors": [
+        "// [XG-CUSTOM] 2026-10-06 —— 「打开网址…」（browser.openUrl）的纯逻辑：校验 / 决策 / 开页 ⏎ import {",
+        "async function openUrlInTaskBrowser(params: TaskScopeParams, rawUrl?: string): Promise<void> {",
+        "'browser.openUrl': (params) => ({"
+      ],
+      "hash": "fb4fb3be0e85b230943ef0cf1781c9d4d362b19c",
+      "origin": "modified",
+      "firstCommit": "ad77f81a0|2026-09-16|fix(tasks): run best-effort teardown on archive",
+      "lastCommit": "ad77f81a0|2026-09-16|fix(tasks): run best-effort teardown on archive",
+      "note": "中文化（任务界面）"
+    },
     "apps/emdash-desktop/src/core/features/tasks/browser/task-titlebar.tsx": {
       "markers": 1,
       "lines": [
@@ -1012,6 +1046,22 @@
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化（任务界面）"
+    },
+    "apps/emdash-desktop/src/core/features/tasks/contributions/scopes.ts": {
+      "markers": 2,
+      "lines": [
+        2,
+        14
+      ],
+      "anchors": [
+        "import { browserOpenUrlCommand } from '@core/features/browser/contributions/commands';",
+        "commands: [...TASK_COMMAND_DEFS, browserOpenUrlCommand],"
+      ],
+      "hash": "cb84b469a02395c3d0d70b83b92567fc5d2ab620",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/workbench/api/browser/embedded-browser-open-request.ts": {
@@ -1163,18 +1213,22 @@
       "note": "项我主对话 feature（8900 聊天）"
     },
     "apps/emdash-desktop/src/core/manifests/browser/browser-contributions.ts": {
-      "markers": 3,
+      "markers": 5,
       "lines": [
-        14,
-        17,
-        22
+        2,
+        7,
+        19,
+        24,
+        35
       ],
       "anchors": [
-        "import { xiangwoBrowserContributions } from '@core/features/xiangwo/contributions/browser';",
+        "import { browserBrowserContributions } from '@core/features/browser/contributions/browser';",
         "import { expertRosterBrowserContributions } from '@core/features/expert-roster/contributions/browser';",
-        "...xiangwoBrowserContributions.views,"
+        "import { xiangwoBrowserContributions } from '@core/features/xiangwo/contributions/browser';",
+        "...xiangwoBrowserContributions.views,",
+        "...browserBrowserContributions.modalDefs,"
       ],
-      "hash": "f86b9447ba34a437c4649b9992f8ee01c80f30ea",
+      "hash": "b405e5925246e6e30c21d140bc917d0594ccbae1",
       "origin": "modified",
       "firstCommit": "94c6d6134|2026-10-02|feat(expert-roster): 专家总览视图（Pi 树全量身份）+ 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1195,6 +1249,38 @@
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "浏览器 manifest 注册（xiangwo/handoff 视图）"
+    },
+    "apps/emdash-desktop/src/core/manifests/shared/command-catalog.ts": {
+      "markers": 2,
+      "lines": [
+        1,
+        14
+      ],
+      "anchors": [
+        "import { BROWSER_COMMAND_DEFS } from '@core/features/browser/contributions/commands';",
+        "...BROWSER_COMMAND_DEFS,"
+      ],
+      "hash": "99747874eb84b4b34c3d540180556ae0cf0af8e4",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "note": "renderer/main 侧定制"
+    },
+    "apps/emdash-desktop/src/core/manifests/shared/command-palette-catalog.ts": {
+      "markers": 2,
+      "lines": [
+        1,
+        13
+      ],
+      "anchors": [
+        "import { BROWSER_COMMAND_PALETTE_ITEMS } from '@core/features/browser/contributions/palette';",
+        "...BROWSER_COMMAND_PALETTE_ITEMS,"
+      ],
+      "hash": "15ffc7d68e12d28cbf196e9edd8182f2251215f0",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/core/primitives/browser/api/browser.test.ts": {
       "markers": 2,
@@ -3018,6 +3104,20 @@
       "firstCommit": "e60319d08|2026-10-04|feat(orb): [XG-CUSTOM] 图片网格相对地址按 agent 基址拼绝对 + 点击在内嵌浏览器开来源页",
       "lastCommit": "e60319d08|2026-10-04|feat(orb): [XG-CUSTOM] 图片网格相对地址按 agent 基址拼绝对 + 点击在内嵌浏览器开来源页",
       "note": "项我球 orb（球壳 + 聊天/图片网格渲染）"
+    },
+    "apps/emdash-desktop/src/renderer/tests/browser/modal-catalog.test.ts": {
+      "markers": 1,
+      "lines": [
+        28
+      ],
+      "anchors": [
+        "] as const;"
+      ],
+      "hash": "21a379ea122f62e977a40453881fb9819b62570d",
+      "origin": "modified",
+      "firstCommit": "2e6fff7dd|2026-09-17|refactor(integrations): unify GitHub account and issue lifecycles",
+      "lastCommit": "2e6fff7dd|2026-09-17|refactor(integrations): unify GitHub account and issue lifecycles",
+      "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/tsconfig.node.json": {
       "markers": 1,

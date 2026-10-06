@@ -28,13 +28,21 @@ export const ManualForwardButton = observer(function ManualForwardButton() {
             disabled={Boolean(disabledReason)}
             className="flex h-7 items-center gap-1.5 rounded-lg px-2 text-xs text-foreground-muted transition-colors hover:bg-background-1 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
             aria-label="Forward remote port"
+            // [XG-CUSTOM] 2026-10-06 —— 用户真机把这个按钮当成「打开网址」点错过：
+            //   它转发的是**远端端口**（把远端 dev server 隧道到本机预览），不是打开网址。
+            //   语义（aria-label）保持不变，只把提示写清；功能一个字没改。
+            //   「打开网址」请走命令面板 Ctrl+K → 「打开网址…」（browser.openUrl）。
+            title="转发远端端口（预览 dev server），不是打开网址"
             onClick={() => setOpen(true)}
           >
             <Plus className="size-3.5" />
             <Globe className="size-3.5" />
           </button>
         </Tooltip.Trigger>
-        <Tooltip.Content>{disabledReason ?? 'Forward remote port'}</Tooltip.Content>
+        {/* [XG-CUSTOM] 2026-10-06 —— 提示文案写清「不是打开网址」（用户点错过） */}
+        <Tooltip.Content>
+          {disabledReason ?? '转发远端端口（预览 dev server），不是打开网址'}
+        </Tooltip.Content>
       </Tooltip.Root>
       <ManualForwardDialog onClose={() => setOpen(false)} />
     </Dialog.Root>

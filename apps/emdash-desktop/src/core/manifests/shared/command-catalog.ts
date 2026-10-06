@@ -1,3 +1,5 @@
+// [XG-CUSTOM] 2026-10-06 —— 「打开网址…」（browser.openUrl）
+import { BROWSER_COMMAND_DEFS } from '@core/features/browser/contributions/commands';
 import { DEV_PERF_COMMAND_DEFS } from '@core/features/dev-perf/contributions/commands';
 import { EDITOR_FILE_TREE_COMMAND_DEFS } from '@core/features/editor/contributions/commands';
 import { SETTINGS_COMMAND_DEFS } from '@core/features/settings/contributions/commands';
@@ -9,6 +11,8 @@ import { WORKBENCH_COMMAND_DEFS } from '@core/features/workbench/contributions/c
 import { defineCommandCatalog } from '@core/primitives/commands/api';
 
 export const COMMAND_CATALOG = defineCommandCatalog([
+  // [XG-CUSTOM] 2026-10-06 —— 「打开网址…」（browser.openUrl）
+  ...BROWSER_COMMAND_DEFS,
   ...DEV_PERF_COMMAND_DEFS,
   ...SETTINGS_COMMAND_DEFS,
   ...EDITOR_FILE_TREE_COMMAND_DEFS,

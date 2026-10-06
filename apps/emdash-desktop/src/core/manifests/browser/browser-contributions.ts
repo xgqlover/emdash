@@ -1,7 +1,12 @@
 import { automationsBrowserContributions } from '@core/features/automations/contributions/browser';
+// [XG-CUSTOM] 2026-10-06 —— 「打开网址」输入框（browser.openUrl 命令用）
+import { browserBrowserContributions } from '@core/features/browser/contributions/browser';
 import { conversationsBrowserContributions } from '@core/features/conversations/contributions/browser';
 import { devPerfBrowserContributions } from '@core/features/dev-perf/contributions/browser';
 import { editorBrowserContributions } from '@core/features/editor/contributions/browser';
+// [XG-CUSTOM] 专家总览视图注册（见 emdash/CUSTOMIZATIONS.md）
+import { expertRosterBrowserContributions } from '@core/features/expert-roster/contributions/browser';
+import { handoffBrowserContributions } from '@core/features/handoff/contributions/browser';
 import { integrationsBrowserContributions } from '@core/features/integrations/contributions/browser';
 import { libraryBrowserContributions } from '@core/features/library/contributions/browser';
 import { machinesBrowserContributions } from '@core/features/machines/contributions/browser';
@@ -13,9 +18,6 @@ import { tasksBrowserContributions } from '@core/features/tasks/contributions/br
 import { workbenchBrowserContributions } from '@core/features/workbench/contributions/browser';
 // [XG-CUSTOM] 项我视图注册（见 emdash/CUSTOMIZATIONS.md）
 import { xiangwoBrowserContributions } from '@core/features/xiangwo/contributions/browser';
-import { handoffBrowserContributions } from '@core/features/handoff/contributions/browser';
-// [XG-CUSTOM] 专家总览视图注册（见 emdash/CUSTOMIZATIONS.md）
-import { expertRosterBrowserContributions } from '@core/features/expert-roster/contributions/browser';
 
 export const featureViewRuntimes = [
   ...workbenchBrowserContributions.views,
@@ -30,6 +32,8 @@ export const featureViewRuntimes = [
 ] as const;
 
 export const featureModalDefs = [
+  // [XG-CUSTOM] 2026-10-06 —— 「打开网址」输入框（browser.openUrl 命令用）
+  ...browserBrowserContributions.modalDefs,
   ...conversationsBrowserContributions.modalDefs,
   ...devPerfBrowserContributions.modalDefs,
   ...editorBrowserContributions.modalDefs,
