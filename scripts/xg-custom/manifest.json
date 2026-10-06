@@ -7,10 +7,10 @@
     "base": "669a24fe673f4af1a507ddc33fc3f3ffe1039348"
   },
   "stats": {
-    "files": 167,
-    "markers": 907,
-    "newFiles": 81,
-    "modifiedFiles": 86
+    "files": 170,
+    "markers": 939,
+    "newFiles": 83,
+    "modifiedFiles": 87
   },
   "files": {
     ".gitignore": {
@@ -1599,6 +1599,20 @@
       "lastCommit": "9df75ff09|2026-09-26|merge: 官方升级 1.2.6 + 适配 xiangwo 定制（acp重构/附件API/i18n去重/插件websiteUrl/tsconfig别名）",
       "note": "遥测默认关闭"
     },
+    "apps/emdash-desktop/src/entry/main.ts": {
+      "markers": 1,
+      "lines": [
+        15
+      ],
+      "anchors": [
+        "configureChromiumCommandLine({"
+      ],
+      "hash": "85805b3125ecc548515b1db8526c9497d4cdfcc3",
+      "origin": "modified",
+      "firstCommit": "76dc608ed|2026-09-02|fix(secrets): configure Linux secure storage before app ready",
+      "lastCommit": "76dc608ed|2026-09-02|fix(secrets): configure Linux secure storage before app ready",
+      "note": "renderer/main 侧定制"
+    },
     "apps/emdash-desktop/src/entry/preload.ts": {
       "markers": 9,
       "lines": [
@@ -1652,17 +1666,18 @@
       "note": "启动装配（注入 xiangwo 依赖 / 后台服务）"
     },
     "apps/emdash-desktop/src/main/bootstrap/boot/phases/prepare-electron.ts": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        43
+        43,
+        47
       ],
       "anchors": [
-        "configureDohHostResolver({ app });"
+        "await configureDohHostResolver({ app, logger: (message, fields) => log.warn(message, fields) });"
       ],
-      "hash": "6e6fcbf110e57d47745a2e109ad0158f22b4fec1",
+      "hash": "96f40c3664a43a7f70a82f4c2356caf333cac81f",
       "origin": "modified",
-      "firstCommit": "76dc608ed|2026-09-02|fix(secrets): configure Linux secure storage before app ready",
-      "lastCommit": "76dc608ed|2026-09-02|fix(secrets): configure Linux secure storage before app ready",
+      "firstCommit": "54f137328|2026-10-06|feat(dns): [XG-CUSTOM 2026-10-06] 内嵌浏览器 DNS 走我们自己的 DoH（治假 AAAA 沉洞 → ERR_TIMED_OUT）+ bump 1.2.27-xiangwo",
+      "lastCommit": "54f137328|2026-10-06|feat(dns): [XG-CUSTOM 2026-10-06] 内嵌浏览器 DNS 走我们自己的 DoH（治假 AAAA 沉洞 → ERR_TIMED_OUT）+ bump 1.2.27-xiangwo",
       "note": "启动装配（注入 xiangwo 依赖 / 后台服务）"
     },
     "apps/emdash-desktop/src/main/bootstrap/boot/phases/services.ts": {
@@ -2236,22 +2251,101 @@
       ],
       "hash": "0e3a803059b6465c105c413380ec98739a55cfb3",
       "origin": "modified",
-      "firstCommit": "76dc608ed|2026-09-02|fix(secrets): configure Linux secure storage before app ready",
-      "lastCommit": "76dc608ed|2026-09-02|fix(secrets): configure Linux secure storage before app ready",
+      "firstCommit": "54f137328|2026-10-06|feat(dns): [XG-CUSTOM 2026-10-06] 内嵌浏览器 DNS 走我们自己的 DoH（治假 AAAA 沉洞 → ERR_TIMED_OUT）+ bump 1.2.27-xiangwo",
+      "lastCommit": "54f137328|2026-10-06|feat(dns): [XG-CUSTOM 2026-10-06] 内嵌浏览器 DNS 走我们自己的 DoH（治假 AAAA 沉洞 → ERR_TIMED_OUT）+ bump 1.2.27-xiangwo",
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/main/host/chromium-command-line.ts": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        21
+        13,
+        24
       ],
       "anchors": [
-        "configureDohCommandLine({ commandLine, env });"
+        "logger?: (message: string, fields?: Record<string, unknown>) => void;",
+        "configureDohCommandLine({ commandLine, env, logger });"
       ],
-      "hash": "926d1f5e08d350c4e3f3b0af92dcb70bce33e551",
+      "hash": "e6b3adf2e758bc9eb7cb26077c7215e9a8e8129f",
       "origin": "modified",
-      "firstCommit": "76dc608ed|2026-09-02|fix(secrets): configure Linux secure storage before app ready",
-      "lastCommit": "76dc608ed|2026-09-02|fix(secrets): configure Linux secure storage before app ready",
+      "firstCommit": "54f137328|2026-10-06|feat(dns): [XG-CUSTOM 2026-10-06] 内嵌浏览器 DNS 走我们自己的 DoH（治假 AAAA 沉洞 → ERR_TIMED_OUT）+ bump 1.2.27-xiangwo",
+      "lastCommit": "54f137328|2026-10-06|feat(dns): [XG-CUSTOM 2026-10-06] 内嵌浏览器 DNS 走我们自己的 DoH（治假 AAAA 沉洞 → ERR_TIMED_OUT）+ bump 1.2.27-xiangwo",
+      "note": "renderer/main 侧定制"
+    },
+    "apps/emdash-desktop/src/main/host/chromium-doh.test.ts": {
+      "markers": 13,
+      "lines": [
+        2,
+        7,
+        11,
+        121,
+        152,
+        153,
+        170,
+        301,
+        317,
+        318,
+        319,
+        337,
+        355
+      ],
+      "anchors": [
+        "import { describe, expect, it, vi } from 'vitest';",
+        "it('非法模板：忽略 + 走默认模板 + warn 一句（带",
+        "const withLogger = vi.fn();",
+        "it('给了 logger ⇒ 打一句",
+        "describe('decideDohHostResolverConfig', () => {",
+        "describe('configureDohHostResolver', () => {",
+        "expect(lines.every((line) => line.startsWith('",
+        "expect(lines).toContain('",
+        "it('XIANGWO_DOH=off ⇒ 一次都不调用（零回归回退），不探测', async () => {"
+      ],
+      "hash": "046779e57808bf749efff03a9a05e319be9ce256",
+      "origin": "new",
+      "firstCommit": "54f137328|2026-10-06|feat(dns): [XG-CUSTOM 2026-10-06] 内嵌浏览器 DNS 走我们自己的 DoH（治假 AAAA 沉洞 → ERR_TIMED_OUT）+ bump 1.2.27-xiangwo",
+      "lastCommit": "54f137328|2026-10-06|feat(dns): [XG-CUSTOM 2026-10-06] 内嵌浏览器 DNS 走我们自己的 DoH（治假 AAAA 沉洞 → ERR_TIMED_OUT）+ bump 1.2.27-xiangwo",
+      "note": "renderer/main 侧定制"
+    },
+    "apps/emdash-desktop/src/main/host/chromium-doh.ts": {
+      "markers": 16,
+      "lines": [
+        2,
+        27,
+        103,
+        107,
+        110,
+        111,
+        130,
+        131,
+        139,
+        171,
+        266,
+        311,
+        332,
+        344,
+        400,
+        420
+      ],
+      "anchors": [
+        "2026-10-06 —— 内嵌浏览器改用**我们自己的 DoH**（治假 AAAA `2001::1` 沉洞）。",
+        "export const DEFAULT_DOH_TEMPLATE = 'https://xg.xgqsxsj.dpdns.org/dns-query';",
+        "/** [XG-CUSTOM] 2026-10-06 —— 落盘诊断（生产传 `log.warn`；缺省不打，保持单测/旧调用方零噪音）。 */ ⏎ logger?: DohDiagnosticLogger;",
+        "export type DohDiagnosticLogger = (message: string, fields?: Record<string, unknown>) => void;",
+        "const dohLog = (",
+        "const DOH_LOG_PREFIX = '",
+        "if (plan.warning !== null) warn(`",
+        "dohLog(logger, '命令行开关（Electron 40 实测为死开关，仅留痕）', {",
+        "export type DohProbeResult = {",
+        "export function decideDohHostResolverConfig(options: {",
+        "export async function probeDohReachability(",
+        "type HostResolverApp = {",
+        "export async function configureDohHostResolver({",
+        "warn('",
+        "warn(`"
+      ],
+      "hash": "3a6a21245efbd955119d8100eb237a8bbe7d58dd",
+      "origin": "new",
+      "firstCommit": "54f137328|2026-10-06|feat(dns): [XG-CUSTOM 2026-10-06] 内嵌浏览器 DNS 走我们自己的 DoH（治假 AAAA 沉洞 → ERR_TIMED_OUT）+ bump 1.2.27-xiangwo",
+      "lastCommit": "54f137328|2026-10-06|feat(dns): [XG-CUSTOM 2026-10-06] 内嵌浏览器 DNS 走我们自己的 DoH（治假 AAAA 沉洞 → ERR_TIMED_OUT）+ bump 1.2.27-xiangwo",
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/main/host/updates/update-service.ts": {
