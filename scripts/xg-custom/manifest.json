@@ -8,7 +8,7 @@
   },
   "stats": {
     "files": 158,
-    "markers": 858,
+    "markers": 859,
     "newFiles": 79,
     "modifiedFiles": 79
   },
@@ -1149,15 +1149,16 @@
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/workbench/api/browser/embedded-browser-open-request.ts": {
-      "markers": 7,
+      "markers": 8,
       "lines": [
         1,
         45,
         139,
         144,
-        157,
-        167,
-        208
+        160,
+        170,
+        189,
+        219
       ],
       "anchors": [
         "项我定制（见 emdash/CUSTOMIZATIONS.md）",
@@ -1166,7 +1167,7 @@
         "); ⏎ return false;",
         "console.warn('"
       ],
-      "hash": "ea68b55ebea0d5da1f2653e39eaa21c181f0406e",
+      "hash": "ca029e53d7e164275d696da96e05e545cd2ca205",
       "origin": "new",
       "firstCommit": "9ec2107ba|2026-10-01|[XG-CUSTOM] 内嵌浏览器：从零开页（对齐 HippoBuddy 的 WebContentsView 升级）+ iframe 命名正名",
       "lastCommit": "9ec2107ba|2026-10-01|[XG-CUSTOM] 内嵌浏览器：从零开页（对齐 HippoBuddy 的 WebContentsView 升级）+ iframe 命名正名",
