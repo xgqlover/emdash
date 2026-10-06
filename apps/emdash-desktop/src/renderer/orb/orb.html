@@ -34,6 +34,14 @@
         </svg>
       </button>
       <button id="capture" type="button" title="截图当前网页">📷</button>
+      <!-- [XG-CUSTOM] 2026-10-06 —— 🌐「打开网址」快入口，**与 📷/📤 同一排**（同一个工具条行、同一套 28px 药丸样式）：
+           点一下把下面 #prompt 切成「待开页」模式，粘贴网址回车即在内嵌浏览器打开你看得见（直连，不经 agent）。
+           逻辑在 orb.js（enterOpenUrlMode/submitOpenUrlMode）+ xiangwo-action.ts 的纯校验。
+           ⚠️ 源码里紧跟 📷 之后，但**渲染在右侧槽**（📷 📤 [权限档] 🌐 + ✕）—— 左边那个槽位会和居中的
+           权限药丸重叠 3~8px，几何推算写在 orb.css 的 #open-url 规则里（工具栏只有 356px 宽）。 -->
+      <button id="open-url" type="button" title="打开网址（在 emdash 内嵌浏览器里打开，你看得见）">
+        🌐
+      </button>
       <button id="handoff" type="button" title="把当前活交接到主工作台">📤</button>
       <div id="permission">
         <button id="permission-button" type="button" aria-haspopup="listbox" aria-expanded="false">

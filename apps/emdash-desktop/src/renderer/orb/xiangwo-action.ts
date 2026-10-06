@@ -314,3 +314,80 @@ export async function openXiangwoUrls(
   if (failed.length === 0) return { ok: true };
   return { ok: false, reason: reason === '' ? 'failed' : reason, message: failed.join(' ') };
 }
+
+// ── [XG-CUSTOM] 2026-10-06 —— 球的 🌐「打开网址」快入口：用户手输网址的**纯校验**（可离线单测）──
+//
+// 用户嫌 `browser.openUrl`（Ctrl+K → 弹框 → 粘贴 → 回车）绕，要「一个动作就给网址并打开」。
+// 做法：点球底排 🌐 → 把球**已有的输入框**切成「待开页」模式 → 粘贴 → **回车**（这条模式下回车
+// **不发聊天消息**）→ `openXiangwoUrls()`（= 已通的 `host.openEmbeddedBrowser` 通道，默认落在
+// 用户当前 task，**不另加** profile/bot 参数）。Esc 取消复位。
+//
+// 校验口径与主界面 `browser.openUrl` 的 `resolveOpenUrlInput`
+// （`@core/features/browser/browser/open-url-command.ts`）**逐条对齐**：
+//   ① 只收 http(s)（`javascript:` / `file:` / `data:` / `mailto:` 一律如实拒，绝不回退系统浏览器）；
+//   ② 没写协议 → 补 `https://`（`g-mark.org` → `https://g-mark.org`）；`localhost:5173` 这种
+//      「host:port 伪协议」也当无协议处理（否则会被误判成不支持的协议）；
+//   ③ 空 / 非法 → 回**中文原因**（调用方照原样显示，不静默）。
+// 🔴 **刻意不 import 那个模块**：`orb.html` 是**独立 vite 入口**，而那个模块顺着
+//   `open-browser-tab` 会把主界面的 paneLayout / mobx 那一坨拖进球的包 —— 为 40 行校验不值当。
+//   两处的一致性由 `xiangwo-action.test.ts` 的「与主界面共用同一张用例表」钉住（漂移即红）。
+
+const XG_URL_SCHEME_RE = /^([a-zA-Z][a-zA-Z0-9+.-]*):/;
+const XG_HTTP_SCHEME_RE = /^https?$/i;
+// 冒号后面只有端口（`127.0.0.1:8080` / `localhost:5173` / `example.com:3000`）—— 那不是协议，是 host:port。
+const XG_PORT_ONLY_RE = /^\d+(?:[/?#].*)?$/;
+
+export interface XiangwoOpenUrlInputOk {
+  readonly ok: true;
+  readonly url: string;
+}
+
+export interface XiangwoOpenUrlInputError {
+  readonly ok: false;
+  readonly message: string;
+}
+
+export type XiangwoOpenUrlInputResult = XiangwoOpenUrlInputOk | XiangwoOpenUrlInputError;
+
+/** 球的「待开页」输入 → 可直接交给内嵌浏览器的绝对 URL；非法带回中文原因。 */
+export function resolveXiangwoOpenUrlInput(raw: string): XiangwoOpenUrlInputResult {
+  const trimmed = raw.trim();
+  if (trimmed === '') return { ok: false, message: '请输入网址（例如 https://example.com）' };
+
+  const scheme = XG_URL_SCHEME_RE.exec(trimmed)?.[1];
+  let candidate = trimmed;
+  if (scheme === undefined) {
+    candidate = `https://${trimmed}`;
+  } else if (!XG_HTTP_SCHEME_RE.test(scheme)) {
+    if (XG_PORT_ONLY_RE.test(trimmed.slice(scheme.length + 1))) {
+      candidate = `https://${trimmed}`;
+    } else {
+      return { ok: false, message: `只支持 http/https 网址（收到的是 ${scheme}: 协议）` };
+    }
+  }
+
+  let parsed: URL;
+  try {
+    parsed = new URL(candidate);
+  } catch {
+    return { ok: false, message: '网址无效，请检查后重试（例如 https://example.com）' };
+  }
+
+  if (!XG_HTTP_SCHEME_RE.test(parsed.protocol.replace(/:$/, ''))) {
+    return { ok: false, message: '只支持 http/https 网址' };
+  }
+  if (parsed.hostname === '') {
+    return { ok: false, message: '网址缺少主机名（例如 https://example.com）' };
+  }
+  if (!isUsableXiangwoHostname(parsed.hostname)) {
+    return { ok: false, message: '请输入完整网址（例如 https://example.com）' };
+  }
+  return { ok: true, url: parsed.toString() };
+}
+
+/** 主机名要像个主机名：带点（域名/IPv4）、或 localhost、或 [IPv6] 字面量。 */
+function isUsableXiangwoHostname(hostname: string): boolean {
+  if (hostname === 'localhost') return true;
+  if (hostname.startsWith('[')) return true;
+  return hostname.includes('.');
+}

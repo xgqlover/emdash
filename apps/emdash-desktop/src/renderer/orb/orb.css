@@ -188,10 +188,13 @@ body.pinned #panel {
   box-shadow: none;
 }
 
+/* [XG-CUSTOM] 2026-10-06 —— 加 🌐「打开网址」（#open-url）：**同一排、同一套 28px 药丸样式**。 */
 /* [XG-CUSTOM] 工具条（第一行：历史 / 截图 / 交接 / 权限 / 新对话 / 关闭） */
 #history,
 #capture,
 #handoff,
+/* [XG-CUSTOM] 2026-10-06 —— 🌐 打开网址 */
+#open-url,
 #new-conversation,
 #close,
 #permission {
@@ -203,6 +206,8 @@ body.pinned #panel {
 body.expand-down #history,
 body.expand-down #capture,
 body.expand-down #handoff,
+/* [XG-CUSTOM] 2026-10-06 —— 🌐 打开网址 */
+body.expand-down #open-url,
 body.expand-down #new-conversation,
 body.expand-down #close,
 body.expand-down #permission {
@@ -213,6 +218,8 @@ body.expand-down #permission {
 #history,
 #capture,
 #handoff,
+/* [XG-CUSTOM] 2026-10-06 —— 🌐 打开网址（跟 📷/📤 逐条同款：网格居中 + 28×28 圆药丸） */
+#open-url,
 #new-conversation,
 #close {
   display: grid;
@@ -238,6 +245,18 @@ body.expand-down #permission {
 
 #handoff {
   left: 80px;
+  font-size: 14px;
+}
+
+/* [XG-CUSTOM] 2026-10-06 —— 🌐「打开网址」：跟 📷/📤 **同一排**（同一个工具条行、同一套 6px 间距）。
+ *
+ * 为什么落在**右侧**槽（right:80px）而不是"紧跟 📤"（left:114px）—— 是几何硬约束，不是随便挑的：
+ *   工具栏宽 356px（窗口 380 − 两侧 12px chrome）；左边下一个槽位 114px（按钮占 114~142），
+ *   而**居中的权限药丸**（#permission，left:50%）左沿在 ~133.5px（"工作区写入" 89px 宽）/
+ *   ~139px（"完全访问" 78px 宽）⇒ 会压 3~8px。右侧槽与 "+"(#new-conversation, right:46)
+ *   同一套间距：248~276，离药丸右沿（~222.5）还有 25px，零重叠、左右对称（📷📤 … 🌐 + ✕）。 */
+#open-url {
+  right: 80px;
   font-size: 14px;
 }
 

@@ -6,6 +6,8 @@ import {
   openXiangwoUrls,
   parseXiangwoActionBlock,
   parseXiangwoOpenUrlBlock,
+  // [XG-CUSTOM] 2026-10-06 —— 🌐「打开网址」快入口的纯校验（只收 http(s) / 补协议 / 中文原因）
+  resolveXiangwoOpenUrlInput,
   runXiangwoAction,
   stripXiangwoActionBlocks,
   stripXiangwoOpenUrlBlocks,
@@ -609,6 +611,8 @@ async function main() {
   const historyList = document.querySelector('#history-list');
   const captureButton = document.querySelector('#capture');
   const handoffButton = document.querySelector('#handoff');
+  // [XG-CUSTOM] 2026-10-06 —— 🌐「打开网址」快入口按钮（处理见本文 enterOpenUrlMode/submitOpenUrlMode）
+  const openUrlButton = document.querySelector('#open-url');
   const newConversation = document.querySelector('#new-conversation');
   const closeButton = document.querySelector('#close');
   const botSelect = document.querySelector('#bot');
@@ -1620,6 +1624,8 @@ async function main() {
       void bridge.orbTogglePin?.().then((next) => applyPinned(next));
     }
     await setExpanded(false);
+    // [XG-CUSTOM] 2026-10-06 —— 收起面板时落回普通聊天输入（🌐「待开页」模式不跨开关残留）
+    resetOpenUrlMode();
     status.textContent = '';
   }
 
@@ -1704,8 +1710,20 @@ async function main() {
     syncComposerHeight();
   });
   prompt.addEventListener('keydown', (event) => {
+    // [XG-CUSTOM] 2026-10-06 —— 🌐「待开页」模式：Esc 取消并复位（回到普通聊天输入）。
+    if (isOpenUrlMode() && event.key === 'Escape') {
+      event.preventDefault();
+      resetOpenUrlMode();
+      clearPrompt();
+      return;
+    }
     if (event.key !== 'Enter' || event.shiftKey || isComposing(event)) return;
     event.preventDefault();
+    // [XG-CUSTOM] 2026-10-06 —— 🌐「待开页」模式下的回车 = **开页**，绝不走 requestSubmit（= 不发聊天消息）。
+    if (isOpenUrlMode()) {
+      void submitOpenUrlMode();
+      return;
+    }
     if (typeof composer.requestSubmit === 'function') composer.requestSubmit();
     else composer.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
   });
@@ -1929,6 +1947,12 @@ async function main() {
 
   composer.addEventListener('submit', (event) => {
     event.preventDefault();
+    // [XG-CUSTOM] 2026-10-06 —— 🌐「待开页」模式下**绝不发聊天消息**（兜底：submit 若由别的路径触发，
+    //   也只开页；正常路径是 prompt 的 keydown 直接拦下，见上面那条分支）。
+    if (isOpenUrlMode()) {
+      void submitOpenUrlMode();
+      return;
+    }
     const instruction = promptText(prompt).trim();
     if (instruction === '') return;
     void send(instruction);
@@ -1941,7 +1965,7 @@ async function main() {
     sendAbort.abort();
   });
 
-  // ---------- 我们的动作：📷 截图 / 📤 交接 / 新对话 / 打开主窗 ----------
+  // ---------- 我们的动作：📷 截图 / 📤 交接 / 🌐 打开网址 / 新对话 / 打开主窗 ----------
   async function captureCurrentTab() {
     if (typeof bridge.captureCurrentTab !== 'function') {
       status.textContent = '（截图桥接未就绪，请说「截图」让 agent 截）';
@@ -1953,6 +1977,76 @@ async function main() {
       await send('', dataUrl);
     } catch (cause) {
       status.textContent = `截图失败: ${describeError(cause)}`;
+    }
+  }
+
+  // [XG-CUSTOM] 2026-10-06 —— 🌐「打开网址」快入口：把球**已有的输入框**临时切成「待开页」模式。
+  //
+  // 用户要「一个动作就能给网址并打开」（嫌 `browser.openUrl` 的 Ctrl+K → 弹框绕）。交互最终形态：
+  //   点 🌐 **一下** → 输入框 placeholder 变「粘贴网址后回车打开（Esc 取消）」（`data-mode` 打标）→
+  //   粘贴 → **回车**。此模式下回车**不发聊天消息**（见 prompt keydown / composer submit 两处分支），
+  //   只把网址交给 `openXiangwoUrls()` —— 那就是球里点图片卡片/agent 开页**同一条** orbApi 通道
+  //   （`host.openEmbeddedBrowser` → 主窗口），**默认落在用户当前 task**；这里**不传** profile/bot，
+  //   也不是系统浏览器。Esc 取消并复位；成功不吵（静默复位），失败**如实**说一句。
+  const OPEN_URL_PLACEHOLDER = '粘贴网址后回车打开（Esc 取消）';
+  const OPEN_URL_LABEL = '打开网址';
+  const CHAT_PLACEHOLDER = '跟项我说话…';
+  const CHAT_LABEL = '跟项我说话';
+  let openUrlSubmitting = false;
+
+  function isOpenUrlMode() {
+    return prompt.dataset.mode === 'open-url';
+  }
+
+  /** 进入「待开页」模式（再次点击 🌐 幂等：只把焦点拉回输入框）。 */
+  function enterOpenUrlMode() {
+    prompt.dataset.mode = 'open-url';
+    prompt.dataset.placeholder = OPEN_URL_PLACEHOLDER;
+    const label = document.querySelector('#input-label');
+    if (label !== null) label.textContent = OPEN_URL_LABEL;
+    clearPrompt();
+    status.textContent = '';
+    prompt.focus();
+  }
+
+  /** 复位「待开页」模式（**不动**输入框里的字；要不要清由调用方定：Esc/成功后 clearPrompt）。 */
+  function resetOpenUrlMode() {
+    if (!isOpenUrlMode()) return;
+    delete prompt.dataset.mode;
+    prompt.dataset.placeholder = CHAT_PLACEHOLDER;
+    const label = document.querySelector('#input-label');
+    if (label !== null) label.textContent = CHAT_LABEL;
+    status.textContent = '';
+  }
+
+  /** 回车提交：校验（纯函数）→ 开页 → 如实回执。校验不过**留在该模式**（改一个字就能重来）。 */
+  async function submitOpenUrlMode() {
+    if (openUrlSubmitting) return;
+    const resolved = resolveXiangwoOpenUrlInput(promptText(prompt));
+    if (!resolved.ok) {
+      status.textContent = resolved.message;
+      return;
+    }
+    openUrlSubmitting = true;
+    status.textContent = '正在打开…';
+    try {
+      const result = await openXiangwoUrls([resolved.url], (method, payload) => {
+        const call = bridge.orbApi;
+        return typeof call === 'function'
+          ? call(method, payload)
+          : { ok: false, reason: 'unavailable' };
+      });
+      if (result.ok) {
+        resetOpenUrlMode(); // 成功不吵
+        clearPrompt();
+        return;
+      }
+      status.textContent =
+        result.reason === 'unavailable'
+          ? '这条开页通道没接上（没有可用的内嵌浏览器），我没开。'
+          : `没打开成功：${result.message ?? result.reason}`;
+    } finally {
+      openUrlSubmitting = false;
     }
   }
 
@@ -1978,6 +2072,8 @@ async function main() {
 
   async function startNewConversation() {
     clearPrompt();
+    // [XG-CUSTOM] 2026-10-06 —— 新对话要落回普通聊天输入（否则 🌐 的「待开页」模式会残留、回车去开页）
+    resetOpenUrlMode();
     setHistoryOpen(false);
     setPermissionOpen(false);
     setRunning(false);
@@ -2342,6 +2438,10 @@ async function main() {
   });
   handoffButton.addEventListener('click', () => {
     void handoff();
+  });
+  // [XG-CUSTOM] 2026-10-06 —— 🌐「打开网址」：一下切换输入框为「待开页」模式（回车=开页，Esc=取消）
+  openUrlButton?.addEventListener('click', () => {
+    enterOpenUrlMode();
   });
   newConversation.addEventListener('click', () => {
     void startNewConversation();

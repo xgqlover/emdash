@@ -1,11 +1,15 @@
 // [XG-CUSTOM] 2026-10-05 —— 动作块解析/执行回归（jsdom 无关，纯函数）。
 import { describe, expect, it } from 'vitest';
+// [XG-CUSTOM] 2026-10-06 —— 主界面 `browser.openUrl` 的同一个校验（只在测试里 import：**只为防两处漂移**，
+//   球运行时不引它 —— 那会把主界面的 paneLayout/mobx 拖进球的独立入口包）。
+import { resolveOpenUrlInput } from '@core/features/browser/browser/open-url-command';
 import {
   actionFailureText,
   dropOpenUrlActionsAlreadyOpened,
   openXiangwoUrls,
   createSideEffectPrimer,
   parseXiangwoOpenUrlBlock,
+  resolveXiangwoOpenUrlInput,
   stripXiangwoOpenUrlBlocks,
   parseXiangwoActionBlock,
   runXiangwoAction,
@@ -382,5 +386,89 @@ describe('createSideEffectPrimer（渲染重绘不重放副作用）', () => {
     const p = createSideEffectPrimer();
     expect(p.claim(null as unknown as object, 'open:https://a.example')).toBe(false);
     expect(p.claim(undefined as unknown as object, 'open:https://a.example')).toBe(false);
+  });
+});
+
+// ── [XG-CUSTOM] 2026-10-06 —— 🌐「打开网址」快入口的纯校验（球侧输入框 → 内嵌浏览器）──
+describe('resolveXiangwoOpenUrlInput（球的「待开页」输入校验）', () => {
+  it('http/https 原样收（补尾斜杠是 URL 规范化的正常结果）', () => {
+    expect(resolveXiangwoOpenUrlInput('https://example.com/a/b?x=1')).toEqual({
+      ok: true,
+      url: 'https://example.com/a/b?x=1',
+    });
+    expect(resolveXiangwoOpenUrlInput('http://example.com/')).toEqual({
+      ok: true,
+      url: 'http://example.com/',
+    });
+  });
+
+  it('没写协议 → 补 https://（含 localhost:port 这种「host:port 伪协议」）', () => {
+    expect(resolveXiangwoOpenUrlInput('g-mark.org')).toEqual({
+      ok: true,
+      url: 'https://g-mark.org/',
+    });
+    expect(resolveXiangwoOpenUrlInput('localhost:5173')).toEqual({
+      ok: true,
+      url: 'https://localhost:5173/',
+    });
+    expect(resolveXiangwoOpenUrlInput('127.0.0.1:8080/app')).toEqual({
+      ok: true,
+      url: 'https://127.0.0.1:8080/app',
+    });
+  });
+
+  it('前后空白先 trim（粘贴经常带换行）', () => {
+    expect(resolveXiangwoOpenUrlInput('  https://example.com/ \n')).toEqual({
+      ok: true,
+      url: 'https://example.com/',
+    });
+  });
+
+  it('★空 / 非法协议 / 缺主机名 → 逐条回中文原因（绝不静默、绝不回退系统浏览器）', () => {
+    expect(resolveXiangwoOpenUrlInput('')).toEqual({
+      ok: false,
+      message: '请输入网址（例如 https://example.com）',
+    });
+    expect(resolveXiangwoOpenUrlInput('   ')).toEqual({
+      ok: false,
+      message: '请输入网址（例如 https://example.com）',
+    });
+    const javascript = resolveXiangwoOpenUrlInput('javascript:alert(1)');
+    expect(javascript.ok).toBe(false);
+    const file = resolveXiangwoOpenUrlInput('file:///etc/passwd');
+    expect(file.ok).toBe(false);
+    const mailto = resolveXiangwoOpenUrlInput('mailto:a@b.com');
+    expect(mailto.ok).toBe(false);
+    if (!mailto.ok) expect(mailto.message).toContain('只支持 http/https');
+    // 没有点的裸词不是主机名（与主界面同口径：不要瞎猜成一个域名）
+    expect(resolveXiangwoOpenUrlInput('example').ok).toBe(false);
+    // 空主机名（`https://` 后面什么都没有）
+    const noHost = resolveXiangwoOpenUrlInput('https://');
+    expect(noHost.ok).toBe(false);
+  });
+
+  it('🔴 与主界面 `browser.openUrl` 的 resolveOpenUrlInput **同一张用例表**（两处口径不许漂移）', () => {
+    const cases = [
+      '',
+      '   ',
+      'g-mark.org',
+      'https://example.com/a/b?x=1',
+      'http://example.com/',
+      'localhost:5173',
+      '127.0.0.1:8080/app',
+      '  https://example.com/ \n',
+      'javascript:alert(1)',
+      'file:///etc/passwd',
+      'mailto:a@b.com',
+      'data:text/html,<b>x</b>',
+      'example',
+      'https://',
+      'ftp://example.com/',
+      'about:blank',
+      '[::1]:8080',
+    ];
+    for (const raw of cases) {
+      expect(resolveXiangwoOpenUrlInput(raw), raw).toEqual(resolveOpenUrlInput(raw));
+    }
   });
 });
