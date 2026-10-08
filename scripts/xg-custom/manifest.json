@@ -7,9 +7,9 @@
     "base": "669a24fe673f4af1a507ddc33fc3f3ffe1039348"
   },
   "stats": {
-    "files": 205,
-    "markers": 1263,
-    "newFiles": 104,
+    "files": 206,
+    "markers": 1264,
+    "newFiles": 105,
     "modifiedFiles": 101
   },
   "files": {
@@ -348,8 +348,22 @@
       ],
       "hash": "ba514c01bfb54ac30bd8ea3d551494e85e5e04f4",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "c7b4f3958|2026-10-08|[XG-CUSTOM 2026-10-08] 「自动化」加 Kaneo 看板 Tab + 修台账漏搜带日期标记",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/automations/browser/components/KaneoBoardPanel.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { PageLayout } from '@emdash/ui/react/patterns';"
+      ],
+      "hash": "da5a36d16ad5fd381998d82ab2eb33878a47d23d",
+      "origin": "new",
+      "firstCommit": "c7b4f3958|2026-10-08|[XG-CUSTOM 2026-10-08] 「自动化」加 Kaneo 看板 Tab + 修台账漏搜带日期标记",
+      "lastCommit": "c7b4f3958|2026-10-08|[XG-CUSTOM 2026-10-08] 「自动化」加 Kaneo 看板 Tab + 修台账漏搜带日期标记",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/automations/browser/useAutomationFormState.ts": {
