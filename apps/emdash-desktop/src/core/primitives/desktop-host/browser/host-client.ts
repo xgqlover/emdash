@@ -73,6 +73,11 @@ export async function expertRoster() {
   return (await getHostClient()).expertRoster({});
 }
 
+// [XG-CUSTOM 2026-10-08] Kaneo 看板（「自动化」视图的 Kaneo 面板）
+export async function kaneoBoard(brief = false) {
+  return (await getHostClient()).kaneoBoard({ brief });
+}
+
 // [XG-CUSTOM] 浏览器工作台（task-spaces）：页面控制权交接，与专家交接台分开的一组
 // ⚠️ 这是**另一条**通路：走 Wire（host 域）→ 主机感知的 runXiangwoScript（本机 spawn / 远程 SSH），
 //    与 XiangwoFloatingPanel 用的那组 IPC（xiangwo:task-space-*）数据源相同、入口不同。

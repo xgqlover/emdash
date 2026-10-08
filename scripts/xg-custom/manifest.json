@@ -7,10 +7,10 @@
     "base": "669a24fe673f4af1a507ddc33fc3f3ffe1039348"
   },
   "stats": {
-    "files": 170,
-    "markers": 939,
-    "newFiles": 83,
-    "modifiedFiles": 87
+    "files": 205,
+    "markers": 1263,
+    "newFiles": 104,
+    "modifiedFiles": 101
   },
   "files": {
     ".gitignore": {
@@ -19,7 +19,7 @@
         113
       ],
       "anchors": [
-        "定制台账生成器的备份文件（check.mjs --gen 每次生成新的，不该进仓）"
+        "] 定制台账生成器的备份文件（check.mjs --gen 每次生成新的，不该进仓）"
       ],
       "hash": "6173f3069370edb19ed03c941a74d5b6835c151f",
       "origin": "modified",
@@ -28,13 +28,126 @@
       "note": "忽略 xg-custom 台账备份文件"
     },
     "apps/emdash-desktop/electron-builder.config.ts": {
-      "markers": 2,
+      "markers": 112,
       "lines": [
         34,
+        49,
+        85,
+        87,
+        89,
+        91,
+        93,
+        95,
+        97,
+        99,
+        101,
+        103,
+        105,
+        107,
+        109,
+        111,
+        113,
+        115,
+        117,
+        119,
+        121,
+        123,
+        125,
+        127,
+        129,
+        131,
+        133,
+        135,
+        137,
+        139,
+        141,
+        143,
+        145,
+        147,
+        149,
+        151,
+        153,
+        155,
+        157,
+        159,
+        161,
+        163,
+        165,
+        167,
+        169,
+        171,
+        173,
+        175,
+        177,
+        179,
+        181,
+        183,
+        185,
+        187,
+        189,
+        191,
+        193,
+        195,
+        197,
+        199,
+        201,
+        203,
+        205,
+        207,
+        209,
+        211,
+        213,
+        215,
+        217,
+        219,
+        221,
+        223,
+        225,
+        227,
+        229,
+        231,
+        233,
+        235,
+        237,
+        239,
+        241,
+        243,
+        245,
+        247,
+        249,
+        251,
+        253,
+        255,
+        257,
+        259,
+        261,
+        263,
+        265,
+        267,
+        269,
+        271,
+        273,
+        275,
+        277,
+        279,
+        281,
+        283,
+        285,
+        287,
+        289,
+        291,
+        293,
+        295,
+        297,
+        299,
+        301,
         358
       ],
       "anchors": [
-        "精确收集 emdash-desktop 的直接依赖（electron-builder 在 pnpm workspace 下",
+        "] 精确收集 emdash-desktop 的直接依赖（electron-builder 在 pnpm workspace 下",
+        "2026-10-02] @octokit/rest 的传递依赖（缺 @octokit/core 会导致启动失败：",
+        "2026-10-02] 依赖闭包自动补全（防 whack-a-mole）",
+        "asarUnpack: [",
         "msi: {"
       ],
       "hash": "8f71f3978bc0d8f5de6046aa5e7a96abeefd3210",
@@ -68,7 +181,7 @@
         279
       ],
       "anchors": [
-        "项我球聊天通道 harness —— 渲染侧断言，跑的是**构建产物**（out/renderer）。",
+        "] 项我球聊天通道 harness —— 渲染侧断言，跑的是**构建产物**（out/renderer）。",
         "const bubblesNow = [",
         "function sseResponse() {"
       ],
@@ -78,13 +191,40 @@
       "lastCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
       "note": "验收 harness / 打包脚本（xg 定制）"
     },
-    "apps/emdash-desktop/scripts/xiangwo-orb-images-harness.mjs": {
+    "apps/emdash-desktop/scripts/xiangwo-orb-history-harness.mjs": {
       "markers": 1,
       "lines": [
         2
       ],
       "anchors": [
-        "项我球 **图片网格协议（xiangwo-images）** harness —— 渲染侧断言，跑的是**构建产物**（out/renderer）。"
+        "2026-10-04] 项我球 **侧边枝历史拉回** harness —— 渲染侧断言，跑的是**构建产物**（out/renderer）。"
+      ],
+      "hash": "8d287aedb12b3f4ee89f6c60ba45d1722f0e506c",
+      "origin": "new",
+      "firstCommit": "a751ccd02|2026-10-04|feat(orb): [XG-CUSTOM] 侧边枝历史拉回（球重开/换机器从后端恢复对话）",
+      "lastCommit": "a751ccd02|2026-10-04|feat(orb): [XG-CUSTOM] 侧边枝历史拉回（球重开/换机器从后端恢复对话）",
+      "note": "验收 harness / 打包脚本（xg 定制）"
+    },
+    "apps/emdash-desktop/scripts/xiangwo-orb-images-harness.mjs": {
+      "markers": 8,
+      "lines": [
+        2,
+        13,
+        14,
+        32,
+        182,
+        199,
+        245,
+        314
+      ],
+      "anchors": [
+        "] 项我球 **图片网格协议（xiangwo-images）** harness —— 渲染侧断言，跑的是**构建产物**（out/renderer）。",
+        "import { readFileSync } from 'node:fs';",
+        "const LOCAL_BASE = 'http://127.0.0.1:8900';",
+        "return { ok: true };",
+        "baseUrl: LOCAL_BASE,",
+        "text: async () => body,",
+        "function relativePayload() {"
       ],
       "hash": "bcf7ab5085df0e463365a5f38e41f32895c0431d",
       "origin": "new",
@@ -98,12 +238,40 @@
         2
       ],
       "anchors": [
-        "真机验证：拿**构建产物**（out/renderer/orb）+ **真实 8901 agent（新代码）**"
+        "] 真机验证：拿**构建产物**（out/renderer/orb）+ **真实 8901 agent（新代码）**"
       ],
       "hash": "1202942f18ce71084ede237279b5b68fb849e70c",
       "origin": "new",
       "firstCommit": "55a583cd5|2026-09-30|[XG-CUSTOM] 项我球：xiangwo-images 图片网格（侧边 agent 真能发图）",
       "lastCommit": "55a583cd5|2026-09-30|[XG-CUSTOM] 项我球：xiangwo-images 图片网格（侧边 agent 真能发图）",
+      "note": "验收 harness / 打包脚本（xg 定制）"
+    },
+    "apps/emdash-desktop/scripts/xiangwo-orb-mcp-harness.mjs": {
+      "markers": 1,
+      "lines": [
+        2
+      ],
+      "anchors": [
+        "import { readFileSync } from 'node:fs';"
+      ],
+      "hash": "3a44dcf3ecc37ef450c3f045ceaf9850dc44e618",
+      "origin": "new",
+      "firstCommit": "8b3ef921b|2026-10-05|feat(orb): [XG-CUSTOM 2026-10-05] MCP 双卡：写操作审批卡 + 工具市场卡",
+      "lastCommit": "8b3ef921b|2026-10-05|feat(orb): [XG-CUSTOM 2026-10-05] MCP 双卡：写操作审批卡 + 工具市场卡",
+      "note": "验收 harness / 打包脚本（xg 定制）"
+    },
+    "apps/emdash-desktop/scripts/xiangwo-orb-question-harness.mjs": {
+      "markers": 1,
+      "lines": [
+        2
+      ],
+      "anchors": [
+        "2026-10-05] 项我球**提问卡** harness —— 渲染侧断言，跑的是**构建产物**（out/renderer）。"
+      ],
+      "hash": "dc910a66bf125d364af8b1b2e850897f23d3733a",
+      "origin": "new",
+      "firstCommit": "fb9644841|2026-10-05|feat(orb): [XG-CUSTOM 2026-10-05] 多屏重夹 + 捕获排除 + 提问卡上限/预选/记忆",
+      "lastCommit": "fb9644841|2026-10-05|feat(orb): [XG-CUSTOM 2026-10-05] 多屏重夹 + 捕获排除 + 提问卡上限/预选/记忆",
       "note": "验收 harness / 打包脚本（xg 定制）"
     },
     "apps/emdash-desktop/scripts/xiangwo-orb-selection-harness.mjs": {
@@ -112,7 +280,7 @@
         2
       ],
       "anchors": [
-        "项我球 **划词工具条** harness —— 用 **Playwright + 真实 Chrome** 跑**构建产物**（out/renderer）。"
+        "] 项我球 **划词工具条** harness —— 用 **Playwright + 真实 Chrome** 跑**构建产物**（out/renderer）。"
       ],
       "hash": "307011febcecadc62cc4b464858509297b5d16f4",
       "origin": "new",
@@ -135,6 +303,106 @@
       "firstCommit": "a023bd16a|2026-09-20|fix: SSH 远程项目「创建任务」下拉 bot 全灰（hostDependency 检测不支持远程，远程场景跳过检测视为可用）",
       "lastCommit": "a023bd16a|2026-09-20|fix: SSH 远程项目「创建任务」下拉 bot 全灰（hostDependency 检测不支持远程，远程场景跳过检测视为可用）",
       "note": "远程场景 bot 可用性（跳过 hostDependency）"
+    },
+    "apps/emdash-desktop/src/core/features/automations/browser/automation-run-format.ts": {
+      "markers": 1,
+      "lines": [
+        34
+      ],
+      "anchors": [
+        "return 'Triggered by event';"
+      ],
+      "hash": "c2905b6df3b74537942254dd28646ea0f466d52a",
+      "origin": "modified",
+      "firstCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
+      "lastCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/automations/browser/components/AutomationSettingsFields.tsx": {
+      "markers": 2,
+      "lines": [
+        9,
+        12
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';",
+        "interface AutomationSettingsFieldsProps {"
+      ],
+      "hash": "845ad0859b232e135a4c797923ebc59997e49681",
+      "origin": "modified",
+      "firstCommit": "f4503b5b2|2026-10-05|chore(xg-custom): [XG-CUSTOM 2026-10-05] 补 AutomationSettingsFields 的定制标记（模块级）",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/automations/browser/components/AutomationsView.tsx": {
+      "markers": 3,
+      "lines": [
+        2,
+        42,
+        113
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';",
+        "const [tab, setTab] = useState<'automations' | 'kaneo'>('automations');",
+        "<Tabs.Root value={tab} onValueChange={(v) => setTab(v as 'automations' | 'kaneo')}>"
+      ],
+      "hash": "ba514c01bfb54ac30bd8ea3d551494e85e5e04f4",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/automations/browser/useAutomationFormState.ts": {
+      "markers": 5,
+      "lines": [
+        98,
+        196,
+        213,
+        253,
+        267
+      ],
+      "anchors": [
+        "const [triggerKind, setTriggerKind] = useState<'cron' | 'webhook'>(",
+        "const triggerConfig: TriggerConfig =",
+        "validateTriggerConfig(triggerConfig) === null;",
+        "setCronExpr(template.defaultTrigger.expr ?? '');",
+        "2026-10-05] 触发源（表单渲染「On schedule / On event」）"
+      ],
+      "hash": "bfbbeccf42bb329c5ccd8e14d11255f71aa9d3b3",
+      "origin": "modified",
+      "firstCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
+      "lastCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/automations/node/deployment-builder.test.ts": {
+      "markers": 1,
+      "lines": [
+        236
+      ],
+      "anchors": [
+        "it('webhook 触发 → schedule 为 null，并把 token/filter/promptTemplate 带进部署', async () => {"
+      ],
+      "hash": "06d0bd2e327176ee8527fa6d2b89b71c0d3278e2",
+      "origin": "modified",
+      "firstCommit": "d1e61545e|2026-10-05|feat(automations/orb): [XG-CUSTOM 2026-10-05] 收尾四项（promptTemplate / builder 单测 / 市场卡体检 / 归一表）",
+      "lastCommit": "d1e61545e|2026-10-05|feat(automations/orb): [XG-CUSTOM 2026-10-05] 收尾四项（promptTemplate / builder 单测 / 市场卡体检 / 归一表）",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/automations/node/deployment-builder.ts": {
+      "markers": 2,
+      "lines": [
+        183,
+        218
+      ],
+      "anchors": [
+        "if (isWebhookTrigger(automation.triggerConfig)) {",
+        "expr: (automation.triggerConfig.expr ?? '').trim(),"
+      ],
+      "hash": "c5fd95be875012ada0d1bdaee36bafd4ecbe82a6",
+      "origin": "modified",
+      "firstCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
+      "lastCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
+      "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/api/browser/browser-controls-registry.ts": {
       "markers": 1,
@@ -173,7 +441,7 @@
         197
       ],
       "anchors": [
-        "2026-10-06 —— 「在某个 task 里开一个内嵌浏览器页」的**复用判定 + 导航**（唯一落点）。",
+        "] 2026-10-06 —— 「在某个 task 里开一个内嵌浏览器页」的**复用判定 + 导航**（唯一落点）。",
         "console.warn('"
       ],
       "hash": "8c83028d70d17cf2207ce87da598de89d96ce1b7",
@@ -242,14 +510,17 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/browser/browser-tab-provider.tsx": {
-      "markers": 3,
+      "markers": 5,
       "lines": [
         34,
+        37,
         101,
+        103,
         118
       ],
       "anchors": [
         "profileId?: string;",
+        "botId?: string;",
         "const resolution = resolveOpenProfile({",
         "console.warn('"
       ],
@@ -284,8 +555,8 @@
         130
       ],
       "anchors": [
-        "项我定制（见 emdash/CUSTOMIZATIONS.md）",
-        "2026-10-06 —— 「尽早把内嵌 `<webview>` 绑上 browserId」的幂等绑定器。",
+        "] 项我定制（见 emdash/CUSTOMIZATIONS.md）",
+        "] 2026-10-06 —— 「尽早把内嵌 `<webview>` 绑上 browserId」的幂等绑定器。",
         "); ⏎ scheduleRetry();",
         "); ⏎ return;",
         "console.warn('"
@@ -349,12 +620,14 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/browser/ensure-bot-browser-profile.test.ts": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
+        1,
         12,
         84
       ],
       "anchors": [
+        "import { describe, expect, it } from 'vitest';",
         "describe('",
         "describe('uniqueBotProfileName / 自动建 profile 的命名', () => {"
       ],
@@ -365,9 +638,10 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/browser/ensure-bot-browser-profile.ts": {
-      "markers": 3,
+      "markers": 4,
       "lines": [
         1,
+        2,
         35,
         85
       ],
@@ -767,14 +1041,15 @@
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/components/IntegrationsCard.tsx": {
-      "markers": 6,
+      "markers": 7,
       "lines": [
         1,
         9,
         116,
         130,
         155,
-        168
+        168,
+        181
       ],
       "anchors": [
         "import { t } from '@renderer/lib/i18n';",
@@ -782,7 +1057,8 @@
         "<IntegrationSection title=\"本地工具\">",
         "{/* [XG-CUSTOM] OpenViking 本地工具卡片 */} ⏎ <button",
         "{/* [XG-CUSTOM] AFFiNE 本地工具卡片（知识工作台：文档/白板/表格） */} ⏎ <button",
-        "{/* [XG-CUSTOM] Kaneo 本地工具卡片（项我流程枢纽） */} ⏎ <button"
+        "{/* [XG-CUSTOM] Kaneo 本地工具卡片（项我流程枢纽） */} ⏎ <button",
+        "{/* [XG-CUSTOM 2026-10-06] OpenDesign 本地工具卡片（设计工作台：原型/落地页/幻灯片/图/视频） */} ⏎ <button"
       ],
       "hash": "ef47dc07060ca8afd6f6af4e41cac51e75d22417",
       "origin": "modified",
@@ -1226,30 +1502,55 @@
       "lastCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
       "note": "中文化（任务界面）"
     },
+    "apps/emdash-desktop/src/core/features/workbench/api/browser/embedded-browser-open-request.test.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { describe, expect, it } from 'vitest';"
+      ],
+      "hash": "a91155bdfba868f25718c60b6dd3de866c6e921f",
+      "origin": "new",
+      "firstCommit": "03c40f5a3|2026-10-01|chore: 收尾未提交的测试与 harness（多代理并行产物）",
+      "lastCommit": "03c40f5a3|2026-10-01|chore: 收尾未提交的测试与 harness（多代理并行产物）",
+      "note": "中文化 + 项我入口（侧边栏/home）"
+    },
     "apps/emdash-desktop/src/core/features/workbench/api/browser/embedded-browser-open-request.ts": {
-      "markers": 11,
+      "markers": 17,
       "lines": [
         1,
         26,
         47,
+        64,
+        120,
         141,
+        143,
         146,
+        153,
+        158,
         162,
         172,
         178,
         190,
         198,
+        220,
         229
       ],
       "anchors": [
-        "项我定制（见 emdash/CUSTOMIZATIONS.md）",
+        "] 项我定制（见 emdash/CUSTOMIZATIONS.md）",
         "import { openBrowserTabOrReuse } from '@core/features/browser/api/browser/open-browser-tab';",
-        "2026-10-05 —— **先认 bot 自己的 project** —— 用户明确要求：",
+        "] 2026-10-05 —— **先认 bot 自己的 project** —— 用户明确要求：",
+        "export interface PickTargetTaskInput {",
+        "const current = currentTaskRef();",
         "export function openEmbeddedBrowserTab(",
+        "presentToUser = true",
+        "const target = resolveTargetTask(botId, presentToUser);",
         "); ⏎ return false;",
         "console.warn('",
         "const outcome = openBrowserTabOrReuse(taskView, {",
-        "if (outcome === 'opened') {"
+        "if (outcome === 'opened') {",
+        "const present = 'presentToUser' in event && event.presentToUser === true;"
       ],
       "hash": "08ae72723057b126ddf265a93d16fa837f4b49bd",
       "origin": "new",
@@ -1288,6 +1589,20 @@
         "activateTabOfKind(kind: TaskTabKindName, tabId: string): void {"
       ],
       "hash": "3d9109ac36dc8fda5bd615ed307a1c51f9b02380",
+      "origin": "modified",
+      "firstCommit": "903d9865d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 开页复用同 task 同 profile 的已有标签（治「球一喊就叠 N 个同样的页」）+ bump 1.2.25-xiangwo",
+      "lastCommit": "903d9865d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 开页复用同 task 同 profile 的已有标签（治「球一喊就叠 N 个同样的页」）+ bump 1.2.25-xiangwo",
+      "note": "中文化 + 项我入口（侧边栏/home）"
+    },
+    "apps/emdash-desktop/src/core/features/workbench/browser/external-link-choice-dialog.test.ts": {
+      "markers": 1,
+      "lines": [
+        31
+      ],
+      "anchors": [
+        "expect(html).toMatch(/aria-label=\"(Copy link|复制链接)\"/);"
+      ],
+      "hash": "2ada85db295ffe92062b1ec7a56b33f184d03d8f",
       "origin": "modified",
       "firstCommit": "903d9865d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 开页复用同 task 同 profile 的已有标签（治「球一喊就叠 N 个同样的页」）+ bump 1.2.25-xiangwo",
       "lastCommit": "903d9865d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 开页复用同 task 同 profile 的已有标签（治「球一喊就叠 N 个同样的页」）+ bump 1.2.25-xiangwo",
@@ -1487,6 +1802,48 @@
       "lastCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
       "note": "renderer/main 侧定制"
     },
+    "apps/emdash-desktop/src/core/primitives/automations/api/config.test.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { describe, expect, it } from 'vitest';"
+      ],
+      "hash": "58d77dbe4a0e9f53e4a633ed9389f6e24ff13c9b",
+      "origin": "new",
+      "firstCommit": "284ce97c1|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 事件触发 UI（第 3 项最后一公里，至此可用）",
+      "lastCommit": "284ce97c1|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 事件触发 UI（第 3 项最后一公里，至此可用）",
+      "note": "core 基元定制"
+    },
+    "apps/emdash-desktop/src/core/primitives/automations/api/config.ts": {
+      "markers": 1,
+      "lines": [
+        6
+      ],
+      "anchors": [
+        "export const triggerConfigSchema = z.object({"
+      ],
+      "hash": "c386570c2ba7be3b42d59e1c68876c69c936e480",
+      "origin": "modified",
+      "firstCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
+      "lastCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
+      "note": "core 基元定制"
+    },
+    "apps/emdash-desktop/src/core/primitives/automations/api/validation.ts": {
+      "markers": 1,
+      "lines": [
+        6
+      ],
+      "anchors": [
+        "const expr = (trigger.expr ?? '').trim();"
+      ],
+      "hash": "7a0445a36c3c59df7ae8b20585b4840a3ffe77a9",
+      "origin": "modified",
+      "firstCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
+      "lastCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
+      "note": "core 基元定制"
+    },
     "apps/emdash-desktop/src/core/primitives/browser/api/browser.test.ts": {
       "markers": 2,
       "lines": [
@@ -1504,9 +1861,11 @@
       "note": "core 基元定制"
     },
     "apps/emdash-desktop/src/core/primitives/browser/api/browser.ts": {
-      "markers": 5,
+      "markers": 7,
       "lines": [
         3,
+        11,
+        14,
         34,
         44,
         298,
@@ -1526,58 +1885,68 @@
       "note": "core 基元定制"
     },
     "apps/emdash-desktop/src/core/primitives/desktop-host/api/host-contract.ts": {
-      "markers": 10,
+      "markers": 13,
       "lines": [
         66,
         82,
         94,
-        144,
-        153,
-        158,
-        168,
-        181,
+        120,
+        173,
+        182,
+        187,
+        192,
         197,
-        214
+        210,
+        226,
+        243,
+        248
       ],
       "anchors": [
         "export interface ExpertHandoffTopic {",
         "export interface TaskSpace {",
         "export interface ExpertRosterEntry {",
+        "export interface KaneoBoardCard {",
         "openOpenViking: procedure({",
         "openKaneo: procedure({",
         "openAffine: procedure({",
+        "openOpenDesign: procedure({",
         "expertHandoffByExpert: procedure({",
         "expertHandoffAdd: procedure({",
         "taskSpaceList: procedure({",
-        "expertRoster: procedure({"
+        "expertRoster: procedure({",
+        "kaneoBoard: procedure({"
       ],
-      "hash": "432b0ea77908ad99dc0669aa626ea92b82e3eb66",
+      "hash": "2fd29ee63b24bdd1109ab2dd7daac855894b0482",
       "origin": "modified",
       "firstCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "desktop-host 契约扩展（宿主新增 API）"
     },
     "apps/emdash-desktop/src/core/primitives/desktop-host/browser/host-client.ts": {
-      "markers": 7,
+      "markers": 9,
       "lines": [
         24,
         33,
         38,
+        43,
         49,
         62,
         71,
-        76
+        76,
+        81
       ],
       "anchors": [
         "export async function openOpenViking() {",
         "export async function openKaneo() {",
         "export async function openAffine() {",
+        "export async function openOpenDesign() {",
         "export async function expertHandoffByExpert(expert: string) {",
         "export async function expertHandoffAdd(bot: string, expert: string, title: string, summary: string, session: string, context: string) {",
         "export async function expertRoster() {",
+        "export async function kaneoBoard(brief = false) {",
         "export async function taskSpaceList() {"
       ],
-      "hash": "059a092e17c145bc205dadb1398ff21519ee9ee5",
+      "hash": "eee9e20713afaa46687ae27ac5ff4a3d3196ac1a",
       "origin": "modified",
       "firstCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1644,11 +2013,14 @@
       "note": "preload 桥（xiangwo 相关 API）"
     },
     "apps/emdash-desktop/src/main/bootstrap/boot/phases/background.ts": {
-      "markers": 5,
+      "markers": 8,
       "lines": [
         4,
+        5,
         14,
         68,
+        71,
+        73,
         82,
         87
       ],
@@ -1707,45 +2079,52 @@
       "note": "启动装配（注入 xiangwo 依赖 / 后台服务）"
     },
     "apps/emdash-desktop/src/main/bootstrap/boot/wiring.ts": {
-      "markers": 37,
+      "markers": 44,
       "lines": [
         3,
         21,
         35,
-        58,
-        87,
-        97,
-        103,
-        105,
-        111,
-        131,
-        138,
-        149,
-        151,
-        153,
-        159,
-        166,
-        175,
-        193,
-        200,
-        210,
-        235,
-        261,
-        266,
-        271,
-        318,
-        323,
-        325,
-        331,
-        336,
-        338,
-        343,
-        345,
-        352,
-        357,
-        362,
-        365,
-        367
+        59,
+        88,
+        98,
+        104,
+        106,
+        112,
+        132,
+        139,
+        150,
+        152,
+        154,
+        157,
+        160,
+        167,
+        176,
+        179,
+        194,
+        201,
+        211,
+        228,
+        236,
+        238,
+        262,
+        264,
+        267,
+        272,
+        319,
+        324,
+        326,
+        332,
+        337,
+        339,
+        344,
+        346,
+        351,
+        353,
+        358,
+        363,
+        366,
+        368,
+        370
       ],
       "anchors": [
         "import { browserEvents } from '@core/features/browser/node';",
@@ -1755,16 +2134,19 @@
         "export function autostartXiangwoOrb(delayMs = 1500): void {",
         "log.info('",
         "log.warn('",
-        "内嵌浏览器 CDP 桥（agent.py 第②级「内嵌浏览器优先」的通道；",
+        "] 内嵌浏览器 CDP 桥（agent.py 第②级「内嵌浏览器优先」的通道；",
         "listTargets: () =>",
         "requestOpenBrowser: requestEmbeddedBrowserOpen,",
         "// [XG-CUSTOM] bot → 已绑定的 profile（未绑定 null）：挑\"要复用的那一页\"用 ⏎ lookupBotProfile: (botId) => xiangwoBoundProfileIdForBot(botId),",
         "newBotProfileId: (botId) => xiangwoNewBotProfileId(botId),",
+        "countPendingWebviews: () => browserWebContentsRegistry.countPendingWebviews(),",
         "log: (message, metadata) => log.info(`",
         "export function requestEmbeddedBrowserOpen(request: XiangwoOpenBrowserRequest): void {",
         "...(request.presentToUser === true ? { presentToUser: true } : {}),",
-        "内嵌浏览器「反向命令通道」：**出站 only**，跨机主路径。",
+        "] 内嵌浏览器「反向命令通道」：**出站 only**，跨机主路径。",
+        "export function startXiangwoBrowserRelay(): void {",
         "log.info(`",
+        "const selector = createRelayCandidateSelector({",
         "onBaseUrlFailure: (baseUrl) => selector.noteFailure(baseUrl),",
         "// [XG-CUSTOM] bot ⟷ profile：跨机开页也挑\"这个 bot 自己的那一页\" ⏎ lookupBotProfile: (botId) => xiangwoBoundProfileIdForBot(botId),",
         "const url = await services.resolveToolWindowUrl(9037);",
@@ -1775,13 +2157,15 @@
         "const url = await services.resolveToolWindowUrl(5180);",
         "openAffine: async () => {",
         "const url = await services.resolveToolWindowUrl(3010);",
+        "openOpenDesign: async () => {",
         "const url = await services.resolveToolWindowUrl(7456);",
         "expertHandoffByExpert: ({ expert }) => expertHandoffCall('by-expert', expert),",
         "expertHandoffAdd: ({ bot, expert, title, summary, session, context }) =>",
         "expertRoster: () => expertRosterCall(),",
+        "kaneoBoard: ({ brief }) => kaneoBoardCall(brief === true),",
         "taskSpaceList: () => taskSpaceCall('list'),"
       ],
-      "hash": "42b90b63c7c3c32f9b0466ff197cd91e85f237b1",
+      "hash": "fcdea85bcbd4875d058d804918d0b9f863e8b253",
       "origin": "modified",
       "firstCommit": "67ccd329e|2026-09-22|feat: 专家交接台升级（wire RPC 修复 + bot/专家二级分组 + 并入对话 Sheet + 横条关闭）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1872,7 +2256,7 @@
       "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
     },
     "apps/emdash-desktop/src/main/host/browser/xiangwo-bot-browser-profile.ts": {
-      "markers": 7,
+      "markers": 8,
       "lines": [
         4,
         37,
@@ -1880,10 +2264,11 @@
         104,
         123,
         134,
+        135,
         148
       ],
       "anchors": [
-        "项我定制（见 emdash/CUSTOMIZATIONS.md）",
+        "] 项我定制（见 emdash/CUSTOMIZATIONS.md）",
         "export function xiangwoBotBrowserMapPath(): string {",
         "log.warn('",
         "writeBotBrowserMapDump();",
@@ -1932,9 +2317,9 @@
         158
       ],
       "anchors": [
-        "内嵌浏览器（per-profile session）的 socks5 代理解析。",
-        "2026-10-06 那条）",
-        "2026-10-06 —— 这里原来写的是 Tailscale IP `100.125.4.119`，并附了一句",
+        "] 内嵌浏览器（per-profile session）的 socks5 代理解析。",
+        "] 2026-10-06 那条）",
+        "] 2026-10-06 —— 这里原来写的是 Tailscale IP `100.125.4.119`，并附了一句",
         "export const XIANGWO_BROWSER_PROXY_ENV = 'XIANGWO_BROWSER_PROXY';",
         "export const XIANGWO_BROWSER_PROXY_DEFAULT = 'socks5://10.239.5.174:1080';",
         "const SYSTEM_PROXY_VALUES = new Set(['system', 'auto', 'default', 'os', 'sys']);",
@@ -1949,14 +2334,34 @@
       "lastCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
       "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
     },
+    "apps/emdash-desktop/src/main/host/browser/xiangwo-browser-relay-env.test.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { afterEach, describe, expect, it } from 'vitest';"
+      ],
+      "hash": "f7009efa0d8b9e64268a6728b413bd4aa38021e4",
+      "origin": "new",
+      "firstCommit": "b055afb66|2026-10-02|[XG-CUSTOM] 稳定联网：反向通道误判修复 + 多候选自动切换",
+      "lastCommit": "b055afb66|2026-10-02|[XG-CUSTOM] 稳定联网：反向通道误判修复 + 多候选自动切换",
+      "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
+    },
     "apps/emdash-desktop/src/main/host/browser/xiangwo-browser-relay.test.ts": {
-      "markers": 2,
+      "markers": 5,
       "lines": [
         1,
+        145,
+        496,
+        584,
         588
       ],
       "anchors": [
         "import { hostname as osHostname } from 'node:os';",
+        "describe('decideSkipLocalAgent：回环 8900 到底是不是本机', () => {",
+        "it('没有内嵌页 + 接了开页回调 → 先广播开页请求，等到页面被绑定后再 navigate', async () => {",
+        "function listWith(targets: Array<Record<string, unknown>>): () =>",
         "describe('"
       ],
       "hash": "78cb98c4c72174052083264889817af15c6b6492",
@@ -1966,7 +2371,7 @@
       "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
     },
     "apps/emdash-desktop/src/main/host/browser/xiangwo-browser-relay.ts": {
-      "markers": 23,
+      "markers": 39,
       "lines": [
         1,
         45,
@@ -1976,24 +2381,40 @@
         54,
         56,
         78,
+        113,
+        115,
         118,
         124,
         128,
+        131,
+        182,
+        196,
+        226,
+        284,
+        358,
         371,
+        387,
+        391,
         393,
         395,
         397,
+        399,
+        489,
+        536,
         799,
         811,
         873,
         907,
         979,
+        985,
         991,
+        1004,
         1009,
+        1011,
         1015
       ],
       "anchors": [
-        "内嵌浏览器「反向命令通道」客户端（Windows/Linux 都跑，出站 only）。",
+        "] 内嵌浏览器「反向命令通道」客户端（Windows/Linux 都跑，出站 only）。",
         "import type { XiangwoOpenBrowserRequest } from './xiangwo-cdp-bridge';",
         "export const XIANGWO_RELAY_LOCAL_CDP_BASE = 'http://127.0.0.1:9223';",
         "export const XIANGWO_RELAY_DEFAULT_WAIT_SECONDS = 25;",
@@ -2001,20 +2422,36 @@
         "const XIANGWO_RELAY_OPEN_BROWSER_POLL_MS = 150;",
         "const BACKOFF_STEPS_MS = [1000, 2000, 5000, 15000];",
         "type LocalCdpTarget = {",
+        "probeHostname?: (baseUrl: string) => Promise<string | null>;",
+        "/** [XG-CUSTOM 2026-10-02] 本机主机名覆盖（单测/真机自测模拟另一台机器）；缺省 `os.hostname()` */ ⏎ localHostname?: string;",
         "requestOpenBrowser?: (request: XiangwoOpenBrowserRequest) => void;",
         "*/ ⏎ lookupBotProfile?: (botId: string) => string | null;",
         "openBrowserWaitMs?: number;",
+        "*/ ⏎ onBaseUrlFailure?: (baseUrl: string) => boolean;",
+        "export function relaySkipLocalAgentFromEnv(raw: string | undefined): boolean {",
+        "export function isLoopbackAgentBase(baseUrl: string, agentPort = '8900'): boolean {",
+        "export async function probeAgentIdentity(",
+        "export async function decideSkipLocalAgent(",
+        "export const isLocalAgentBase = isLoopbackAgentBase;",
         "export class XiangwoBrowserRelay {",
+        "private readonly forceSkipLocalAgent: boolean;",
+        "private readonly localHostname: string;",
         "private readonly requestOpenBrowser: ((request: XiangwoOpenBrowserRequest) => void) | null;",
         "private readonly lookupBotProfile: ((botId: string) => string | null) | null;",
         "private readonly openBrowserWaitMs: number;",
+        "private readonly onBaseUrlFailure: ((baseUrl: string) => boolean) | null;",
+        "let decision: SkipLocalAgentDecision;",
+        "// 不接钩子（onBaseUrlFailure=null）时这段是空操作，行为与改动前完全一致。 ⏎ try {",
         "private async handleOpen(command: RelayCommand): Promise<void> {",
         "const bot = String(command.bot ?? '').trim();",
         "known: ReadonlySet<string>,",
         "profile: String(item.profile ?? ''),",
         "export function createXiangwoBrowserRelay(",
+        "overrides?: {",
         "/** [XG-CUSTOM] bot → profileId（绑定表；未绑定 null）；不给 = 不做 bot 维度挑页 */ ⏎ lookupBotProfile?: (botId: string) => string | null;",
+        "explicitTarget: explicit !== '',",
         "...(requestOpenBrowser !== undefined ? { requestOpenBrowser } : {}),",
+        "...(overrides?.onBaseUrlFailure !== undefined",
         "...(overrides?.lookupBotProfile !== undefined"
       ],
       "hash": "5d9eb68c6ece7b1b47ed6a83b6c82f68373ad95b",
@@ -2024,9 +2461,11 @@
       "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
     },
     "apps/emdash-desktop/src/main/host/browser/xiangwo-cdp-bridge.test.ts": {
-      "markers": 13,
+      "markers": 22,
       "lines": [
         1,
+        44,
+        139,
         147,
         236,
         270,
@@ -2035,19 +2474,34 @@
         650,
         654,
         727,
+        783,
         788,
         811,
+        812,
+        885,
+        964,
         971,
-        1061
+        1055,
+        1061,
+        1144,
+        1198
       ],
       "anchors": [
         "import { networkInterfaces as osNetworkInterfaces, type NetworkInterfaceInfo } from 'node:os';",
+        "onNavigate?: (url: string) => void;",
+        "fake.debugger.onNavigate = (url) => {",
         "function fakeBotTarget(browserId: string, profileId: string, botId: string): FakeTarget {",
         "let lastLogs: string[] = [];",
         "describe('",
         "function iface(address: string, internal = false, netmask = '255.255.255.0'): NetworkInterfaceInfo {",
         "const WINDOWS_INTERFACES: XiangwoCdpNetworkInterfaces = {",
-        "it('已有内嵌页 → 复用时也必须 Page.navigate，回包/清单都是导航后的真实结果', async () => {"
+        "describe('[XG-CUSTOM] XiangwoCdpBridge /xg/open-browser（从零开页）', () => { ⏎ async function postOpen(base: string, body: unknown): Promise<Record<string, unknown>> {",
+        "it('已有内嵌页 → 复用时也必须 Page.navigate，回包/清单都是导航后的真实结果', async () => {",
+        "it('超时但已有 <webview> attach（加载慢/失败）→ reason=attached-not-bound，明确说\"页已开出来\"', async () => {",
+        "describe('[XG-CUSTOM] /xg/open-browser 的 botId（payload 不丢）', () => { ⏎ async function postOpen(base: string, body: unknown): Promise<Record<string, unknown>> {",
+        "describe('[XG-CUSTOM] bot ⟷ profile（/json/list 身份 + 按 bot 挑页）', () => { ⏎ async function postOpen(base: string, body: unknown): Promise<Record<string, unknown>> {",
+        "expect(opened).toEqual([{ url: 'https://example.com', bot: 'sxsj', profile: 'bot-sxsj' }]);",
+        "// [XG-CUSTOM 2026-10-06] 这条不接只读计数（老调用方）→ reason=unknown、文案与改动前一致 ⏎ expect(r['reason']).toBe('unknown');"
       ],
       "hash": "0a143469224e87f865cc6cc9901fd0f0747ee1b9",
       "origin": "new",
@@ -2056,17 +2510,20 @@
       "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
     },
     "apps/emdash-desktop/src/main/host/browser/xiangwo-cdp-bridge.ts": {
-      "markers": 48,
+      "markers": 64,
       "lines": [
         1,
         54,
         57,
         66,
+        70,
         76,
+        77,
         123,
         126,
         131,
         140,
+        149,
         176,
         180,
         182,
@@ -2076,47 +2533,62 @@
         201,
         208,
         217,
+        219,
+        224,
         277,
         307,
         330,
         332,
         334,
         336,
+        338,
+        365,
         452,
         453,
         535,
         563,
         584,
         598,
+        607,
         613,
         622,
         636,
         639,
+        642,
         659,
         664,
+        665,
         674,
+        675,
         718,
+        720,
         740,
+        741,
+        770,
         840,
         850,
+        851,
         856,
         890,
         928,
         929,
         945,
         1040,
+        1043,
         1585
       ],
       "anchors": [
-        "内嵌浏览器 CDP 桥：把 emdash 的 `<webview>` 内嵌浏览器以标准 Chrome DevTools",
+        "] 内嵌浏览器 CDP 桥：把 emdash 的 `<webview>` 内嵌浏览器以标准 Chrome DevTools",
         "export const XIANGWO_CDP_DEFAULT_PORT = 9223;",
         "export const XIANGWO_CDP_HOST = '127.0.0.1';",
         "export const XIANGWO_CDP_OPEN_BROWSER_PATH = '/xg/open-browser';",
+        "export const XIANGWO_CDP_OPEN_BROWSER_WAIT_MS = 30_000;",
         "export const XIANGWO_CDP_NAVIGATE_WAIT_MS = 10_000;",
         "profileId?: string;",
         "botId?: string;",
         "export type XiangwoOpenBrowserRequest = {",
         "presentToUser?: boolean;",
+        "export type XiangwoOpenBrowserTimeoutReason =",
         "bind?: XiangwoCdpBindMode;",
         "allowedPeers?: readonly string[];",
         "networkInterfaces?: () => XiangwoCdpNetworkInterfaces;",
@@ -2125,26 +2597,32 @@
         "lookupBotProfile?: (botId: string) => string | null;",
         "newBotProfileId?: (botId: string) => string;",
         "openBrowserWaitMs?: number;",
+        "countPendingWebviews?: () => number;",
         "function readJsonBody(req: IncomingMessage): Promise<unknown> {",
         "export function embeddedTargetId(browserId: string): string {",
         "private readonly requestOpenBrowser: ((request: XiangwoOpenBrowserRequest) => void) | null;",
         "private readonly lookupBotProfile: ((botId: string) => string | null) | null;",
         "private readonly newBotProfileId: ((botId: string) => string) | null;",
         "private readonly openBrowserWaitMs: number;",
+        "private readonly countPendingWebviews: (() => number) | null;",
+        "this.countPendingWebviews = options.countPendingWebviews ?? null;",
         "private logListenBanner(plan: XiangwoCdpPeerCollectResult): void {",
         "private handleConnection(socket: Duplex): void {",
         "private handleHttp(req: IncomingMessage, res: ServerResponse): void {",
         "if (path === XIANGWO_CDP_OPEN_BROWSER_PATH) {",
-        "`POST /xg/open-browser` — 把「开一个内嵌浏览器页」这件事从零做成。",
+        "] `POST /xg/open-browser` — 把「开一个内嵌浏览器页」这件事从零做成。",
         "private async handleOpenBrowserRequest(req: IncomingMessage, res: ServerResponse): Promise<void> {",
         "let presentToUser = false;",
         "if (raw.presentToUser === true) presentToUser = true;",
         "if (typeof raw.bot === 'string') bot = raw.bot.trim();",
+        "if (bot === '' && typeof raw.botId === 'string') bot = raw.botId.trim();",
         "const wantedProfile = this.requestedProfileOf(bot, profile);",
         "const existing = this.liveTargets();",
         "const matchedProfile = wantedProfile !== null && reusable.profileId === wantedProfile;",
         "...(presentToUser ? { presentToUser: true } : {}),",
+        "...(wantedProfile !== null ? { profile: wantedProfile } : {}),",
         "const appearedUrl = safeUrl(appeared.webContents);",
+        "2026-10-06] `/xg/open-browser` 超时的回包：**按证据分档**，带可判别的 `reason` 码。",
         "private requestedProfileOf(bot: string, profile: string): string | null {",
         "return this.lookupBotProfile?.(bot) ?? this.newBotProfileId?.(bot) ?? null;",
         "private async navigateExistingTarget( ⏎ target: EmbeddedBrowserTarget,",
@@ -2196,7 +2674,7 @@
         186
       ],
       "anchors": [
-        "内嵌浏览器 CDP 桥的「来源白名单」：本机回环 + 自动探测的虚拟组网网段。",
+        "] 内嵌浏览器 CDP 桥的「来源白名单」：本机回环 + 自动探测的虚拟组网网段。",
         "export type XiangwoCdpBindMode = 'auto' | 'local' | 'off';",
         "export function resolveXiangwoCdpBindMode(raw: string | undefined): XiangwoCdpBindMode {",
         "export function parseXiangwoCdpAllowList(raw: string | undefined): string[] {",
@@ -2225,17 +2703,33 @@
       "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
     },
     "apps/emdash-desktop/src/main/host/browser/xiangwo-relay-candidates.test.ts": {
-      "markers": 4,
+      "markers": 5,
       "lines": [
+        1,
         30,
         90,
         203,
         404
       ],
       "anchors": [
+        "import { createServer, type Server } from 'node:http';",
         "describe('"
       ],
       "hash": "304618dfe7d3b21ba70c6c295ba6483d0f1596e6",
+      "origin": "new",
+      "firstCommit": "b055afb66|2026-10-02|[XG-CUSTOM] 稳定联网：反向通道误判修复 + 多候选自动切换",
+      "lastCommit": "b055afb66|2026-10-02|[XG-CUSTOM] 稳定联网：反向通道误判修复 + 多候选自动切换",
+      "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
+    },
+    "apps/emdash-desktop/src/main/host/browser/xiangwo-relay-candidates.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "2026-10-02] 反向通道「**多候选地址 + 自动切换**」。"
+      ],
+      "hash": "6364d6b38dd790fa6c3eb2d1c11cc27d25b7ead9",
       "origin": "new",
       "firstCommit": "b055afb66|2026-10-02|[XG-CUSTOM] 稳定联网：反向通道误判修复 + 多候选自动切换",
       "lastCommit": "b055afb66|2026-10-02|[XG-CUSTOM] 稳定联网：反向通道误判修复 + 多候选自动切换",
@@ -2272,27 +2766,33 @@
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/main/host/chromium-doh.test.ts": {
-      "markers": 13,
+      "markers": 17,
       "lines": [
         2,
         7,
         11,
         121,
+        136,
         152,
         153,
+        158,
         170,
         301,
         317,
         318,
         319,
         337,
-        355
+        355,
+        402,
+        412
       ],
       "anchors": [
         "import { describe, expect, it, vi } from 'vitest';",
         "it('非法模板：忽略 + 走默认模板 + warn 一句（带",
+        "expect(warn.mock.calls[0]?.[0]).toMatch(/^\\",
         "const withLogger = vi.fn();",
         "it('给了 logger ⇒ 打一句",
+        "expect(withLogger.mock.calls[0]?.[0]).toMatch(/^\\",
         "describe('decideDohHostResolverConfig', () => {",
         "describe('configureDohHostResolver', () => {",
         "expect(lines.every((line) => line.startsWith('",
@@ -2326,7 +2826,7 @@
         420
       ],
       "anchors": [
-        "2026-10-06 —— 内嵌浏览器改用**我们自己的 DoH**（治假 AAAA `2001::1` 沉洞）。",
+        "] 2026-10-06 —— 内嵌浏览器改用**我们自己的 DoH**（治假 AAAA `2001::1` 沉洞）。",
         "export const DEFAULT_DOH_TEMPLATE = 'https://xg.xgqsxsj.dpdns.org/dns-query';",
         "/** [XG-CUSTOM] 2026-10-06 —— 落盘诊断（生产传 `log.warn`；缺省不打，保持单测/旧调用方零噪音）。 */ ⏎ logger?: DohDiagnosticLogger;",
         "export type DohDiagnosticLogger = (message: string, fields?: Record<string, unknown>) => void;",
@@ -2348,10 +2848,27 @@
       "lastCommit": "54f137328|2026-10-06|feat(dns): [XG-CUSTOM 2026-10-06] 内嵌浏览器 DNS 走我们自己的 DoH（治假 AAAA 沉洞 → ERR_TIMED_OUT）+ bump 1.2.27-xiangwo",
       "note": "renderer/main 侧定制"
     },
-    "apps/emdash-desktop/src/main/host/updates/update-service.ts": {
-      "markers": 1,
+    "apps/emdash-desktop/src/main/host/updates/update-service.test.ts": {
+      "markers": 2,
       "lines": [
-        77
+        40,
+        58
+      ],
+      "anchors": [
+        "vi.stubEnv('XIANGWO_UPDATE', '1');",
+        "it('默认禁用自动更新：未设 XIANGWO_UPDATE 时不激活，downloadUpdate/quitAndInstall 如实抛错', async () => {"
+      ],
+      "hash": "e20128379409da0c1625d69b1f795ab7ec52aa75",
+      "origin": "modified",
+      "firstCommit": "d6701effa|2026-10-06|test(host): [XG-CUSTOM 2026-10-06] 修掉两处存量红（球菜单陈旧断言 + 自动更新生命周期 vs 定制冲突）",
+      "lastCommit": "d6701effa|2026-10-06|test(host): [XG-CUSTOM 2026-10-06] 修掉两处存量红（球菜单陈旧断言 + 自动更新生命周期 vs 定制冲突）",
+      "note": "禁用自动更新（fork 不许被上游覆盖）"
+    },
+    "apps/emdash-desktop/src/main/host/updates/update-service.ts": {
+      "markers": 2,
+      "lines": [
+        77,
+        79
       ],
       "anchors": [
         "if (process.env.XIANGWO_UPDATE !== '1') return;"
@@ -2363,7 +2880,7 @@
       "note": "禁用自动更新（fork 不许被上游覆盖）"
     },
     "apps/emdash-desktop/src/main/host/window.ts": {
-      "markers": 23,
+      "markers": 25,
       "lines": [
         16,
         18,
@@ -2378,16 +2895,18 @@
         371,
         386,
         405,
-        430,
-        438,
-        444,
-        481,
-        488,
-        498,
-        575,
-        613,
-        653,
-        692
+        427,
+        452,
+        460,
+        466,
+        503,
+        510,
+        520,
+        558,
+        597,
+        635,
+        675,
+        714
       ],
       "anchors": [
         "import { createXiangwoOrbWindow } from './xiangwo-orb';",
@@ -2401,6 +2920,7 @@
         "const EXPERT_HANDOFF_PY =",
         "export function expertHandoffCall<T = unknown>(cmd: string, ...args: string[]): Promise<T> {",
         "const EXPERT_ROSTER_PY =",
+        "const KANEO_BOARD_PY =",
         "let chatTargetRegistered = false;",
         "// [XG-CUSTOM] 新建交接 ⏎ ipcMain.handle(",
         "const CHROME_CMD = 'google-chrome-stable';",
@@ -2408,12 +2928,13 @@
         "if (!cdpBridgeRegistered) {",
         "xiangwoFloatingWindow = createXiangwoOrbWindow(() => {",
         "let weKnoraWindow: BrowserWindow | null = null;",
+        "let openDesignWindow: BrowserWindow | null = null;",
         "let openVikingWindow: BrowserWindow | null = null;",
         "let kaneoWindow: BrowserWindow | null = null;",
         "let affineWindow: BrowserWindow | null = null;",
         "let t8Window: BrowserWindow | null = null;"
       ],
-      "hash": "1569f2201092a8cc924a19b5512b4f26b24f5319",
+      "hash": "ef7236da38c85e52d9170153943bc60ba0c1dbe6",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -2443,7 +2964,7 @@
         1
       ],
       "anchors": [
-        "项我球（orb）/ 旧浮窗的**聊天地址解析**（主进程唯一权威）。"
+        "] 项我球（orb）/ 旧浮窗的**聊天地址解析**（主进程唯一权威）。"
       ],
       "hash": "d300c009fe6c987f6e80baf49f0bf893a1770e2f",
       "origin": "new",
@@ -2451,12 +2972,42 @@
       "lastCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
       "note": "renderer/main 侧定制"
     },
-    "apps/emdash-desktop/src/main/host/xiangwo-orb-api.test.ts": {
+    "apps/emdash-desktop/src/main/host/xiangwo-host-commands.test.ts": {
       "markers": 1,
       "lines": [
+        1
+      ],
+      "anchors": [
+        "import { describe, expect, it } from 'vitest';"
+      ],
+      "hash": "8fd3a9ae954f2aac14fbf1463264bdef58ac3438",
+      "origin": "new",
+      "firstCommit": "b6256bc95|2026-10-05|feat(orb): [XG-CUSTOM 2026-10-05] 球指挥主界面·动作面第一刀（白名单 + 受控 IPC）",
+      "lastCommit": "b6256bc95|2026-10-05|feat(orb): [XG-CUSTOM 2026-10-05] 球指挥主界面·动作面第一刀（白名单 + 受控 IPC）",
+      "note": "renderer/main 侧定制"
+    },
+    "apps/emdash-desktop/src/main/host/xiangwo-host-commands.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "2026-10-05] **主界面「可被球 / agent 指挥」的命令白名单 —— 唯一事实源**。"
+      ],
+      "hash": "ed0b6bc3ef8ec1cccde1d96e0e2b9f65d6739630",
+      "origin": "new",
+      "firstCommit": "b6256bc95|2026-10-05|feat(orb): [XG-CUSTOM 2026-10-05] 球指挥主界面·动作面第一刀（白名单 + 受控 IPC）",
+      "lastCommit": "b6256bc95|2026-10-05|feat(orb): [XG-CUSTOM 2026-10-05] 球指挥主界面·动作面第一刀（白名单 + 受控 IPC）",
+      "note": "renderer/main 侧定制"
+    },
+    "apps/emdash-desktop/src/main/host/xiangwo-orb-api.test.ts": {
+      "markers": 2,
+      "lines": [
+        1,
         47
       ],
       "anchors": [
+        "import { describe, expect, it, vi } from 'vitest';",
         "describe('"
       ],
       "hash": "c5feb71affe902a2a6c8d06361f5bd373114e947",
@@ -2466,9 +3017,13 @@
       "note": "项我球主进程服务（窗口/脚本/聊天目标）"
     },
     "apps/emdash-desktop/src/main/host/xiangwo-orb-api.ts": {
-      "markers": 37,
+      "markers": 45,
       "lines": [
+        2,
         4,
+        28,
+        34,
+        53,
         77,
         82,
         86,
@@ -2486,10 +3041,12 @@
         502,
         546,
         562,
+        570,
         604,
         623,
         638,
         667,
+        675,
         685,
         692,
         719,
@@ -2504,10 +3061,16 @@
         856,
         875,
         879,
-        894
+        894,
+        901,
+        913
       ],
       "anchors": [
+        "import { isHostCommand, listHostCommands, requiresApproval } from './xiangwo-host-commands';",
         "import {",
+        "export type OrbOpenEmbeddedBrowserRequest = { url: string; bot?: string };",
+        "let openEmbeddedBrowserImpl: ((request: OrbOpenEmbeddedBrowserRequest) => boolean) | null = null;",
+        "export type OrbHostCommandRun = (id: string, args?: unknown) => unknown | Promise<unknown>;",
         "export type OrbDockSide = 'left' | 'right';",
         "export type OrbDock = { side: OrbDockSide; y: number };",
         "export type OrbBallOutcome = {",
@@ -2522,13 +3085,15 @@
         "export function restoreOrbAvatar(): boolean {",
         "function readAvatarUrl(): string {",
         "type OrbModelSelection = { provider: string; model: string; reasoningEffort?: string };",
-        "模型目录 —— 结论来自**实测**，不是看 `/v1/models` 有几个 id 就以为能选。",
+        "] 模型目录 —— 结论来自**实测**，不是看 `/v1/models` 有几个 id 就以为能选。",
         "function readSelectionToolbarEnabled(): boolean {",
         "export type OrbContextMenuAction =",
+        "| 'mcp-market';",
         "function orbModelMenuItems(",
         "items.push({",
         "async function popupOrbContextMenu(",
         "label: '模型',",
+        "label: '恢复默认头像',",
         "label: selectionEnabled ? '停用划词工具条' : '启用划词工具条',",
         "const template: MenuItemConstructorOptions[] = edit.editable",
         "if (chosen === 'pick-avatar') return await pickOrbAvatar(win);",
@@ -2543,7 +3108,9 @@
         "case 'floating.setOverlayModel': {",
         "return readSelectionToolbarEnabled();",
         "case 'floating.setAvatar': {",
-        "case 'host.openExternal': {"
+        "case 'host.openExternal': {",
+        "case 'host.openEmbeddedBrowser': {",
+        "return { ok: true, commands: listHostCommands() };"
       ],
       "hash": "59a64aa4386493545ebbf1eeac430694cc21b23a",
       "origin": "new",
@@ -2552,12 +3119,15 @@
       "note": "项我球主进程服务（窗口/脚本/聊天目标）"
     },
     "apps/emdash-desktop/src/main/host/xiangwo-orb-menu.test.ts": {
-      "markers": 1,
+      "markers": 3,
       "lines": [
-        1
+        1,
+        407,
+        408
       ],
       "anchors": [
-        "import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';"
+        "import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';",
+        "it('模型子菜单：分组标题 disabled + `✓ ` 前缀 + 「（当前唯一）」+ 说明行 disabled', async () => {"
       ],
       "hash": "bd5c6bc8e93a08052b63a2797d1015b352d69ea0",
       "origin": "new",
@@ -2566,17 +3136,25 @@
       "note": "项我球主进程服务（窗口/脚本/聊天目标）"
     },
     "apps/emdash-desktop/src/main/host/xiangwo-orb.test.ts": {
-      "markers": 4,
+      "markers": 8,
       "lines": [
         1,
+        22,
         85,
+        142,
+        178,
         203,
+        614,
         616
       ],
       "anchors": [
         "import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';",
+        "const screenListeners = new Map<string, ((...args: never[]) => void)[]>();",
         "if (FakeBrowserWindow.wmClampOffScreen) {",
+        "setContentProtection(): void {}",
+        "on: (event: string, fn: (...args: never[]) => void): void => {",
         "vi.stubEnv('ELECTRON_RENDERER_URL', 'http://127.0.0.1:5173');",
+        "const afterDebounce = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 320));",
         "describe('"
       ],
       "hash": "af9404052bd3e083d0928f9aadedd01e3fa093fe",
@@ -2586,7 +3164,7 @@
       "note": "项我球主进程服务（窗口/脚本/聊天目标）"
     },
     "apps/emdash-desktop/src/main/host/xiangwo-orb.ts": {
-      "markers": 77,
+      "markers": 83,
       "lines": [
         3,
         14,
@@ -2627,6 +3205,9 @@
         439,
         472,
         511,
+        550,
+        553,
+        563,
         623,
         629,
         648,
@@ -2658,13 +3239,16 @@
         1226,
         1228,
         1260,
+        1283,
         1297,
         1300,
         1304,
         1313,
         1317,
         1320,
-        1373
+        1344,
+        1373,
+        1385
       ],
       "anchors": [
         "import { BrowserWindow, app, ipcMain, screen } from 'electron';",
@@ -2703,13 +3287,16 @@
         "export async function unsnapDockedBall(): Promise<OrbBallOutcome> {",
         "function dockAllowed(rendererCanDock: unknown): boolean {",
         "function ballAnchorFor(",
+        "let removeDisplayGuards: (() => void) | undefined;",
+        "function orbBallOrigin(): OrbBallPoint {",
+        "function reclampOrbForDisplays(reason: string): void {",
         "let applyingBounds = false;",
         "function setOrbBounds(win: BrowserWindow, bounds: Rect, source: string): void {",
         "function sizeForMode(mode: OrbVisualMode): { width: number; height: number } {",
         "function repaintOrbWindow(win: BrowserWindow): void {",
         "function sameDirection(a: OrbDirection | undefined, b: OrbDirection | undefined): boolean {",
         "function ballOriginFromWindow(win: BrowserWindow): { x: number; y: number } {",
-        "X11 SHAPE 塑形（setShape）",
+        "] X11 SHAPE 塑形（setShape）",
         "function panelShape(): ShapeRect[] {",
         "const bounds = win !== null && !win.isDestroyed() ? win.getBounds() : undefined;",
         "function dockShape(): ShapeRect[] {",
@@ -2732,12 +3319,15 @@
         "registerXiangwoOrbApi({",
         "clearOrbSessionRunning();",
         "backgroundColor: '#00000000',",
+        "if (process.platform === 'win32' || process.platform === 'darwin') {",
         "orbWindow.setBackgroundColor('#00000000');",
         "// 恢复成停靠态就抠 6×72 胶囊，否则抠圆。 ⏎ applyOrbShape(visualMode());",
         "const query = '?xiangwo-floating=1&xiangwo-orb=1';",
         "// [XG-CUSTOM] 第一次真正上屏前再塑一次（某些平台是 map 之后才认 shape） ⏎ applyOrbShape(visualMode());",
         "orbWindow.on('resize', () => {",
-        "orbWindow.webContents.on('did-finish-load', () => {"
+        "let timer: ReturnType<typeof setTimeout> | undefined;",
+        "orbWindow.webContents.on('did-finish-load', () => {",
+        "removeDisplayGuards?.();"
       ],
       "hash": "1ea7d0d42a0fb4f3b5296bacf1278fb402a604f5",
       "origin": "new",
@@ -2768,7 +3358,7 @@
         1
       ],
       "anchors": [
-        "主机感知的\"项我 CLI\"执行器（侧边交接台 / 专家交接台等）。"
+        "] 主机感知的\"项我 CLI\"执行器（侧边交接台 / 专家交接台等）。"
       ],
       "hash": "a0da8ca0bc75fdb64aa8d39c958f7d58aec51022",
       "origin": "new",
@@ -2801,7 +3391,7 @@
         1
       ],
       "anchors": [
-        "2026-10-03 工具窗口（WeKnora / AFFiNE / Kaneo / T8 / OpenViking）的**地址解析**（主进程唯一权威）。"
+        "] 2026-10-03 工具窗口（WeKnora / AFFiNE / Kaneo / T8 / OpenViking）的**地址解析**（主进程唯一权威）。"
       ],
       "hash": "e9863fbab3076d86d8b34c7ef77889d437110de3",
       "origin": "new",
@@ -2902,7 +3492,7 @@
       "note": "renderer 入口（挂球/浮窗/i18n）"
     },
     "apps/emdash-desktop/src/renderer/orb/orb.css": {
-      "markers": 55,
+      "markers": 57,
       "lines": [
         2,
         15,
@@ -2950,6 +3540,7 @@
         1029,
         1113,
         1160,
+        1165,
         1201,
         1248,
         1262,
@@ -2958,7 +3549,8 @@
         1318,
         1346,
         1352,
-        1397
+        1397,
+        1496
       ],
       "anchors": [
         "*/ ⏎ :root {",
@@ -3006,6 +3598,7 @@
         ".question-pager {",
         ".image-grid-wrap {",
         "/* [XG-CUSTOM] 选中态用内环（外投影会被 X11 SHAPE 裁），和提问卡一致 */ ⏎ border-color: var(--pin);",
+        "* 取不到用 source），压在图上、不吃点击（渲染见 xiangwo-images.ts 的 renderXiangwoImageGrid）。 */ ⏎ .image-cell {",
         ".image-thumb[hidden] {",
         "#selection-bar {",
         "#selection-bar[hidden] {",
@@ -3014,7 +3607,8 @@
         "#workspace-chip {",
         "body.drop-active #panel {",
         "#pages {",
-        "#pages-menu[hidden] {"
+        "#pages-menu[hidden] {",
+        ".mcp-market {"
       ],
       "hash": "13491adc5ace45d2bfae00c1efa8ba7a8592afa5",
       "origin": "new",
@@ -3061,20 +3655,29 @@
       "note": "项我球 orb（球壳 + 聊天/图片网格渲染）"
     },
     "apps/emdash-desktop/src/renderer/orb/orb.js": {
-      "markers": 133,
+      "markers": 166,
       "lines": [
+        1,
         9,
         15,
         25,
         33,
+        54,
         61,
+        71,
+        75,
         84,
         90,
+        93,
         111,
+        122,
+        126,
+        134,
         142,
         149,
         155,
         160,
+        165,
         171,
         186,
         222,
@@ -3084,11 +3687,14 @@
         279,
         301,
         335,
+        341,
         350,
         362,
         381,
+        412,
         450,
         509,
+        521,
         560,
         594,
         614,
@@ -3109,14 +3715,29 @@
         717,
         719,
         731,
+        746,
+        751,
+        763,
+        824,
         846,
         847,
+        856,
+        862,
+        880,
+        891,
+        893,
+        900,
         902,
+        904,
+        909,
         927,
         955,
+        962,
         1025,
         1052,
+        1094,
         1154,
+        1166,
         1180,
         1293,
         1344,
@@ -3142,10 +3763,14 @@
         1722,
         1732,
         1758,
+        1760,
+        1767,
+        1771,
         1792,
         1803,
         1818,
         1874,
+        1876,
         1883,
         1890,
         1892,
@@ -3184,6 +3809,7 @@
         2736,
         2748,
         2793,
+        2811,
         2820,
         2822,
         2825,
@@ -3193,19 +3819,31 @@
         2866,
         2887,
         2911,
+        2917,
         2924,
         2935,
         2945
       ],
       "anchors": [
+        "// [XG-CUSTOM 2026-10-05] 动作块（球指挥主界面：`[XG-ACTION]`→ host.runCommand；协议见 ./xiangw ⏎ import {",
         "} from './xiangwo-action';",
-        "项我控制球面板 —— 移植自开源项目 mini-yifan/deepseek-harness-orb（MIT）",
-        "地址不再写死：由主进程解析、preload 暴露（`resolveXiangwoChatUrl()`），",
+        "] 项我控制球面板 —— 移植自开源项目 mini-yifan/deepseek-harness-orb（MIT）",
+        "] 地址不再写死：由主进程解析、preload 暴露（`resolveXiangwoChatUrl()`），",
+        "] **提问卡协议 xiangwo-question**（补上游被删掉的 `#question`/`.question-card`",
+        "2026-10-05] 另支持两个字段（照 assistant-ui `option-list.tsx` 的语义，**抄语义不引库**）：",
+        "] **图片协议 xiangwo-images**（治「agent 说已推到侧边栏、用户什么都看不到」）：",
+        "2026-10-03] **`url`/`thumb`/`page` 是相对路径时要按 agent 基址拼绝对**",
+        "2026-10-03] **整卡可点**：优先 `page`（来源作品页）→ 没有就什么都不做（不悄悄开",
+        "2026-10-05] **SSE 流式接收 + 放宽耐心**（治 `调用失败: Failed to fetch`）：",
         "// 并且能被 vitest 直接单测；构建后会被打进本 bundle（harness 断言跑的就是产物）。 ⏎ import {",
+        "import { buildSidebarHistoryUrl, fetchSidebarHistory, historyToMessages } from './xiangwo-history';",
+        "// 都能被 vitest 直接断言（见 xiangwo-images.test.ts），这里只保留\"接线\"。 ⏎ import {",
+        "import { parseXiangwoMcpBlock, renderXiangwoMcpMarket } from './xiangwo-mcp';",
         "const CLICK_MAX_PX = 8;",
         "const DOUBLE_CLICK_GUARD_MS = 400;",
         "const DOCK_HOVER_DELAY_MS = 800;",
         "const DOCK_DRAG_OFF_PX = 24;",
+        "const HISTORY_RESTORE_TIMEOUT_MS = 8000;",
         "const SYSTEM_PREFIX = '[XIANGWO_ROUTE=R0][XIANGWO_SOURCE=sidebar]';",
         "const BOT_OPTIONS = [",
         "modelCatalog: () => orbApi('floating.modelCatalog', {}),",
@@ -3215,11 +3853,14 @@
         "function ballDebug() {",
         "ballDisplay: style.display,",
         "const QUESTION_MAX_QUESTIONS = 8;",
+        "const QUESTION_MEMORY_KEY = 'xg-question-memory';",
         "function parseRecommendedLabel(label) {",
         "function normalizeQuestionOption(raw) {",
         "function normalizeQuestion(raw, index) {",
+        "const maxSelections =",
         "function parseQuestionBlock(text) {",
         "const STORE_KEY_PREFIX = 'xiangwo-orb-conversations';",
+        "function botStoreKey(botId) {",
         "function migrateLegacyConversations() {",
         "function findConversationAcrossBots(id) {",
         "const openUrlButton = document.querySelector('#open-url');",
@@ -3240,13 +3881,26 @@
         "text: compactXiangwoImagesBlock(message.text),",
         "...(typeof message.answer === 'string' && message.answer !== ''",
         "async function switchBot(nextBotId) {",
+        "await restoreFromBackend(nextBotId);",
+        "function hasLocalMessages(botId) {",
+        "async function restoreFromBackend(botId) {",
+        "const sideEffects = createSideEffectPrimer();",
         "const withImages =",
+        "const actions = message.role === 'assistant' ? parseXiangwoActionBlock(withMcp.text) : [];",
+        "const openUrls =",
+        "row.append(",
+        "renderXiangwoMcpMarket(document, withMcp.market, {",
+        "onAction: (text) => void send(text),",
         "const urlsToOpen = openUrls.filter((u) => sideEffects.claim(message, `open:${u}`));",
+        "void openXiangwoUrls(urlsToOpen, (method, payload) => {",
         "const actionsToRun = dropOpenUrlActionsAlreadyOpened(actions, openUrls).filter((action) =>",
         "const questionDrafts = new WeakMap();",
+        "function readQuestionMemory() {",
         "function composeQuestionAnswer(questions, drafts) {",
         "function renderQuestionCard(message, question) {",
+        "questions.forEach((item, order) => {",
         "const showMark = item.multiSelect || questions.length > 1;",
+        "if (chosen) {",
         "if (index < questions.length - 1) index += 1;",
         "commit('（已取消）', true);",
         "const itemBotId = typeof item.botId === 'string' ? item.botId : DEFAULT_BOT_ID;",
@@ -3270,6 +3924,8 @@
         "// [XG-CUSTOM] 2026-10-06 —— 🌐「待开页」模式下的回车 = **开页**，绝不走 requestSubmit（= 不发聊天消息）。 ⏎ if (isOpenUrlMode()) {",
         "const files = [...(event.clipboardData?.files ?? [])];",
         "let chatTarget;",
+        "let agentBaseUrl = '';",
+        "function applyAgentBaseUrl(next) {",
         "function streamingBubble() {",
         "function paintStreamingBubble(message) {",
         "function settleStreamingMessage(message, result) {",
@@ -3311,6 +3967,7 @@
         "panel.addEventListener('contextmenu', (event) => {",
         "function editState(target) {",
         "const action = typeof result === 'string' ? result : (result?.action ?? null);",
+        "if (!expanded) await openPanel();",
         "if (direction !== undefined && direction !== null) applyDirection(direction);",
         "if (dockedSide !== undefined) applyDocked(dockedSide);",
         "if (mode !== 'panel' && expanded) {",
@@ -3320,6 +3977,7 @@
         "async function refreshAvatar() {",
         "async function renderWorkspaceChip() {",
         "// [XG-CUSTOM] 启动即保证收起态：面板不挂载 = display:none，窗口里只有球（其余 100% 透明）。 ⏎ unmountPanel();",
+        "void chatEndpoint().catch(() => {",
         "// `supported:false` 这个实测结论，渲染侧拿到的就是主进程认证过的真实值。 ⏎ try {",
         "// 从源头上不监听 selectionchange / 不弹条（而不是弹出来再隐藏）。 ⏎ try {",
         "// 只在启动时确认一次后端状态，失败也不卡 UI（发消息时会自然报错）。 ⏎ try {"
@@ -3331,11 +3989,13 @@
       "note": "项我球 orb（球壳 + 聊天/图片网格渲染）"
     },
     "apps/emdash-desktop/src/renderer/orb/xiangwo-action.test.ts": {
-      "markers": 5,
+      "markers": 7,
       "lines": [
         1,
         3,
         86,
+        195,
+        258,
         339,
         392
       ],
@@ -3343,17 +4003,19 @@
         "import { describe, expect, it } from 'vitest';",
         "import { resolveOpenUrlInput } from '@core/features/browser/browser/open-url-command';",
         "describe('runXiangwoAction · 开网页直连', () => {",
+        "describe('xiangwo-open-url（方案 A）', () => {",
+        "describe('dropOpenUrlActionsAlreadyOpened（收敛：防开两次）', () => {",
         "describe('createSideEffectPrimer（渲染重绘不重放副作用）', () => {",
         "describe('resolveXiangwoOpenUrlInput（球的「待开页」输入校验）', () => {"
       ],
       "hash": "5e7960f50caa309e1968280fc364527895e946e7",
       "origin": "new",
-      "firstCommit": "13acb278f|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
+      "firstCommit": "2c4155785|2026-10-05|feat(orb): [XG-CUSTOM 2026-10-05] 球侧动作块 [XG-ACTION]（A 方案第 2 件）",
       "lastCommit": "2c4155785|2026-10-05|feat(orb): [XG-CUSTOM 2026-10-05] 球侧动作块 [XG-ACTION]（A 方案第 2 件）",
       "note": "项我球 orb（球壳 + 聊天/图片网格渲染）"
     },
     "apps/emdash-desktop/src/renderer/orb/xiangwo-action.ts": {
-      "markers": 13,
+      "markers": 14,
       "lines": [
         1,
         13,
@@ -3367,10 +4029,11 @@
         146,
         184,
         222,
+        240,
         318
       ],
       "anchors": [
-        "2026-10-05 —— **球的「指挥主界面」动作块**（`[XG-ACTION]{…}[/XG-ACTION]`）解析 + 执行。",
+        "] 2026-10-05 —— **球的「指挥主界面」动作块**（`[XG-ACTION]{…}[/XG-ACTION]`）解析 + 执行。",
         "export const XIANGWO_ACTION_RE = /```xiangwo-action\\s*\\n([\\s\\S]*?)```/g;",
         "export const XIANGWO_OPEN_EMBEDDED_BROWSER_ID = 'host.openEmbeddedBrowser';",
         "export const XIANGWO_DIRECT_ACTIONS: Readonly<Record<string, string>> = Object.freeze({",
@@ -3382,29 +4045,34 @@
         "export function dropOpenUrlActionsAlreadyOpened(",
         "export type SideEffectPrimer = {",
         "if (action.id === XIANGWO_OPEN_EMBEDDED_BROWSER_ID) {",
-        "2026-10-06 —— 球的 🌐「打开网址」快入口：用户手输网址的**纯校验**（可离线单测）──"
+        "export const XIANGWO_OPEN_URL_RE = /```xiangwo-open-url\\s*\\n([\\s\\S]*?)```/g;",
+        "] 2026-10-06 —— 球的 🌐「打开网址」快入口：用户手输网址的**纯校验**（可离线单测）──"
       ],
       "hash": "5136569e9cd9ac272781bcd92d2dc7c0b1d41673",
       "origin": "new",
-      "firstCommit": "13acb278f|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
+      "firstCommit": "2c4155785|2026-10-05|feat(orb): [XG-CUSTOM 2026-10-05] 球侧动作块 [XG-ACTION]（A 方案第 2 件）",
       "lastCommit": "2c4155785|2026-10-05|feat(orb): [XG-CUSTOM 2026-10-05] 球侧动作块 [XG-ACTION]（A 方案第 2 件）",
       "note": "项我球 orb（球壳 + 聊天/图片网格渲染）"
     },
     "apps/emdash-desktop/src/renderer/orb/xiangwo-chat.test.ts": {
-      "markers": 9,
+      "markers": 11,
       "lines": [
         39,
         91,
+        103,
         106,
         171,
         265,
+        287,
         421,
         462,
         539,
         663
       ],
       "anchors": [
-        "describe('"
+        "describe('",
+        "it('主进程给的 baseUrl 优先（去掉尾斜杠），没给就从聊天端点反推', async () => {",
+        "const encoder = new TextEncoder();"
       ],
       "hash": "f8fbbfeaf3b7cc5adac3ba682b8c95aca56a492e",
       "origin": "new",
@@ -3413,10 +4081,16 @@
       "note": "项我球 orb（球壳 + 聊天/图片网格渲染）"
     },
     "apps/emdash-desktop/src/renderer/orb/xiangwo-chat.ts": {
-      "markers": 14,
+      "markers": 20,
       "lines": [
         1,
+        8,
         26,
+        43,
+        76,
+        87,
+        124,
+        258,
         262,
         269,
         273,
@@ -3431,8 +4105,13 @@
         521
       ],
       "anchors": [
-        "项我球（orb.js）/ 旧浮窗（XiangwoFloatingPanel.tsx）共用的**聊天通道工具**：",
+        "] 项我球（orb.js）/ 旧浮窗（XiangwoFloatingPanel.tsx）共用的**聊天通道工具**：",
+        "export const XIANGWO_FALLBACK_CHAT_URL = 'http://127.0.0.1:8900/v1/chat/completions';",
         "export const XIANGWO_FALLBACK_AGENT_BASE = 'http://127.0.0.1:8900';",
+        "baseUrl: string;",
+        "export function xiangwoAgentBaseFromChatUrl(endpoint: string): string {",
+        "export function resolveXiangwoAssetUrl(baseUrl: unknown, raw: unknown): string {",
+        "const rawBase = typeof record.baseUrl === 'string' ? record.baseUrl.trim() : '';",
         "export const XIANGWO_FIRST_BYTE_TIMEOUT_MS = 20_000;",
         "export const XIANGWO_STREAM_RETRY_DELAYS_MS = [2000, 5000] as const;",
         "export const XIANGWO_STREAM_IDLE_TIMEOUT_MS = 90_000;",
@@ -3452,15 +4131,61 @@
       "lastCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
       "note": "项我球 orb（球壳 + 聊天/图片网格渲染）"
     },
-    "apps/emdash-desktop/src/renderer/orb/xiangwo-images.test.ts": {
-      "markers": 4,
+    "apps/emdash-desktop/src/renderer/orb/xiangwo-history.test.ts": {
+      "markers": 1,
       "lines": [
+        1
+      ],
+      "anchors": [
+        "import { describe, expect, it, vi } from 'vitest';"
+      ],
+      "hash": "ec30ca4ed5e7dfe89794ecf6a37a21fc3dffc6b8",
+      "origin": "new",
+      "firstCommit": "a751ccd02|2026-10-04|feat(orb): [XG-CUSTOM] 侧边枝历史拉回（球重开/换机器从后端恢复对话）",
+      "lastCommit": "a751ccd02|2026-10-04|feat(orb): [XG-CUSTOM] 侧边枝历史拉回（球重开/换机器从后端恢复对话）",
+      "note": "项我球 orb（球壳 + 聊天/图片网格渲染）"
+    },
+    "apps/emdash-desktop/src/renderer/orb/xiangwo-history.ts": {
+      "markers": 2,
+      "lines": [
+        1,
+        14
+      ],
+      "anchors": [
+        "2026-10-04] 侧边枝历史「拉回」：球重开/换机器后不丢对话。",
+        "export const SIDEBAR_HISTORY_PATH = '/sidebar/history';"
+      ],
+      "hash": "f5eee4a8445cad9132ee320e2657e003a88369fa",
+      "origin": "new",
+      "firstCommit": "a751ccd02|2026-10-04|feat(orb): [XG-CUSTOM] 侧边枝历史拉回（球重开/换机器从后端恢复对话）",
+      "lastCommit": "a751ccd02|2026-10-04|feat(orb): [XG-CUSTOM] 侧边枝历史拉回（球重开/换机器从后端恢复对话）",
+      "note": "项我球 orb（球壳 + 聊天/图片网格渲染）"
+    },
+    "apps/emdash-desktop/src/renderer/orb/xiangwo-images-legacy.test.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { describe, expect, it } from 'vitest';"
+      ],
+      "hash": "5829d7c45c0486e7b220c7e26650aebc99d01876",
+      "origin": "new",
+      "firstCommit": "5d9622a61|2026-10-06|fix(orb): [XG-CUSTOM 2026-10-06] 兼容旧推图标记 [XG-IMG]…[/XG-IMG]（修\"原始标记裸露\"）",
+      "lastCommit": "5d9622a61|2026-10-06|fix(orb): [XG-CUSTOM 2026-10-06] 兼容旧推图标记 [XG-IMG]…[/XG-IMG]（修\"原始标记裸露\"）",
+      "note": "项我球 orb（球壳 + 聊天/图片网格渲染）"
+    },
+    "apps/emdash-desktop/src/renderer/orb/xiangwo-images.test.ts": {
+      "markers": 5,
+      "lines": [
+        1,
         36,
         98,
         170,
         236
       ],
       "anchors": [
+        "import { JSDOM } from 'jsdom';",
         "describe('"
       ],
       "hash": "f0102677cdab1b9ac5f7cc9559ac930768bc3472",
@@ -3470,19 +4195,55 @@
       "note": "项我球 orb（球壳 + 聊天/图片网格渲染）"
     },
     "apps/emdash-desktop/src/renderer/orb/xiangwo-images.ts": {
-      "markers": 2,
+      "markers": 4,
       "lines": [
         1,
+        32,
+        170,
         341
       ],
       "anchors": [
-        "图片协议 **xiangwo-images** 的解析 + 网格渲染（项我球面板）。",
+        "] 图片协议 **xiangwo-images** 的解析 + 网格渲染（项我球面板）。",
+        "export const XIANGWO_IMAGES_LEGACY_RE = /\\[XG-IMG\\]([\\s\\S]*?)\\[\\/XG-IMG\\]/g;",
+        "const legacy: string[] = [];",
         "button.append(fallbackOf('图片不可用'));"
       ],
       "hash": "c9ca6d1d5f45e45655b978fde5f02bbb7a4eed71",
       "origin": "new",
       "firstCommit": "e60319d08|2026-10-04|feat(orb): [XG-CUSTOM] 图片网格相对地址按 agent 基址拼绝对 + 点击在内嵌浏览器开来源页",
       "lastCommit": "e60319d08|2026-10-04|feat(orb): [XG-CUSTOM] 图片网格相对地址按 agent 基址拼绝对 + 点击在内嵌浏览器开来源页",
+      "note": "项我球 orb（球壳 + 聊天/图片网格渲染）"
+    },
+    "apps/emdash-desktop/src/renderer/orb/xiangwo-mcp.test.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { JSDOM } from 'jsdom';"
+      ],
+      "hash": "515ce045b4c97908ec325b9904163f81f5e3794f",
+      "origin": "new",
+      "firstCommit": "8b3ef921b|2026-10-05|feat(orb): [XG-CUSTOM 2026-10-05] MCP 双卡：写操作审批卡 + 工具市场卡",
+      "lastCommit": "8b3ef921b|2026-10-05|feat(orb): [XG-CUSTOM 2026-10-05] MCP 双卡：写操作审批卡 + 工具市场卡",
+      "note": "项我球 orb（球壳 + 聊天/图片网格渲染）"
+    },
+    "apps/emdash-desktop/src/renderer/orb/xiangwo-mcp.ts": {
+      "markers": 3,
+      "lines": [
+        1,
+        255,
+        290
+      ],
+      "anchors": [
+        "2026-10-05] 项我球**MCP 工具市场协议 xiangwo-mcp** —— 协议解析 + 卡片渲染",
+        "secrets.hidden = true;",
+        "const footer = doc.createElement('div');"
+      ],
+      "hash": "a2f06fed09b69475d08f1df169793dfedb336209",
+      "origin": "new",
+      "firstCommit": "8b3ef921b|2026-10-05|feat(orb): [XG-CUSTOM 2026-10-05] MCP 双卡：写操作审批卡 + 工具市场卡",
+      "lastCommit": "8b3ef921b|2026-10-05|feat(orb): [XG-CUSTOM 2026-10-05] MCP 双卡：写操作审批卡 + 工具市场卡",
       "note": "项我球 orb（球壳 + 聊天/图片网格渲染）"
     },
     "apps/emdash-desktop/src/renderer/tests/browser/modal-catalog.test.ts": {
@@ -3505,7 +4266,7 @@
         17
       ],
       "anchors": [
-        "中文化在 shared/api 层用了 @renderer/lib/i18n，node 配置需此别名"
+        "] 中文化在 shared/api 层用了 @renderer/lib/i18n，node 配置需此别名"
       ],
       "hash": "169bd3341466ae600db4ad8f841f84e0015389bb",
       "origin": "modified",
@@ -3549,6 +4310,178 @@
       "firstCommit": "6f24dc51a|2026-09-21|feat: 中央技能库多来源接入（Local > User > Paths 同名覆盖，Grok Build 原方式）",
       "lastCommit": "6f24dc51a|2026-09-21|feat: 中央技能库多来源接入（Local > User > Paths 同名覆盖，Grok Build 原方式）",
       "note": "中央技能库多来源接入"
+    },
+    "packages/core/src/runtimes/automations/api/deployment.ts": {
+      "markers": 4,
+      "lines": [
+        92,
+        98,
+        110,
+        116
+      ],
+      "anchors": [
+        "export const automationWebhookTriggerSchema = z.object({",
+        "promptTemplate: z.string().optional(),",
+        "schedule: automationScheduleSchema.nullable(),",
+        "webhook: automationWebhookTriggerSchema.optional(),"
+      ],
+      "hash": "743179f00cbcf5f92cc9cbc1f151623a99b724a9",
+      "origin": "modified",
+      "firstCommit": "3cdea3da2|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 事件触发接进运行时（第 3 项第三片，端到端可用）",
+      "lastCommit": "3cdea3da2|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 事件触发接进运行时（第 3 项第三片，端到端可用）",
+      "note": "packages 定制"
+    },
+    "packages/core/src/runtimes/automations/api/run.ts": {
+      "markers": 1,
+      "lines": [
+        23
+      ],
+      "anchors": [
+        "export const automationRunTriggerKindSchema = z.enum(['cron', 'manual', 'webhook']);"
+      ],
+      "hash": "e2053db4ce208ab3f76df753f64aa6a6f0c4e40b",
+      "origin": "modified",
+      "firstCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
+      "lastCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
+      "note": "packages 定制"
+    },
+    "packages/core/src/runtimes/automations/node/runtime.ts": {
+      "markers": 5,
+      "lines": [
+        55,
+        68,
+        100,
+        107,
+        172
+      ],
+      "anchors": [
+        "webhookPort?: number;",
+        "private readonly webhookServer: AutomationWebhookServer;",
+        "this.webhookServer = new AutomationWebhookServer({",
+        "this.scheduler.runNow(withWebhookPrompt(deployment, payloadText), 'webhook');",
+        "if (input.webhook === undefined) {"
+      ],
+      "hash": "f79840302a46bd3e726a6c95df8eb301a5ab9e1b",
+      "origin": "modified",
+      "firstCommit": "3cdea3da2|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 事件触发接进运行时（第 3 项第三片，端到端可用）",
+      "lastCommit": "3cdea3da2|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 事件触发接进运行时（第 3 项第三片，端到端可用）",
+      "note": "packages 定制"
+    },
+    "packages/core/src/runtimes/automations/node/scheduling/scheduler.ts": {
+      "markers": 3,
+      "lines": [
+        118,
+        207,
+        235
+      ],
+      "anchors": [
+        "runNow(",
+        "const scheduleChanged =",
+        "if (deployment.schedule === null) return null;"
+      ],
+      "hash": "49781fb48cdf1d2d47c44dd92fed542cf091245e",
+      "origin": "modified",
+      "firstCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
+      "lastCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
+      "note": "packages 定制"
+    },
+    "packages/core/src/runtimes/automations/node/scheduling/webhook-filter.test.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { describe, expect, it } from 'vitest';"
+      ],
+      "hash": "4186b4a393a21126996f67bc9854e69c06b07ae5",
+      "origin": "new",
+      "firstCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
+      "lastCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
+      "note": "packages 定制"
+    },
+    "packages/core/src/runtimes/automations/node/scheduling/webhook-filter.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "2026-10-05] **事件载荷过滤器 webhook-filter** —— 事件触发（webhook）的 `filter` 求值。"
+      ],
+      "hash": "b87189ebcd20451e8a1d874d2467fc75405eb5a9",
+      "origin": "new",
+      "firstCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
+      "lastCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
+      "note": "packages 定制"
+    },
+    "packages/core/src/runtimes/automations/node/scheduling/webhook-prompt.test.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { describe, expect, it } from 'vitest';"
+      ],
+      "hash": "58be2c84a44c4b1c0882ff060cc918f425289ab1",
+      "origin": "new",
+      "firstCommit": "d1e61545e|2026-10-05|feat(automations/orb): [XG-CUSTOM 2026-10-05] 收尾四项（promptTemplate / builder 单测 / 市场卡体检 / 归一表）",
+      "lastCommit": "d1e61545e|2026-10-05|feat(automations/orb): [XG-CUSTOM 2026-10-05] 收尾四项（promptTemplate / builder 单测 / 市场卡体检 / 归一表）",
+      "note": "packages 定制"
+    },
+    "packages/core/src/runtimes/automations/node/scheduling/webhook-prompt.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import type { AutomationDeployment } from '../../api/deployment';"
+      ],
+      "hash": "6174fe4216cdcfd50df8b1e20a696f76a4ef690d",
+      "origin": "new",
+      "firstCommit": "d1e61545e|2026-10-05|feat(automations/orb): [XG-CUSTOM 2026-10-05] 收尾四项（promptTemplate / builder 单测 / 市场卡体检 / 归一表）",
+      "lastCommit": "d1e61545e|2026-10-05|feat(automations/orb): [XG-CUSTOM 2026-10-05] 收尾四项（promptTemplate / builder 单测 / 市场卡体检 / 归一表）",
+      "note": "packages 定制"
+    },
+    "packages/core/src/runtimes/automations/node/webhook-intake.test.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { ok } from '@emdash/shared';"
+      ],
+      "hash": "8afdf9dd991f9d91f2accfcb276d78b38bcfb39f",
+      "origin": "new",
+      "firstCommit": "3cdea3da2|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 事件触发接进运行时（第 3 项第三片，端到端可用）",
+      "lastCommit": "3cdea3da2|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 事件触发接进运行时（第 3 项第三片，端到端可用）",
+      "note": "packages 定制"
+    },
+    "packages/core/src/runtimes/automations/node/webhook-server.test.ts": {
+      "markers": 1,
+      "lines": [
+        2
+      ],
+      "anchors": [
+        "import { afterEach, describe, expect, it, vi } from 'vitest';"
+      ],
+      "hash": "edd168ece41f25b2b44dee015d9a9f3e24793f29",
+      "origin": "new",
+      "firstCommit": "649c896f2|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 事件触发摄取端（第 3 项第二切片）",
+      "lastCommit": "649c896f2|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 事件触发摄取端（第 3 项第二切片）",
+      "note": "packages 定制"
+    },
+    "packages/core/src/runtimes/automations/node/webhook-server.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "2026-10-05] **事件触发摄取端 automation-webhook-server**（第 3 项 · 第二切片）"
+      ],
+      "hash": "b0a00e6b391b3509ad269ee8c8e925f5c3752fbe",
+      "origin": "new",
+      "firstCommit": "649c896f2|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 事件触发摄取端（第 3 项第二切片）",
+      "lastCommit": "649c896f2|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 事件触发摄取端（第 3 项第二切片）",
+      "note": "packages 定制"
     },
     "packages/core/src/runtimes/workspace-registry/node/persistence/payload-codecs.ts": {
       "markers": 2,
@@ -3829,7 +4762,7 @@
         33
       ],
       "anchors": [
-        "2026-10-05 —— 本机 AppImage 打包**唯一推荐入口** —— 顺手堵上「静默缺包」这条坑。",
+        "] 2026-10-05 —— 本机 AppImage 打包**唯一推荐入口** —— 顺手堵上「静默缺包」这条坑。",
         "UA=\"pnpm/10.28.2 npm/? node/$(node -v) $(uname -s | tr '[:upper:]' '[:lower:]') $(uname -m)\""
       ],
       "hash": "e55f646556c7c495d5b1452395820c710233948c",

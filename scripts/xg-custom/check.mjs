@@ -32,7 +32,13 @@ import { fileURLToPath } from 'node:url';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = resolve(HERE, '..', '..');
 const MANIFEST = join(HERE, 'manifest.json');
-const MARKER = '[XG-CUSTOM]';
+// [XG-CUSTOM 2026-10-08] ★ 用**前缀**匹配，不要用 `'[XG-CUSTOM]'` 全串。
+//   原来写死全串 + `git grep --fixed-strings` ⇒ **带日期的标记一个都搜不到**：
+//   `[XG-CUSTOM 2026-10-05]` 不含子串 `[XG-CUSTOM]`（后面是空格不是 `]`）。
+//   实测：**35 个文件**因此**不在台账里**（含 2026-10-05 那批 webhook 定制的全部文件），
+//   而台账的职责正是「上游一更新别把定制丢了」⇒ 这是**工具本身的漏**。
+//   改成前缀后 `git grep` 与下面所有 `.includes(MARKER)` 判断**同时**覆盖两种写法。
+const MARKER = '[XG-CUSTOM';
 
 const CFG = {
   // 台账自身目录：不入账（自指问题，见文件头）

@@ -117,6 +117,35 @@ export interface ExpertRosterResult {
   };
 }
 
+// [XG-CUSTOM 2026-10-08] Kaneo 看板（「自动化」视图的 Kaneo 面板）。
+// 数据源 = xiangwo-agent/kaneo_board.py board（走 host 桥接，与 expertRoster 同款）。
+export interface KaneoBoardCard {
+  id: string;
+  title: string;
+  column: string;
+  /** 空串 / 'r1-parent' / 'r1-expert' —— 面板上要能一眼认出 R1 卡 */
+  r1: string;
+  /** "已完成/总数"，如 "0/2" */
+  subtasks: string;
+}
+export interface KaneoBoardProject {
+  projectId: string;
+  workspace: string;
+  workspaceSlug: string;
+  name: string;
+  count: number;
+  columns: string[];
+  cards: KaneoBoardCard[];
+}
+export interface KaneoBoardResult {
+  ok: boolean;
+  error?: string | null;
+  generatedAt: string;
+  totals: { cards: number; projects: number; workspaces: number };
+  columns: { slug: string; count: number }[];
+  projects: KaneoBoardProject[];
+}
+
 type ActionResult = { success: boolean; error?: string };
 type RequiredPathResult = { success: true; path: string } | { success: false; error: string };
 type NullablePathResult =
@@ -215,6 +244,11 @@ export const desktopHostContract = defineContract({
   expertRoster: procedure({
     input: z.object({}),
     output: z.custom<ExpertRosterResult>(),
+  }),
+  // [XG-CUSTOM 2026-10-08] Kaneo 看板（「自动化」视图的 Kaneo 面板）
+  kaneoBoard: procedure({
+    input: z.object({ brief: z.boolean().optional() }),
+    output: z.custom<KaneoBoardResult>(),
   }),
   openPath: procedure({
     input: z.object({ ref: hostFileRefSchema }),

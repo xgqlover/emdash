@@ -1,12 +1,12 @@
 import { EmptyState } from '@emdash/ui/react/components';
-import { t } from '@renderer/lib/i18n';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM] 中文化
 import {
   CollectionToolbar,
   CollectionView,
   PageLayout,
   useQueryListSource,
 } from '@emdash/ui/react/patterns';
-import { Button, Sheet, toast } from '@emdash/ui/react/primitives';
+import { Button, Sheet, Tabs, toast } from '@emdash/ui/react/primitives';
 import { Plus } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
@@ -30,6 +30,7 @@ import { AutomationDetailView } from './AutomationDetailView';
 import { AutomationRow } from './AutomationRow';
 import { AutomationTemplatesEmptyState } from './AutomationTemplatesEmptyState';
 import { CreateAutomationView } from './CreateAutomationView';
+import { KaneoBoardPanel } from './KaneoBoardPanel';
 
 export function AutomationsView() {
   const automations = useAutomations();
@@ -38,6 +39,9 @@ export function AutomationsView() {
   const [creating, setCreating] = useState(false);
   const [initialTemplate, setInitialTemplate] = useState<BuiltinAutomationTemplate | undefined>();
   const [pendingDelete, setPendingDelete] = useState<Automation | null>(null);
+  // [XG-CUSTOM 2026-10-08] 双 Tab：「自动化」/「Kaneo 看板」
+  // —— 让 Kaneo 的活与自动化**在同一个界面**里（卡 = 要做的活，automation = 什么时候做）
+  const [tab, setTab] = useState<'automations' | 'kaneo'>('automations');
   const openConfirm = useOpenModal('confirmActionModal');
   const { navigate } = useNavigate();
   const { params, setParams } = useCurrentViewParams(automationsViewDef);
@@ -106,6 +110,18 @@ export function AutomationsView() {
               title={t('automations')}
               description={t('run_agents_on_schedule')}
             />
+            {/* [XG-CUSTOM 2026-10-08] 双 Tab：把 Kaneo 的活放进「自动化」视图。
+                用「卡 = 要做的活 / automation = 什么时候自动做」这个分法，
+                让用户**在一个界面里看着卡排自动化**（Tab 横向先例见 handoff-view.tsx）。 */}
+            <Tabs.Root value={tab} onValueChange={(v) => setTab(v as 'automations' | 'kaneo')}>
+              <Tabs.List>
+                <Tabs.Tab value="automations">{t('automations')}</Tabs.Tab>
+                <Tabs.Tab value="kaneo">Kaneo 看板</Tabs.Tab>
+              </Tabs.List>
+            </Tabs.Root>
+            {tab === 'kaneo' ? (
+              <KaneoBoardPanel />
+            ) : (
             <view.Root>
               {/* With zero automations the templates render on the page background —
                   the tiles are cards themselves, so no list card should wrap them. */}
@@ -148,6 +164,7 @@ export function AutomationsView() {
                 />
               )}
             </view.Root>
+            )}
           </div>
         </div>
       </div>

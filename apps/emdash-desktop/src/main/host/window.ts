@@ -402,6 +402,28 @@ export function expertRosterCall<T = unknown>(): Promise<T> {
   }) as Promise<T>;
 }
 
+// [XG-CUSTOM 2026-10-08] Kaneo 看板桥接：调 xiangwo-agent/kaneo_board.py board（输出 JSON）。
+// 用途 =「自动化」视图的 **Kaneo 面板**：在那个界面里看着卡排自动化。
+// 与 expertRoster 同款主机感知（本机 spawn / 远程 ssh）。
+// ⚠️ 那个脚本内部**必须分页**取卡 —— `list_tasks` 的 limit 上限是 100，
+//    而单个项目已超 100 张（实测 BABADO 110 张），不分页会静默漏卡。
+const KANEO_BOARD_PY =
+  '/persistent/home/xgqlover/天天项上/五层四维记忆系统/xiangwo-agent/kaneo_board.py';
+
+export function kaneoBoardCall<T = unknown>(brief = false): Promise<T> {
+  return runXiangwoScript({
+    label: 'Kaneo 看板',
+    interpreter: {
+      local: '/usr/bin/python3',
+      remote: 'python3',
+      remoteSearchPaths: ['/usr/bin/python3', '/usr/local/bin/python3'],
+    },
+    scriptPath: KANEO_BOARD_PY,
+    envVar: 'XIANGWO_KANEO_BOARD_PY',
+    args: brief ? ['board', '--brief'] : ['board'],
+  }) as Promise<T>;
+}
+
 // [XG-CUSTOM] 项我球 / 旧浮窗的聊天地址：注册 `xiangwo:resolve-chat-url`
 // （preload: electronAPI.resolveXiangwoChatUrl）。解析规则/依赖注入见 main/host/xiangwo-chat-target.ts，
 // 真实依赖（db 里的 SSH 主机 + services.forwardManualPreview）在 boot 时注入。

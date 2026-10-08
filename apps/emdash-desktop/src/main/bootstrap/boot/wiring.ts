@@ -54,6 +54,7 @@ import {
   ensureChromeRunning,
   expertHandoffCall,
   expertRosterCall,
+  kaneoBoardCall,
   taskSpaceCall,
 } from '@main/host/window'; // [XG-CUSTOM]
 import { resolveXiangwoChatTarget } from '@main/host/xiangwo-chat-target';
@@ -364,6 +365,8 @@ export function createDesktopWireOptions(
         expertHandoffCall('add', bot, expert, title, summary, session, context),
       // [XG-CUSTOM] Pi 树专家名册（专家总览视图）
       expertRoster: () => expertRosterCall(),
+      // [XG-CUSTOM 2026-10-08] Kaneo 看板（「自动化」视图的 Kaneo 面板）
+      kaneoBoard: ({ brief }) => kaneoBoardCall(brief === true),
       // [XG-CUSTOM] 浏览器工作台（task-spaces）：页面控制权交接（交接台第二个 Tab）
       taskSpaceList: () => taskSpaceCall('list'),
       taskSpaceHandoff: ({ id }) => taskSpaceCall('handoff', id),

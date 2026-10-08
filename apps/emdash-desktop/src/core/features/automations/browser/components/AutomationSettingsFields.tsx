@@ -6,7 +6,7 @@ import { TaskConfigProvider } from '@core/features/tasks/contributions/browser/t
 import { TaskConfigPanel } from '@core/features/tasks/contributions/browser/task-config/task-config-panel';
 import { TaskStateProvider } from '@core/features/tasks/contributions/browser/task-config/task-state-context';
 import { WorkspaceSettingsSection } from '@core/features/tasks/contributions/browser/task-config/workspace-settings-section';
-import { t } from '@renderer/lib/i18n';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM] 中文化
 import type { AutomationFormState } from '../useAutomationFormState';
 
 // [XG-CUSTOM 2026-10-05] 本文件加的东西：触发源切换（On schedule / On event）+ 事件触发的
