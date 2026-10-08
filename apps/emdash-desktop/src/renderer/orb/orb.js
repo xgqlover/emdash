@@ -25,9 +25,17 @@ import {
 //      [XG-CUSTOM] 地址不再写死：由主进程解析、preload 暴露（`resolveXiangwoChatUrl()`），
 //      渲染进程不猜主机 —— 远程主机（Windows 客户端连 Linux 主机）时才是对的地址；
 //      解析不到就回落 127.0.0.1。失败自动重试见 ./xiangwo-chat.ts（盖住 8900 重启空窗）。
-//   3) 删掉：iframe 转录（dsh-app://app/index.html?surface=overlay）、OVERLAY_SESSION_MESSAGE_TYPE
-//      postMessage 协议、user-questions 事件流 / 提问卡、TCC（macOS 授权）门、选区芯片、
-//      模型目录（session/selectModel）、macOS 停靠条的 JS（DOM/CSS 留着，停靠是 TODO）。
+//   3) [XG-CUSTOM 2026-10-08 更正] **这段原写"删掉：…TCC 门、选区芯片、模型目录、停靠是 TODO"—— 已证伪**：
+//      按代码核（不是按注释），**它们都在用** ——
+//        · `floating.tccStatus` / `floating.openTcc`（macOS 授权门）
+//        · `floating.selectionToolbar`（6 处）+ `onSelectionAttach` / `onSelectionPrompt`（划词工具条）
+//        · `floating.modelCatalog` + `overlayModel` / `setOverlayModel`（模型目录/切模型）
+//        · 停靠：`main/host/xiangwo-orb.ts` 里逐条对应上游 `FLOATING_DOCK_*`（吸边阈值/拖出解锁/细条宽度）+
+//          `floating.unsnap`（本文件 13 处调用）—— **停靠不是 TODO，已实现**
+//      **仍然成立**的删除项只有两条：iframe 转录（`dsh-app://…?surface=overlay`，本文件改走 `orbApi`）、
+//      `OVERLAY_SESSION_MESSAGE_TYPE` postMessage 协议（改走 8900 的 OpenAI 兼容通道）。
+//      📌 完整对照（原版有什么 / 我们留了多少 / 缺 computer-use 等）见根目录 **`球侧能力对照-OPS.md`**。
+//      教训：这里的注释是**某一时刻的快照**，会随并发改动过期 ⇒ **核能力请 grep 代码/API，别读注释**。
 //   4) 新增：📷 截图（captureCurrentTab）、📤 交接（taskSpaceList/Handoff）、bot 选择、
 //      本地历史（localStorage）、#stop 用 AbortController 真的能中断请求。
 //   6) [XG-CUSTOM] **提问卡协议 xiangwo-question**（补上游被删掉的 `#question`/`.question-card`
