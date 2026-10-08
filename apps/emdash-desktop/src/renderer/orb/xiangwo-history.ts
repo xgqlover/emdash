@@ -8,9 +8,13 @@
 // 本模块只做纯逻辑（拼 URL + 规范化返回 + 取数），不碰 DOM / electron，可被 vitest 直接断言；
 // 「什么时候拉、拉到之后怎么装进会话」这类接线留在 orb.js。
 //
-// ⚠️ 边界：默认 bot（`#bot` 的 value 为空串 =「项我」）后端**没有侧边枝** ——
+// ⚠️ 边界（**2026-10-08 已关闭**）：默认 bot（`#bot` 的 value 为空串 =「项我」）此前后端**没有侧边枝** ——
 //   `_suagent_log_turn` 取 `_sidebar_branch_ids.get('')` 取不到直接 return，
-//   而 `_sidebar_branch_ids` 只为 `sr.list_all_ids()`（9 个 @bot）建。所以对它拉回来必然是空的。
+//   而 `_sidebar_branch_ids` 只为 `sr.list_all_ids()` 建 ⇒ 对它拉回来必然是空的。
+//   [XG-CUSTOM 2026-10-08] 后端现在**给默认 bot 也建侧边枝**（`agent.py` 分支注册里显式加 `""`，
+//   发现规则从 `and sid` 改成 `and sid is not None`），并在 `_sse_stream` 收尾处把**无 @bot 的球侧回合**
+//   落进那条枝（`_orb_log_default_sidebar_turn`）⇒ 默认「项我」的球侧历史现在也能从 Pi 树拉回。
+//   ⚠️ 只有**新**回合会进树；此前只存在 localStorage 的老对话不会回填。
 
 /** 侧边枝历史端点（与 agent.py 的 do_GET 对齐） */
 export const SIDEBAR_HISTORY_PATH = '/sidebar/history';
