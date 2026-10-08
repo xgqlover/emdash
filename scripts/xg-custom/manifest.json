@@ -8,7 +8,7 @@
   },
   "stats": {
     "files": 206,
-    "markers": 1264,
+    "markers": 1265,
     "newFiles": 105,
     "modifiedFiles": 101
   },
@@ -358,9 +358,9 @@
         1
       ],
       "anchors": [
-        "import { PageLayout } from '@emdash/ui/react/patterns';"
+        "2026-10-08] 「自动化」视图的 **Kaneo 看板** 面板 —— 现在是**系统图浏览**。"
       ],
-      "hash": "da5a36d16ad5fd381998d82ab2eb33878a47d23d",
+      "hash": "2fdec4a99990d3a9007bbef2f466dbaf903862db",
       "origin": "new",
       "firstCommit": "c7b4f3958|2026-10-08|[XG-CUSTOM 2026-10-08] 「自动化」加 Kaneo 看板 Tab + 修台账漏搜带日期标记",
       "lastCommit": "c7b4f3958|2026-10-08|[XG-CUSTOM 2026-10-08] 「自动化」加 Kaneo 看板 Tab + 修台账漏搜带日期标记",
@@ -1899,27 +1899,29 @@
       "note": "core 基元定制"
     },
     "apps/emdash-desktop/src/core/primitives/desktop-host/api/host-contract.ts": {
-      "markers": 13,
+      "markers": 14,
       "lines": [
         66,
         82,
         94,
         120,
-        173,
-        182,
-        187,
-        192,
-        197,
-        210,
-        226,
-        243,
-        248
+        147,
+        177,
+        186,
+        191,
+        196,
+        201,
+        214,
+        230,
+        247,
+        252
       ],
       "anchors": [
         "export interface ExpertHandoffTopic {",
         "export interface TaskSpace {",
         "export interface ExpertRosterEntry {",
         "export interface KaneoBoardCard {",
+        "diagrams: { name: string; title: string; bytes: number; url: string }[];",
         "openOpenViking: procedure({",
         "openKaneo: procedure({",
         "openAffine: procedure({",
@@ -1930,7 +1932,7 @@
         "expertRoster: procedure({",
         "kaneoBoard: procedure({"
       ],
-      "hash": "2fd29ee63b24bdd1109ab2dd7daac855894b0482",
+      "hash": "27199b3465cce3f38ae00c90f00070713e11afca",
       "origin": "modified",
       "firstCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",

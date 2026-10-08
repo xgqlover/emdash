@@ -1,15 +1,24 @@
-// [XG-CUSTOM 2026-10-08] 「自动化」视图的 **Kaneo 看板面板**。
+// [XG-CUSTOM 2026-10-08] 「自动化」视图的 **Kaneo 看板** 面板 —— 现在是**系统图浏览**。
 //
-// 用户原话：「我想 Kaneo 的内容能在自动化下全面体现」。
-// 定位：**卡 = 要做的活**，**automation = 什么时候自动做** ——
-//       两者放同一个界面里，才是「排工作流」。
+// 用户原话：「我不是加了个能画工作流图能力，**能在 emdash 可以看**吗」
 //
-// 数据走 host 桥接 → `python3 xiangwo-agent/kaneo_board.py board`（与专家总览同款）。
-// ⚠️ 那个脚本内部**必须分页**取卡（`list_tasks` 的 limit 上限 100，而 BABADO 已 110 张）。
+// ## 为什么从"卡列表"改成"图浏览"
+// 第一版我列的是**平的 200 张卡**，用户当场指出「还是两个不同的东西拼一起」——
+// 那是实话：那个列表既没有动作、又比 Kaneo 自己的看板难看，纯属重复。
+// 现在改成：**Kaneo 概览（一行数字 + 列徽章）+ Archify 图（可交互，直接在这里看）**。
+//
+// ## 图怎么进来（**绝不走 IPC 传大文件**）
+// `kaneo_board.py` 顺手返回图清单（含**已 URL 编码**的地址），面板用 `<iframe src>` 指到
+// 8900 的 `/xg/diagram/<名字>` —— 那个路由已建好并实测（200 / 772KB）。
+// ⚠️ 单图 700+ KB，**不要**通过 host 桥接把 HTML 文本搬进来（会撑爆 IPC）。
+//
+// ## 安全姿态（与 `html-renderer.tsx` 一致）
+// `sandbox="allow-scripts"` **不带** `allow-same-origin` ⇒ iframe 是**不透明源**：
+// 脚本能跑（图要 JS），但**读不到宿主的 cookie / localStorage**。
 import { PageLayout } from '@emdash/ui/react/patterns';
 import { Badge, Button, toast } from '@emdash/ui/react/primitives';
-import { Copy, LayoutGrid, RefreshCw } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { ExternalLink, Image as ImageIcon, LayoutGrid, RefreshCw } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { KaneoBoardResult } from '@core/primitives/desktop-host/api/host-contract';
 import { kaneoBoard } from '@core/primitives/desktop-host/browser/host-client';
 import { cn } from '@core/primitives/styling/browser/cn';
@@ -34,56 +43,15 @@ function relTime(iso: string): string {
   return `${Math.floor(diff / 86400)} 天前`;
 }
 
-function CardRow({ title, column, r1, subtasks }: {
-  title: string;
-  column: string;
-  r1: string;
-  subtasks: string;
-}) {
-  const [copied, setCopied] = useState(false);
-  // 「排自动化」的最省做法：**把卡标题复制走** —— 新建自动化时粘进 Prompt 即可。
-  // （不做跨组件预填：那个 Sheet 的状态在 AutomationsView 内部，硬塞参数会把简单事做复杂。）
-  const copy = useCallback(() => {
-    void navigator.clipboard
-      .writeText(title)
-      .then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 1500);
-      })
-      .catch(() => toast.error('复制失败'));
-  }, [title]);
-
-  return (
-    <div className="group flex items-center gap-3 rounded-md border border-border-subtle px-3 py-2">
-      <div className="min-w-0 flex-1">
-        <div className="truncate text-sm" title={title}>
-          {title}
-        </div>
-      </div>
-      {r1 === 'r1-parent' && <Badge variant="soft">R1 蜂群</Badge>}
-      {r1 === 'r1-expert' && <Badge variant="outline">R1 专家</Badge>}
-      {subtasks !== '0/0' && <Badge variant="outline">{subtasks}</Badge>}
-      <span className="shrink-0 text-xs text-muted-foreground">
-        {COLUMN_LABEL[column] ?? column}
-      </span>
-      <Button
-        variant="ghost"
-        size="xs"
-        className="opacity-0 transition-opacity group-hover:opacity-100"
-        onClick={copy}
-        aria-label="复制标题（用于新建自动化）"
-        title="复制标题 → 新建自动化时粘进 Prompt"
-      >
-        <Copy className={cn('h-4 w-4', copied && 'text-emerald-500')} />
-      </Button>
-    </div>
-  );
+function humanSize(n: number): string {
+  return n >= 1024 * 1024 ? `${(n / 1024 / 1024).toFixed(1)} MB` : `${Math.round(n / 1024)} KB`;
 }
 
 export function KaneoBoardPanel() {
   const [data, setData] = useState<KaneoBoardResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [picked, setPicked] = useState<string>('');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -106,13 +74,21 @@ export function KaneoBoardPanel() {
     void load();
   }, [load]);
 
+  const diagrams = useMemo(() => data?.diagrams ?? [], [data]);
+
+  // 默认选第一张（清单为空时保持空串）
+  useEffect(() => {
+    if (!picked && diagrams.length) setPicked(diagrams[0].name);
+  }, [diagrams, picked]);
+
+  const current = diagrams.find((d) => d.name === picked) ?? null;
   const totals = data?.totals;
 
   return (
-    <div className="flex w-full flex-col gap-6">
+    <div className="flex w-full flex-col gap-5">
       <PageLayout.Header
         title="Kaneo 看板"
-        description="看板上的活 × 自动化 —— 复制卡标题，粘进新建自动化的 Prompt"
+        description="Kaneo 概览 + Archify 系统图（图直接在这里看，不用开 Kaneo 窗口）"
         actions={
           <Button variant="secondary" size="sm" onClick={() => void load()} disabled={loading}>
             <RefreshCw className={cn('mr-1 h-4 w-4', loading && 'animate-spin')} />
@@ -125,12 +101,14 @@ export function KaneoBoardPanel() {
         <div className="rounded-md border border-border-subtle px-3 py-2 text-sm text-muted-foreground">
           读取失败：{error}
           <div className="mt-1 text-xs">
-            （数据源 <code>xiangwo-agent/kaneo_board.py board</code>；需 Kaneo 在 5180 可读）
+            （数据源 <code>xiangwo-agent/kaneo_board.py board</code>；图由 8900 的{' '}
+            <code>/xg/diagram/</code> 提供）
           </div>
         </div>
       ) : null}
 
-      <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+      {/* Kaneo 概览：一行数字（**不再平铺那 200 张卡**） */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted-foreground">
         {totals ? (
           <>
             <span className="flex items-center gap-1">
@@ -159,33 +137,59 @@ export function KaneoBoardPanel() {
         </div>
       ) : null}
 
-      <div className="flex w-full flex-col gap-4">
-        {(data?.projects ?? []).map((p) => (
-          <div key={p.projectId} className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">{p.name}</span>
-              <span className="text-xs text-muted-foreground">{p.workspace}</span>
-              <Badge variant="outline">{p.count}</Badge>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              {p.cards.slice(0, 20).map((c) => (
-                <CardRow
-                  key={c.id}
-                  title={c.title}
-                  column={c.column}
-                  r1={c.r1}
-                  subtasks={c.subtasks}
-                />
-              ))}
-              {p.cards.length > 20 ? (
-                <div className="px-3 text-xs text-muted-foreground">
-                  … 还有 {p.cards.length - 20} 张（面板只显示前 20，避免一次渲染太多）
-                </div>
-              ) : null}
-            </div>
-          </div>
-        ))}
-      </div>
+      {/* 图选择器（现在 2 张，用按钮组） */}
+      {diagrams.length > 0 ? (
+        <div className="flex flex-wrap items-center gap-2">
+          {diagrams.map((d) => (
+            <Button
+              key={d.name}
+              size="sm"
+              variant={d.name === picked ? 'primary' : 'secondary'}
+              onClick={() => setPicked(d.name)}
+            >
+              <ImageIcon className="mr-1 h-4 w-4" />
+              {d.title}
+            </Button>
+          ))}
+          {current ? (
+            <>
+              <span className="text-xs text-muted-foreground">{humanSize(current.bytes)}</span>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  // 图是自包含单文件 ⇒ 地址复制出去也能看（但只在同机可达）
+                  void navigator.clipboard?.writeText(current.url).then(
+                    () => toast.success('地址已复制'),
+                    () => toast.error('复制失败'),
+                  );
+                }}
+              >
+                复制地址
+              </Button>
+            </>
+          ) : null}
+        </div>
+      ) : null}
+
+      {/* 图本体 */}
+      {current ? (
+        <div className="h-[68vh] min-h-[420px] w-full overflow-hidden rounded-md border border-border-subtle bg-background">
+          <iframe
+            key={current.url}
+            title={current.title}
+            src={current.url}
+            // allow-scripts（图需要 JS）；**不给 allow-same-origin** ⇒ 不透明源，读不到宿主存储
+            sandbox="allow-scripts"
+            className="h-full w-full border-0"
+          />
+        </div>
+      ) : (
+        <div className="flex items-center gap-2 rounded-md border border-border-subtle px-3 py-6 text-sm text-muted-foreground">
+          <ExternalLink className="h-4 w-4" />
+          还没有图。生成方式见 <code>工具链/archify/图/README.md</code>
+        </div>
+      )}
     </div>
   );
 }

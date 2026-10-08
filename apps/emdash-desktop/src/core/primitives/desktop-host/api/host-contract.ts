@@ -144,6 +144,10 @@ export interface KaneoBoardResult {
   totals: { cards: number; projects: number; workspaces: number };
   columns: { slug: string; count: number }[];
   projects: KaneoBoardProject[];
+  /** [XG-CUSTOM 2026-10-08] Archify 图清单（`图/` 下的 .html）。
+   *  ⚠️ 只有元数据 + 已 URL 编码的地址 —— **HTML 本体不走 IPC**（单图 700+ KB），
+   *  面板用 `<iframe src>` 指到 8900 的 `/xg/diagram/<名字>`。 */
+  diagrams: { name: string; title: string; bytes: number; url: string }[];
 }
 
 type ActionResult = { success: boolean; error?: string };
