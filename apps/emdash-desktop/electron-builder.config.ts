@@ -40,6 +40,10 @@ const config: Configuration = {
     { from: '../../node_modules/@gitbeaker/rest', to: 'node_modules/@gitbeaker/rest' },
     { from: '../../node_modules/@linear/sdk', to: 'node_modules/@linear/sdk' },
     { from: '../../node_modules/@llamaduck/forgejo-ts', to: 'node_modules/@llamaduck/forgejo-ts' },
+    // [XG-CUSTOM 2026-10-09] 本机（Linux）打 Windows 包时依赖树遍历**收不到**它，而
+    //   `out/main/chunks/*.js` 运行时会 `require('https-proxy-agent')` ⇒ 代理路径会抛错。
+    //   CI（Windows runner 上装依赖）能收到，本地打必须显式补一条（与既有清单同风格）。
+    { from: '../../node_modules/https-proxy-agent', to: 'node_modules/https-proxy-agent' },
     { from: '../../node_modules/axios', to: 'node_modules/axios' },
     { from: '../../node_modules/@octokit/auth-oauth-device', to: 'node_modules/@octokit/auth-oauth-device' },
     { from: '../../node_modules/@octokit/oauth-methods', to: 'node_modules/@octokit/oauth-methods' },
