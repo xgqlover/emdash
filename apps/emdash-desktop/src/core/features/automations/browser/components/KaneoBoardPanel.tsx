@@ -275,12 +275,17 @@ function ImageQueue({
   );
 
   const lastTone: LinkState = !w.last ? 'unknown' : w.last.state === 'failed' ? 'down' : 'ok';
+  /** 队列里正在失败/退避的卡数（**只数明确 failed 的** —— 没记录不算失败） */
+  const failedCount = w.queue.filter((c) => c.state === 'failed').length;
 
   return (
     <div className="border-border-subtle flex flex-col gap-3 rounded-md border px-3 py-3 text-sm">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="flex flex-wrap items-center gap-1.5 text-foreground-muted">
           图片线队列 {w.queue.length} 张
+          {failedCount > 0 ? (
+            <span className="text-destructive">· ⚠️ {failedCount} 张失败</span>
+          ) : null}
           {w.last ? (
             <>
               <span>·</span>
@@ -322,29 +327,49 @@ function ImageQueue({
       ) : null}
 
       {/* 待出图队列：**只列带「图片线」label 的 to-do 卡** —— 不是那 243 张卡堆
-          （用户 2026-10-08 明确否掉过"平铺卡列表"：既没动作、又比 Kaneo 自己的看板难看） */}
+          （用户 2026-10-08 明确否掉过"平铺卡列表"：既没动作、又比 Kaneo 自己的看板难看）
+          [XG-CUSTOM 2026-10-09] 失败卡**标红 + 显示原因 + 退避剩余**，按钮变「重试」：
+          重试走 `--task-id` ⇒ **本就绕过退避**，所以"退避中"只是**提示**，不是拦阻。 */}
       {w.queue.length ? (
         <ul className="flex flex-col gap-1">
-          {w.queue.map((c) => (
-            <li key={c.task_id} className="flex items-center justify-between gap-2">
-              <span className="truncate text-foreground-muted" title={c.task_id}>
-                {c.title}
-              </span>
-              <Button
-                size="sm"
-                variant="ghost"
-                disabled={busy}
-                title={
-                  w.enabled
-                    ? '点名这一张立即出图'
-                    : '常驻开关虽关，点名仍会跑一次（后台强制 KANEO_IMG_WORKER=1）'
-                }
-                onClick={() => void run({ action: 'run_image', taskId: c.task_id, limit: 1 })}
-              >
-                开工
-              </Button>
-            </li>
-          ))}
+          {w.queue.map((c) => {
+            const bad = c.state === 'failed';
+            return (
+              <li key={c.task_id} className="flex items-start justify-between gap-2">
+                <span className="flex min-w-0 flex-col">
+                  <span className="flex items-center gap-1.5">
+                    <Dot state={bad ? 'down' : 'unknown'} />
+                    <span className="truncate text-foreground-muted" title={c.task_id}>
+                      {c.title}
+                    </span>
+                  </span>
+                  {bad ? (
+                    <span className="text-destructive pl-4 text-xs" title={c.why}>
+                      {c.why || '（台账里没记原因）'}
+                      {c.cooldownLeftS > 0
+                        ? ` · 退避剩 ${Math.ceil(c.cooldownLeftS / 60)} 分`
+                        : ' · 已过退避'}
+                    </span>
+                  ) : null}
+                </span>
+                <Button
+                  size="sm"
+                  variant={bad ? 'secondary' : 'ghost'}
+                  disabled={busy}
+                  title={
+                    bad
+                      ? '重试（点名会绕过退避；常驻开关关着也照跑）'
+                      : w.enabled
+                        ? '点名这一张立即出图'
+                        : '常驻开关虽关，点名仍会跑一次（后台强制 KANEO_IMG_WORKER=1）'
+                  }
+                  onClick={() => void run({ action: 'run_image', taskId: c.task_id, limit: 1 })}
+                >
+                  {bad ? '重试' : '开工'}
+                </Button>
+              </li>
+            );
+          })}
         </ul>
       ) : (
         <div className="text-xs text-foreground-passive">

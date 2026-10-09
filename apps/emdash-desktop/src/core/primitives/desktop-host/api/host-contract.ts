@@ -178,8 +178,19 @@ export interface KaneoPipeline {
     cooldown: number;
     label_exists: boolean;
     /** [XG-CUSTOM 2026-10-09] **待出图队列** —— 只列带「图片线」label 的 to-do 卡
-     *  （**不是**那 243 张卡堆：用户 2026-10-08 明确否掉过"平铺卡列表"）。 */
-    queue: { task_id: string; title: string }[];
+     *  （**不是**那 243 张卡堆：用户 2026-10-08 明确否掉过"平铺卡列表"）。
+     *  每项都带**失败/退避**信息 ⇒ 面板能把失败卡标红、显示原因、按钮变「重试」。 */
+    queue: {
+      task_id: string;
+      title: string;
+      /** 台账里最后一次的状态。🔴 **空串 = 从没出过图**（**不是失败**！
+       *  —— 不许把"没记录"画成"失败了"，本项目踩过 6 次「空 ≠ 失败」） */
+      state: string;
+      /** 失败原因（**只有 `state === 'failed'` 时非空**） */
+      why: string;
+      /** 退避剩余秒数（`0` = 可以立刻试）。>0 时**点名仍会绕过它**（`--task-id` 的语义） */
+      cooldownLeftS: number;
+    }[];
     /** [XG-CUSTOM 2026-10-09] **最近一次出图结果**（worker 台账最后一行）—— 一键开工后的回执 */
     last: {
       task_id: string;
