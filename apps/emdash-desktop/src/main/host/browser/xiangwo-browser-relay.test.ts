@@ -720,6 +720,112 @@ describe('[XG-CUSTOM] xiangwo-browser-relay open 命令 + bot/profile', () => {
   });
 });
 
+// ── [XG-CUSTOM 2026-10-09] 反向通道 `orb.msg`：主机（后端）主动把一条消息推进球面板 ──────────
+//
+// 契约（对面 Python 侧写死）：`{ kind:'orb.msg', id, text, title?, bot?, ts?, source? }`
+// 本组只钉 relay 侧的三件事：① 有 text → 推给渲染进程**一次** + `result(true,{delivered:true})`；
+// ② text 空/全空白 → `result(false,'…缺少 text')` 且**一次都不推**；③ 推送失败 → `ok:false`（不静默成功）。
+// 渲染侧的落盘（localStorage）在 `src/renderer/orb/orb.js` 的 appendHostMessage，不在本组覆盖范围。
+describe('[XG-CUSTOM] xiangwo-browser-relay orb.msg 命令（主机 → 球面板）', () => {
+  /** 跑一条命令：第一次 poll 给命令、之后一直挂 204；回执从 `/api/emdash-browser/result` 里读 */
+  async function runOrbMsg(
+    command: Record<string, unknown>,
+    deliverOrbMsg?: (message: unknown) => void
+  ) {
+    const { impl, calls } = makeFetch((url) => {
+      if (url.startsWith(POLL)) {
+        return calls.filter((c) => c.url.startsWith(POLL)).length === 1
+          ? json({ id: 21, kind: 'orb.msg', ...command })
+          : new Response(null, { status: 204 });
+      }
+      if (url.endsWith('/api/emdash-browser/result')) return json({ ok: true });
+      return undefined;
+    });
+    const relay = new XiangwoBrowserRelay({
+      resolveBaseUrl: async () => 'http://linux:8900',
+      fetchImpl: impl,
+      ...(deliverOrbMsg === undefined ? {} : { deliverOrbMsg: deliverOrbMsg }),
+      log: () => undefined,
+    });
+    relay.start();
+    await tick();
+    relay.stop();
+    const result = calls.find((c) => c.url.endsWith('/api/emdash-browser/result'));
+    const body = JSON.parse(String(result?.init?.body)) as {
+      id: number;
+      ok: boolean;
+      payload?: { delivered: boolean };
+      error?: string;
+    };
+    return { body };
+  }
+
+  it('带 text → 推给渲染进程一次（可选字段规范化）+ result(true,{delivered:true})', async () => {
+    const deliver = vi.fn();
+    const { body } = await runOrbMsg(
+      {
+        text: '  Kaneo 卡片 XG-1 已完成  ',
+        title: ' Kaneo ',
+        bot: ' sxsj ',
+        ts: 1699999999,
+        source: 'kaneo',
+      },
+      deliver
+    );
+    expect(deliver).toHaveBeenCalledTimes(1);
+    // text/title/bot 都 trim；没有的字段**不放**（ts/source 原样透传）
+    expect(deliver).toHaveBeenCalledWith({
+      text: 'Kaneo 卡片 XG-1 已完成',
+      title: 'Kaneo',
+      bot: 'sxsj',
+      source: 'kaneo',
+      ts: 1699999999,
+    });
+    expect(body.id).toBe(21);
+    expect(body.ok).toBe(true);
+    expect(body.payload).toEqual({ delivered: true });
+  });
+
+  it('只给 text（可选字段全缺）→ 载荷里不带空字段，照旧 ok:true', async () => {
+    const deliver = vi.fn();
+    const { body } = await runOrbMsg({ text: '就一句' }, deliver);
+    expect(deliver).toHaveBeenCalledWith({ text: '就一句' });
+    expect(body.ok).toBe(true);
+  });
+
+  it('text 为空/全空白/缺失 → result(false,「orb.msg 缺少 text」) 且**不推送**', async () => {
+    for (const text of ['', '   ', '\n\t', undefined]) {
+      const deliver = vi.fn();
+      const { body } = await runOrbMsg(text === undefined ? {} : { text: text }, deliver);
+      expect(deliver).not.toHaveBeenCalled();
+      expect(body.ok).toBe(false);
+      expect(body.error).toContain('缺少 text');
+    }
+  });
+
+  it('推送失败（没有窗口/发送抛错）→ result(false, String(error))，绝不静默成功', async () => {
+    const deliver = vi.fn(() => {
+      throw new Error('球面板窗口还没建好');
+    });
+    const { body } = await runOrbMsg({ text: 'hi' }, deliver);
+    expect(deliver).toHaveBeenCalledTimes(1);
+    expect(body.ok).toBe(false);
+    expect(body.error).toContain('球面板窗口还没建好');
+  });
+
+  it('没接推送通道（老装配/单测直造）→ ok:false，不静默成功', async () => {
+    const { body } = await runOrbMsg({ text: 'hi' });
+    expect(body.ok).toBe(false);
+    expect(body.error).toContain('未接线');
+  });
+
+  it('未知 kind 的既有行为不受影响（回归）', async () => {
+    const { body } = await runOrbMsg({ kind: 'nope' });
+    expect(body.ok).toBe(false);
+    expect(body.error).toBe('未知命令 nope');
+  });
+});
+
 describe('cdpCallOnce', () => {
   it('一条命令一次调用；CDP 报错 → reject（不 hang）', async () => {
     const { factory, sockets } = makeFakeWs();

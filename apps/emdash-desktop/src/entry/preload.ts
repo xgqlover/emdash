@@ -80,6 +80,28 @@ contextBridge.exposeInMainWorld('electronAPI', {
       ipcRenderer.removeListener('xiangwo:orb-mode', listener);
     };
   },
+  // [XG-CUSTOM 2026-10-09] 主机（后端）主动推来的面板消息（反向通道 `orb.msg`）：
+  // 主进程 `handleOrbMsg` → wiring 的 `deliverOrbMsg` → `xiangwo:orb-msg`。
+  // **只暴露"订阅"这一个函数**（同 onOrbMode 的写法）：不把 ipcRenderer 本体交给渲染进程。
+  // 返回退订函数。载荷形状见 main/host/browser/xiangwo-browser-relay.ts 的 XiangwoOrbMessage。
+  onXiangwoOrbMsg: (
+    callback: (message: {
+      text: string;
+      title?: string;
+      bot?: string;
+      ts?: number;
+      source?: string;
+    }) => void
+  ) => {
+    const listener = (
+      _event: unknown,
+      message: { text: string; title?: string; bot?: string; ts?: number; source?: string }
+    ) => callback(message);
+    ipcRenderer.on('xiangwo:orb-msg', listener);
+    return () => {
+      ipcRenderer.removeListener('xiangwo:orb-msg', listener);
+    };
+  },
   // [XG-CUSTOM] 交接台桥接：list / handoff / takeover / complete（调 task-spaces.mjs）。
   taskSpaceList: () => ipcRenderer.invoke('xiangwo:task-space-list'),
   taskSpaceHandoff: (id: string) => ipcRenderer.invoke('xiangwo:task-space-handoff', id),

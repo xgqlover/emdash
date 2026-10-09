@@ -736,6 +736,72 @@ async function main() {
   }
 
   /**
+   * [XG-CUSTOM 2026-10-09] 反向通道 `orb.msg`：主机（后端）主动推来的一条消息 → 追加 + 落盘。
+   *
+   * 契约（主进程 `handleOrbMsg` 已校验 text 非空，这里再防一手）：
+   *   `{ text, title?, bot?, ts?, source? }`（`ts` 目前**不渲染也不落盘**，见文件头的形状定义）
+   * 三条规矩：
+   *   ① **不伪造用户消息**、也**不冒充 agent 回复**：角色用独立的 `host` —— `assistant` 会被
+   *      renderTranscript 当 agent 回复去解析提问卡/图片/动作块（动作块会**真的执行**），
+   *      而后台消息必须是「只读文本」，所以走一条不经过任何块解析的路（row class = `transcript-row host`）。
+   *   ② **必须落盘**（persistConversations → saveBucket → localStorage）：面板收起（球态）时
+   *      渲染进程照样在跑、照样写，下次展开/下次启动那条还在。
+   *   ③ 带 `bot` 且**是**已知的另一个 bot → 只写那个 bot 的桶、不动当前 UI（本仓历史按 bot 分桶，
+   *      见文件头「历史按 bot 分桶」；标着别人 bot 的消息绝不混进当前对话）—— 切到那个 bot 时自然看得到。
+   *      未知 botId/空 botId → 落到当前桶（宁可显示在眼前，也不写进一个**切不过去**的桶）。
+   * 另外两处 `host` 的下游影响已一并处理：`priorHistory()` 过滤它（**不进模型历史**，否则非法 role）、
+   * `asking()` 跳过尾部的它（**不顶掉"待答提问卡时不许停靠"**那道护栏）。
+   * @param {object} payload 主进程推来的载荷（`text` 必填）
+   * @returns {boolean} true = 已收下；false = 空文本，丢弃
+   */
+  function appendHostMessage(payload) {
+    const text = typeof payload?.text === 'string' ? payload.text.trim() : '';
+    if (text === '') return false;
+    const title = typeof payload?.title === 'string' ? payload.title.trim() : '';
+    const bot = typeof payload?.bot === 'string' ? payload.bot.trim() : '';
+    const source = typeof payload?.source === 'string' ? payload.source.trim() : '';
+    // 来源标签：`[后台]` / `[后台·kaneo]` / `[后台·sxsj]` / `[后台·kaneo·sxsj]`
+    // （`manual` = 人手推的，不加后缀 —— 与「无 source」同形）
+    const parts = ['后台', source === 'manual' ? '' : source, bot].filter((part) => part !== '');
+    const label = `[${parts.join('·')}]`;
+    const message = { role: 'host', text: `${label}${title === '' ? '' : ` ${title}`}\n${text}` };
+    const knownBot = bot !== '' && BOT_OPTIONS.some((option) => option.id === bot);
+    const targetBotId = knownBot ? bot : currentBotId;
+    if (targetBotId === currentBotId) {
+      if (current.id === '') startConversation();
+      current.messages.push(message);
+      persistConversations();
+      renderTranscript();
+      return true;
+    }
+    const bucket = loadBucket(targetBotId);
+    const recent = bucket[0];
+    if (recent === undefined) {
+      saveBucket(targetBotId, [
+        {
+          id: newId(),
+          title: title === '' ? '（后台消息）' : title,
+          botId: targetBotId,
+          messages: [message],
+        },
+        ...bucket,
+      ]);
+    } else {
+      if (!Array.isArray(recent.messages)) recent.messages = [];
+      recent.messages.push(message);
+      saveBucket(targetBotId, bucket);
+    }
+    return true;
+  }
+
+  // [XG-CUSTOM 2026-10-09] 订阅主机推送（preload 的 `onXiangwoOrbMsg`；不暴露 ipcRenderer 本体）。
+  // 走的就是上面那条：追加 + 落盘。收起（球态）时也会执行 —— 落盘不依赖面板是否展开。
+  bridge.onXiangwoOrbMsg?.((payload) => {
+    if (!appendHostMessage(payload)) return;
+    trace('orb-msg-received', { bot: payload?.bot ?? '', source: payload?.source ?? '' });
+  });
+
+  /**
    * [XG-CUSTOM] 切 bot = 切历史域：只加载该 bot 的桶，并把活动会话换成该 bot 的一条
    * （有历史就恢复最近一条，没有就新开），保证「当前会话的 botId === 当前选中的 bot」这个不变式，
    * 后续消息只会写进当前 bot 的桶。
@@ -1412,7 +1478,11 @@ async function main() {
    * @returns {boolean} 有待答的提问卡
    */
   function asking() {
-    const last = current.messages[current.messages.length - 1];
+    // [XG-CUSTOM 2026-10-09] 看"最后一条 **agent** 消息"，跳过尾部的主机后台推送（`host`）：
+    // 否则一条 orb.msg 就能把"待答提问卡时不许停靠"这道护栏顶掉（见 appendHostMessage）。
+    let index = current.messages.length - 1;
+    while (index >= 0 && current.messages[index].role === 'host') index -= 1;
+    const last = current.messages[index];
     if (last === undefined || last.role !== 'assistant') return false;
     // 已答/已取消/已跳过：整张卡都作废了（`answer` 是唯一的落盘标记）
     if (typeof last.answer === 'string' && last.answer !== '') return false;
@@ -1759,7 +1829,12 @@ async function main() {
   }
 
   function priorHistory() {
-    return current.messages.map((message) => ({ role: message.role, content: message.text }));
+    // [XG-CUSTOM 2026-10-09] `host`（主机后台推送，见 appendHostMessage）**不进模型历史**：
+    // OpenAI 兼容接口只认 system/user/assistant/tool，带 `host` 进去会被判非法 role（整条请求 400）；
+    // 而且它只是"面板上的一条通知"，不是对话内容 ⇒ 过滤掉，其余消息逐字节不变。
+    return current.messages
+      .filter((message) => message.role !== 'host')
+      .map((message) => ({ role: message.role, content: message.text }));
   }
 
   /**

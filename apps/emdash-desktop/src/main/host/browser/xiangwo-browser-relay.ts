@@ -75,6 +75,25 @@ export type RelayCommand = {
   [key: string]: unknown;
 };
 
+/**
+ * [XG-CUSTOM 2026-10-09] `orb.msg` 命令的载荷：主机（后端）主动推给**球面板**的一条消息。
+ *
+ * 形状由对面 Python 侧写死（`{"kind":"orb.msg","id":…,"text":…,"title"?,"bot"?,"ts"?,"source"?}`）；
+ * 这里只做「可选字段缺省就不放」的规范化，**不发明字段、不改语义**。
+ */
+export type XiangwoOrbMessage = {
+  /** 正文（必填、非空；`handleOrbMsg` 已判过，渲染侧还会再判一次） */
+  text: string;
+  /** 可选标题（渲染侧显示在 `[后台]` 标签同一行） */
+  title?: string;
+  /** 可选 botId（渲染侧按它落到那个 bot 的历史桶，见 orb.js 的 appendHostMessage） */
+  bot?: string;
+  /** 可选秒级时间戳（原样透传；渲染侧目前**不**渲染时间，也不落盘） */
+  ts?: number;
+  /** 可选来源标记（`kaneo` | `script` | `manual`，原样透传，只用于标签） */
+  source?: string;
+};
+
 /** [XG-CUSTOM] 本机 9223 `/json/list` 的一个内嵌浏览器目标（bot 维度见 profile/botId） */
 type LocalCdpTarget = {
   id: string;
@@ -120,6 +139,14 @@ export type XiangwoBrowserRelayOptions = {
    * 不传 = `open` 命令保持老行为（只报一句"先在 emdash 主窗口开一个浏览器标签"）。
    */
   requestOpenBrowser?: (request: XiangwoOpenBrowserRequest) => void;
+  /**
+   * [XG-CUSTOM 2026-10-09] `orb.msg` 回调：把主机推来的一条消息交给**球面板渲染进程**
+   * （生产实现在 wiring.ts：`getOrbWindow()?.webContents.send('xiangwo:orb-msg', …)`）。
+   *
+   * - 不传 = 这条路没接线 → 命令如实回 `ok:false`（**不静默成功**）；
+   * - 实现里「没有窗口 / 发送抛错」要**抛出来**（不要自己吞掉），这里照 `String(error)` 回传对面。
+   */
+  deliverOrbMsg?: (message: XiangwoOrbMessage) => void;
   /**
    * [XG-CUSTOM] bot ⟷ profile：bot → profileId（绑定表；未绑定 null）。用来在 `open` 命令里
    * 挑**这个 bot 自己的那一页**复用/导航（挑了别人的页 = 串登录态）。不传 = 老行为。
@@ -392,6 +419,8 @@ export class XiangwoBrowserRelay {
   private readonly localHostname: string;
   /** [XG-CUSTOM] 「从零开页」回调（null = 不支持，`open` 命令只报人话） */
   private readonly requestOpenBrowser: ((request: XiangwoOpenBrowserRequest) => void) | null;
+  /** [XG-CUSTOM 2026-10-09] `orb.msg` → 球面板渲染进程（null = 没接线，命令如实回 ok:false） */
+  private readonly deliverOrbMsg: ((message: XiangwoOrbMessage) => void) | null;
   /** [XG-CUSTOM] bot → profileId（绑定表；未绑定 null） */
   private readonly lookupBotProfile: ((botId: string) => string | null) | null;
   /** [XG-CUSTOM] 「从零开页」等待新 target 的上限 */
@@ -431,6 +460,7 @@ export class XiangwoBrowserRelay {
       (async (baseUrl: string) => (await probeAgentIdentity(baseUrl, this.fetchImpl))?.hostname ?? null);
     this.localHostname = options.localHostname ?? osHostname();
     this.requestOpenBrowser = options.requestOpenBrowser ?? null;
+    this.deliverOrbMsg = options.deliverOrbMsg ?? null;
     this.lookupBotProfile = options.lookupBotProfile ?? null;
     this.openBrowserWaitMs = options.openBrowserWaitMs ?? XIANGWO_RELAY_OPEN_BROWSER_WAIT_MS;
     this.onBaseUrlFailure = options.onBaseUrlFailure ?? null;
@@ -646,6 +676,11 @@ export class XiangwoBrowserRelay {
       }
       if (kind === 'open') {
         await this.handleOpen(command);
+        return;
+      }
+      // [XG-CUSTOM 2026-10-09] 主机（后端）主动推消息到球面板
+      if (kind === 'orb.msg') {
+        await this.handleOrbMsg(command);
         return;
       }
       await this.result(command.id, false, null, `未知命令 ${kind}`);
@@ -910,6 +945,46 @@ export class XiangwoBrowserRelay {
       }))
       .filter((item) => item.id !== '');
   }
+
+  // ── orb.msg：主机（后端）主动把一条消息推进球面板 ─────────────────────────
+  //
+  // 契约（对面 Python 侧写死，形状见 `XiangwoOrbMessage`）：
+  //   `{ kind:'orb.msg', id, text, title?, bot?, ts?, source? }`
+  // 本 handler 只做两件事：① 校验 `text`；② 交给 `deliverOrbMsg` 推到球面板渲染进程。
+  // **落盘（面板历史 = localStorage）在渲染侧**（orb.js 的 appendHostMessage）：球面板收起
+  // （球态）时窗口和渲染进程照样活着、照样写，下次展开那条还在；
+  // 没有窗口 / 发送抛错 → 如实 `ok:false`（**绝不静默成功** —— 对面可以据此重投）。
+
+  private async handleOrbMsg(command: RelayCommand): Promise<void> {
+    const text = typeof command.text === 'string' ? command.text.trim() : '';
+    if (text === '') {
+      await this.result(command.id, false, null, 'orb.msg 缺少 text');
+      return;
+    }
+    const deliver = this.deliverOrbMsg;
+    if (deliver === null) {
+      await this.result(command.id, false, null, 'orb.msg 推送通道未接线（球面板不可达）');
+      return;
+    }
+    const title = typeof command.title === 'string' ? command.title.trim() : '';
+    const bot = typeof command.bot === 'string' ? command.bot.trim() : '';
+    const source = typeof command.source === 'string' ? command.source.trim() : '';
+    const ts = command.ts;
+    const message: XiangwoOrbMessage = {
+      text,
+      ...(title === '' ? {} : { title }),
+      ...(bot === '' ? {} : { bot }),
+      ...(source === '' ? {} : { source }),
+      ...(typeof ts === 'number' && Number.isFinite(ts) ? { ts } : {}),
+    };
+    try {
+      deliver(message);
+    } catch (error) {
+      await this.result(command.id, false, null, String(error));
+      return;
+    }
+    await this.result(command.id, true, { delivered: true });
+  }
 }
 
 /** 一次性 CDP 调用（开 WS → 发一条 → 收结果 → 关）。超时只抛错，绝不 hang。 */
@@ -990,6 +1065,8 @@ export function createXiangwoBrowserRelay(
     onBaseUrlFailure?: (baseUrl: string) => boolean;
     /** [XG-CUSTOM] bot → profileId（绑定表；未绑定 null）；不给 = 不做 bot 维度挑页 */
     lookupBotProfile?: (botId: string) => string | null;
+    /** [XG-CUSTOM 2026-10-09] `orb.msg` → 球面板渲染进程（不给 = 该命令如实回 ok:false） */
+    deliverOrbMsg?: (message: XiangwoOrbMessage) => void;
   }
 ): XiangwoBrowserRelay | null {
   if (!relayEnabledFromEnv(process.env.XIANGWO_BROWSER_RELAY)) return null;
@@ -1016,6 +1093,8 @@ export function createXiangwoBrowserRelay(
     ...(overrides?.lookupBotProfile !== undefined
       ? { lookupBotProfile: overrides.lookupBotProfile }
       : {}),
+    // [XG-CUSTOM 2026-10-09] `orb.msg`：主机推来的消息交给球面板渲染进程
+    ...(overrides?.deliverOrbMsg !== undefined ? { deliverOrbMsg: overrides.deliverOrbMsg } : {}),
     log,
   });
 }

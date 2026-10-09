@@ -60,6 +60,8 @@ import {
   taskSpaceCall,
 } from '@main/host/window'; // [XG-CUSTOM]
 import { resolveXiangwoChatTarget } from '@main/host/xiangwo-chat-target';
+// [XG-CUSTOM 2026-10-09] 球面板窗口的唯一句柄（反向通道 `orb.msg` 要找它，见 startXiangwoBrowserRelay）
+import { getOrbWindow } from '@main/host/xiangwo-orb';
 import { log } from '@main/lib/logger';
 import { telemetryService } from '@main/lib/telemetry';
 import type { DatabaseBundle } from './phases/database';
@@ -268,6 +270,17 @@ export function startXiangwoBrowserRelay(): void {
       onBaseUrlFailure: (baseUrl) => selector.noteFailure(baseUrl),
       // [XG-CUSTOM] bot ⟷ profile：跨机开页也挑"这个 bot 自己的那一页"
       lookupBotProfile: (botId) => xiangwoBoundProfileIdForBot(botId),
+      // [XG-CUSTOM 2026-10-09] 反向通道 `orb.msg`：主机（后端）主动把一条消息推到球面板。
+      // 落盘在渲染侧（orb.js 的 appendHostMessage → localStorage）；这里只负责"送到窗口"。
+      // **没有窗口/发送抛错一律抛出去**（不要吞）：relay 会如实回 `ok:false`，对面可以重投
+      // —— 球常驻（autostartXiangwoOrb）但**延迟 1500ms**，relay 一启动就来消息时窗口可能还没建好。
+      deliverOrbMsg: (message) => {
+        const orb = getOrbWindow();
+        if (orb === null || orb.isDestroyed()) {
+          throw new Error('球面板窗口还没建好（XIANGWO_ORB_AUTOSTART=0 或启动早期）');
+        }
+        orb.webContents.send('xiangwo:orb-msg', message);
+      },
     }
   );
   if (relay === null) {
