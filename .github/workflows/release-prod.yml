@@ -33,6 +33,39 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # [XG-CUSTOM 2026-10-09] **建新草稿前先清旧草稿**（否则占用永久增长 ⇒ 会把 Actions 顶停）
+      # 根因：`finalize-release` 需要 4 个 job 全绿，而 `release-mac` 在本 fork 恒失败 ⇒
+      #       "Publish GitHub release draft" 永远不跑 ⇒ 每个版本 ~1 GB 的草稿永久留在仓里。
+      #       2026-10-09 实测堆积 **23 个 / 24.8 GB**，触发 GitHub
+      #       「Workflows aren't being run on this fork because of its GitHub Actions usage」
+      #       把本仓 Actions 停掉（`gh workflow run` 恒 422，只能网页 re-enable）。
+      # 策略：**保留最近 KEEP 个草稿**（含本次要用的那个），其余删掉；**不删 tag**
+      #       （版本号每次 bump ⇒ tag 不会冲突，留着便于追溯）。
+      # 安全：`continue-on-error` + 每条删除都兜底 ⇒ **清理失败绝不影响发版**。
+      - name: Prune old draft releases
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: apps/emdash-desktop
+        run: |
+          set -uo pipefail
+          KEEP=2
+          CUR="v$(node -p "require('./package.json').version")"
+          echo "本次 tag：$CUR（保留最近 $KEEP 个草稿，含本次）"
+          kept=0
+          while IFS= read -r tag; do
+            [ -z "$tag" ] && continue
+            if [ "$tag" = "$CUR" ]; then echo "  ↷ 保留（本次）$tag"; continue; fi
+            if [ "$kept" -lt "$((KEEP - 1))" ]; then echo "  ↳ 保留（回退用）$tag"; kept=$((kept + 1)); continue; fi
+            echo "  🗑 删除旧草稿 $tag"
+            gh release delete "$tag" --yes --repo "$GITHUB_REPOSITORY" || echo "     （删除失败，忽略）"
+          done < <(gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" \
+                     --jq '.[] | select(.draft) | [.created_at, .tag_name] | @tsv' \
+                   | sort -r | cut -f2)
+          echo "清理完成，剩余草稿："
+          gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" \
+            --jq '.[] | select(.draft) | "  · \(.tag_name)  \(([.assets[].size] | add // 0) / 1048576 | floor) MB"'
+
       - name: Create or reuse draft release
         id: prepare
         working-directory: apps/emdash-desktop
