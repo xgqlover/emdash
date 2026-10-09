@@ -17,6 +17,8 @@ const sourceMeta = {
   openai: { name: 'OpenAI', icon: 'https://github.com/openai.png' },
   anthropic: { name: 'Anthropic', icon: 'https://github.com/anthropics.png' },
   skillssh: { name: 'Skills.sh', icon: 'https://skills.sh/favicon.ico' },
+  // [XG-CUSTOM 2026-10-09] 中央技能库（项上集团，外部只读来源，没有公开 favicon）
+  central: { name: '项上集团中央技能库', icon: '' },
 } as const;
 
 export interface SkillDetailModalProps {
@@ -93,8 +95,13 @@ export const SkillDetailModal: React.FC<SkillDetailModalProps> = ({
             </Dialog.Title>
             {meta && (
               <div className="text-muted-foreground mt-0.5 flex items-center gap-1.5 text-xs">
-                <img src={meta.icon} alt="" className="h-4 w-4 rounded-sm" />
-                <span>From {meta.name} skill library</span>
+                {/* [XG-CUSTOM 2026-10-09] 中央库没有 favicon，icon 为空时不渲染 img */}
+                {meta.icon && <img src={meta.icon} alt="" className="h-4 w-4 rounded-sm" />}
+                <span>
+                  {detailedSkill.source === 'central'
+                    ? `来自 ${meta.name}`
+                    : `From ${meta.name} skill library`}
+                </span>
               </div>
             )}
           </div>
@@ -125,16 +132,20 @@ export const SkillDetailModal: React.FC<SkillDetailModalProps> = ({
       <Dialog.Footer className="gap-2 sm:gap-2">
         {detailedSkill.installed && (
           <>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => void handleUninstall()}
-              disabled={isProcessing}
-              className="text-destructive hover:text-destructive"
-            >
-              <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-              Uninstall
-            </Button>
+            {/* [XG-CUSTOM 2026-10-09] 外部只读来源（中央库 / User 层）不给卸载按钮；
+                服务端 removeSkill 也会拒绝（防「透过软链 rm -rf 外部技能库」） */}
+            {detailedSkill.readOnly !== true && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => void handleUninstall()}
+                disabled={isProcessing}
+                className="text-destructive hover:text-destructive"
+              >
+                <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                Uninstall
+              </Button>
+            )}
             {detailedSkill.localPath && onOpenTerminal && (
               <Button variant="secondary" size="sm" onClick={handleOpen}>
                 <FolderOpen className="mr-1.5 h-3.5 w-3.5" />

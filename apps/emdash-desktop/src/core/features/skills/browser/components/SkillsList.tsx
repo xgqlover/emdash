@@ -51,27 +51,25 @@ export const SkillsList: React.FC<SkillsListProps> = ({ skills, onOpenTerminal }
     );
   }
 
-  // [XG-CUSTOM] 按分类分组中央技能（847 平铺 → 按大类分组），未分类排最后
-  const groupedRecommended = (() => {
-    const map = new Map<string, UseSkillsResult['filteredSkills']>();
-    for (const s of skills.recommendedSkills) {
-      const cat = SKILL_CATEGORY[s.id] ?? SKILL_CATEGORY[s.installId ?? ''] ?? '未分类';
-      if (!map.has(cat)) map.set(cat, []);
-      map.get(cat)!.push(s);
-    }
-    return [...map.entries()].sort((a, b) => {
-      if (a[0] === '未分类') return 1;
-      if (b[0] === '未分类') return -1;
-      return b[1].length - a[1].length;
-    });
-  })();
+  // [XG-CUSTOM 2026-10-09] 按大类分组。原实现只把分类用在 recommendedSkills 上，
+  // 可所有来源的技能都是 installed ⇒ 中央库 941 项永远落进平铺的 Installed 区，分类一次都没生效。
+  // 现在三块各自分组：外部只读来源 / emdash 自装 / 可安装；未分类排最后。
+  const groupedExternal = groupByCategory(
+    skills.installedSkills.filter((skill) => skill.readOnly === true),
+    ' · 中央库（只读）'
+  );
+  const groupedInstalledLocal = groupByCategory(
+    skills.installedSkills.filter((skill) => skill.readOnly !== true),
+    ' · 已装'
+  );
+  const groupedRecommended = groupByCategory(skills.recommendedSkills, '');
 
   return (
     <div className="flex flex-col text-foreground">
       <div className="flex flex-col gap-8 pt-3 pb-8">
-        {skills.installedSkills.length > 0 && (
-          <CardGridSection title="Installed">
-            {skills.installedSkills.map((skill) => (
+        {groupedExternal.map(([title, list]) => (
+          <CardGridSection key={title} title={title}>
+            {list.map((skill) => (
               <SkillCard
                 key={skill.id}
                 skill={skill}
@@ -82,7 +80,21 @@ export const SkillsList: React.FC<SkillsListProps> = ({ skills, onOpenTerminal }
               />
             ))}
           </CardGridSection>
-        )}
+        ))}
+        {groupedInstalledLocal.map(([title, list]) => (
+          <CardGridSection key={title} title={title}>
+            {list.map((skill) => (
+              <SkillCard
+                key={skill.id}
+                skill={skill}
+                isInstalled={true}
+                onInstall={skills.install}
+                onUninstall={handleUninstallRequest}
+                onClick={() => handleOpenDetail(skill)}
+              />
+            ))}
+          </CardGridSection>
+        ))}
         {groupedRecommended.map(([category, list]) => (
           <CardGridSection key={category} title={category}>
             {list.map((skill) => (
@@ -117,3 +129,23 @@ export const SkillsList: React.FC<SkillsListProps> = ({ skills, onOpenTerminal }
     </div>
   );
 };
+
+// [XG-CUSTOM 2026-10-09] 按大类分组渲染；suffix 用来区分「中央库（只读）」与「emdash 自装」
+function groupByCategory(
+  list: UseSkillsResult['filteredSkills'],
+  suffix: string
+): Array<[string, UseSkillsResult['filteredSkills']]> {
+  const map = new Map<string, UseSkillsResult['filteredSkills']>();
+  for (const skill of list) {
+    const category = SKILL_CATEGORY[skill.id] ?? SKILL_CATEGORY[skill.installId ?? ''] ?? '未分类';
+    const key = `${category}${suffix}`;
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(skill);
+  }
+  return [...map.entries()].sort((a, b) => {
+    const aNone = a[0].startsWith('未分类');
+    const bNone = b[0].startsWith('未分类');
+    if (aNone !== bNone) return aNone ? 1 : -1;
+    return b[1].length - a[1].length;
+  });
+}

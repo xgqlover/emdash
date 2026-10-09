@@ -37,6 +37,8 @@ export function mergeSkillsInstalledState(
       installed: true,
       localPath: local.localPath,
       skillMdContent: local.skillMdContent,
+      // [XG-CUSTOM 2026-10-09] 带上只读标记（外部来源不可卸载）
+      readOnly: local.readOnly || skill.readOnly,
     };
   });
 

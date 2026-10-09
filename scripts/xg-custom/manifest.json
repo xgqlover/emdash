@@ -7,10 +7,10 @@
     "base": "669a24fe673f4af1a507ddc33fc3f3ffe1039348"
   },
   "stats": {
-    "files": 206,
-    "markers": 1272,
+    "files": 211,
+    "markers": 1308,
     "newFiles": 105,
-    "modifiedFiles": 101
+    "modifiedFiles": 106
   },
   "files": {
     ".gitignore": {
@@ -353,14 +353,29 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/automations/browser/components/KaneoBoardPanel.tsx": {
-      "markers": 1,
+      "markers": 9,
       "lines": [
-        1
+        1,
+        10,
+        22,
+        79,
+        196,
+        328,
+        362,
+        553,
+        556
       ],
       "anchors": [
-        "2026-10-08] 「自动化」视图的 **Kaneo 看板** 面板 —— 现在是**系统图浏览**。"
+        "2026-10-08] 「自动化」视图的 **Kaneo 看板** 面板 —— 现在是**系统图浏览**。",
+        "2026-10-09] 再进一步：加「**全流程一屏**」（`PipelineStrip`）",
+        "2026-10-09] 再加「**动作面**」（`ImageQueue`）：建卡 + 一键开工",
+        "type LinkState = 'ok' | 'down' | 'unknown';",
+        "type Outcome = { ok: boolean; tone: LinkState; text: string };",
+        "<div className=\"flex flex-wrap items-center gap-1.5 text-xs text-foreground-info\">",
+        "<ul className=\"flex flex-col gap-1\">",
+        "<ImageQueue"
       ],
-      "hash": "2fdec4a99990d3a9007bbef2f466dbaf903862db",
+      "hash": "8eace62dd619b08a56c87ac0f412acec325fbbb8",
       "origin": "new",
       "firstCommit": "c7b4f3958|2026-10-08|[XG-CUSTOM 2026-10-08] 「自动化」加 Kaneo 看板 Tab + 修台账漏搜带日期标记",
       "lastCommit": "c7b4f3958|2026-10-08|[XG-CUSTOM 2026-10-08] 「自动化」加 Kaneo 看板 Tab + 修台账漏搜带日期标记",
@@ -1082,17 +1097,51 @@
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
+    "apps/emdash-desktop/src/core/features/skills/browser/components/SkillCard.tsx": {
+      "markers": 1,
+      "lines": [
+        30
+      ],
+      "anchors": [
+        "<div className=\"absolute top-1/2 right-2 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100\">"
+      ],
+      "hash": "a2fd88123e3765817a9ef1f7a33e211067f361e5",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "note": "技能库定制（多来源/分类）"
+    },
+    "apps/emdash-desktop/src/core/features/skills/browser/components/SkillDetailModal.tsx": {
+      "markers": 3,
+      "lines": [
+        20,
+        98,
+        135
+      ],
+      "anchors": [
+        "central: { name: '项上集团中央技能库', icon: '' },",
+        "<span>",
+        "<Button"
+      ],
+      "hash": "006c19b4a53df0fd464c8c99118a028b2fa1469b",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "note": "技能库定制（多来源/分类）"
+    },
     "apps/emdash-desktop/src/core/features/skills/browser/components/SkillsList.tsx": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
         7,
-        54
+        54,
+        133
       ],
       "anchors": [
         "import { SKILL_CATEGORY } from './skill-categories';",
-        "const groupedRecommended = (() => {"
+        "const groupedExternal = groupByCategory(",
+        "function groupByCategory("
       ],
-      "hash": "f542f2970328cf5a8296549f8ef4585c756e2f9f",
+      "hash": "6f4d551767163719a6ba16fd183b07c7ab874a4d",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1106,7 +1155,7 @@
       "anchors": [
         "export const SKILL_CATEGORY: Record<string, string> = {"
       ],
-      "hash": "00fbbb91261a762dfb746c9726c22e789c9cdb95",
+      "hash": "7be22a6a9e273628879615b7549a08a813ddb47f",
       "origin": "new",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1901,30 +1950,43 @@
       "note": "core 基元定制"
     },
     "apps/emdash-desktop/src/core/primitives/desktop-host/api/host-contract.ts": {
-      "markers": 15,
+      "markers": 22,
       "lines": [
-        66,
-        82,
-        94,
-        120,
-        147,
-        177,
-        186,
-        191,
-        196,
-        201,
-        206,
-        219,
-        235,
-        252,
-        257
+        65,
+        81,
+        93,
+        119,
+        139,
+        180,
+        194,
+        204,
+        246,
+        289,
+        293,
+        321,
+        330,
+        335,
+        340,
+        345,
+        350,
+        363,
+        379,
+        396,
+        401,
+        406
       ],
       "anchors": [
         "export interface ExpertHandoffTopic {",
         "export interface TaskSpace {",
         "export interface ExpertRosterEntry {",
         "export interface KaneoBoardCard {",
+        "export interface KaneoPipeline {",
+        "queue: {",
+        "last: {",
+        "running: {",
+        "export interface KaneoActInput {",
         "diagrams: { name: string; title: string; bytes: number; url: string }[];",
+        "pipeline?: KaneoPipeline;",
         "openOpenViking: procedure({",
         "openKaneo: procedure({",
         "openAffine: procedure({",
@@ -1934,16 +1996,17 @@
         "expertHandoffAdd: procedure({",
         "taskSpaceList: procedure({",
         "expertRoster: procedure({",
-        "kaneoBoard: procedure({"
+        "kaneoBoard: procedure({",
+        "kaneoAct: procedure({"
       ],
-      "hash": "2e2a67a1da1f71e98551da125066c7aea10fd102",
+      "hash": "41909ca14b9adb47a22afc816a6b8c495919d40b",
       "origin": "modified",
       "firstCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "desktop-host 契约扩展（宿主新增 API）"
     },
     "apps/emdash-desktop/src/core/primitives/desktop-host/browser/host-client.ts": {
-      "markers": 10,
+      "markers": 11,
       "lines": [
         24,
         33,
@@ -1954,7 +2017,8 @@
         67,
         76,
         81,
-        86
+        86,
+        95
       ],
       "anchors": [
         "export async function openOpenViking() {",
@@ -1966,9 +2030,10 @@
         "export async function expertHandoffAdd(bot: string, expert: string, title: string, summary: string, session: string, context: string) {",
         "export async function expertRoster() {",
         "export async function kaneoBoard(brief = false) {",
+        "export async function kaneoAct(payload: KaneoActInput) {",
         "export async function taskSpaceList() {"
       ],
-      "hash": "bb8d044946fa2152362aca220350397f2f88672a",
+      "hash": "78eda7a368e7353dbbd4892e7b0ea6f41465b1ac",
       "origin": "modified",
       "firstCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -2101,54 +2166,55 @@
       "note": "启动装配（注入 xiangwo 依赖 / 后台服务）"
     },
     "apps/emdash-desktop/src/main/bootstrap/boot/wiring.ts": {
-      "markers": 46,
+      "markers": 47,
       "lines": [
         3,
         21,
         35,
-        60,
-        89,
-        99,
-        105,
-        107,
-        113,
-        133,
-        140,
-        151,
-        153,
-        155,
-        158,
-        161,
-        168,
-        177,
-        180,
-        195,
-        202,
-        212,
-        229,
-        237,
-        239,
-        263,
-        265,
-        268,
-        273,
-        320,
-        325,
-        327,
-        333,
-        338,
-        340,
-        345,
-        347,
-        352,
-        354,
-        359,
-        361,
-        366,
-        371,
-        374,
-        376,
-        378
+        61,
+        90,
+        100,
+        106,
+        108,
+        114,
+        134,
+        141,
+        152,
+        154,
+        156,
+        159,
+        162,
+        169,
+        178,
+        181,
+        196,
+        203,
+        213,
+        230,
+        238,
+        240,
+        264,
+        266,
+        269,
+        274,
+        321,
+        326,
+        328,
+        334,
+        339,
+        341,
+        346,
+        348,
+        353,
+        355,
+        360,
+        362,
+        367,
+        372,
+        375,
+        377,
+        379,
+        381
       ],
       "anchors": [
         "import { browserEvents } from '@core/features/browser/node';",
@@ -2189,9 +2255,10 @@
         "expertHandoffAdd: ({ bot, expert, title, summary, session, context }) =>",
         "expertRoster: () => expertRosterCall(),",
         "kaneoBoard: ({ brief }) => kaneoBoardCall(brief === true),",
+        "kaneoAct: (payload) => kaneoActCall(payload as unknown as Record<string, unknown>),",
         "taskSpaceList: () => taskSpaceCall('list'),"
       ],
-      "hash": "90d9be34d9aa81e61aef9b62cc8efacf68c4096c",
+      "hash": "2a89e921f7f374b8af2c9671f6f2919fd9fa2bea",
       "origin": "modified",
       "firstCommit": "67ccd329e|2026-09-22|feat: 专家交接台升级（wire RPC 修复 + bot/专家二级分组 + 并入对话 Sheet + 横条关闭）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -2906,7 +2973,7 @@
       "note": "禁用自动更新（fork 不许被上游覆盖）"
     },
     "apps/emdash-desktop/src/main/host/window.ts": {
-      "markers": 26,
+      "markers": 27,
       "lines": [
         16,
         18,
@@ -2922,18 +2989,19 @@
         386,
         405,
         427,
-        452,
-        460,
-        466,
-        503,
-        510,
-        520,
-        558,
-        597,
-        638,
-        676,
-        716,
-        755
+        448,
+        473,
+        481,
+        487,
+        524,
+        531,
+        541,
+        579,
+        618,
+        659,
+        697,
+        737,
+        776
       ],
       "anchors": [
         "import { createXiangwoOrbWindow } from './xiangwo-orb';",
@@ -2948,6 +3016,7 @@
         "export function expertHandoffCall<T = unknown>(cmd: string, ...args: string[]): Promise<T> {",
         "const EXPERT_ROSTER_PY =",
         "const KANEO_BOARD_PY =",
+        "export function kaneoActCall<T = unknown>(payload: Record<string, unknown>): Promise<T> {",
         "let chatTargetRegistered = false;",
         "// [XG-CUSTOM] 新建交接 ⏎ ipcMain.handle(",
         "const CHROME_CMD = 'google-chrome-stable';",
@@ -2962,7 +3031,7 @@
         "let affineWindow: BrowserWindow | null = null;",
         "let t8Window: BrowserWindow | null = null;"
       ],
-      "hash": "77b380d3f1ad24ac56fa42d5beb8327a3d5d279e",
+      "hash": "67e9004ae49f721394690e58917915e8391913ef",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -4323,19 +4392,81 @@
       "lastCommit": "501f2b81c|2026-09-28|fix(workspace-server): 恢复无 Docker 本地编译 native 依赖的 [XG-CUSTOM] 补丁",
       "note": "workspace-server fork 运行时（无 Docker 本地编译补丁）"
     },
-    "packages/core/src/runtimes/agent-config/node/runtime/skills.ts": {
-      "markers": 3,
+    "packages/core/src/primitives/skills/api/merge-installed.ts": {
+      "markers": 1,
       "lines": [
-        20,
-        149,
-        185
+        40
       ],
       "anchors": [
-        "const USER_SKILLS_ROOT = process.env.EMDASH_USER_SKILLS_ROOT ?? `${homedir()}/.agents`;",
-        "// Paths（中央库，最低）→ User（~/.agents/skills）→ Local（.agentskills，最高） ⏎ await collectFromRoot(",
-        "const record = provenance?.[entry];"
+        "readOnly: local.readOnly || skill.readOnly,"
       ],
-      "hash": "62f542216b76a764e641dfaccbadc68f115777e6",
+      "hash": "86c88956f5bd24b9104ba0bd18d6f570aabbfc3b",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "note": "packages 定制"
+    },
+    "packages/core/src/primitives/skills/api/schemas.ts": {
+      "markers": 3,
+      "lines": [
+        17,
+        31,
+        45
+      ],
+      "anchors": [
+        "source: z.enum(['openai', 'anthropic', 'skillssh', 'local', 'central']),",
+        "readOnly: z.boolean().optional(),",
+        "source: z.enum(['openai', 'anthropic', 'skillssh', 'local', 'central']).optional(),"
+      ],
+      "hash": "8cf79337085586074087693f1be3c501561c66fa",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "note": "packages 定制"
+    },
+    "packages/core/src/primitives/skills/api/types.ts": {
+      "markers": 2,
+      "lines": [
+        15,
+        29
+      ],
+      "anchors": [
+        "source: 'openai' | 'anthropic' | 'skillssh' | 'local' | 'central';",
+        "readOnly?: boolean;"
+      ],
+      "hash": "e1c81cb027257b41c10b66baef57cf0b77cfd6a2",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "note": "packages 定制"
+    },
+    "packages/core/src/runtimes/agent-config/node/runtime/skills.ts": {
+      "markers": 10,
+      "lines": [
+        21,
+        33,
+        119,
+        184,
+        202,
+        230,
+        242,
+        244,
+        265,
+        279
+      ],
+      "anchors": [
+        "const SKILLS_CONFIG_PATH = `${EMDASH_META}/skills-config.json`;",
+        "const USER_SKILLS_ROOT = process.env.EMDASH_USER_SKILLS_ROOT ?? `${homedir()}/.agents`;",
+        "if (await isExternalSkill(this.deps.agentHost.fs, name)) {",
+        "// Paths（中央库 + 额外 paths，最低）→ User（~/.agents/skills）→ Local（.agentskills，最高） ⏎ for (const source of externalSkillRoots(config)) {",
+        "function externalSkillRoots(config: SkillsConfig): SkillSourceRoot[] {",
+        "logger?.warn('[skills] 跳过读不出来的技能', {",
+        "const record = provenance?.[entry];",
+        "const external = originRef !== undefined;",
+        "async function isExternalSkill(fs: PluginFs, name: string): Promise<boolean> {",
+        "async function readSkillsConfig(fs: PluginFs): Promise<SkillsConfig> {"
+      ],
+      "hash": "fab1c7c283a37196087b11594326fcdc0512c271",
       "origin": "modified",
       "firstCommit": "6f24dc51a|2026-09-21|feat: 中央技能库多来源接入（Local > User > Paths 同名覆盖，Grok Build 原方式）",
       "lastCommit": "6f24dc51a|2026-09-21|feat: 中央技能库多来源接入（Local > User > Paths 同名覆盖，Grok Build 原方式）",

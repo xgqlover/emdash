@@ -927,3 +927,30 @@ grep -n "HTTP_PROXY\|HTTPS_PROXY\|ALL_PROXY\|NO_PROXY" packages/core/src/primiti
 **⚠️ 另记（不是我的改动，但当前 typecheck 红）**：`core/features/browser/browser/open-url-command.ts:121`
 与它的测试引用 `BrowserTabOpenTarget.setFocusedRegion` —— **该属性不存在**（`TS2339`/`TS2353`）。
 那是并发会话正在做的 `browser.openUrl` 命令 WIP，**未动**。
+
+### 29. [XG-CUSTOM 2026-10-09] 中央技能库（skills-central）正确接入 + 只读语义 + 逐项容错
+
+**背景**：09-21 接了「多来源技能发现」，但**一直没真正生效**，而且**带了个会删库的坑**（详见 `emdash-运行经验-OPS.md` §二十五·补）。
+
+**症状（实测）**：`~/.config/emdash/logs/emdash.log` 最后写入 2026-10-08 13:27，结尾是
+`EACCES ... skills-central/lean-ctx/SKILL.md` → `getInstalledSkills` → `AgentSkillsManager.refresh` →
+`worker process exited` **gen 4/5/6（6 秒连崩 3 代）** ⇒ agent-config worker 再没起来，**技能列表整体不发布**。
+
+**改了 7 个文件**：
+
+| # | 文件 | 改动 |
+|---|---|---|
+| 1 | `packages/core/src/runtimes/agent-config/node/runtime/skills.ts` | ① `collectFromRoot` **逐项 try/catch**（一个坏文件不再打死整次发现）② 外部来源标 `source:'central' + readOnly` ③ 可选 `skills-config.json`（`paths`/`ignore`，`EMDASH_SKILLS_CONFIG` 可指到别处）④ `removeSkill` **拒绝卸载外部来源**（防透过软链 rm -rf 外部技能库）⑤ 计数探到 919（原注释写 851） |
+| 2 | `packages/core/src/primitives/skills/api/types.ts` | `source` 加 `'central'`；新增 `readOnly?` |
+| 3 | `packages/core/src/primitives/skills/api/schemas.ts` | 两个 zod 枚举加 `'central'`；`catalogSkillSchema` 加 `readOnly` |
+| 4 | `packages/core/src/primitives/skills/api/merge-installed.ts` | 合并时带上 `readOnly` |
+| 5 | `apps/.../skills/browser/components/SkillsList.tsx` | 分类分组**真正生效**：外部只读 / 已装 / 可安装三块各自按大类分组（原实现把分类用在 `recommendedSkills` 上，可所有来源都 `installed:true` ⇒ 941 项永远平铺） |
+| 6 | `.../SkillCard.tsx` | `readOnly` 不渲染装/卸按钮 |
+| 7 | `.../SkillDetailModal.tsx` | 只读不给 Uninstall（保留「打开」）；来源标签加「中央技能库」 |
+
+**配套数据修**（不在 git 里，另行记录）：`skills-central/lean-ctx/SKILL.md` 原是 **root:root 0600**
+（10-02 被 root 脚本写成）⇒ `chown xgqlover && chmod 664`；`~/.agentskills` 从 09-14 那根**指向中央库的软链**
+换成**真空目录**（否则中央库冒充 Local 层，且卸载会 `rm -rf` 到中央库）。
+
+**仍未做**：`disabled`（emdash 没有「把技能注入 agent」的通路，没有消费方）；
+分类表 919 项里 **621 项落「未分类」**（归一化规则只认中文关键词，英文技能包没有 `**分类**` 字段）—— 属分类质量，另行处理。
