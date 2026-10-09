@@ -177,6 +177,19 @@ export interface KaneoPipeline {
     finals: number;
     cooldown: number;
     label_exists: boolean;
+    /** [XG-CUSTOM 2026-10-09] **待出图队列** —— 只列带「图片线」label 的 to-do 卡
+     *  （**不是**那 243 张卡堆：用户 2026-10-08 明确否掉过"平铺卡列表"）。 */
+    queue: { task_id: string; title: string }[];
+    /** [XG-CUSTOM 2026-10-09] **最近一次出图结果**（worker 台账最后一行）—— 一键开工后的回执 */
+    last: {
+      task_id: string;
+      title: string;
+      state: string;
+      at: string;
+      path: string;
+      why: string;
+      asset_id: string;
+    } | null;
     error?: string;
   };
   /** 排活链 */
@@ -197,6 +210,42 @@ export interface KaneoPipeline {
     mtime: string;
     url: string;
   }[];
+}
+
+/** [XG-CUSTOM 2026-10-09] **动作面**（写操作）—— 用户口径：「emdash 一个平台上就能控制好这个所有流程的」。
+ *  `KaneoPipeline` 解决"**看得见**"，这一组解决"**动得了**"。
+ *
+ *  ⚠️ 两个动作都**不许做乐观假设**：面板必须看返回的 `ok` 才敢说成功
+ *  （"点了就当成功"正是本项目反复踩的「空 ≠ 失败」）。 */
+export interface KaneoActInput {
+  action: 'create_card' | 'run_image';
+  /** create_card 用 */
+  projectId?: string;
+  title?: string;
+  prompt?: string;
+  negative?: string;
+  model?: string;
+  size?: string;
+  aspectRatio?: string;
+  refImage?: string;
+  /** run_image 用：点名哪张卡（留空 = 队列里的下一个） */
+  taskId?: string;
+  limit?: number;
+}
+
+export interface KaneoActResult {
+  ok: boolean;
+  error?: string;
+  action?: string;
+  /** create_card：新卡 id */
+  taskId?: string;
+  title?: string;
+  fieldsSet?: number;
+  labeled?: boolean;
+  /** run_image：后台进程（**立刻返回** —— 一次出图 2~4 分钟，绝不能挂住 IPC） */
+  pid?: number;
+  limit?: number;
+  log?: string;
 }
 
 export interface KaneoBoardResult {
@@ -322,6 +371,24 @@ export const desktopHostContract = defineContract({
   kaneoBoard: procedure({
     input: z.object({ brief: z.boolean().optional() }),
     output: z.custom<KaneoBoardResult>(),
+  }),
+  // [XG-CUSTOM 2026-10-09] Kaneo 看板的**动作面**（建卡 / 一键开工）——
+  // 落到 `kaneo_board.py act --json '<payload>'`（JSON 走 argv 数组，桥接用 spawn 不走 shell）
+  kaneoAct: procedure({
+    input: z.object({
+      action: z.enum(['create_card', 'run_image']),
+      projectId: z.string().optional(),
+      title: z.string().optional(),
+      prompt: z.string().optional(),
+      negative: z.string().optional(),
+      model: z.string().optional(),
+      size: z.string().optional(),
+      aspectRatio: z.string().optional(),
+      refImage: z.string().optional(),
+      taskId: z.string().optional(),
+      limit: z.number().int().min(1).max(4).optional(),
+    }),
+    output: z.custom<KaneoActResult>(),
   }),
   openPath: procedure({
     input: z.object({ ref: hostFileRefSchema }),

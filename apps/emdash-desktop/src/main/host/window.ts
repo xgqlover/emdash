@@ -424,6 +424,27 @@ export function kaneoBoardCall<T = unknown>(brief = false): Promise<T> {
   }) as Promise<T>;
 }
 
+// [XG-CUSTOM 2026-10-09] Kaneo 看板的**动作面**（建卡 / 一键开工）：同一个脚本的 `act` 子命令，
+// payload 作为**单个 argv**（JSON）传进去 —— 桥接用 spawn 数组、不走 shell，所以不必操心引号。
+// ⚠️ 两个约束（脚本侧注释里也写了，这里再记一遍免得后人踩）：
+//   ① 脚本**只能输出一个 JSON**：`parseStdout` 解析失败时**不报错、而是把原文当字符串返回**
+//      ⇒ 多一行 print，面板就会**静默拿到字符串**。脚本侧用 `_quiet()` 做 stdout 防火墙。
+//   ② `run_image` 必须**后台起进程后立刻返回**：这里的 spawn **没有超时**
+//      （`defaultExecLocal`），而一次出图要 2~4 分钟 ⇒ 同步跑会把 IPC 挂住几分钟。
+export function kaneoActCall<T = unknown>(payload: Record<string, unknown>): Promise<T> {
+  return runXiangwoScript({
+    label: 'Kaneo 动作',
+    interpreter: {
+      local: '/usr/bin/python3',
+      remote: 'python3',
+      remoteSearchPaths: ['/usr/bin/python3', '/usr/local/bin/python3'],
+    },
+    scriptPath: KANEO_BOARD_PY,
+    envVar: 'XIANGWO_KANEO_BOARD_PY',
+    args: ['act', '--json', JSON.stringify(payload)],
+  }) as Promise<T>;
+}
+
 // [XG-CUSTOM] 项我球 / 旧浮窗的聊天地址：注册 `xiangwo:resolve-chat-url`
 // （preload: electronAPI.resolveXiangwoChatUrl）。解析规则/依赖注入见 main/host/xiangwo-chat-target.ts，
 // 真实依赖（db 里的 SSH 主机 + services.forwardManualPreview）在 boot 时注入。

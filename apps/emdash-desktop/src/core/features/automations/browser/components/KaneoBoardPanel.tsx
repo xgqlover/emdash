@@ -19,6 +19,18 @@
 // 🔴 **缩略图走真壳的 `/v1/files/`**（`<img src>`）—— 和 `<iframe>` 那条一样，
 //    **不通过 IPC 搬图**（产物动辄 1 MB）。
 //
+// ## [XG-CUSTOM 2026-10-09] 再加「**动作面**」（`ImageQueue`）：建卡 + 一键开工
+//
+// 光"看得见"还不够，用户要的是**控住**。所以再给：
+//   · 「＋ 建卡」：选项目 + 标题 + 提示词 + 画幅比 ⇒ 落到 `kaneo_board.py act`，
+//     **自动贴「图片线」label 并填好字段** ⇒ worker 下一轮就捡它出图
+//   · 「开工」：**点名**一张卡 ⇒ **后台**起一轮出图（点完立刻返回）
+//
+// 🔴 两条硬约束（都写进 `main/host/window.ts::kaneoActCall` 的注释）：
+//   ① 桥接的 `spawn` **没有超时** ⇒ 出图**必须后台化**，结果靠刷新看 `worker.last`
+//   ② 桥接**解析失败不报错、而是把 stdout 原文当字符串返回** ⇒ `describeAct()` 先判类型，
+//      **绝不直接读 `.ok`**（那会得到 `undefined`，正好落进「空 ≠ 失败」）
+//
 // ## 图怎么进来（**绝不走 IPC 传大文件**）
 // `kaneo_board.py` 顺手返回图清单（含**已 URL 编码**的地址），面板用 `<iframe src>` 指到
 // 8900 的 `/xg/diagram/<名字>` —— 那个路由已建好并实测（200 / 772KB）。
@@ -32,10 +44,12 @@ import { Badge, Button, toast } from '@emdash/ui/react/primitives';
 import { ExternalLink, Image as ImageIcon, LayoutGrid, RefreshCw } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type {
+  KaneoActInput,
+  KaneoActResult,
   KaneoBoardResult,
   KaneoPipeline,
 } from '@core/primitives/desktop-host/api/host-contract';
-import { kaneoBoard } from '@core/primitives/desktop-host/browser/host-client';
+import { kaneoAct, kaneoBoard } from '@core/primitives/desktop-host/browser/host-client';
 import { cn } from '@core/primitives/styling/browser/cn';
 
 /** Kaneo 的列 slug → 人话（未知 slug 原样显示，别瞎猜） */
@@ -179,6 +193,247 @@ function PipelineStrip({ p }: { p: KaneoPipeline }) {
   );
 }
 
+// ── [XG-CUSTOM 2026-10-09] 动作面（**写操作**）────────────────────────────────
+//
+// 用户口径：「emdash 一个平台上就能控制好这个所有流程的」。`PipelineStrip` 解决"**看得见**"，
+// 这一段解决"**动得了**"：**建卡** + **一键开工**。
+//
+// 🔴 两条硬约束（理由见 `main/host/window.ts::kaneoActCall`）：
+//   ① 桥接的 spawn **没有超时** ⇒ 出图必须**后台化**：点完**立刻返回**，结果靠刷新看 `worker.last`
+//   ② 桥接**解析失败不报错、而是把 stdout 原文当字符串返回** ⇒ 必须先判类型，**别直接读 `.ok`**
+
+type Outcome = { ok: boolean; tone: LinkState; text: string };
+
+/** 把 `unknown` 的动作返回**显式**翻译成人话 —— 尤其"根本不是对象"那种（静默失败的温床） */
+function describeAct(res: unknown): Outcome {
+  if (typeof res !== 'object' || res === null) {
+    return {
+      ok: false,
+      tone: 'down',
+      text: `动作返回的**不是对象**（桥接把解析失败的原文当字符串返回了？）：${String(res).slice(0, 140)}`,
+    };
+  }
+  const r = res as KaneoActResult;
+  if (!r.ok) return { ok: false, tone: 'down', text: r.error ?? '未知错误（返回里没有 error）' };
+  if (r.action === 'create_card') {
+    return {
+      ok: true,
+      tone: 'ok',
+      text: `已建卡「${r.title ?? ''}」(${r.taskId ?? '?'})：设了 ${r.fieldsSet ?? 0} 个字段${
+        r.labeled ? '，已贴「图片线」label' : '，⚠️ 没贴上 label（worker 不会捡它）'
+      }`,
+    };
+  }
+  if (r.action === 'run_image') {
+    return {
+      ok: true,
+      tone: 'ok',
+      text: `已开工（后台 pid ${r.pid ?? '?'}）—— 出图约 2~4 分钟；点「刷新」看结果`,
+    };
+  }
+  return { ok: true, tone: 'ok', text: '已完成' };
+}
+
+const FIELD_CLS =
+  'w-full rounded border border-border-subtle bg-background px-2 py-1 text-sm text-foreground';
+
+function ImageQueue({
+  p,
+  projectOptions,
+  onChanged,
+}: {
+  p: KaneoPipeline;
+  projectOptions: { projectId: string; name: string }[];
+  onChanged: () => void;
+}) {
+  const w = p.worker;
+  const [busy, setBusy] = useState(false);
+  const [outcome, setOutcome] = useState<Outcome | null>(null);
+  const [showNew, setShowNew] = useState(false);
+  const [form, setForm] = useState({
+    projectId: projectOptions[0]?.projectId ?? '',
+    title: '',
+    prompt: '',
+    negative: '',
+    aspectRatio: '16:9',
+  });
+
+  const run = useCallback(
+    async (payload: KaneoActInput) => {
+      setBusy(true);
+      setOutcome(null);
+      try {
+        setOutcome(describeAct(await kaneoAct(payload)));
+      } catch (e) {
+        setOutcome({ ok: false, tone: 'down', text: e instanceof Error ? e.message : String(e) });
+      } finally {
+        setBusy(false);
+        onChanged();
+      }
+    },
+    [onChanged]
+  );
+
+  const lastTone: LinkState = !w.last ? 'unknown' : w.last.state === 'failed' ? 'down' : 'ok';
+
+  return (
+    <div className="border-border-subtle flex flex-col gap-3 rounded-md border px-3 py-3 text-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className="flex flex-wrap items-center gap-1.5 text-foreground-muted">
+          图片线队列 {w.queue.length} 张
+          {w.last ? (
+            <>
+              <span>·</span>
+              <Dot state={lastTone} />
+              <span title={w.last.path || w.last.why}>
+                最近一次：{w.last.state === 'failed' ? '失败' : '已出图'}（{relTime(w.last.at)}）
+              </span>
+            </>
+          ) : null}
+        </span>
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="secondary"
+            disabled={busy}
+            onClick={() => setShowNew((v) => !v)}
+          >
+            {showNew ? '收起' : '＋ 建卡'}
+          </Button>
+          <Button
+            size="sm"
+            variant="primary"
+            disabled={busy || w.queue.length === 0}
+            title={w.queue.length === 0 ? '队列里没有待出图的卡' : '把队列里最早那张卡交给 worker'}
+            onClick={() => void run({ action: 'run_image', limit: 1 })}
+          >
+            开工下一张
+          </Button>
+        </div>
+      </div>
+
+      {/* 最近一次出图的具体去处（**失败要能看见原因**） */}
+      {w.last ? (
+        <div className="text-xs text-foreground-passive">
+          {w.last.title || w.last.task_id}
+          {w.last.state === 'failed' && w.last.why ? ` —— 失败原因：${w.last.why}` : ''}
+          {w.last.path ? ` → ${w.last.path.split('/').slice(-1)[0]}` : ''}
+        </div>
+      ) : null}
+
+      {/* 待出图队列：**只列带「图片线」label 的 to-do 卡** —— 不是那 243 张卡堆
+          （用户 2026-10-08 明确否掉过"平铺卡列表"：既没动作、又比 Kaneo 自己的看板难看） */}
+      {w.queue.length ? (
+        <ul className="flex flex-col gap-1">
+          {w.queue.map((c) => (
+            <li key={c.task_id} className="flex items-center justify-between gap-2">
+              <span className="truncate text-foreground-muted" title={c.task_id}>
+                {c.title}
+              </span>
+              <Button
+                size="sm"
+                variant="ghost"
+                disabled={busy}
+                title={
+                  w.enabled
+                    ? '点名这一张立即出图'
+                    : '常驻开关虽关，点名仍会跑一次（后台强制 KANEO_IMG_WORKER=1）'
+                }
+                onClick={() => void run({ action: 'run_image', taskId: c.task_id, limit: 1 })}
+              >
+                开工
+              </Button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className="text-xs text-foreground-passive">
+          队列空 —— 用上面「＋ 建卡」建一张，或去 Kaneo 把卡贴上「图片线」label 并置为待办
+        </div>
+      )}
+
+      {showNew ? (
+        <div className="border-border-subtle flex flex-col gap-2 rounded border px-2 py-2">
+          <select
+            className={FIELD_CLS}
+            value={form.projectId}
+            onChange={(e) => setForm({ ...form, projectId: e.target.value })}
+          >
+            {projectOptions.map((o) => (
+              <option key={o.projectId} value={o.projectId}>
+                {o.name}
+              </option>
+            ))}
+          </select>
+          <input
+            className={FIELD_CLS}
+            placeholder="标题（留空则取提示词前 40 字）"
+            value={form.title}
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
+          />
+          <textarea
+            className={cn(FIELD_CLS, 'h-20 resize-y')}
+            placeholder="提示词（**必填** —— 没它出不了图）"
+            value={form.prompt}
+            onChange={(e) => setForm({ ...form, prompt: e.target.value })}
+          />
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              className={cn(FIELD_CLS, 'w-40')}
+              placeholder="负向提示词（可空）"
+              value={form.negative}
+              onChange={(e) => setForm({ ...form, negative: e.target.value })}
+            />
+            <select
+              className={cn(FIELD_CLS, 'w-28')}
+              value={form.aspectRatio}
+              onChange={(e) => setForm({ ...form, aspectRatio: e.target.value })}
+            >
+              {['16:9', '9:16', '1:1', '4:3', '3:4', '3:2', '2:3'].map((a) => (
+                <option key={a} value={a}>
+                  {a}
+                </option>
+              ))}
+            </select>
+            <Button
+              size="sm"
+              variant="primary"
+              disabled={busy || !form.projectId || !form.prompt.trim()}
+              onClick={() =>
+                void run({
+                  action: 'create_card',
+                  projectId: form.projectId,
+                  title: form.title,
+                  prompt: form.prompt,
+                  negative: form.negative,
+                  aspectRatio: form.aspectRatio,
+                })
+              }
+            >
+              建卡
+            </Button>
+          </div>
+          <div className="text-xs text-foreground-passive">
+            建卡会**自动贴「图片线」label 并填好字段** ⇒ worker
+            下一轮就会捡它出图（也可立刻点「开工」）
+          </div>
+        </div>
+      ) : null}
+
+      {outcome ? (
+        <div
+          className={cn(
+            'rounded border border-border-subtle px-2 py-1 text-xs',
+            outcome.tone === 'ok' ? 'text-foreground-success' : 'text-destructive'
+          )}
+        >
+          {outcome.text}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export function KaneoBoardPanel() {
   const [data, setData] = useState<KaneoBoardResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -241,6 +496,18 @@ export function KaneoBoardPanel() {
 
       {/* [XG-CUSTOM 2026-10-09] 全流程一屏 —— **放在最上面**：用户要的是"一眼看住全流程" */}
       {data?.pipeline ? <PipelineStrip p={data.pipeline} /> : null}
+
+      {/* [XG-CUSTOM 2026-10-09] 动作面：建卡 + 一键开工（"看得见"之上给"动得了"） */}
+      {data?.pipeline ? (
+        <ImageQueue
+          p={data.pipeline}
+          projectOptions={(data.projects ?? []).map((x) => ({
+            projectId: x.projectId,
+            name: x.name,
+          }))}
+          onChanged={() => void load()}
+        />
+      ) : null}
 
       {/* Kaneo 概览：一行数字（**不再平铺那 200 张卡**） */}
       <div className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">

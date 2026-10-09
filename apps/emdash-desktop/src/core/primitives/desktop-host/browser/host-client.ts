@@ -1,6 +1,6 @@
 import type { ContractClient } from '@emdash/wire/rpc';
 import { domainClient } from '@core/primitives/wire/browser/connection';
-import { desktopHostContract, desktopHostDomain } from '../api/host-contract';
+import { desktopHostContract, desktopHostDomain, type KaneoActInput } from '../api/host-contract';
 
 export type HostClient = ContractClient<typeof desktopHostContract>;
 
@@ -81,6 +81,15 @@ export async function expertRoster() {
 // [XG-CUSTOM 2026-10-08] Kaneo 看板（「自动化」视图的 Kaneo 面板）
 export async function kaneoBoard(brief = false) {
   return (await getHostClient()).kaneoBoard({ brief });
+}
+
+// [XG-CUSTOM 2026-10-09] Kaneo 看板的**动作面**（建卡 / 一键开工）。
+// 🔴 返回值**不保证是对象**：桥接的 `parseStdout` 解析失败时会把 stdout 原文当**字符串**返回
+//    （`xiangwo-script-runner.ts::parseStdout` 的 catch 分支）。
+//    ⇒ 面板侧必须显式判 `typeof result === 'object' && result !== null` 才算拿到结构化结果，
+//      **别直接读 `.ok`** —— 那会得到 `undefined`，正好落进本项目的「空 ≠ 失败」坑。
+export async function kaneoAct(payload: KaneoActInput) {
+  return (await getHostClient()).kaneoAct(payload);
 }
 
 // [XG-CUSTOM] 浏览器工作台（task-spaces）：页面控制权交接，与专家交接台分开的一组

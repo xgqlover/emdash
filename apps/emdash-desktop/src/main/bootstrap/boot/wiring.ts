@@ -55,6 +55,7 @@ import {
   ensureChromeRunning,
   expertHandoffCall,
   expertRosterCall,
+  kaneoActCall,
   kaneoBoardCall,
   taskSpaceCall,
 } from '@main/host/window'; // [XG-CUSTOM]
@@ -375,6 +376,8 @@ export function createDesktopWireOptions(
       expertRoster: () => expertRosterCall(),
       // [XG-CUSTOM 2026-10-08] Kaneo 看板（「自动化」视图的 Kaneo 面板）
       kaneoBoard: ({ brief }) => kaneoBoardCall(brief === true),
+      // [XG-CUSTOM 2026-10-09] Kaneo 看板的**动作面**（建卡 / 一键开工）
+      kaneoAct: (payload) => kaneoActCall(payload as unknown as Record<string, unknown>),
       // [XG-CUSTOM] 浏览器工作台（task-spaces）：页面控制权交接（交接台第二个 Tab）
       taskSpaceList: () => taskSpaceCall('list'),
       taskSpaceHandoff: ({ id }) => taskSpaceCall('handoff', id),
