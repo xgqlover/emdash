@@ -62,7 +62,6 @@ export type DesktopHostEvent =
       action: 'paste' | 'select-all' | 'clear';
     };
 
-
 // [XG-CUSTOM] 专家交接平台 topic 数据模型
 // ⚠️ 2026-10-05 更正真相源：`xiangwo-agent/expert_topics.json`（475KB / 319 topics）。
 //    原注写的是 `wego-lite/expert-handoff/expert_topics.json` —— 那是**已废弃的副本**
@@ -137,6 +136,69 @@ export interface KaneoBoardProject {
   columns: string[];
   cards: KaneoBoardCard[];
 }
+/** [XG-CUSTOM 2026-10-09] 「**全流程一屏**」—— 数据源 `xiangwo-agent/kaneo_board.py::_pipeline()`。
+ *
+ *  为什么要它（用户原话：「**能让我有 emdash 一个平台上就能控制好这个所有流程的**」）：
+ *  原面板只有 Kaneo 概览（卡数 / 列徽章 / Archify 图）⇒ **看不到出图引擎活不活、
+ *  图片线 worker 开没开、有没有卡卡在冷却里** —— 等于只看了一半流程。
+ *
+ *  🔴 读数纪律（与 `kaneo_board.py` 一致）：
+ *  · `ok: false` 一律表示**取不到**（≠ 没有数据）—— 本项目踩过 6 次「空 ≠ 失败」
+ *  · `shell.busy` 可以是 **`null`**（= 问不到壳），**别当 `false` 用**
+ *  · 这些数字全是**只读探活**，打开面板**不会**占用 GPU / 不触发生成
+ */
+export interface KaneoPipeline {
+  /** 出图引擎（Win 上的 ComfyUI） */
+  engine: {
+    ok: boolean;
+    url: string;
+    version: string;
+    vram_free_gb: number;
+    vram_total_gb: number;
+    ram_free_gb: number;
+  };
+  /** 本地真壳（comfy-openai :8199）—— **忙判断只认它**，别问门面 */
+  shell: {
+    ok: boolean;
+    url: string;
+    busy: boolean | null;
+    queue_len: number;
+    served: number;
+    gen_timeout_s: number;
+  };
+  /** 图片线 worker（开关从 systemd drop-in 读，不是 os.environ） */
+  worker: {
+    enabled: boolean;
+    mode: string;
+    interval_s: number;
+    cooldown_min: number;
+    todo: number;
+    drafts: number;
+    finals: number;
+    cooldown: number;
+    label_exists: boolean;
+    error?: string;
+  };
+  /** 排活链 */
+  dispatch: {
+    enabled: boolean;
+    columns: string;
+    interval_s: number;
+    queued: number;
+    processed: number;
+    last: { ts: string; title: string; action: string; expert: string; note: string } | null;
+  };
+  /** 最近产物（**已按内容去重**，优先留 Kaneo 卡引用的 `workrally_wr_*`） */
+  artifacts: {
+    name: string;
+    bytes: number;
+    w: number;
+    h: number;
+    mtime: string;
+    url: string;
+  }[];
+}
+
 export interface KaneoBoardResult {
   ok: boolean;
   error?: string | null;
@@ -148,6 +210,8 @@ export interface KaneoBoardResult {
    *  ⚠️ 只有元数据 + 已 URL 编码的地址 —— **HTML 本体不走 IPC**（单图 700+ KB），
    *  面板用 `<iframe src>` 指到 8900 的 `/xg/diagram/<名字>`。 */
   diagrams: { name: string; title: string; bytes: number; url: string }[];
+  /** [XG-CUSTOM 2026-10-09] 全流程一屏（**可选**：老版本 python 不返回它也不会炸） */
+  pipeline?: KaneoPipeline;
 }
 
 type ActionResult = { success: boolean; error?: string };
