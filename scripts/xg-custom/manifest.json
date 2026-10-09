@@ -1169,7 +1169,7 @@
       "anchors": [
         "export const SKILL_CATEGORY: Record<string, string> = {"
       ],
-      "hash": "734fd7eebf7c2f3b00a125331b0c5e4fd38edcba",
+      "hash": "0b93bb8540bd992c202fef45d096403cc7d9f64b",
       "origin": "new",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",

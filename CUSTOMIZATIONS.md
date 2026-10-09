@@ -965,3 +965,16 @@ grep -n "HTTP_PROXY\|HTTPS_PROXY\|ALL_PROXY\|NO_PROXY" packages/core/src/primiti
 
 **仍未做**：`disabled` —— emdash 没有「把技能注入 agent」的通路（全仓只有 `skills.ts` 认 `.agentskills`），
 「禁用不进 prompt」**没有消费方**，硬做就是空转。
+
+**说明文本修复（2026-10-09 三轮，同一个用户目视发现）**：技能卡片上的说明直接来自 frontmatter 的 `description`，
+而中央库 **316/919 条是自动生成时留下的垃圾**（`4a-feedback skill`、`| — 中央技能库技能`、`> — 中央技能库技能`），
+正文其实基本都有真素材（`## Overview`、`**简介**`、路由表）——只是没写进 frontmatter。
+- `_fix_skill_descriptions.py`（新）：本机 8090 从「名称 + 正文前 1200 字」提炼**一行中文说明（30~50 字）**，
+  **只替换 frontmatter 的 `description:` 一行**（实测 898→923 字节、差异仅 1 行），默认 dry-run，`--apply` 才写。
+- 结果：**919/919 说明正常，垃圾 0**（`/tmp/xg-skill-description-manifest.json` 记了 316 条的 old→new）。
+- **⚠️ 这一步不需要重新构建**：说明是运行时从 SKILL.md 读的，面板点一下刷新就变。
+- 顺带把分类**重算了一遍**（上次有 316 条是拿垃圾说明猜的）：**128 条标签变好**，例如
+  `Agent-Router 全链路运维与验证` 从「测试与验证」→「模型与推理服务」、`8-bit-orbit-video-template` 从「设计与创意」→「多媒体生成」、
+  `NanoBananaMCP` 从「元技能」→「多媒体生成」。分类变化才需要重新构建。
+- 整库 tar 备份：`~/_backup-skills-central-desc-20261009-165443.tar.gz`（280 MB，md5 `18a3429f3027242461f8458debc7a792`，
+  包内 SKILL.md 可读回验证过）。
