@@ -7,8 +7,10 @@
 #   ⇒ 本机也能打 NSIS 单文件 exe。**不上传源码、不等 CI、不花钱。**
 #
 # 🔴 两条铁律（与 Linux 版同源，别省）：
-#   ① **必须显式带 pnpm UA** —— 否则 electron-builder 走 npm 收集器 ⇒ 静默缺包
-#      （顶层 node_modules 561→168、`@emdash/core` 2892→0、原生 .node 全没）。见 Linux 版文件头。
+#   ① **依赖收集器必须是 pnpm** —— 否则走 npm 收集器 ⇒ 静默缺包。判定顺序：
+#      `package.json#packageManager` → 目录 lockfile → 环境变量 UA → 兜底 npm。本脚本显式带 pnpm UA，
+#      并且 app 的 package.json 现已声明 `"packageManager": "pnpm@10.28.2"`（双保险）。
+#      ⚠️ 别再拿"顶层包 ≥500 / @emdash/core 在包里"当判据 —— **CI 正品同样是 0**（那是 electron-vite 打进 out/ 的）。
 #   ② **`--config electron-builder.config.ts` 不能省** —— 省了会拿包名 `@emdash/emdash-desktop`
 #      当 executableName ⇒ 产物名变成 `@...exe`。
 #
@@ -35,6 +37,26 @@ echo "   wine: $(wine --version 2>/dev/null)"
 echo "   electron: $(node -p "require('./node_modules/electron/package.json').version" 2>/dev/null || echo '?')"
 echo "   镜像: $ELECTRON_MIRROR"
 
+echo "=== ①b 平台可选依赖必须是 win32 版（本机打 win 特有的坑）==="
+# [XG-CUSTOM 2026-10-09] 在 Linux 上 `pnpm install` 装出来的是 **linux 版**可选依赖
+#   （`@parcel/watcher-linux-x64-glibc` / `@typescript/native-preview-linux-x64`），而 CI 在 Windows runner
+#   上装的是 win32 版 ⇒ 打出来的包会缺 win 侧实现（文件监听/TS 原生预览退化）。
+#   修法（在**构建用的克隆**里做，别改共用工作区）：
+#     pnpm-workspace.yaml 加：
+#       supportedArchitectures:
+#         os: [win32]
+#         cpu: [x64]
+#     然后 `pnpm install --no-frozen-lockfile`
+MISS_PLAT=0
+for m in "@parcel/watcher-win32-x64" "@typescript/native-preview-win32-x64"; do
+  [ -e "node_modules/$m" ] || { MISS_PLAT=1; echo "   ❌ 缺 win32 可选依赖：node_modules/$m"; }
+done
+if [ "$MISS_PLAT" = "1" ]; then
+  echo "   ⇒ 先按上面注释里的两步装 win32 可选依赖，再重跑本脚本（否则打出来的包与 CI 正品包构成不一致）。"
+  exit 1
+fi
+echo "   ✅ win32 可选依赖在位"
+
 echo "=== ② 树干净检查（未提交改动会被编进包）==="
 if [ "${XG_ALLOW_DIRTY:-}" = "1" ]; then
   bash scripts/xg-pre-package.sh --force || true
@@ -54,30 +76,45 @@ UA="pnpm/10.28.2 npm/? node/$(node -v) linux x86_64"
 ls -l "$OUT" 2>/dev/null | sed 's/^/   /'
 [ -f "$EXE" ] || { echo "❌ 没找到产物 $EXE"; exit 1; }
 
-echo "=== ⑤ 校验 asar：防「静默缺包」（顶层包数 / @emdash/core / 原生 .node）==="
+echo "=== ⑤ 校验：★ 正确判据（旧的「顶层包 ≥500」已过期，见 emdash-Windows-exe-本机打包-2026-10-09.md §三）==="
+# 为什么旧判据错：本仓 electron-builder 配置有一条 [XG-CUSTOM] 显式收集清单，**只收 emdash-desktop 的直接依赖**；
+#   workspace 包（@emdash/core 等）是 electron-vite 打进 `out/` 的 ⇒ 本来就不在 node_modules 里。
+#   CI 正品实测同样是「顶层包 0 个 @emdash/core」。
+# 正确判据 = ① app 的每个 dependencies 都在包里 ② out/ 的 main/preload/renderer 都在。
 ASAR="$OUT/win-unpacked/resources/app.asar"
+UNPACKED="$OUT/win-unpacked/resources/app.asar.unpacked/node_modules"
 [ -f "$ASAR" ] || { echo "❌ 没找到 $ASAR（win-unpacked 没生成？）"; exit 1; }
-STATS=$(node - "$ASAR" <<'EOF'
+STATS=$(node - "$ASAR" "$UNPACKED" "$APP_ABS/package.json" <<'EOF'
 const a = require('@electron/asar');
-const l = a.listPackage(process.argv[2]);
-const top = new Set(l.map((x) => {
+const fs = require('fs');
+const [asar, unpacked, pkgPath] = process.argv.slice(2);
+const l = a.listPackage(asar);
+const inAsar = new Set(l.map((x) => {
   const m = x.match(/^\/node_modules\/((?:@[^/]+\/)?[^/]+)(\/|$)/);
   return m ? m[1] : null;
 }).filter(Boolean));
-const core = l.filter((x) => /\/node_modules\/@emdash\/core\//.test(x)).length;
+let un = new Set();
+try { un = new Set(fs.readdirSync(unpacked)); } catch (e) {}
+const all = new Set([...inAsar, ...un]);
+const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+const deps = Object.keys(pkg.dependencies || {});
+const missing = deps.filter((d) => !all.has(d));
+const outMain = l.some((x) => /^\/out\/main\/index/.test(x));
+const outPre = l.some((x) => /^\/out\/preload\//.test(x));
+const outRen = l.some((x) => /^\/out\/renderer\//.test(x));
 const native = l.filter((x) => /\.node$/.test(x)).length;
-console.log(JSON.stringify({ top: top.size, core, native, total: l.length }));
+console.log(JSON.stringify({ top: inAsar.size, deps: deps.length, missing, outFiles: l.filter((x) => /^\/out\//.test(x)).length, outMain, outPre, outRen, native }));
 EOF
 )
 echo "   $STATS"
-TOP=$(printf '%s' "$STATS" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>console.log(JSON.parse(s).top))')
-CORE=$(printf '%s' "$STATS" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>console.log(JSON.parse(s).core))')
-if [ "${TOP:-0}" -lt "$EXPECT_TOP" ] || [ "${CORE:-0}" -eq 0 ]; then
-  echo "❌ 校验不过：顶层包 $TOP（应 ≥$EXPECT_TOP）/ @emdash/core 条目 $CORE（应 >0）"
-  echo "   ⇒ 这是「按 npm 收集」的缺包形态。排查：确认用了本脚本（UA 带 pnpm）。"
-  exit 1
-fi
-echo "   ✅ 顶层包 $TOP ≥ $EXPECT_TOP，且 @emdash/core 在包里"
+node -e '
+const s = JSON.parse(process.argv[1]);
+const bad = s.missing.length > 0 || !s.outMain || !s.outPre || !s.outRen;
+console.log(`   顶层包 ${s.top}（参考值；CI 正品 174）· 直接依赖 ${s.deps} 个，缺失 ${s.missing.length}${s.missing.length ? " → " + s.missing.join(", ") : ""}`);
+console.log(`   out/ 文件 ${s.outFiles}（CI 正品 1864）· main ${s.outMain ? "✓" : "✗"} preload ${s.outPre ? "✓" : "✗"} renderer ${s.outRen ? "✓" : "✗"} · 原生 .node ${s.native}`);
+console.log(bad ? "   ❌ 校验不过：依赖不全或 out/ 不完整 ⇒ 别交付" : "   ✅ 合格（要更严就按 OPS §三 拿 CI 正品逐包对比）");
+process.exit(bad ? 1 : 0);
+' "$STATS" || exit 1
 
 echo "=== ⑥ 交付路径 + 指纹 ==="
 ls -l --time-style=+%m-%d\ %H:%M "$EXE" | sed 's/^/   /'
