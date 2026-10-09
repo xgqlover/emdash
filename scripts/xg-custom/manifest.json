@@ -7,9 +7,9 @@
     "base": "669a24fe673f4af1a507ddc33fc3f3ffe1039348"
   },
   "stats": {
-    "files": 213,
-    "markers": 1325,
-    "newFiles": 105,
+    "files": 214,
+    "markers": 1329,
+    "newFiles": 106,
     "modifiedFiles": 108
   },
   "files": {
@@ -42,12 +42,11 @@
       "note": "忽略 xg-custom 台账备份文件"
     },
     "apps/emdash-desktop/electron-builder.config.ts": {
-      "markers": 112,
+      "markers": 113,
       "lines": [
         34,
-        49,
-        85,
-        87,
+        43,
+        53,
         89,
         91,
         93,
@@ -155,16 +154,19 @@
         297,
         299,
         301,
-        358
+        303,
+        305,
+        362
       ],
       "anchors": [
         "] 精确收集 emdash-desktop 的直接依赖（electron-builder 在 pnpm workspace 下",
+        "2026-10-09] 本机（Linux）打 Windows 包时依赖树遍历**收不到**它，而",
         "2026-10-02] @octokit/rest 的传递依赖（缺 @octokit/core 会导致启动失败：",
         "2026-10-02] 依赖闭包自动补全（防 whack-a-mole）",
         "asarUnpack: [",
         "msi: {"
       ],
-      "hash": "8f71f3978bc0d8f5de6046aa5e7a96abeefd3210",
+      "hash": "82c204bcbf80eb97ffb1d36b118255bb8629cf5d",
       "origin": "modified",
       "firstCommit": "32fb70f94|2026-09-18|fix: 去掉 win azureSignOptions（fork 无 Azure 凭据，签名卡 6h 超时），打 unsigned 包",
       "lastCommit": "32fb70f94|2026-09-18|fix: 去掉 win azureSignOptions（fork 无 Azure 凭据，签名卡 6h 超时），打 unsigned 包",
@@ -4988,6 +4990,24 @@
       "firstCommit": "b9973dba1|2026-10-05|chore(xg-custom): 标记规范化（裸 [XG-CUSTOM] 才入账）+ 新增本机打包入口 xg-package-linux.sh",
       "lastCommit": "b9973dba1|2026-10-05|chore(xg-custom): 标记规范化（裸 [XG-CUSTOM] 才入账）+ 新增本机打包入口 xg-package-linux.sh",
       "note": "标记规范化（裸  才入账）+ 新增本机打包入口 xg-package-linux.sh"
+    },
+    "scripts/xg-package-win.sh": {
+      "markers": 3,
+      "lines": [
+        2,
+        41,
+        80
+      ],
+      "anchors": [
+        "2026-10-09] —— **本机打 Windows exe**（NSIS 单文件）的入口，照 `xg-package-linux.sh` 的纪律。",
+        "MISS_PLAT=0",
+        "ASAR=\"$OUT/win-unpacked/resources/app.asar\""
+      ],
+      "hash": "f5a4ceea78a1b8c8cda837b0d162168acd0e0070",
+      "origin": "new",
+      "firstCommit": "b3ee5bdc9|2026-10-09|[XG-CUSTOM 2026-10-09] 本机打 Windows exe 的入口 scripts/xg-package-win.sh（照 xg-package-linux.sh 的纪律）",
+      "lastCommit": "b3ee5bdc9|2026-10-09|[XG-CUSTOM 2026-10-09] 本机打 Windows exe 的入口 scripts/xg-package-win.sh（照 xg-package-linux.sh 的纪律）",
+      "note": "[XG-CUSTOM 2026-10-09] 本机打 Windows exe 的入口 scripts/xg-package-win.sh（…"
     },
     "scripts/xg-pre-package.sh": {
       "markers": 1,
