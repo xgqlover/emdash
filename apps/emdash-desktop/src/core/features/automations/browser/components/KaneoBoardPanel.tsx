@@ -277,6 +277,14 @@ function ImageQueue({
   const lastTone: LinkState = !w.last ? 'unknown' : w.last.state === 'failed' ? 'down' : 'ok';
   /** 队列里正在失败/退避的卡数（**只数明确 failed 的** —— 没记录不算失败） */
   const failedCount = w.queue.filter((c) => c.state === 'failed').length;
+  /** 运行态里的 taskId → 队列里的标题（拿不到就退回 id） */
+  const titleOf = (tid: string): string => {
+    const hit = w.queue.find((c) => c.task_id === tid);
+    if (hit) return hit.title;
+    return tid || '（未知卡）';
+  };
+  /** **正在跑**（陈旧的不算 —— `stale` 的判据是给 pid 探活，见 worker.running 的注释） */
+  const running = w.running && !w.running.stale ? w.running : null;
 
   return (
     <div className="border-border-subtle flex flex-col gap-3 rounded-md border px-3 py-3 text-sm">
@@ -316,6 +324,29 @@ function ImageQueue({
           </Button>
         </div>
       </div>
+
+      {/* [XG-CUSTOM 2026-10-09] 「**正在跑**」—— 尤其是 `waiting_shell`：
+          worker 可能正**排队等壳空闲**（最长 600s），没有这行用户会以为点完没反应 */}
+      {running ? (
+        <div className="flex flex-wrap items-center gap-1.5 text-xs text-foreground-info">
+          <Dot state="ok" />
+          <span>
+            正在跑：{titleOf(running.taskId)}
+            {running.phase === 'waiting_shell'
+              ? ' —— **在等壳空闲**（别人正在用 GPU；最多等 600 秒）'
+              : running.phase === 'generating'
+                ? ' —— 正在出图'
+                : ' —— 准备中'}
+            · 已 {running.ageS} 秒
+          </span>
+        </div>
+      ) : null}
+      {w.running?.stale ? (
+        <div className="text-xs text-foreground-warning">
+          ⚠️ 有一份**陈旧的运行态残留**（pid {w.running.pid} 已不在）—— 多半是上次被强杀留下的；
+          出图不受影响，点「刷新」若仍在可忽略
+        </div>
+      ) : null}
 
       {/* 最近一次出图的具体去处（**失败要能看见原因**） */}
       {w.last ? (

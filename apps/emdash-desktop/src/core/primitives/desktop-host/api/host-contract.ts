@@ -191,7 +191,7 @@ export interface KaneoPipeline {
       /** 退避剩余秒数（`0` = 可以立刻试）。>0 时**点名仍会绕过它**（`--task-id` 的语义） */
       cooldownLeftS: number;
     }[];
-    /** [XG-CUSTOM 2026-10-09] **最近一次出图结果**（worker 台账最后一行）—— 一键开工后的回执 */
+    /** [XG-CUSTOM 2026-10-09] 「**最近一次出图结果**」（worker 台账最后一行）—— 一键开工后的回执 */
     last: {
       task_id: string;
       title: string;
@@ -200,6 +200,26 @@ export interface KaneoPipeline {
       path: string;
       why: string;
       asset_id: string;
+    } | null;
+    /** [XG-CUSTOM 2026-10-09] 「**正在跑**」运行态（worker 写的；`null` = 没在跑）。
+     *
+     *  为什么要有：手动点「开工」后 worker 可能先在 `_wait_shell_idle` 里**排队等壳空闲**
+     *  （最长 600s）—— 没有它，面板只能说"已开工"，**用户分不清它在排队还是在卡死**。
+     *
+     *  🔴 `stale: true` ⇒ **不许显示成"正在跑"**：进程被 kill 时**不会走 finally**，
+     *  状态文件会留下。判据是**给 `pid` 探活**（`os.kill(pid,0)`），不是猜。（这是实测踩出来的：
+     *  我自己 `pkill` 掉了 worker，文件还在，`running` 照样说"在等壳空闲"。） */
+    running: {
+      taskId: string;
+      /** `starting` / `waiting_shell`（**在等壳空闲**）/ `generating` */
+      phase: string;
+      note: string;
+      pid: number;
+      ageS: number;
+      /** pid 还活着吗（**探活得到，不是推断**） */
+      alive: boolean;
+      /** 🔴 `true` ⇒ 进程已死 **或** 超 30 分钟：面板**不许**画成"正在跑" */
+      stale: boolean;
     } | null;
     error?: string;
   };
