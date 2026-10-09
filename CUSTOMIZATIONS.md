@@ -952,5 +952,16 @@ grep -n "HTTP_PROXY\|HTTPS_PROXY\|ALL_PROXY\|NO_PROXY" packages/core/src/primiti
 （10-02 被 root 脚本写成）⇒ `chown xgqlover && chmod 664`；`~/.agentskills` 从 09-14 那根**指向中央库的软链**
 换成**真空目录**（否则中央库冒充 Local 层，且卸载会 `rm -rf` 到中央库）。
 
-**仍未做**：`disabled`（emdash 没有「把技能注入 agent」的通路，没有消费方）；
-分类表 919 项里 **621 项落「未分类」**（归一化规则只认中文关键词，英文技能包没有 `**分类**` 字段）—— 属分类质量，另行处理。
+**分类表（2026-10-09 二次修复：`621 项未分类` → `0 项`）**：原来 `_gen_skill_categories.py` 只用「关键词 + `**分类**` 字段」，
+919 个技能里 **621 个落「未分类」**（多数是英文技能包，既没有分类字段、说明还是自动生成的 `xxx skill` / `| — 中央技能库技能`）。
+改成本地模型打标 + 关键词兜底的两段式：
+- `_classify_skills_llm.py` → 用本机 **8090（qwen3.8-27b）** 给每个技能按「名称 + 说明 + 原分类字段」打一个**闭集大类**，
+  写进 `技能分类-LLM缓存.json`（919 条，917 模型打标 + 11 人工钉住，**0 未分类**）。
+- `_gen_skill_categories.py` → 优先读该缓存，缺失才用关键词兜底；`CATEGORY_HINTS`（给模型看的类别定义）与 `PIN`（人工钉住）都在这里。
+- 🔴 两个坑记在 `_classify_skills_llm.py` 文件头：① 必须 `chat_template_kwargs={"enable_thinking": False}`
+  （带思考时 20 条要 2473 输出 token，40 条一批直接顶穿 `max_tokens` ⇒ JSON 截断 ⇒ **919 条全失败、白跑 19 分钟**；关掉后同样 20 条只要 132 token）；
+  ② 大请求会把 8090 打挂（引擎卡住不退 → systemd SIGKILL → 显存没释放 → 重启 `CUDA_ERROR_OUT_OF_MEMORY`），
+  所以现在**输出上限 4000、批 100、连续 3 批失败就停**。
+
+**仍未做**：`disabled` —— emdash 没有「把技能注入 agent」的通路（全仓只有 `skills.ts` 认 `.agentskills`），
+「禁用不进 prompt」**没有消费方**，硬做就是空转。
