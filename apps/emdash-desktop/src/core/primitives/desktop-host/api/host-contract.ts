@@ -198,6 +198,11 @@ export const desktopHostContract = defineContract({
     input: z.void(),
     output: z.custom<ActionResult>(),
   }),
+  // [XG-CUSTOM 2026-10-09] WorkRally 本地出图参数面板窗口（8189/panel）
+  openWorkRallyPanel: procedure({
+    input: z.void(),
+    output: z.custom<ActionResult>(),
+  }),
   // [XG-CUSTOM] 专家交接平台：列前专家主题 / 接下 / 删除
   expertHandoffByExpert: procedure({
     input: z.object({ expert: z.string() }),

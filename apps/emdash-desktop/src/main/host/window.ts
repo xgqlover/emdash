@@ -594,6 +594,47 @@ export function createOpenDesignWindow(url = 'http://127.0.0.1:7456'): BrowserWi
   return openDesignWindow;
 }
 
+// [XG-CUSTOM 2026-10-09] WorkRally 本地出图**参数面板**窗口（scripts/workrally_local_server.py，8189）。
+// 为什么单开一个窗口：OpenDesign 聊天窗里的 `<question-form>` 是**每回合一次**的卡片（改完点生成），
+// 而调参是**反复试**的活（换 seed 做 A/B、加减步数）⇒ 用这块**常驻面板**当「甲」那一半：
+// 参数留在面板里（localStorage）、增强提示词、一键出图、图直接回显。
+// ⚠️ 全本地：面板本身不发外网请求；出图走本机壳 8199 → Win ComfyUI。
+// ⚠️ 照 WeKnora/Kaneo/OpenDesign 模板；地址由 wiring.ts 的 resolveToolWindowUrl(8189, '/panel') 解析，不写死。
+let workRallyPanelWindow: BrowserWindow | null = null;
+
+export function createWorkRallyPanelWindow(url = 'http://127.0.0.1:8189/panel'): BrowserWindow {
+  if (workRallyPanelWindow && !workRallyPanelWindow.isDestroyed()) {
+    workRallyPanelWindow.show();
+    workRallyPanelWindow.focus();
+    return workRallyPanelWindow;
+  }
+  workRallyPanelWindow = new BrowserWindow({
+    width: 1200,
+    height: 900,
+    minWidth: 780,
+    minHeight: 560,
+    title: 'WorkRally 本地出图 · 参数面板',
+    backgroundColor: nativeTheme.shouldUseDarkColors ? '#101215' : '#fcfcfc',
+    ...(import.meta.env.DEV && { icon: devIcon }),
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      sandbox: true,
+    },
+    show: false,
+  });
+  void workRallyPanelWindow.loadURL(url);
+  workRallyPanelWindow.once('ready-to-show', () => {
+    workRallyPanelWindow?.show();
+    workRallyPanelWindow?.focus();
+  });
+  workRallyPanelWindow.show();
+  workRallyPanelWindow.on('closed', () => {
+    workRallyPanelWindow = null;
+  });
+  return workRallyPanelWindow;
+}
+
 // [XG-CUSTOM] OpenViking 窗口：自进化上下文数据库 Studio（1933，viking:// 虚拟文件系统）。
 // 设置→集成里 OpenViking 卡片点「打开」→ 弹出这个窗口加载 OpenViking Studio。
 let openVikingWindow: BrowserWindow | null = null;

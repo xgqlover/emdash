@@ -749,6 +749,37 @@ daemon 默认端口 **7456**（`apps/daemon/src/server.ts`）。它本身是**�
 台账 `check.mjs` → **漏标 0**（本轮新增行全部带 `[XG-CUSTOM]`）。
 ⚠️ **未验**：真实点开卡片（要重新打包 + 用户点桌面图标，见「一、AI 不要自己启动 emdash」）。
 
+### 28. [XG-CUSTOM 2026-10-09] WorkRally 本地出图**参数面板**卡片（8189/panel）
+
+> ⚠️ 编号说明：本文件历史上**已有重复编号**（24/25/26/27 各出现 2–3 次）⇒ 本条取当前最大号 **28**，不回填空隙。**找回一律靠 `grep [XG-CUSTOM]` 与下面那行 grep，不靠编号。**
+
+**要解决什么**：用户要「把要调的参数变成**卡片**，在 OpenDesign 或 emdash 的聊天窗口上显示」。
+OpenDesign 聊天窗那半已经用它自带的 `<question-form>` 做了（**每回合一次**的卡片）；
+**这一半是「甲」**：一块**常驻、参数留着**的面板，供**反复调参**（换 seed 做 A/B、加减步数）。
+⇒ 服务端不是新东西：面板 HTML 由**我们自己的**本地 Server 直接吐
+（`scripts/workrally_panel.html` + `scripts/workrally_local_server.py` 的 `GET /panel`），
+**全本地**（→ 本机壳 8199 → Win ComfyUI），面板本身不发外网请求、无外部 CDN。
+
+**照 Kaneo/AFFiNE/OpenDesign 模板改 5 处**（与定制 #25 逐处对齐）：
+| # | 文件 | 加什么 |
+|---|---|---|
+| 1 | `main/host/window.ts` | `createWorkRallyPanelWindow(url='http://127.0.0.1:8189/panel')`（单例窗口 1200×900，照 `createOpenDesignWindow`） |
+| 2 | `main/bootstrap/boot/wiring.ts` | import `createWorkRallyPanelWindow` + handler `openWorkRallyPanel`（走 `services.resolveToolWindowUrl(8189, '/panel')`） |
+| 3 | `core/primitives/desktop-host/api/host-contract.ts` | `openWorkRallyPanel` procedure |
+| 4 | `core/primitives/desktop-host/browser/host-client.ts` | `openWorkRallyPanel()` |
+| 5 | `core/features/settings/browser/components/IntegrationsCard.tsx` | import + 🖼️「WorkRally 出图参数面板」卡片（「本地工具」组末尾） |
+
+⚠️ **地址必须走 `resolveToolWindowUrl(8189, '/panel')`，不写死 `127.0.0.1`** ——
+否则 Windows 客户端白屏（定制 **#15** 那个坑，别再犯）。
+⚠️ 面板依赖的本地 Server 是 **user unit `workrally-local.service`**（`:8189`，只绑回环）——
+它没起时窗口会白屏/连接失败；先 `systemctl --user start workrally-local.service`。
+
+**升级找回**：`grep -rn "openWorkRallyPanel\|createWorkRallyPanelWindow" apps/emdash-desktop/src`
+
+**验证**：`pnpm run typecheck`（`tsgo --noEmit` × browser/node/release）→ **exit 0**。
+⚠️ **未验**：真实点开卡片（要重新打包 + 用户点桌面图标，见「一、AI 不要自己启动 emdash」）；
+面板本体已另用 Playwright 端到端验过（参数可调 + **重载后参数还在** + 一键出图 **108s / 768×1152 = 面板里选的 2:3**）。
+
 ### 24. [XG-CUSTOM 2026-10-05] 方案 A：`xiangwo-open-url` 块 —— **让 emdash 主界面开网页**（不用白名单/不用 boot）
 
 **为什么走这条路**（同日 `emdash内嵌浏览器开错机器-修复OPS-2026-10-06` §TASK 4 的「方案 A（最省）」）：

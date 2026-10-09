@@ -46,6 +46,11 @@ export async function openOpenDesign() {
 }
 
 
+// [XG-CUSTOM 2026-10-09] WorkRally 本地出图参数面板窗口（8189/panel）
+export async function openWorkRallyPanel() {
+  return (await getHostClient()).openWorkRallyPanel();
+}
+
 // [XG-CUSTOM] 专家交接平台：列前专家主题 / 接下 / 删除
 export async function expertHandoffByExpert(expert: string) {
   return (await getHostClient()).expertHandoffByExpert({ expert });

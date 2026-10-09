@@ -47,6 +47,7 @@ import {
   createAffineWindow,
   createKaneoWindow,
   createOpenDesignWindow,
+  createWorkRallyPanelWindow,
   createOpenVikingWindow,
   createT8Window,
   createWeKnoraWindow,
@@ -353,6 +354,13 @@ export function createDesktopWireOptions(
         // [XG-CUSTOM] 2026-10-03 范式：隧道 → 主机直连 → 本机（Windows 上 127.0.0.1 不是主机）
         const url = await services.resolveToolWindowUrl(7456);
         createOpenDesignWindow(url);
+        return { success: true };
+      },
+      // [XG-CUSTOM 2026-10-09] WorkRally 本地出图参数面板（8189/panel）—— 「甲」：常驻可调、一键出图
+      openWorkRallyPanel: async () => {
+        // [XG-CUSTOM] 2026-10-03 范式：隧道 → 主机直连 → 本机（Windows 上 127.0.0.1 不是主机）
+        const url = await services.resolveToolWindowUrl(8189, '/panel');
+        createWorkRallyPanelWindow(url);
         return { success: true };
       },
       // [XG-CUSTOM] 专家交接平台：wire RPC → expert_handoff.py（session 隔离版 CLI）
