@@ -1052,3 +1052,44 @@ chat-ui **原生有行组件**（`ChatResourceLink` + `components/rows/resource-
 
 **验证**：core/desktop/chat-ui typecheck 全 0 错 · 新单测 20+10 · chat-ui node 272/272 · 台账 **丢失0/漂移0/漏标0** · 真链路 **5 图 + 5 原生链接 + 0 机器标记** · 运行包取证（活挂载点 asar 含 `resource_link`×96 / `resolveResourceTarget`×2；对照串 0）。
 **未验**：`workspace-file` 点 `/media/...` **没有实机点过**（只有静态追踪）；browser 测试项目缺 Playwright chromium ⇒ DOM 层无自动化证据。
+
+
+---
+
+### 32. [XG-CUSTOM 2026-10-10] 图片协议 + 语义**抽成一份**（球与主聊天窗共用，用户拍板的 A 方案）
+
+**背景**：协议在**三个 TS 侧**各写一份（球 `renderer/orb/xiangwo-images.ts` / 主窗 `chat-ui/…/assistant-images.ts` / 桥 Python）会漂移
+—— 当天已因「每层各写一份」出过两次事故。Python 那侧无法共享，**两个 TS 侧可以**。
+
+**改了 6 个文件**：
+
+| # | 文件 | 改动 |
+|---|---|---|
+| 1 | `packages/shared/src/xiangwo-images.ts`（新） | 协议与语义的**唯一事实源**，**零 import**（常量/正则/类型/6 个 helper/归一化/围栏块解析/落盘压缩/ACP marker 解析 + 新增共享语义 `captionOf`/`badgeOf`） |
+| 2 | `packages/shared/src/xiangwo-images.test.ts`（新 16 项） | 含「坏 JSON 不吞消息」「marker 无条件剥」「无跨调用状态」「caption/badge 边界」 |
+| 3 | `packages/shared/src/index.ts` | 显式具名导出（先查过 11 个名字零撞名） |
+| 4 | `apps/emdash-desktop/src/renderer/orb/xiangwo-images.ts` | 420→288 行：内部换共享实现，**导出面一字不变**（`orb.js` 与两个测试文件不动）；球专属渲染层原样保留 |
+| 5 | `packages/chat-ui/…/message/assistant-images.ts` | 151→112 行：marker/`hostOf`/可点性/小字角标全走共享，导出面同样不变 |
+| 6 | `scripts/xg-custom/manifest.json` | 台账 |
+
+**两条过程判据（都写进了文件注释）**：① `export { … } from` **不产生本地绑定** ⇒ 文件内部还要用就得 **import + re-export 同时来**；
+② 依赖包的 typecheck 走 `types` 条件读 **`dist/`** ⇒ 改了 shared 的导出**必须先 build** 再 typecheck（干净检出上单跑过滤式 typecheck 会误报）。
+**口径留口**：`badgeOf(item, resolvedPage = '')` —— 球的角标是「按 agent 基址拼绝对后的 host」、主窗是「原 page 的 host」，不给参数就会改掉球的既有行为。
+
+### 33. [XG-CUSTOM 2026-10-10] 退休 `[XG-IMG-META]`：小字/角标改走 **ACP 原生 `_meta` + `uri`**
+
+**背景**：见 `emdash-运行经验-OPS.md` §原生优先·二·补 —— 用户要求「要 emdash 原生代码的接上」，
+而 ACP 的 `ImageContent` 原生就有 `uri` 与 **`_meta`（官方扩展位）**，且 zod 里是显式字段（不被 strip）。
+
+**改动**：
+* **桥侧**（`xiangwo_acp.py`，不在本仓）：图片块自带 `uri`（来源页 http / 本机绝对路径）与
+  `_meta{caption=alt||source, sourceHost=host(page)||source}`；**不再发** `[XG-IMG-META]` 文本块。
+* **桥侧另一条**：**产物交付**也发原生 `resource_link`（`publish_artifacts_to_workdir` 返回值由"个数"改成"交付路径清单"），
+  产物在会话工作区内 ⇒ 点开**在编辑器里打开**。
+* **emdash 侧**：`decode.ts` 的 image 分支读 `uri`/`_meta`（**只收字符串**，`_meta` 是 unknown 要自校验）→
+  `NormalizedImageBlock` 与 wire schema 加 optional 字段 → chat-ui 优先用图片自带的 caption/sourceHost，
+  **保留旧 marker 解析作 legacy 兜底**。
+
+⚠️ **自伤记录（值得记）**：我用「按起止行切片」删桥里那段 marker 发送代码时，**把夹在中间的
+`resource_link` 发送循环一起删掉了** —— 端到端断言立刻报 `IndexError` 抓出来。
+**教训：按行/切片删代码，删完必须回头验证"被删段的邻居"还在不在**（测试是唯一判据）。
