@@ -988,3 +988,67 @@ Agent 与专家 38 · 金融与商业 37 · 测试与验证 35 · 办公与协�
   `NanoBananaMCP` 从「元技能」→「多媒体生成」。分类变化才需要重新构建。
 - 整库 tar 备份：`~/_backup-skills-central-desc-20261009-165443.tar.gz`（280 MB，md5 `18a3429f3027242461f8458debc7a792`，
   包内 SKILL.md 可读回验证过）。
+
+
+---
+
+### 30. [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接（图片卡）
+
+**背景**：用户问「这个 emdash 不会发图，图后有链接吗？怎么还没有球侧这点功能」。
+**查实：这条链四层各缺一环**（不是配置问题）：
+
+| 层 | 缺什么 | 证据 |
+|---|---|---|
+| agent 出图 | `xiangwo-images` 围栏块**只发给球**；非球端**主动降级**成 markdown 图（**顺带丢掉 `page` 源链接**） | `xiangwo-agent/agent.py:1188` |
+| 协议判定 | ACP 主聊天窗落 `"none"` | `context-ir/…/card.py::protocol()` |
+| ACP 桥 | **只认 `[XG-IMG]`**，不认围栏块 | 改前 `grep xiangwo-images xiangwo_acp.py` = 0 |
+| emdash 渲染 | `agent_message_chunk` 非 text ⇒ **`ignored`**（base64 图被静默丢）；chat-ui 又把 `![]()` **降级成文字链接** | `reducer/decode.ts:123/133/143` · `chat-ui/…/markdown/parse.ts:179-180` |
+
+**改了 10 个文件**：
+
+| # | 文件 | 改动 |
+|---|---|---|
+| 1 | `packages/core/src/primitives/acp-transcript/api/normalized-event.ts` | `message` 事件加 `images?: {mimeType,data}[]` |
+| 2 | `packages/core/src/runtimes/acp/api/reducer/decode.ts` | `agent_message_chunk` 加 **image 分支**（**text 与 ignored 行为一行未动**） |
+| 3 | `packages/core/src/runtimes/acp/api/models/turns/messages.ts` | `transcriptMessageSchema` 加 `images` **optional**（**不加就过 wire 被 zod strip**） |
+| 4 | `packages/core/src/runtimes/acp/api/reducer/item-fold.ts` | 同 id 追加图片；**无正文图片事件挂到本回合最后一条 assistant 消息**；每条消息 60 张上限 |
+| 5 | `packages/chat-ui/src/model.ts` | 新增 `ChatMessageImage`（与 user 的 `attachments` **语义分开**） |
+| 6 | `packages/chat-ui/.../message/assistant-images.ts`（新 151 行） | 剥 `[XG-IMG-META]`（坏 JSON 只剥不崩）、`min(len)` 配对、caption=`alt`→`source`、角标=`host(page)`、**只认 http(s) 可点** |
+| 7 | `.../assistant-images.css.ts`（新） | 网格/卡片样式，几何与测高公式同源 |
+| 8 | `.../message.def.tsx` | 剥 marker + 配对 + 网格渲染 + 测高（**纯图消息不再多留一行文本高度**） |
+| 9 | `.../reducer/decode.test.ts`（新 8 项） | |
+| 10 | `.../message/assistant-images.test.ts`（新 10 项） | |
+
+**桥侧配套**（`xiangwo_acp.py`，不在本仓）：新信号 `[XIANGWO_IMG=block]`（**不动 `protocol()` 取值** —— 那个值在 5 处被比，加值要同时改 5 处、漏一处就把球协议发给不认它的前端）；解析围栏块 → base64 图片块（**走字节 ⇒ 客户端在别的机器也能看图**）；一条 `[XG-IMG-META]` 元数据（与图片**同序同长**）。
+
+**真链路抓到我自己三个 bug**（离线单测全绿也没用，详见 ACP 链 OPS）：① meta 与图片**错位** ② 整段路不剥**未闭合块** ③ 🔴 **顺序 bug**：流式尾部"扣半个锚"把**闭合围栏**当成开标记的前缀吃掉 ⇒ 完好的块整段漏 JSON。
+
+### 31. [XG-CUSTOM 2026-10-10] 接通 **ACP 原生 `resource_link`** —— emdash 自己的「子产物」行
+
+**背景**：用户「看下 emdash 自己有没有子产物的路」→ **有，而且只有 UI 那一半**：
+ACP `ContentBlock` **原生含 `resource_link`**（SDK `schema/types.gen.d.ts:238-244`；`uri`·**`name` 必填**·`title?`·`description?`·`mimeType?`·`size?`），
+chat-ui **原生有行组件**（`ChatResourceLink` + `components/rows/resource-link/*` + 已注册；`workspace-file`→**编辑器打开**、`external`→新标签），
+**全仓 0 处生产者**（`decode.ts` 落 `ignored`；core 的 `transcriptItemSchema` 只有 message/thinking/toolNode）⇒ 用户明确要求「要 emdash 原生代码的接上」。
+
+**改了 15 个文件**：
+
+| # | 文件 | 改动 |
+|---|---|---|
+| 1 | `packages/core/…/reducer/decode.ts` | `agent_message_chunk` 加 `resource_link` 分支：`uri`/`name` 都必填（空⇒`ignored`，不造半条）；`title/description/mimeType` 空串丢弃、`size` 只收有限非负数 |
+| 2 | `packages/core/…/acp-transcript/api/normalized-event.ts` | 新增事件变体 |
+| 3 | `packages/core/…/reducer/event-routing.ts` | **必须加的一处** —— 否则落 `turnId:null` 被静默丢弃（它不是 tool 事件、无法建立 owner） |
+| 4 | `packages/core/…/reducer/ids.ts` | `makeResourceLinkId` → `${turnId}:resource-link:${ordinal}` |
+| 5 | `packages/core/…/reducer/item-fold.ts` | **独立一行**（不与任何行 upsert）；`finalizeItems` 里无进行态 |
+| 6 | `packages/core/…/models/turns/resource-links.ts`（新） | `resourceTargetSchema`（`workspace-file|external|opaque`）+ `transcriptResourceLinkSchema`（`target` **optional**：wire 上由桌面富化填） |
+| 7 | `packages/core/…/models/turns/turn.ts` | 加入 `transcriptItemSchema` 联合（**不加就过 wire 被 zod strip**，有测试证明） |
+| 8 | `packages/core/…/models/turns/index.ts` | 导出 |
+| 9 | `apps/…/conversations/browser/acp/resource-link-enrichment.ts`（新） | `uri`→`target`：`http(s)`→external；**`/` 开头绝对路径**与 `file://`（含中文百分号解码）→workspace-file；其它→opaque；**幂等** |
+| 10 | `apps/…/browser/acp/acp-chat-store.ts` | **唯一两个** `applyPage` 入口（首载 / 实时+翻页）都过富化 |
+| 11 | `packages/chat-ui/…/resource-link/ResourceLink.tsx` | 🔴 **我补的防御**：`target` 缺省按 `opaque` 渲染 —— wire schema 必须保持 optional，**任何忘记富化的喂入路径都不该把整行渲染器打崩** |
+| 12-15 | 三个测试文件 + `scripts/xg-custom/manifest.json`（台账） | decode +6 · schema 6 · 富化 10 |
+
+**桥侧配套**（`xiangwo_acp.py`）：每张图额外发一条原生 `resource_link` —— **有来源作品页** ⇒ `uri`=http（external）；**没有**（pixelrag 这类本机图库）⇒ `uri`=**本机绝对路径**（workspace-file ⇒ **点开在编辑器里看产物本身**）。
+两条上游契约据此调整：① `resource_link` 是"前台非内容事件"会 **closeContent 切断消息段** ⇒ 桥把**元数据发在链接之前**（否则那段文本另起一条空气泡）；② 上游**不渲染 `description`** ⇒ 来源标识并进 `title`（`样本龙领去.jpg · pixelrag`），`name` 保持文件名原样（它决定图标）。
+
+**验证**：core/desktop/chat-ui typecheck 全 0 错 · 新单测 20+10 · chat-ui node 272/272 · 台账 **丢失0/漂移0/漏标0** · 真链路 **5 图 + 5 原生链接 + 0 机器标记** · 运行包取证（活挂载点 asar 含 `resource_link`×96 / `resolveResourceTarget`×2；对照串 0）。
+**未验**：`workspace-file` 点 `/media/...` **没有实机点过**（只有静态追踪）；browser 测试项目缺 Playwright chromium ⇒ DOM 层无自动化证据。
