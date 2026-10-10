@@ -9,7 +9,7 @@ import {
 import { Button, Sheet, Tabs, toast } from '@emdash/ui/react/primitives';
 import { Plus } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { automationsViewDef } from '@core/features/automations/contributions/views';
 import { useOpenModal } from '@core/manifests/browser/modal-api';
 import type { Automation } from '@core/primitives/automations/api';
@@ -31,6 +31,8 @@ import { AutomationRow } from './AutomationRow';
 import { AutomationTemplatesEmptyState } from './AutomationTemplatesEmptyState';
 import { CreateAutomationView } from './CreateAutomationView';
 import { KaneoBoardPanel } from './KaneoBoardPanel';
+// [XG-CUSTOM 2026-10-10] WorkRally 并入「自动化」：第三个 Tab（照 Kaneo 的先例）
+import { WorkRallyPanel } from './WorkRallyPanel';
 
 export function AutomationsView() {
   const automations = useAutomations();
@@ -41,10 +43,25 @@ export function AutomationsView() {
   const [pendingDelete, setPendingDelete] = useState<Automation | null>(null);
   // [XG-CUSTOM 2026-10-08] 双 Tab：「自动化」/「Kaneo 看板」
   // —— 让 Kaneo 的活与自动化**在同一个界面**里（卡 = 要做的活，automation = 什么时候做）
-  const [tab, setTab] = useState<'automations' | 'kaneo'>('automations');
+  // [XG-CUSTOM 2026-10-10] 第三个 Tab「WorkRally 出图」（用户：「把 WorkRally **并入「自动化」界面**」）。
+  // 三个 Tab 就是三条"日常操作"的入口；**配置类**（端点/模式/服务）仍留在 设置→集成，
+  // 两边靠按钮互跳（见 WorkRallyPanel 顶部的定位原则）。
+  type XgTab = 'automations' | 'kaneo' | 'workrally';
+  const [tab, setTab] = useState<XgTab>(() => {
+    // 落位：从 设置→集成 的按钮带着 `tab` 参数进来（`navigate(automationsViewDef({ tab: 'workrally' }))`）
+    const t = (params as { tab?: unknown } | undefined)?.tab;
+    return t === 'kaneo' || t === 'workrally' || t === 'automations' ? t : 'automations';
+  });
   const openConfirm = useOpenModal('confirmActionModal');
   const { navigate } = useNavigate();
   const { params, setParams } = useCurrentViewParams(automationsViewDef);
+
+  // [XG-CUSTOM 2026-10-10] 视图**已被挂载**时再次带参数进入（SPA 可能不重挂）⇒ 跟着参数切。
+  // 只认显式给的 tab；参数里没有 tab（例如从左侧栏回「自动化」）时**不动**当前 Tab。
+  useEffect(() => {
+    const t = (params as { tab?: unknown } | undefined)?.tab;
+    if (t === 'automations' || t === 'kaneo' || t === 'workrally') setTab(t);
+  }, [params]);
 
   const source = useQueryListSource(automations, (rows: Automation[]) => rows);
   const [view] = useState(() => createAutomationsListView(source));
@@ -113,14 +130,18 @@ export function AutomationsView() {
             {/* [XG-CUSTOM 2026-10-08] 双 Tab：把 Kaneo 的活放进「自动化」视图。
                 用「卡 = 要做的活 / automation = 什么时候自动做」这个分法，
                 让用户**在一个界面里看着卡排自动化**（Tab 横向先例见 handoff-view.tsx）。 */}
-            <Tabs.Root value={tab} onValueChange={(v) => setTab(v as 'automations' | 'kaneo')}>
+            <Tabs.Root value={tab} onValueChange={(v) => setTab(v as XgTab)}>
               <Tabs.List>
                 <Tabs.Tab value="automations">{t('automations')}</Tabs.Tab>
                 <Tabs.Tab value="kaneo">Kaneo 看板</Tabs.Tab>
+                {/* [XG-CUSTOM 2026-10-10] WorkRally 出图（日常操作；配置在 设置→集成） */}
+                <Tabs.Tab value="workrally">WorkRally 出图</Tabs.Tab>
               </Tabs.List>
             </Tabs.Root>
             {tab === 'kaneo' ? (
               <KaneoBoardPanel />
+            ) : tab === 'workrally' ? (
+              <WorkRallyPanel />
             ) : (
             <view.Root>
               {/* With zero automations the templates render on the page background —

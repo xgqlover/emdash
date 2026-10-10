@@ -1,11 +1,14 @@
 import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 import type { PluginIconAsset } from '@emdash/shared/plugins';
-import { Sheet, Tooltip } from '@emdash/ui/react/primitives';
-import React, { useState } from 'react';
+import { Button, Sheet, Tooltip } from '@emdash/ui/react/primitives';
+import React, { useEffect, useState } from 'react';
 import { isIssueIntegration } from '@core/features/integrations/api/browser/integration-display';
 import { useIntegrationsContext } from '@core/features/integrations/contributions/browser/integrations-provider';
 import { supportsIntegrationReconnect } from '@core/manifests/browser/integration-auth-contributions';
 import { useOpenModal } from '@core/manifests/browser/modal-api';
+// [XG-CUSTOM 2026-10-10] 反向跳转：设置→集成 → 自动化→WorkRally 出图（用户要「两边互指」）
+import { automationsViewDef } from '@core/features/automations/contributions/views';
+import { useNavigate } from '@core/primitives/navigation/browser/navigation-hooks';
 import { openAffine, openKaneo, openOpenDesign, openOpenViking, openT8, openWeKnora, openWorkRallyPanel } from '@core/primitives/desktop-host/browser/host-client'; // [XG-CUSTOM]
 import type { ConnectionStatus, IssueProviderType } from '@core/primitives/issue-providers/api';
 import { IntegrationDetailSidebar } from './IntegrationDetailSidebar';
@@ -38,6 +41,32 @@ const IntegrationsCard: React.FC = () => {
   } = useIntegrationsContext();
   const [selectedProvider, setSelectedProvider] = useState<IssueProviderType | null>(null);
   const openIntegrationSetup = useOpenModal('integrationSetupModal');
+  // [XG-CUSTOM 2026-10-10] 与「自动化 → WorkRally 出图」**互指**（用户要「结合」而不是两个孤立入口）。
+  // 那条路给了「去集成里调」按钮 ⇒ 跳过来后**滚到这张卡并高亮一下**，
+  // 省得用户在一堆集成卡里自己找。做不到更细的定位（设置页没有"锚到某张卡"的路由参数），
+  // 所以用一次性 sessionStorage 提示 + DOM id，**用完即删**。
+  // ⚠️ 键名与 WorkRallyPanel.tsx 里的同一个字面量（两处各一份，注释互指）。
+  const { navigate } = useNavigate();
+  const [highlightWorkRally, setHighlightWorkRally] = useState(false);
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem('xg.goto.workrally') !== '1') return;
+      sessionStorage.removeItem('xg.goto.workrally');
+    } catch {
+      return; // 隐私模式等场景：不高亮，不影响打开集成页
+    }
+    setHighlightWorkRally(true);
+    const scrollT = window.setTimeout(() => {
+      document
+        .getElementById('xg-workrally-card')
+        ?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }, 60);
+    const clearT = window.setTimeout(() => setHighlightWorkRally(false), 2600);
+    return () => {
+      window.clearTimeout(scrollT);
+      window.clearTimeout(clearT);
+    };
+  }, []);
 
   const integrations: IntegrationItem[] = integrationMetadata
     .filter(isIssueIntegration)
@@ -191,19 +220,45 @@ const IntegrationsCard: React.FC = () => {
             </span>
             <span className="text-sm text-foreground-muted">打开 ↗</span>
           </button>
-          {/* [XG-CUSTOM 2026-10-09] WorkRally 本地出图参数面板（「甲」：常驻可调 + 一键出图，全本地） */}
-          <button
-            type="button"
-            onClick={() => void openWorkRallyPanel()}
-            className="group relative flex w-full items-center gap-4 rounded-lg border border-border bg-background-1 p-4 text-left text-card-foreground transition-all hover:bg-background-2"
+          {/* [XG-CUSTOM 2026-10-09] WorkRally 本地出图参数面板（「甲」：常驻可调 + 一键出图，全本地）
+              [XG-CUSTOM 2026-10-10] 定位原则：**集成 = 配置与连接**（端点/模式/服务），
+              日常出图在「自动化 → WorkRally 出图」。所以这张卡既开独立窗，也给一个
+              **跳去自动化那个 Tab** 的按钮（用户：「两边互指」），不在这里重做第二份调参 UI。
+              `id` = 供「自动化」里那个按钮跳过来时**滚到这里并高亮**（见下方 useEffect）。 */}
+          <div
+            id="xg-workrally-card"
+            className={
+              'flex w-full flex-col rounded-lg border transition-all ' +
+              (highlightWorkRally ? 'border-primary bg-background-2 ring-2 ring-primary/40' : 'border-border')
+            }
           >
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-background-2 text-2xl">🖼️</span>
-            <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-              <span className="text-sm font-medium text-foreground">WorkRally 出图参数面板</span>
-              <span className="truncate text-sm text-foreground-muted">本地出图调参（提示词 · 采样 · 画幅 · 种子），参数留在面板里，一键生成</span>
-            </span>
-            <span className="text-sm text-foreground-muted">打开 ↗</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => void openWorkRallyPanel()}
+              className="group relative flex w-full items-center gap-4 rounded-t-lg bg-background-1 p-4 text-left text-card-foreground transition-all hover:bg-background-2"
+            >
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-background-2 text-2xl">🖼️</span>
+              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span className="text-sm font-medium text-foreground">WorkRally 出图参数面板</span>
+                <span className="truncate text-sm text-foreground-muted">本地出图调参（提示词 · 采样 · 画幅 · 种子），参数留在面板里，一键生成</span>
+              </span>
+              <span className="text-sm text-foreground-muted">打开 ↗</span>
+            </button>
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border px-4 py-2">
+              <span className="text-foreground-muted text-xs">
+                日常出图在 <b>自动化 → WorkRally 出图</b>（这里管配置与连接）
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 shrink-0 gap-1 px-2 text-xs"
+                onClick={() => navigate(automationsViewDef({ tab: 'workrally' }))}
+              >
+                去出图 ↗
+              </Button>
+            </div>
+          </div>
         </IntegrationSection>
       </div>
 
