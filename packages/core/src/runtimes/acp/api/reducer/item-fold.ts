@@ -39,6 +39,24 @@ export type FoldEvent =
   | Exclude<NormalizedEvent, { kind: 'message' | 'thinking' }>
   | (Extract<NormalizedEvent, { kind: 'message' | 'thinking' }> & { itemId: string });
 
+// [XG-CUSTOM 2026-10-09] Memory guard for agent-sent images.
+//
+// The 项我 bridge sends at most 24 images per turn (its own `_XG_IMG_BLOCK_MAX`), so
+// this ceiling is pure insurance: a misbehaving bridge must not be able to grow one
+// transcript message without bound. 60 mirrors the orb protocol ceiling. The
+// transcript is in-memory only (no persistence), so this bounds RAM, not disk.
+const XG_IMAGE_MAX_PER_MESSAGE = 60;
+
+function appendImages(
+  existing: TranscriptMessage['images'],
+  incoming: TranscriptMessage['images']
+): TranscriptMessage['images'] {
+  const merged = [...(existing ?? []), ...(incoming ?? [])];
+  return merged.length > XG_IMAGE_MAX_PER_MESSAGE
+    ? merged.slice(0, XG_IMAGE_MAX_PER_MESSAGE)
+    : merged;
+}
+
 function mapToolStatus(status: NormalizedToolStatus | null | undefined): ToolStatus | undefined {
   switch (status) {
     case 'pending':
@@ -605,11 +623,40 @@ export function foldItem(
           ...(event.attachments?.length
             ? { attachments: [...(msg.attachments ?? []), ...event.attachments] }
             : {}),
+          // [XG-CUSTOM 2026-10-09] Accumulate agent-sent inline images (same as attachments).
+          ...(event.images?.length ? { images: appendImages(msg.images, event.images) } : {}),
         };
         return normalizeToolStructure(
           base.map((it, i) => (i === idx ? updated : it)),
           turnId
         );
+      }
+      // [XG-CUSTOM 2026-10-09] The 项我 bridge sends the image chunks as their own
+      // `agent_message_chunk`s whose `messageId` usually differs from (or is null
+      // vs.) the body text chunk, which would otherwise open a *second* assistant
+      // bubble for the images. Attach a body-less image event to the turn's last
+      // assistant message instead. Falls through to "new message" when the turn
+      // has no assistant message yet (image-only turns still get a bubble).
+      if (event.role === 'assistant' && event.images?.length && event.text === '') {
+        let lastIdx = -1;
+        for (let i = base.length - 1; i >= 0; i -= 1) {
+          const it = base[i];
+          if (it && it.kind === 'message' && it.role === 'assistant') {
+            lastIdx = i;
+            break;
+          }
+        }
+        if (lastIdx >= 0) {
+          const msg = base[lastIdx] as TranscriptMessage;
+          const updated: TranscriptMessage = {
+            ...msg,
+            images: appendImages(msg.images, event.images),
+          };
+          return normalizeToolStructure(
+            base.map((it, i) => (i === lastIdx ? updated : it)),
+            turnId
+          );
+        }
       }
       // New message.
       const newMsg: TranscriptMessage = {
@@ -620,6 +667,7 @@ export function foldItem(
         text: event.text,
         ...(event.promptId ? { promptId: event.promptId } : {}),
         ...(event.attachments?.length ? { attachments: event.attachments } : {}),
+        ...(event.images?.length ? { images: event.images } : {}),
       };
       return normalizeToolStructure([...base, newMsg], turnId);
     }

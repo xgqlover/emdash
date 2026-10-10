@@ -16,6 +16,22 @@ export type SessionUsage = {
   cost: { amount: number; currency: string } | null;
 };
 
+/**
+ * [XG-CUSTOM 2026-10-09] Inline image block sent **by an agent**.
+ *
+ * `data` is the **bare base64 payload** exactly as ACP delivered it — no
+ * `data:` URL prefix; renderers compose `data:<mimeType>;base64,<data>`
+ * themselves. Introduced for the 项我 (xiangwo) bridge, which sends generated
+ * images as `agent_message_chunk` updates whose content block is
+ * `{ type: 'image', mimeType, data }` (previously dropped by the decoder).
+ */
+export type NormalizedImageBlock = {
+  /** MIME type as reported by ACP (e.g. `image/png`, `image/jpeg`). */
+  mimeType: string;
+  /** Base64 payload, no data-URL prefix. */
+  data: string;
+};
+
 export type PlanEntryInput = {
   content: string;
   status: 'pending' | 'in_progress' | 'completed';
@@ -44,6 +60,8 @@ export type NormalizedEvent =
       messageId: string | null;
       text: string;
       attachments?: AttachmentRef[];
+      /** [XG-CUSTOM 2026-10-09] Agent-sent inline images (base64 payloads). */
+      images?: NormalizedImageBlock[];
     }
   | {
       kind: 'thinking';

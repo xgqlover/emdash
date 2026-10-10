@@ -44,6 +44,29 @@ export type ChatImageAttachment = {
   dataUrl?: string;
 };
 
+/**
+ * [XG-CUSTOM 2026-10-09] An image **sent by the agent** (项我/xiangwo bridge).
+ *
+ * Carries its own base64 payload (the transcript already holds it), so unlike
+ * `ChatImageAttachment` it never needs a runtime round-trip to resolve bytes.
+ * `caption` / `page` come from the `[XG-IMG-META]` marker the bridge sends in a
+ * separate text chunk ahead of the images (see `assistant-images.ts`).
+ */
+export type ChatMessageImage = {
+  /** Stable render key (synthesized from the owning message id + index). */
+  id?: string;
+  /** MIME type as delivered (e.g. `image/png`, `image/webp`). */
+  mimeType: string;
+  /** Bare base64 payload, no data-URL prefix. */
+  data: string;
+  /** Small caption under the image: marker `alt` preferred, else marker `source`. */
+  caption?: string;
+  /** Source page URL (marker `page`) — click target when it is http(s). */
+  page?: string;
+  /** Corner badge: host of `page`, else marker `source`. */
+  sourceHost?: string;
+};
+
 export type ChatMessage = {
   kind: 'message';
   id: string;
@@ -55,6 +78,8 @@ export type ChatMessage = {
   streaming?: boolean;
   /** Image attachments rendered as a thumbnail strip above the text (user messages). */
   attachments?: ChatImageAttachment[];
+  /** [XG-CUSTOM 2026-10-09] Agent-sent images rendered as a grid under the text. */
+  images?: ChatMessageImage[];
 };
 
 export type ChatToolCall = {

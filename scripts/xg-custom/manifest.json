@@ -7,10 +7,10 @@
     "base": "669a24fe673f4af1a507ddc33fc3f3ffe1039348"
   },
   "stats": {
-    "files": 214,
-    "markers": 1329,
-    "newFiles": 106,
-    "modifiedFiles": 108
+    "files": 222,
+    "markers": 1353,
+    "newFiles": 107,
+    "modifiedFiles": 115
   },
   "files": {
     ".github/workflows/release-prod.yml": {
@@ -351,18 +351,25 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/automations/browser/components/AutomationsView.tsx": {
-      "markers": 3,
+      "markers": 7,
       "lines": [
         2,
-        42,
-        113
+        34,
+        44,
+        46,
+        59,
+        130,
+        137
       ],
       "anchors": [
         "import { t } from '@renderer/lib/i18n';",
-        "const [tab, setTab] = useState<'automations' | 'kaneo'>('automations');",
-        "<Tabs.Root value={tab} onValueChange={(v) => setTab(v as 'automations' | 'kaneo')}>"
+        "import { WorkRallyPanel } from './WorkRallyPanel';",
+        "type XgTab = 'automations' | 'kaneo' | 'workrally';",
+        "useEffect(() => {",
+        "<Tabs.Root value={tab} onValueChange={(v) => setTab(v as XgTab)}>",
+        "<Tabs.Tab value=\"workrally\">WorkRally 出图</Tabs.Tab>"
       ],
-      "hash": "ba514c01bfb54ac30bd8ea3d551494e85e5e04f4",
+      "hash": "c58f4810dd3e3ba082b877b1297a7ac302151f07",
       "origin": "modified",
       "firstCommit": "c7b4f3958|2026-10-08|[XG-CUSTOM 2026-10-08] 「自动化」加 Kaneo 看板 Tab + 修台账漏搜带日期标记",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -397,6 +404,20 @@
       "lastCommit": "c7b4f3958|2026-10-08|[XG-CUSTOM 2026-10-08] 「自动化」加 Kaneo 看板 Tab + 修台账漏搜带日期标记",
       "note": "core feature 定制"
     },
+    "apps/emdash-desktop/src/core/features/automations/browser/components/WorkRallyPanel.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "2026-10-10] 「自动化 → WorkRally 出图」Tab —— 用户要求把 WorkRally **并入「自动化」界面**，"
+      ],
+      "hash": "568f184b4cc8a4ab0d4a1a428279877b238aeb5f",
+      "origin": "new",
+      "firstCommit": "b0825bb3a|2026-10-10|[XG-CUSTOM 2026-10-10] WorkRally 并入「自动化」第三 Tab + 集成↔自动化 互指（用户要「结合」，不要两个孤立入口）",
+      "lastCommit": "b0825bb3a|2026-10-10|[XG-CUSTOM 2026-10-10] WorkRally 并入「自动化」第三 Tab + 集成↔自动化 互指（用户要「结合」，不要两个孤立入口）",
+      "note": "core feature 定制"
+    },
     "apps/emdash-desktop/src/core/features/automations/browser/useAutomationFormState.ts": {
       "markers": 5,
       "lines": [
@@ -419,6 +440,20 @@
       "lastCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
       "note": "core feature 定制"
     },
+    "apps/emdash-desktop/src/core/features/automations/contributions/views.ts": {
+      "markers": 1,
+      "lines": [
+        9
+      ],
+      "anchors": [
+        "tab: z.enum(['automations', 'kaneo', 'workrally']).optional(),"
+      ],
+      "hash": "de9fac31c13488f15ac3f5a18e1e4e34001b6a08",
+      "origin": "modified",
+      "firstCommit": "b0825bb3a|2026-10-10|[XG-CUSTOM 2026-10-10] WorkRally 并入「自动化」第三 Tab + 集成↔自动化 互指（用户要「结合」，不要两个孤立入口）",
+      "lastCommit": "b0825bb3a|2026-10-10|[XG-CUSTOM 2026-10-10] WorkRally 并入「自动化」第三 Tab + 集成↔自动化 互指（用户要「结合」，不要两个孤立入口）",
+      "note": "core feature 定制"
+    },
     "apps/emdash-desktop/src/core/features/automations/node/deployment-builder.test.ts": {
       "markers": 1,
       "lines": [
@@ -434,16 +469,17 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/automations/node/deployment-builder.ts": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
         183,
-        218
+        218,
+        220
       ],
       "anchors": [
         "if (isWebhookTrigger(automation.triggerConfig)) {",
         "expr: (automation.triggerConfig.expr ?? '').trim(),"
       ],
-      "hash": "c5fd95be875012ada0d1bdaee36bafd4ecbe82a6",
+      "hash": "d5c816e9629999e54601c3f5e6b32dcd447b7172",
       "origin": "modified",
       "firstCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
       "lastCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
@@ -1086,28 +1122,33 @@
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/components/IntegrationsCard.tsx": {
-      "markers": 8,
+      "markers": 11,
       "lines": [
         1,
         9,
-        116,
-        130,
-        155,
-        168,
-        181,
-        194
+        12,
+        44,
+        145,
+        159,
+        184,
+        197,
+        210,
+        223,
+        224
       ],
       "anchors": [
         "import { t } from '@renderer/lib/i18n';",
+        "import { automationsViewDef } from '@core/features/automations/contributions/views';",
         "import { openAffine, openKaneo, openOpenDesign, openOpenViking, openT8, openWeKnora, openWorkRallyPanel } from '@core/primitives/desktop-host/browser/host-client';",
+        "const { navigate } = useNavigate();",
         "<IntegrationSection title=\"本地工具\">",
         "{/* [XG-CUSTOM] OpenViking 本地工具卡片 */} ⏎ <button",
         "{/* [XG-CUSTOM] AFFiNE 本地工具卡片（知识工作台：文档/白板/表格） */} ⏎ <button",
         "{/* [XG-CUSTOM] Kaneo 本地工具卡片（项我流程枢纽） */} ⏎ <button",
         "{/* [XG-CUSTOM 2026-10-06] OpenDesign 本地工具卡片（设计工作台：原型/落地页/幻灯片/图/视频） */} ⏎ <button",
-        "{/* [XG-CUSTOM 2026-10-09] WorkRally 本地出图参数面板（「甲」：常驻可调 + 一键出图，全本地） */} ⏎ <button"
+        "`id` = 供「自动化」里那个按钮跳过来时**滚到这里并高亮**（见下方 useEffect）。 */} ⏎ <div"
       ],
-      "hash": "fecb5f809fa7978e0eaf3ebfb00a17a2d13ab914",
+      "hash": "1becc75e232275c22e634e23077c1965d623b5f0",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -4437,6 +4478,60 @@
       "lastCommit": "501f2b81c|2026-09-28|fix(workspace-server): 恢复无 Docker 本地编译 native 依赖的 [XG-CUSTOM] 补丁",
       "note": "workspace-server fork 运行时（无 Docker 本地编译补丁）"
     },
+    "packages/chat-ui/src/components/rows/message/message.def.tsx": {
+      "markers": 5,
+      "lines": [
+        41,
+        89,
+        101,
+        217,
+        275
+      ],
+      "anchors": [
+        "const isAssistant = item.role === 'assistant';",
+        "// with images must NOT reserve a stray text line. ⏎ const imagesH =",
+        "function AssistantImageContent(props: { image: ChatMessageImage }) {",
+        "<Show when={props.data.images?.length}>",
+        "// image-only message must not reserve a text line. ⏎ const imagesH ="
+      ],
+      "hash": "03bd3a971c6bffb1d78457b3c9f507f2255b12a3",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "note": "packages 定制"
+    },
+    "packages/chat-ui/src/model.ts": {
+      "markers": 2,
+      "lines": [
+        48,
+        81
+      ],
+      "anchors": [
+        "export type ChatMessageImage = {",
+        "images?: ChatMessageImage[];"
+      ],
+      "hash": "144a096057edb072631cc71eb961568d78789fa1",
+      "origin": "modified",
+      "firstCommit": "19784f6f1|2026-09-05|Merge pull request #3123 from generalaction/fix-collapse-chat-ui-thinking-blocks",
+      "lastCommit": "19784f6f1|2026-09-05|Merge pull request #3123 from generalaction/fix-collapse-chat-ui-thinking-blocks",
+      "note": "packages 定制"
+    },
+    "packages/core/src/primitives/acp-transcript/api/normalized-event.ts": {
+      "markers": 2,
+      "lines": [
+        20,
+        63
+      ],
+      "anchors": [
+        "export type NormalizedImageBlock = {",
+        "images?: NormalizedImageBlock[];"
+      ],
+      "hash": "a2c00d21118be6e3b5514fc1e7339c810db82d25",
+      "origin": "modified",
+      "firstCommit": "3b825feb7|2026-09-11|fix(acp): keep empty chat composer centered",
+      "lastCommit": "3b825feb7|2026-09-11|fix(acp): keep empty chat composer centered",
+      "note": "packages 定制"
+    },
     "packages/core/src/primitives/skills/api/merge-installed.ts": {
       "markers": 1,
       "lines": [
@@ -4483,6 +4578,52 @@
       "origin": "modified",
       "firstCommit": "af361c579|2026-10-09|fix(skills): [XG-CUSTOM 2026-10-09] 中央技能库正确接入（逐项容错 / 只读语义 / 分类分组生效）",
       "lastCommit": "af361c579|2026-10-09|fix(skills): [XG-CUSTOM 2026-10-09] 中央技能库正确接入（逐项容错 / 只读语义 / 分类分组生效）",
+      "note": "packages 定制"
+    },
+    "packages/core/src/runtimes/acp/api/models/turns/messages.ts": {
+      "markers": 1,
+      "lines": [
+        17
+      ],
+      "anchors": [
+        "images: z"
+      ],
+      "hash": "44f562128841030c0c50899124253660988197eb",
+      "origin": "modified",
+      "firstCommit": "4afbbd18d|2026-09-21|feat(attachments)!: scope stored files to conversation and workspace owners",
+      "lastCommit": "4afbbd18d|2026-09-21|feat(attachments)!: scope stored files to conversation and workspace owners",
+      "note": "packages 定制"
+    },
+    "packages/core/src/runtimes/acp/api/reducer/decode.ts": {
+      "markers": 1,
+      "lines": [
+        133
+      ],
+      "anchors": [
+        "if (update.content.type === 'image') {"
+      ],
+      "hash": "a66b4a1b76445ba0aa9185c0b335f751e313c2b5",
+      "origin": "modified",
+      "firstCommit": "64552aebc|2026-09-04|fix(acp): honor structured tool updates",
+      "lastCommit": "64552aebc|2026-09-04|fix(acp): honor structured tool updates",
+      "note": "packages 定制"
+    },
+    "packages/core/src/runtimes/acp/api/reducer/item-fold.ts": {
+      "markers": 3,
+      "lines": [
+        42,
+        626,
+        634
+      ],
+      "anchors": [
+        "const XG_IMAGE_MAX_PER_MESSAGE = 60;",
+        "...(event.images?.length ? { images: appendImages(msg.images, event.images) } : {}),",
+        "if (event.role === 'assistant' && event.images?.length && event.text === '') {"
+      ],
+      "hash": "6a4d150434852fe7efd8bbc30f376bed900e848b",
+      "origin": "modified",
+      "firstCommit": "4c6b1c4c7|2026-09-09|fix(acp): separate foreground content from async event ownership",
+      "lastCommit": "4c6b1c4c7|2026-09-09|fix(acp): separate foreground content from async event ownership",
       "note": "packages 定制"
     },
     "packages/core/src/runtimes/agent-config/node/runtime/skills.ts": {

@@ -13,5 +13,18 @@ export const transcriptMessageSchema = z.object({
   text: z.string(),
   /** Attachment metadata only; bytes are served separately by the runtime. */
   attachments: z.array(attachmentMetadataSchema).optional(),
+  /**
+   * [XG-CUSTOM 2026-10-09] Agent-sent inline images (bare base64, no data-URL
+   * prefix). Kept `optional()` so transcripts/records written before this field
+   * existed still parse. Only agents populate it (user prompts use `attachments`).
+   */
+  images: z
+    .array(
+      z.object({
+        mimeType: z.string(),
+        data: z.string(),
+      })
+    )
+    .optional(),
 });
 export type TranscriptMessage = z.infer<typeof transcriptMessageSchema>;

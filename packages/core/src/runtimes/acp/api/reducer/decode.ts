@@ -130,6 +130,21 @@ export function decodeSessionUpdate(update: SessionUpdate): NormalizedEvent {
     }
 
     case 'agent_message_chunk': {
+      // [XG-CUSTOM 2026-10-09] Agent-sent inline image blocks (项我/xiangwo bridge):
+      // `content = { type: 'image', mimeType, data }` used to be silently dropped
+      // here (`type !== 'text'` -> ignored), so generated images never reached the
+      // transcript. Emit a text-less message event carrying the image instead; the
+      // text branch and the non-text/non-image `ignored` behaviour are unchanged.
+      if (update.content.type === 'image') {
+        if (!update.content.data) return { kind: 'ignored' };
+        return {
+          kind: 'message',
+          role: 'assistant',
+          messageId: update.messageId ?? null,
+          text: '',
+          images: [{ mimeType: update.content.mimeType, data: update.content.data }],
+        };
+      }
       if (update.content.type !== 'text' || !update.content.text) return { kind: 'ignored' };
       return {
         kind: 'message',
