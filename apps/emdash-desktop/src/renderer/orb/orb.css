@@ -442,6 +442,108 @@ body.expand-down #history-list {
   background: var(--white);
 }
 
+/* [XG-CUSTOM 2026-10-10] **球气泡里的 Markdown 排版**（渲染见 ./markdown.ts）
+   原来助手气泡是纯文本（`white-space: pre-wrap`）⇒ `**粗**`/`- 列表`/`| 表 |` 原样显示。
+   现在助手正文是 HTML 元素 ⇒ 块间距交给元素自己（`pre-wrap` 会在块之间再叠一层空白），
+   用户气泡仍是纯文本 ⇒ 那条 `pre-wrap` 保留。 */
+.transcript-row.assistant .transcript-bubble {
+  white-space: normal;
+}
+
+.transcript-bubble > :first-child {
+  margin-top: 0;
+}
+
+.transcript-bubble > :last-child {
+  margin-bottom: 0;
+}
+
+.transcript-bubble p,
+.transcript-bubble ul,
+.transcript-bubble ol,
+.transcript-bubble blockquote,
+.transcript-bubble pre,
+.transcript-bubble table {
+  margin: 0 0 6px;
+}
+
+.transcript-bubble h1,
+.transcript-bubble h2,
+.transcript-bubble h3,
+.transcript-bubble h4,
+.transcript-bubble h5,
+.transcript-bubble h6 {
+  margin: 8px 0 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.transcript-bubble ul,
+.transcript-bubble ol {
+  padding-left: 18px;
+}
+
+.transcript-bubble li + li {
+  margin-top: 2px;
+}
+
+.transcript-bubble li.task-list-item {
+  list-style: none;
+}
+
+.transcript-bubble code {
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: var(--input-bg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}
+
+.transcript-bubble pre {
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: var(--input-bg);
+  overflow-x: auto;
+}
+
+.transcript-bubble pre code {
+  padding: 0;
+  background: none;
+  white-space: pre;
+}
+
+.transcript-bubble blockquote {
+  padding-left: 8px;
+  border-left: 3px solid var(--border);
+  color: var(--pin);
+}
+
+.transcript-bubble table {
+  border-collapse: collapse;
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.transcript-bubble th,
+.transcript-bubble td {
+  padding: 3px 6px;
+  border: 1px solid var(--border);
+  text-align: left;
+}
+
+.transcript-bubble hr {
+  margin: 8px 0;
+  border: none;
+  border-top: 1px solid var(--border);
+}
+
+.transcript-bubble a {
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .transcript-image {
   max-width: 92%;
   border-radius: 12px;

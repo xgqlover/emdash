@@ -1093,3 +1093,45 @@ chat-ui **原生有行组件**（`ChatResourceLink` + `components/rows/resource-
 ⚠️ **自伤记录（值得记）**：我用「按起止行切片」删桥里那段 marker 发送代码时，**把夹在中间的
 `resource_link` 发送循环一起删掉了** —— 端到端断言立刻报 `IndexError` 抓出来。
 **教训：按行/切片删代码，删完必须回头验证"被删段的邻居"还在不在**（测试是唯一判据）。
+
+### 34. [XG-CUSTOM 2026-10-10] 球面板气泡**渲染 Markdown**（治「球侧回的正文有点乱，聊窗却不错」）
+
+**症状（用户原话）**：「球侧聊天回的文字有点乱的，为什么 emdash 聊天窗回的就不错」。
+**实测根因**（两条腿的"写法"不同，不是感觉）：
+* 球面板：`orb.js:950` 定格 / `:1896` 流式都是 `bubble.textContent = text` ⇒ **纯文本**；
+  `grep -rn markdown src/renderer/orb/` = **0 命中**。气泡只有 `white-space: pre-wrap`
+  ⇒ `**粗体**`、`- 列表`、`### 标题`、`| 表格 |`、`` `code` `` 全部**原样显示**
+  （表格落进 `max-width:92%` + `overflow-wrap:anywhere` 的气泡里必然乱）。
+* 聊窗：`packages/ui/src/react/components/markdown/markdown.tsx` = `react-markdown` + `remark-gfm` + `remark-math`。
+
+**改动**（本仓 4 个文件 + 1 个测试）：
+* **新增** `apps/emdash-desktop/src/renderer/orb/markdown.ts`
+  —— `unified + remark-parse + remark-gfm + remark-rehype + hast-util-to-html` 渲染；
+  **零新增第三方包**：这 5 个包**本来就是 `react-markdown` 的依赖**、同一份实例（照 emdash/AGENTS.md
+  「优先复用既有依赖」，也避免把 React 拉进球的 vanilla bundle）；
+  `package.json` 里把它们**显式声明**（精确到已装版本），lockfile 只 +15 行、无下载。
+* `orb.js`：① 助手气泡走 `paintXiangwoMarkdown()`（**用户气泡仍纯文本**）；② 流式气泡同样走它；
+  ③ 链接点击**拦下来走与图片卡同一条**内嵌浏览器通道（`openXiangwoImageSource` → `host.openEmbeddedBrowser`），
+  不让 electron 里裸 `<a href>` 自己跳（可能开系统浏览器/新窗口）。
+* `orb.css`：助手气泡 `white-space: normal` + 一套 markdown 排版规则
+  （只用球自己的调色板变量 `--input-bg`/`--pin`/`--border`）。
+* **安全（三条都写进 `markdown.ts` 文件头）**：
+  ① `remark-rehype` 默认**丢弃原始 HTML** ⇒ 实测 `<script>`/`<iframe>`/`<img onerror>` 一个都不进输出；
+  ② 但 **`javascript:` 链接会透出**（实测）⇒ 本模块自己走一遍 hast：**非 http(s)/mailto/# 的 `href` 删掉**；
+  ③ **`img` 降级成文字** —— 球里的图只走 `xiangwo-images` 块（服务端 `/xg/img` 代理），放开 `<img>`
+     等于让渲染器绕开代理去拉任意外链。
+  另：顺手清掉 `[XG-PREVIEW]…[/XG-PREVIEW]` 这类**机器标记**（agent 侧 `_sse_stream` 会把它写进正文，
+  而球这边原来只有一句注释、没有解析 ⇒ 原样露给用户）。
+* **回退语义**：渲染不出来就 `textContent` 兜底 —— 球气泡**绝不因为渲染器而变空**。
+
+**验收**：新增 `apps/emdash-desktop/src/renderer/orb/markdown.test.ts` **14 项**（GFM 渲染 3 / 安全 4 / 标记清理 3 / 边界 2 / 回退 2）；
+球面板 7 个测试文件 **143 项全过**；`oxlint` 0 warn 0 error；`build:renderer` 成功
+（新 chunk `out/renderer/assets/orb-*.js` 里能 grep 到 `🖼 `/`checkbox`/`XG-PREVIEW` 特征串）。
+⚠️ **改完必须重建 renderer bundle**（`pnpm run build:renderer`，~50 秒），否则运行中的 app 还是旧 chunk。
+
+**配套的服务端改动（不在本仓，见 `球侧发图与工具调用模板-修复OPS-2026-10-09.md` 续 9）**：
+SSE 唯一出口加**空行收口**（`\n{3,}` ⇒ `\n\n`，流式安全）—— 因为图片块被摘掉后块两边会并成
+`\n\n\n\n`，`pre-wrap` 下显成一大片空白（聊窗的 markdown 会折叠 ⇒ 只有球侧显形）。
+真机前后对照：修前抓包「最长连续换行 4 / ≥3 者 2 处」→ 修后「**0**」。
+
+**已知有意差异**：公式（`remark-math`）不渲染；Markdown 图片显示成文字（理由见上）。

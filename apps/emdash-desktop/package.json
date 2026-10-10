@@ -66,6 +66,7 @@
     "cronstrue": "^3.14.0",
     "drizzle-orm": "^0.32.1",
     "electron-updater": "^6.3.9",
+    "hast-util-to-html": "9.0.5",
     "human-id": "^4.1.2",
     "i18next": "^26.4.2",
     "ignore": "^5.3.1",
@@ -74,11 +75,15 @@
     "node-pty": "1.1.0",
     "pidusage": "^4.0.1",
     "react-i18next": "^17.0.13",
+    "remark-gfm": "4.0.1",
+    "remark-parse": "11.0.0",
+    "remark-rehype": "11.1.2",
     "smol-toml": "^1.6.0",
     "socks-proxy-agent": "^10.1.0",
     "ssh2": "^1.17.0",
     "tinykeys": "^4.0.0",
     "ts-pattern": "^5.9.0",
+    "unified": "11.0.5",
     "zod": "^4.3.6"
   },
   "devDependencies": {

@@ -68,6 +68,9 @@ importers:
       electron-updater:
         specifier: ^6.3.9
         version: 6.8.9
+      hast-util-to-html:
+        specifier: 9.0.5
+        version: 9.0.5
       human-id:
         specifier: ^4.1.2
         version: 4.2.0
@@ -92,6 +95,15 @@ importers:
       react-i18next:
         specifier: ^17.0.13
         version: 17.0.15(i18next@26.4.2(typescript@6.0.3))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@6.0.3)
+      remark-gfm:
+        specifier: 4.0.1
+        version: 4.0.1
+      remark-parse:
+        specifier: 11.0.0
+        version: 11.0.0
+      remark-rehype:
+        specifier: 11.1.2
+        version: 11.1.2
       smol-toml:
         specifier: ^1.6.0
         version: 1.6.1
@@ -107,6 +119,9 @@ importers:
       ts-pattern:
         specifier: ^5.9.0
         version: 5.9.0
+      unified:
+        specifier: 11.0.5
+        version: 11.0.5
       zod:
         specifier: ^4.3.6
         version: 4.4.3

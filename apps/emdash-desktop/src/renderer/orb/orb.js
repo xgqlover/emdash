@@ -1,3 +1,7 @@
+// [XG-CUSTOM 2026-10-10] **球气泡也渲染 Markdown**（治「球侧回的正文有点乱、聊窗却不错」）：
+//   原来这里是 `bubble.textContent = text` = 纯文本，`**粗**`/`- 列表`/`| 表 |` 全原样显示；
+//   聊窗有 react-markdown + remark-gfm。实现在 ./markdown.ts（复用既有 remark 链，**零新增依赖**）。
+import { paintXiangwoMarkdown } from './markdown';
 // [XG-CUSTOM 2026-10-05] 动作块（球指挥主界面：`[XG-ACTION]`→ host.runCommand；协议见 ./xiangwo-action.ts）
 import {
   actionFailureText,
@@ -136,6 +140,7 @@ import { buildSidebarHistoryUrl, fetchSidebarHistory, historyToMessages } from '
 // 都能被 vitest 直接断言（见 xiangwo-images.test.ts），这里只保留"接线"。
 import {
   compactXiangwoImagesBlock,
+  openXiangwoImageSource,
   parseXiangwoImagesBlock,
   renderXiangwoImageGrid,
 } from './xiangwo-images';
@@ -615,6 +620,20 @@ async function main() {
   const panel = document.querySelector('#panel');
   const ball = document.querySelector('#ball');
   const transcript = document.querySelector('#transcript');
+  // [XG-CUSTOM 2026-10-10] Markdown 里的链接：拦下来，走**与图片卡同一条**内嵌浏览器通道
+  //   （`openXiangwoImageSource` → 主进程 `host.openEmbeddedBrowser`）。
+  //   为什么不让它自己跳：electron 里裸 `<a href>` 点击行为不可控（可能开出系统浏览器/新窗口），
+  //   而球面板的既有约定是"开页只开在 emdash 内嵌浏览器里"。
+  transcript.addEventListener('click', (event) => {
+    const target = event.target;
+    if (target === null || typeof target.closest !== 'function') return;
+    const anchor = target.closest('a[href]');
+    if (anchor === null) return;
+    const href = anchor.getAttribute('href') ?? '';
+    if (!/^https?:\/\//i.test(href)) return; // 只接 http(s)：mailto/# 交给系统默认行为
+    event.preventDefault();
+    openXiangwoImageSource(href, currentBotId, bridge);
+  });
   const historyButton = document.querySelector('#history');
   const historyList = document.querySelector('#history-list');
   const captureButton = document.querySelector('#capture');
@@ -947,7 +966,13 @@ async function main() {
       if (parsed.text !== '' || message.streaming === true) {
         const bubble = document.createElement('div');
         bubble.className = 'transcript-bubble';
-        bubble.textContent = parsed.text;
+        if (message.role === 'assistant') {
+          // [XG-CUSTOM 2026-10-10] 助手正文 = Markdown（渲染失败自动退回纯文本，见 paintXiangwoMarkdown）
+          paintXiangwoMarkdown(bubble, parsed.text);
+        } else {
+          // 用户自己发的话：原样显示（用户输入不是 Markdown，别拿它去排版）
+          bubble.textContent = parsed.text;
+        }
         row.append(bubble);
       }
       if (withImages.images !== undefined) {
@@ -1893,7 +1918,9 @@ async function main() {
       renderTranscript();
       return;
     }
-    bubble.textContent = message.text;
+    // [XG-CUSTOM 2026-10-10] 流式也走 Markdown（每个 delta 重渲染这一段；未闭合的标记会先原样显示，
+    //   闭合后立刻成形 —— 与聊窗的流式观感一致）。渲染失败退回纯文本，**绝不丢字**。
+    paintXiangwoMarkdown(bubble, message.text);
     transcript.scrollTop = transcript.scrollHeight;
   }
 
