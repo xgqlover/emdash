@@ -31,6 +31,8 @@ import { AutomationRow } from './AutomationRow';
 import { AutomationTemplatesEmptyState } from './AutomationTemplatesEmptyState';
 import { CreateAutomationView } from './CreateAutomationView';
 import { KaneoBoardPanel } from './KaneoBoardPanel';
+// [XG-CUSTOM 2026-10-11] Tab 口径抽成纯函数（可单测）：见 xg-tab.ts
+import { isXgTab, xgTabOf, type XgTab } from './xg-tab';
 // [XG-CUSTOM 2026-10-10] WorkRally 并入「自动化」：第三个 Tab（照 Kaneo 的先例）
 import { WorkRallyPanel } from './WorkRallyPanel';
 
@@ -46,21 +48,22 @@ export function AutomationsView() {
   // [XG-CUSTOM 2026-10-10] 第三个 Tab「WorkRally 出图」（用户：「把 WorkRally **并入「自动化」界面**」）。
   // 三个 Tab 就是三条"日常操作"的入口；**配置类**（端点/模式/服务）仍留在 设置→集成，
   // 两边靠按钮互跳（见 WorkRallyPanel 顶部的定位原则）。
-  type XgTab = 'automations' | 'kaneo' | 'workrally';
+  // [XG-CUSTOM 2026-10-11] ⚠️ **必须先声明 params**：下面的 `useState` 初始化器在首次渲染时
+  //   **立即执行**，它会读 `params.tab`。原来本行在第 57 位（初始化器之后）⇒ TDZ
+  //   `ReferenceError: Cannot access 'params' before initialization` ⇒ 整个 app 被 ErrorBoundary 接住。
+  const { params, setParams } = useCurrentViewParams(automationsViewDef);
   const [tab, setTab] = useState<XgTab>(() => {
     // 落位：从 设置→集成 的按钮带着 `tab` 参数进来（`navigate(automationsViewDef({ tab: 'workrally' }))`）
-    const t = (params as { tab?: unknown } | undefined)?.tab;
-    return t === 'kaneo' || t === 'workrally' || t === 'automations' ? t : 'automations';
+    // ⚠️ 这里**必须**在 `params` 声明之后（初始化器首次渲染即执行）—— 见 xg-tab.ts 顶部注释。
+    return xgTabOf(params.tab);
   });
   const openConfirm = useOpenModal('confirmActionModal');
   const { navigate } = useNavigate();
-  const { params, setParams } = useCurrentViewParams(automationsViewDef);
 
   // [XG-CUSTOM 2026-10-10] 视图**已被挂载**时再次带参数进入（SPA 可能不重挂）⇒ 跟着参数切。
   // 只认显式给的 tab；参数里没有 tab（例如从左侧栏回「自动化」）时**不动**当前 Tab。
   useEffect(() => {
-    const t = (params as { tab?: unknown } | undefined)?.tab;
-    if (t === 'automations' || t === 'kaneo' || t === 'workrally') setTab(t);
+    if (isXgTab(params.tab)) setTab(params.tab);
   }, [params]);
 
   const source = useQueryListSource(automations, (rows: Automation[]) => rows);

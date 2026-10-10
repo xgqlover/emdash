@@ -8,7 +8,7 @@
   },
   "stats": {
     "files": 241,
-    "markers": 1412,
+    "markers": 1414,
     "newFiles": 120,
     "modifiedFiles": 121
   },
@@ -351,25 +351,28 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/automations/browser/components/AutomationsView.tsx": {
-      "markers": 7,
+      "markers": 9,
       "lines": [
         2,
         34,
-        44,
+        36,
         46,
-        59,
-        130,
-        137
+        48,
+        51,
+        63,
+        133,
+        140
       ],
       "anchors": [
         "import { t } from '@renderer/lib/i18n';",
+        "import { isXgTab, xgTabOf, type XgTab } from './xg-tab';",
         "import { WorkRallyPanel } from './WorkRallyPanel';",
-        "type XgTab = 'automations' | 'kaneo' | 'workrally';",
+        "const { params, setParams } = useCurrentViewParams(automationsViewDef);",
         "useEffect(() => {",
         "<Tabs.Root value={tab} onValueChange={(v) => setTab(v as XgTab)}>",
         "<Tabs.Tab value=\"workrally\">WorkRally 出图</Tabs.Tab>"
       ],
-      "hash": "c58f4810dd3e3ba082b877b1297a7ac302151f07",
+      "hash": "b43f433a87d03bdcc8cc2b06941f29adf0c4056f",
       "origin": "modified",
       "firstCommit": "c7b4f3958|2026-10-08|[XG-CUSTOM 2026-10-08] 「自动化」加 Kaneo 看板 Tab + 修台账漏搜带日期标记",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
