@@ -48,6 +48,24 @@ function hasOwnField<T extends object>(value: T, field: PropertyKey): boolean {
   return Object.prototype.hasOwnProperty.call(value, field);
 }
 
+/**
+ * [XG-CUSTOM 2026-10-10] Read one key out of an ACP `_meta` bag.
+ *
+ * `_meta` is typed `unknown` (officially "reserved for clients and agents to attach
+ * additional metadata"), so it may be anything at all — including a primitive, an
+ * array, or an object whose values are objects. This never throws and never coerces:
+ * a caller that needs a string must still go through `imageMetaString`.
+ */
+function imageMetaValue(meta: unknown, key: string): unknown {
+  if (typeof meta !== 'object' || meta === null || Array.isArray(meta)) return undefined;
+  return (meta as Record<string, unknown>)[key];
+}
+
+/** [XG-CUSTOM 2026-10-10] Accept **only** a string, trimmed; everything else becomes `''`. */
+function imageMetaString(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
 function collectTextPayload(value: unknown, parts: string[]): void {
   if (!value || typeof value !== 'object') return;
   if (Array.isArray(value)) {
@@ -135,14 +153,31 @@ export function decodeSessionUpdate(update: SessionUpdate): NormalizedEvent {
       // here (`type !== 'text'` -> ignored), so generated images never reached the
       // transcript. Emit a text-less message event carrying the image instead; the
       // text branch and the non-text/non-image `ignored` behaviour are unchanged.
+      //
+      // [XG-CUSTOM 2026-10-10] The card's caption / corner badge / click target now ride on
+      // ACP's **native** fields: `ContentBlock.uri` and the official extension slot
+      // `ContentBlock._meta` (`{ caption, sourceHost }`). That retires the custom
+      // `[XG-IMG-META]` text marker the bridge used to send; `_meta` is `unknown` by
+      // contract, so **only strings are accepted** and anything else is ignored.
       if (update.content.type === 'image') {
         if (!update.content.data) return { kind: 'ignored' };
+        const uri = imageMetaString(update.content.uri);
+        const caption = imageMetaString(imageMetaValue(update.content._meta, 'caption'));
+        const sourceHost = imageMetaString(imageMetaValue(update.content._meta, 'sourceHost'));
         return {
           kind: 'message',
           role: 'assistant',
           messageId: update.messageId ?? null,
           text: '',
-          images: [{ mimeType: update.content.mimeType, data: update.content.data }],
+          images: [
+            {
+              mimeType: update.content.mimeType,
+              data: update.content.data,
+              ...(uri !== '' ? { uri } : {}),
+              ...(caption !== '' ? { caption } : {}),
+              ...(sourceHost !== '' ? { sourceHost } : {}),
+            },
+          ],
         };
       }
       // [XG-CUSTOM 2026-10-10] ACP-native `resource_link` block: decode it into its

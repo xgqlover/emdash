@@ -36,6 +36,21 @@ function imageChunk(messageId: string | null, mimeType: string, data: string): S
   } as unknown as SessionUpdate;
 }
 
+/** [XG-CUSTOM 2026-10-10] Image chunk with extra content fields (`uri`, `_meta`, …). */
+function imageChunkWith(messageId: string | null, extra: Record<string, unknown>): SessionUpdate {
+  return {
+    sessionUpdate: 'agent_message_chunk',
+    sessionId: 'sess-1',
+    messageId,
+    content: { type: 'image', mimeType: 'image/png', data: 'QUJD', ...extra },
+  } as unknown as SessionUpdate;
+}
+
+/** [XG-CUSTOM 2026-10-10] The text-less message event carrying exactly one image. */
+function imageEvent(images: unknown): unknown {
+  return { kind: 'message', role: 'assistant', messageId: 'm1', text: '', images: [images] };
+}
+
 function messagesOf(parser: AcpTranscriptParser): TranscriptMessage[] {
   const turns = [...parser.history, ...(parser.activeTurn ? [parser.activeTurn] : [])];
   return turns.flatMap((turn) =>
@@ -57,6 +72,78 @@ describe('decodeSessionUpdate — agent image blocks', () => {
 
   it('ignores an image block with an empty payload', () => {
     expect(decodeSessionUpdate(imageChunk('m1', 'image/png', ''))).toEqual({ kind: 'ignored' });
+  });
+
+  // [XG-CUSTOM 2026-10-10] The bridge now rides ACP's native `ImageContent.uri` + `_meta`
+  // (`{ caption, sourceHost }`) instead of sending a `[XG-IMG-META]` text marker.
+  it('carries the native uri + _meta caption/sourceHost onto the image block', () => {
+    const event = decodeSessionUpdate(
+      imageChunkWith('m1', {
+        uri: 'https://x.test/poster-design',
+        _meta: { caption: '极简留白海报', sourceHost: 'x.test' },
+      })
+    );
+    expect(event).toEqual(
+      imageEvent({
+        mimeType: 'image/png',
+        data: 'QUJD',
+        uri: 'https://x.test/poster-design',
+        caption: '极简留白海报',
+        sourceHost: 'x.test',
+      })
+    );
+  });
+
+  it('keeps a local absolute-path uri verbatim (local image-library hits)', () => {
+    const event = decodeSessionUpdate(
+      imageChunkWith('m1', {
+        uri: '/media/lib/样本龙领去.jpg',
+        _meta: { caption: '样本龙领去.jpg · pixelrag', sourceHost: 'pixelrag' },
+      })
+    );
+    expect(event).toEqual(
+      imageEvent({
+        mimeType: 'image/png',
+        data: 'QUJD',
+        uri: '/media/lib/样本龙领去.jpg',
+        caption: '样本龙领去.jpg · pixelrag',
+        sourceHost: 'pixelrag',
+      })
+    );
+  });
+
+  it('accepts only strings from uri/_meta — never coerces objects, arrays or numbers', () => {
+    const event = decodeSessionUpdate(
+      imageChunkWith('m1', {
+        uri: 42,
+        _meta: { caption: { text: 'nope' }, sourceHost: ['x.test'] },
+      })
+    );
+    expect(event).toEqual(imageEvent({ mimeType: 'image/png', data: 'QUJD' }));
+  });
+
+  it('omits empty and whitespace-only values instead of carrying blank fields', () => {
+    const event = decodeSessionUpdate(
+      imageChunkWith('m1', { uri: '   ', _meta: { caption: '  ', sourceHost: '' } })
+    );
+    expect(event).toEqual(imageEvent({ mimeType: 'image/png', data: 'QUJD' }));
+  });
+
+  it('keeps working when _meta is null, a string, an array or a primitive', () => {
+    for (const bad of [null, undefined, 'nope', ['a'], 7]) {
+      expect(decodeSessionUpdate(imageChunkWith('m1', { _meta: bad }))).toEqual(
+        imageEvent({ mimeType: 'image/png', data: 'QUJD' })
+      );
+    }
+  });
+
+  it('trims surrounding whitespace on carried values', () => {
+    const event = decodeSessionUpdate(
+      imageChunkWith('m1', { uri: '  https://x.test/p  ', _meta: { caption: '  海报  ' } })
+    );
+    expect(event).toEqual(
+      imageEvent({ mimeType: 'image/png', data: 'QUJD', uri: 'https://x.test/p', caption: '海报' })
+    );
   });
 
   it('still ignores non-text, non-image blocks (audio untouched)', () => {

@@ -7,6 +7,11 @@
  *   - metadata pairs with images by index, `min(len)`;
  *   - caption = `alt` else `source`; badge = host(`page`) else `source`;
  *   - only http(s) `page` values become click targets.
+ *
+ * [XG-CUSTOM 2026-10-10] The current contract carries the same facts **on the image**
+ * (`uri` + `_meta`-derived `caption`/`sourceHost`, ACP native); the marker is the legacy
+ * fallback. Both shapes are covered below, plus the click-target split (external vs local
+ * path -> editor).
  */
 
 import { describe, expect, it } from 'vitest';
@@ -16,7 +21,9 @@ import {
   ASSISTANT_IMAGE_THUMB,
   assistantImageDataUrl,
   assistantImageGridHeight,
+  assistantImageTarget,
   buildAssistantImages,
+  fileUrlToPath,
   hostOf,
   isOpenablePage,
   splitAssistantImageMeta,
@@ -94,6 +101,112 @@ describe('buildAssistantImages', () => {
       { alt: '', source: '', page: '/xg/img?u=x' },
     ]);
     expect(image?.page).toBeUndefined();
+  });
+
+  // [XG-CUSTOM 2026-10-10] Current contract: the image itself carries the card facts.
+  it('prefers the fields carried on the image over the legacy marker entry', () => {
+    const [image] = buildAssistantImages(
+      'm1',
+      [
+        {
+          mimeType: 'image/png',
+          data: 'AAA',
+          uri: 'https://new.test/p',
+          caption: '自带小字',
+          sourceHost: 'new.test',
+        },
+      ],
+      [{ alt: 'marker 小字', source: 'searxng', page: 'https://old.test/x' }]
+    );
+    expect(image).toMatchObject({
+      caption: '自带小字',
+      sourceHost: 'new.test',
+      uri: 'https://new.test/p',
+      page: 'https://new.test/p',
+    });
+  });
+
+  it('carries a local absolute path as the click target but keeps `page` http-only', () => {
+    const [image] = buildAssistantImages(
+      'm1',
+      [
+        {
+          mimeType: 'image/png',
+          data: 'AAA',
+          uri: '/media/lib/样本龙领去.jpg',
+          caption: '样本龙领去.jpg',
+          sourceHost: 'pixelrag',
+        },
+      ],
+      []
+    );
+    expect(image).toMatchObject({
+      uri: '/media/lib/样本龙领去.jpg',
+      caption: '样本龙领去.jpg',
+      sourceHost: 'pixelrag',
+    });
+    // `page` is the legacy field and stays http-only (older consumers/tests rely on that).
+    expect(image?.page).toBeUndefined();
+  });
+
+  it('derives the badge from the carried uri host when _meta has no sourceHost', () => {
+    const [image] = buildAssistantImages(
+      'm1',
+      [{ mimeType: 'image/png', data: 'AAA', uri: 'https://x.test/p' }],
+      []
+    );
+    expect(image?.sourceHost).toBe('x.test');
+  });
+
+  it('falls back to the legacy marker when the image carries nothing', () => {
+    const [image] = buildAssistantImages(
+      'm1',
+      [{ mimeType: 'image/png', data: 'AAA' }],
+      [{ alt: '老会话', source: 'bing', page: 'https://old.test/x' }]
+    );
+    expect(image).toMatchObject({
+      caption: '老会话',
+      sourceHost: 'old.test',
+      page: 'https://old.test/x',
+      uri: 'https://old.test/x',
+    });
+  });
+
+  it('still renders images when neither the image nor the marker has metadata', () => {
+    const [image] = buildAssistantImages('m1', [{ mimeType: 'image/png', data: 'AAA' }], []);
+    expect(image?.caption).toBeUndefined();
+    expect(image?.uri).toBeUndefined();
+    expect(image?.page).toBeUndefined();
+    expect(image?.sourceHost).toBeUndefined();
+  });
+});
+
+describe('assistantImageTarget / fileUrlToPath', () => {
+  it('routes http(s) to a new tab and local paths to the editor', () => {
+    expect(assistantImageTarget('https://x.test/p')).toEqual({
+      kind: 'external',
+      url: 'https://x.test/p',
+    });
+    expect(assistantImageTarget('/media/lib/a.jpg')).toEqual({
+      kind: 'file',
+      path: '/media/lib/a.jpg',
+    });
+    expect(assistantImageTarget('file:///media/lib/%E6%A0%B7%E6%9C%AC.jpg')).toEqual({
+      kind: 'file',
+      path: '/media/lib/样本.jpg',
+    });
+  });
+
+  it('is inert for empty values, agent-relative proxy addresses and other schemes', () => {
+    for (const value of ['', '   ', '/xg/img?u=x', 'xg/img', 'data:image/png;base64,AAA', 'nope']) {
+      expect(assistantImageTarget(value)).toEqual({ kind: 'none' });
+    }
+  });
+
+  it('never maps a real file authority to a local path and tolerates bad escapes', () => {
+    expect(fileUrlToPath('file://host/share/a.jpg')).toBe('');
+    expect(assistantImageTarget('file://host/share/a.jpg')).toEqual({ kind: 'none' });
+    expect(fileUrlToPath('file:///a/%E0%A4%A.jpg')).toBe('/a/%E0%A4%A.jpg');
   });
 });
 

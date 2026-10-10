@@ -7,9 +7,9 @@
     "base": "669a24fe673f4af1a507ddc33fc3f3ffe1039348"
   },
   "stats": {
-    "files": 236,
-    "markers": 1380,
-    "newFiles": 115,
+    "files": 238,
+    "markers": 1404,
+    "newFiles": 117,
     "modifiedFiles": 121
   },
   "files": {
@@ -4526,51 +4526,63 @@
       "note": "packages 定制"
     },
     "packages/chat-ui/src/components/rows/message/assistant-images.test.ts": {
-      "markers": 1,
+      "markers": 3,
       "lines": [
-        2
+        2,
+        11,
+        106
       ],
       "anchors": [
-        "import { describe, expect, it } from 'vitest';"
+        "import { describe, expect, it } from 'vitest';",
+        "it('prefers the fields carried on the image over the legacy marker entry', () => {"
       ],
-      "hash": "d76f4caa662731895d110682b042c306dcfb8b9f",
+      "hash": "2de017062399f66a578d9332c46620868934ba1d",
       "origin": "new",
       "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "note": "packages 定制"
     },
     "packages/chat-ui/src/components/rows/message/assistant-images.ts": {
-      "markers": 6,
+      "markers": 10,
       "lines": [
         1,
-        21,
-        30,
-        46,
-        51,
-        76
+        7,
+        22,
+        31,
+        47,
+        52,
+        66,
+        89,
+        116,
+        130
       ],
       "anchors": [
         "2026-10-09] Agent-sent image cards for assistant messages.",
+        "2026-10-10] **Preferred (current) shape** — everything the card needs",
         "import { badgeOf, captionOf, isHttpUrl, text } from '@emdash/shared';",
         "export { hostOf } from '@emdash/shared';",
         "export function isOpenablePage(url: string): boolean {",
         "return isHttpUrl(url);",
-        "const caption = captionOf({ alt, source });"
+        "export type AssistantImageTarget =",
+        "export function assistantImageTarget(raw: string): AssistantImageTarget {",
+        "export function buildAssistantImages(",
+        "const carried = text(image.uri);"
       ],
-      "hash": "0b13d743d317fb5a4bd7035685055dc40a23e3fd",
+      "hash": "61a3a81309eaececf29527e670aa449c7bbd072c",
       "origin": "new",
       "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "note": "packages 定制"
     },
     "packages/chat-ui/src/components/rows/message/message.def.tsx": {
-      "markers": 5,
+      "markers": 6,
       "lines": [
-        41,
-        89,
-        101,
-        217,
-        275
+        43,
+        91,
+        103,
+        105,
+        248,
+        304
       ],
       "anchors": [
         "const isAssistant = item.role === 'assistant';",
@@ -4579,7 +4591,7 @@
         "<Show when={props.data.images?.length}>",
         "// image-only message must not reserve a text line. ⏎ const imagesH ="
       ],
-      "hash": "887877458fe66abe249f8793aa1fa981ea5d50a4",
+      "hash": "1cf2c44cf114ac3e4baf2203612c9068be2d67eb",
       "origin": "modified",
       "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
@@ -4600,34 +4612,42 @@
       "note": "packages 定制"
     },
     "packages/chat-ui/src/model.ts": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
         48,
-        81
+        65,
+        87
       ],
       "anchors": [
         "export type ChatMessageImage = {",
+        "uri?: string;",
         "images?: ChatMessageImage[];"
       ],
-      "hash": "d1e1860a2284e44dd04967c900079a9ed91e3137",
+      "hash": "080d5a9009b21884314ed356f1923eb3f7e47721",
       "origin": "modified",
       "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "note": "packages 定制"
     },
     "packages/core/src/primitives/acp-transcript/api/normalized-event.ts": {
-      "markers": 3,
+      "markers": 6,
       "lines": [
         20,
-        63,
-        171
+        34,
+        39,
+        43,
+        75,
+        183
       ],
       "anchors": [
         "export type NormalizedImageBlock = {",
+        "uri?: string;",
+        "caption?: string;",
+        "sourceHost?: string;",
         "images?: NormalizedImageBlock[];",
         "kind: 'resource_link';"
       ],
-      "hash": "0fd9ea462a91914c86470ba65000246248fca1c3",
+      "hash": "14260a4caf1629dbc5562b6f1ffc6b5bd1292d6e",
       "origin": "modified",
       "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
@@ -4696,14 +4716,15 @@
       "note": "packages 定制"
     },
     "packages/core/src/runtimes/acp/api/models/turns/messages.ts": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        17
+        17,
+        21
       ],
       "anchors": [
         "images: z"
       ],
-      "hash": "44f562128841030c0c50899124253660988197eb",
+      "hash": "afd51c042a104d1f179e3276b0358232a72d1bcc",
       "origin": "modified",
       "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
@@ -4752,31 +4773,42 @@
       "note": "packages 定制"
     },
     "packages/core/src/runtimes/acp/api/reducer/decode.test.ts": {
-      "markers": 2,
+      "markers": 5,
       "lines": [
         2,
-        3
+        3,
+        39,
+        49,
+        77
       ],
       "anchors": [
-        "import type { SessionUpdate } from '@agentclientprotocol/sdk';"
+        "import type { SessionUpdate } from '@agentclientprotocol/sdk';",
+        "function imageChunkWith(messageId: string | null, extra: Record<string, unknown>): SessionUpdate {",
+        "function imageEvent(images: unknown): unknown {",
+        "it('carries the native uri + _meta caption/sourceHost onto the image block', () => {"
       ],
-      "hash": "f32adc3aede5557341d4edfb29b38d7bade7b290",
+      "hash": "621d9bdf5b2528f9334af5c597a33d09b3299c96",
       "origin": "new",
       "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "note": "packages 定制"
     },
     "packages/core/src/runtimes/acp/api/reducer/decode.ts": {
-      "markers": 2,
+      "markers": 5,
       "lines": [
-        133,
-        148
+        52,
+        64,
+        151,
+        157,
+        183
       ],
       "anchors": [
+        "function imageMetaValue(meta: unknown, key: string): unknown {",
+        "function imageMetaString(value: unknown): string {",
         "if (update.content.type === 'image') {",
         "if (update.content.type === 'resource_link') {"
       ],
-      "hash": "a6a2f8cbc726ff3653a10e47967a88fd23bdc5af",
+      "hash": "b75496e6ca6296c8fe42195353ddd973aecb72bb",
       "origin": "modified",
       "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
@@ -5302,8 +5334,44 @@
       ],
       "hash": "aa71792d87728805e2ac53204397938b3c81d7a1",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "b50490c92|2026-10-10|refactor(shared): [XG-CUSTOM 2026-10-10] 图片协议+语义抽成一份（球与主聊天窗共用）",
+      "lastCommit": "b50490c92|2026-10-10|refactor(shared): [XG-CUSTOM 2026-10-10] 图片协议+语义抽成一份（球与主聊天窗共用）",
+      "note": "packages 定制"
+    },
+    "packages/shared/src/xiangwo-images.test.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { describe, expect, it } from 'vitest';"
+      ],
+      "hash": "b9b095e1f7499fcbdfffc06ce9d8d83381b07b42",
+      "origin": "new",
+      "firstCommit": "b50490c92|2026-10-10|refactor(shared): [XG-CUSTOM 2026-10-10] 图片协议+语义抽成一份（球与主聊天窗共用）",
+      "lastCommit": "b50490c92|2026-10-10|refactor(shared): [XG-CUSTOM 2026-10-10] 图片协议+语义抽成一份（球与主聊天窗共用）",
+      "note": "packages 定制"
+    },
+    "packages/shared/src/xiangwo-images.ts": {
+      "markers": 5,
+      "lines": [
+        1,
+        28,
+        104,
+        114,
+        232
+      ],
+      "anchors": [
+        "2026-10-10] 图片协议 **xiangwo-images** 与语义的**唯一事实源**（球 + 主聊天窗共用一份）。",
+        "export const XIANGWO_IMAGES_LEGACY_RE = /\\[XG-IMG\\]([\\s\\S]*?)\\[\\/XG-IMG\\]/g;",
+        "export function captionOf(item: XiangwoImageLike): string {",
+        "export function badgeOf(item: XiangwoImageLike, resolvedPage = ''): string {",
+        "export function splitXiangwoImageMeta(textValue: unknown): {"
+      ],
+      "hash": "8ea7fb8e4be016494d515f8c168ab76937a1a29e",
+      "origin": "new",
+      "firstCommit": "b50490c92|2026-10-10|refactor(shared): [XG-CUSTOM 2026-10-10] 图片协议+语义抽成一份（球与主聊天窗共用）",
+      "lastCommit": "b50490c92|2026-10-10|refactor(shared): [XG-CUSTOM 2026-10-10] 图片协议+语义抽成一份（球与主聊天窗共用）",
       "note": "packages 定制"
     },
     "scripts/xg-i18n/apply.mjs": {

@@ -1,3 +1,4 @@
+import { useCommands } from '@components/contexts/CommandsContext';
 import { StreamContext, type StreamAnimation } from '@components/contexts/StreamContext';
 import { BlockStackView } from '@components/primitives/BlockStackView';
 import { CopyButton } from '@components/primitives/CopyButton';
@@ -15,9 +16,12 @@ import type { ChatMessage, ChatMessageImage } from '@/model';
 import {
   assistantImageDataUrl,
   assistantImageGridHeight,
+  assistantImageTarget,
   buildAssistantImages,
   splitAssistantImageMeta,
 } from './assistant-images';
+import { attachStripHeight, type MessageVars, userInnerWidth } from './metrics';
+import { UserMessageCard } from './UserMessageCard';
 import {
   imageBadge,
   imageCaption,
@@ -26,8 +30,6 @@ import {
   imageGrid,
   imageThumb,
 } from './assistant-images.css';
-import { attachStripHeight, type MessageVars, userInnerWidth } from './metrics';
-import { UserMessageCard } from './UserMessageCard';
 import {
   assistantOuter,
   assistantRoot,
@@ -98,11 +100,12 @@ export function measureMessage(item: ChatMessage, ctx: MeasureCtx, vars: Message
   return stack.height + imagesH + footer;
 }
 
-// [XG-CUSTOM 2026-10-09] One agent-sent image card: thumbnail + caption + source
-// badge. Clicking opens the source page through the SAME external-link pathway
-// markdown links already use (a plain `<a target="_blank">` — see Prose.tsx), so
-// no bespoke opening bridge is introduced. Cards without an http(s) `page` are
-// inert (and not clickable).
+// [XG-CUSTOM 2026-10-09] One agent-sent image card: thumbnail + caption + source badge.
+//
+// [XG-CUSTOM 2026-10-10] Clicking now uses the **same two open pathways as a
+// `resource_link` row** (see rows/resource-link/ResourceLink.tsx) — `http(s)` opens in a
+// new tab, a local path opens in the editor via `commands().onOpenFile`. No bespoke
+// opening bridge is introduced. Cards with no usable URI are inert (and not clickable).
 function AssistantImageContent(props: { image: ChatMessageImage }) {
   const caption = () => props.image.caption ?? '';
   const badge = () => props.image.sourceHost ?? '';
@@ -127,26 +130,54 @@ function AssistantImageContent(props: { image: ChatMessageImage }) {
 }
 
 function AssistantImageCard(props: { image: ChatMessageImage }) {
-  const page = () => props.image.page ?? '';
+  const commands = useCommands();
+  // `uri` is the current contract (ACP `ImageContent.uri`); `page` is the legacy marker field.
+  const target = () => assistantImageTarget(props.image.uri ?? props.image.page ?? '');
+
+  const open = () => {
+    const resolved = target();
+    if (resolved.kind === 'external') {
+      window.open(resolved.url, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    if (resolved.kind === 'file') {
+      commands().onOpenFile?.({
+        path: resolved.path,
+        itemId: props.image.id ?? '',
+        // Reuse the existing 'resource-link' source: the app opens everything except
+        // 'diff' in the task editor, so no new command contract is required.
+        source: 'resource-link',
+      });
+    }
+  };
+
   return (
     <Show
-      when={page() !== ''}
+      when={target().kind !== 'none'}
       fallback={
         <div class={imageCell}>
           <AssistantImageContent image={props.image} />
         </div>
       }
     >
-      <a
+      <div
         class={`${imageCell} ${imageCellClickable}`}
-        href={page()}
-        target="_blank"
-        rel="noopener noreferrer"
-        title={page()}
-        onClick={(e: MouseEvent) => e.stopPropagation()}
+        role="link"
+        tabIndex={0}
+        title={props.image.uri ?? props.image.page ?? ''}
+        onClick={(e: MouseEvent) => {
+          e.stopPropagation();
+          open();
+        }}
+        onKeyDown={(e: KeyboardEvent) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            open();
+          }
+        }}
       >
         <AssistantImageContent image={props.image} />
-      </a>
+      </div>
     </Show>
   );
 }
@@ -217,9 +248,7 @@ function AssistantRender(props: { data: ChatMessage; ctx: RenderCtx; vars: Messa
       {/* [XG-CUSTOM 2026-10-09] Agent images, rendered under the text in send order. */}
       <Show when={props.data.images?.length}>
         <div class={imageGrid}>
-          <For each={props.data.images}>
-            {(image) => <AssistantImageCard image={image} />}
-          </For>
+          <For each={props.data.images}>{(image) => <AssistantImageCard image={image} />}</For>
         </div>
       </Show>
       <Show when={props.data.role === 'assistant'}>
@@ -275,9 +304,7 @@ export const messageUnitDef = defineUnit<ChatMessage, MessageVars>({
     // [XG-CUSTOM 2026-10-09] Keep the estimate shape identical to measure(): an
     // image-only message must not reserve a text line.
     const imagesH =
-      item.role === 'assistant'
-        ? assistantImageGridHeight(item.images?.length ?? 0, ctx.width)
-        : 0;
+      item.role === 'assistant' ? assistantImageGridHeight(item.images?.length ?? 0, ctx.width) : 0;
     const lines =
       item.text.length === 0 && imagesH > 0 ? 0 : Math.max(1, Math.ceil(item.text.length / 60));
     return lines * ctx.theme.fonts.body.lineHeight + footer + imagesH;

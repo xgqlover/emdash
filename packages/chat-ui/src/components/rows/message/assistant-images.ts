@@ -2,21 +2,22 @@
 //
 // Protocol (bridge side: xiangwo_acp.py / agent.py; 项我球 reference:
 // apps/emdash-desktop/src/renderer/orb/xiangwo-images.ts — caption = alt||source,
-// corner badge = host(page), click opens `page`):
+// corner badge = host(page), click opens the source page):
 //
-//   per turn the bridge emits
-//     1. the body text chunk (may be skipped by streaming de-dup),
-//     2. ONE text chunk `[XG-IMG-META][{"alt":…,"source":…,"page":…}, …][/XG-IMG-META]`,
-//     3. N `agent_message_chunk`s with `content = { type: 'image', … }`,
-//        in the same order as the metadata array.
+//   [XG-CUSTOM 2026-10-10] **Preferred (current) shape** — everything the card needs
+//   rides on the image block itself, using ACP's native fields:
+//     N `agent_message_chunk`s with `content = { type: 'image', data, mimeType,
+//       uri: '<source page http(s) | local absolute path>',
+//       _meta: { caption, sourceHost } }`
 //
-// So the metadata and the images normally arrive in *different* chunks (and the
-// marker may even be absent). Everything here is therefore best-effort and must
-// never throw: a broken marker, a missing field, or fewer images than metadata
-// entries only degrade the card — they never break the message.
+//   **Legacy shape (still supported)** — one text chunk carrying
+//   `[XG-IMG-META][{alt,source,page}, …][/XG-IMG-META]`, paired with the images by index.
+//   Old sessions and old bridges keep working; the marker is **always** stripped from
+//   the visible text (it is machine data the user must never see), even when its JSON
+//   is broken or unusable.
 //
-// Text handling: the marker is **always** stripped (it is machine data the user
-// must never see), even when its JSON is unusable.
+// Everything here is best-effort and must never throw: a broken marker, a missing
+// field, or fewer metadata entries than images only degrade the card.
 //
 // [XG-CUSTOM 2026-10-10] **协议与语义现在只有一份** —— `@emdash/shared` 的
 // `packages/shared/src/xiangwo-images.ts`（球面 `renderer/orb/xiangwo-images.ts` 也用它）。
@@ -58,14 +59,67 @@ export function assistantImageDataUrl(image: Pick<ChatMessageImage, 'mimeType' |
   return `data:${mime};base64,${image.data}`;
 }
 
+/** One image block as delivered (new contract carries `uri` + `_meta`-derived fields). */
+export type AssistantImageInput = Pick<ChatMessageImage, 'mimeType' | 'data'> &
+  Partial<Pick<ChatMessageImage, 'uri' | 'caption' | 'sourceHost'>>;
+
+/** [XG-CUSTOM 2026-10-10] Where clicking a card leads. Mirrors the app-layer resource resolver. */
+export type AssistantImageTarget =
+  | { kind: 'external'; url: string }
+  | { kind: 'file'; path: string }
+  | { kind: 'none' };
+
+/** `file:///a/b.jpg` -> `/a/b.jpg` (percent-decoded). A real authority (`file://host/share`) stays unmapped. */
+export function fileUrlToPath(url: string): string {
+  const rest = text(url).replace(/^file:\/\//i, '');
+  const local = rest.startsWith('/')
+    ? rest
+    : /^localhost\//i.test(rest)
+      ? `/${rest.slice('localhost/'.length)}`
+      : '';
+  if (local === '') return '';
+  try {
+    return decodeURIComponent(local);
+  } catch {
+    return local;
+  }
+}
+
+/**
+ * [XG-CUSTOM 2026-10-10] Resolve a card's click target from the delivered URI, using the
+ * **same split** as `resource_link` rows: `http(s)` -> new tab, absolute path or `file://`
+ * -> editor, anything else -> inert. Never throws.
+ *
+ * A path containing `?` is treated as inert on purpose: the agent also hands out
+ * *relative proxy* addresses like `/xg/img?u=…`, which start with `/` but are **not**
+ * files on disk. Only bare absolute paths (the bridge's local-library case) open in the
+ * editor — this keeps the pre-existing "never open an agent-relative URL" invariant.
+ */
+export function assistantImageTarget(raw: string): AssistantImageTarget {
+  const value = text(raw);
+  if (value === '') return { kind: 'none' };
+  if (isHttpUrl(value)) return { kind: 'external', url: value };
+  if (value.toLowerCase().startsWith('file://')) {
+    const path = fileUrlToPath(value);
+    return path === '' ? { kind: 'none' } : { kind: 'file', path };
+  }
+  // Absolute POSIX path — the common case for local image-library hits (e.g. /media/...).
+  if (value.startsWith('/') && !value.includes('?')) return { kind: 'file', path: value };
+  return { kind: 'none' };
+}
+
 /**
  * Pair raw image blocks with the metadata array by index (`min(len)`), mirroring
  * the orb's caption/badge rules. Extra metadata entries are ignored; missing ones
  * only cost the caption.
+ *
+ * [XG-CUSTOM 2026-10-10] Fields carried **on the image** (ACP `uri` + `_meta`) win; the
+ * legacy `[XG-IMG-META]` entry for the same index is the fallback, so old records and
+ * old bridges render exactly as before.
  */
 export function buildAssistantImages(
   itemId: string,
-  images: ReadonlyArray<Pick<ChatMessageImage, 'mimeType' | 'data'>>,
+  images: ReadonlyArray<AssistantImageInput>,
   meta: ReadonlyArray<AssistantImageMeta>
 ): ChatMessageImage[] {
   return images.map((image, index) => {
@@ -73,16 +127,21 @@ export function buildAssistantImages(
     const alt = entry?.alt ?? '';
     const source = entry?.source ?? '';
     const page = entry?.page ?? '';
-    // [XG-CUSTOM 2026-10-10] 小字 / 角标改用**共享语义**（球面同一个口径），别再各写一份。
-    const caption = captionOf({ alt, source });
-    const badge = badgeOf({ page, source });
-    const openable = isOpenablePage(page);
+    // [XG-CUSTOM 2026-10-10] 小字 / 角标用**共享语义**（球面同一个口径）；自带字段优先。
+    const carried = text(image.uri);
+    const caption = text(image.caption) || captionOf({ alt, source });
+    const badge =
+      text(image.sourceHost) || badgeOf({ page: carried !== '' ? carried : page, source });
+    // 点击目标：自带 `uri` 优先（可为 http 或本机路径）；legacy marker 的 `page` 仅 http 可点（老行为不变）。
+    const target = carried !== '' ? carried : isOpenablePage(page) ? page : '';
     return {
       id: `${itemId}#img${index}`,
       mimeType: image.mimeType,
       data: image.data,
       ...(caption !== '' ? { caption } : {}),
-      ...(openable ? { page } : {}),
+      ...(target !== '' ? { uri: target } : {}),
+      // 兼容面：`page` 仍然只在 http(s) 时出现（老的消费者与测试按这个口径）。
+      ...(isOpenablePage(target) ? { page: target } : {}),
       ...(badge !== '' ? { sourceHost: badge } : {}),
     };
   });

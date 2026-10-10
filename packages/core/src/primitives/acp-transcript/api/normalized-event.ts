@@ -30,6 +30,18 @@ export type NormalizedImageBlock = {
   mimeType: string;
   /** Base64 payload, no data-URL prefix. */
   data: string;
+  /**
+   * [XG-CUSTOM 2026-10-10] ACP `ImageContent.uri` — the source page (`http(s)`) or a
+   * local absolute path. Replaces the custom `[XG-IMG-META]` marker's `page` field.
+   */
+  uri?: string;
+  /**
+   * [XG-CUSTOM 2026-10-10] `ImageContent._meta.caption` (ACP's official extension slot):
+   * the small caption under the card — `alt` preferred, else `source`.
+   */
+  caption?: string;
+  /** [XG-CUSTOM 2026-10-10] `ImageContent._meta.sourceHost`: corner badge = `host(page)`, else `source`. */
+  sourceHost?: string;
 };
 
 export type PlanEntryInput = {

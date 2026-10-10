@@ -59,11 +59,17 @@ export type ChatMessageImage = {
   mimeType: string;
   /** Bare base64 payload, no data-URL prefix. */
   data: string;
-  /** Small caption under the image: marker `alt` preferred, else marker `source`. */
+  /** Small caption under the image: image `caption` (ACP `_meta`), else marker `alt`/`source`. */
   caption?: string;
-  /** Source page URL (marker `page`) — click target when it is http(s). */
+  /**
+   * [XG-CUSTOM 2026-10-10] Click target as delivered by the bridge (ACP `ImageContent.uri`):
+   * an `http(s)` source page, or a **local absolute path** opened in the editor. Preferred
+   * over the legacy `page` below.
+   */
+  uri?: string;
+  /** Source page URL (legacy `[XG-IMG-META]` marker `page`) — clickable when it is http(s). */
   page?: string;
-  /** Corner badge: host of `page`, else marker `source`. */
+  /** Corner badge: host of the click target, else `source`. */
   sourceHost?: string;
 };
 
