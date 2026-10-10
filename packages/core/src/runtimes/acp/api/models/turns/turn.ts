@@ -1,12 +1,16 @@
 import { z } from 'zod';
 import { stopReasonSchema } from '#runtimes/acp/api/models/stop-reason';
 import { transcriptMessageSchema } from './messages';
+import { transcriptResourceLinkSchema } from './resource-links';
 import { transcriptThinkingSchema } from './thinking';
 import { toolNodeSchema } from './tool-calls';
 
+// [XG-CUSTOM 2026-10-10] `resource-link` joined the union so ACP-native resource
+// links survive the wire (zod strips unknown members otherwise).
 export const transcriptItemSchema = z.union([
   transcriptMessageSchema,
   transcriptThinkingSchema,
+  transcriptResourceLinkSchema,
   toolNodeSchema,
 ]);
 export type TranscriptItem = z.infer<typeof transcriptItemSchema>;

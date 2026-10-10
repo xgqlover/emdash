@@ -58,6 +58,9 @@ import {
   asValueSource,
 } from './acp-live-session';
 import { bindSessionTerminalOutputs } from './acp-terminal-output-binding';
+// [XG-CUSTOM 2026-10-10] Resolve ACP `resource_link` URIs into chat-ui targets
+// before items enter the transcript store (live updates and history both flow here).
+import { enrichResourceLinks } from './resource-link-enrichment';
 
 export interface AgentAffordances {
   isWorking: boolean;
@@ -739,7 +742,7 @@ export class AcpChatStore {
       if (this._disposed || this._historyEpoch !== epoch || this.session !== attachedSession)
         return;
       runInAction(() => {
-        const applied = this.chatState.transcript.applyPage(history.data);
+        const applied = this.chatState.transcript.applyPage(enrichResourceLinks(history.data));
         if (applied) this.historyKnown = true;
         this.historyLoading = false;
         this.loadError = null;
@@ -1129,7 +1132,7 @@ export class AcpChatStore {
         generation = position?.generation;
         let applied = false;
         runInAction(() => {
-          applied = transcript.applyPage(history.data);
+          applied = transcript.applyPage(enrichResourceLinks(history.data));
           if (!applied) return;
           this.historyKnown = true;
           this.loadError = null;

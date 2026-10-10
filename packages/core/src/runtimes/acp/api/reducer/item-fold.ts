@@ -26,7 +26,7 @@ import type {
   ToolNode,
   ToolStatus,
 } from '../models/turns';
-import { makeDiffId, makePlanId, makeToolId } from './ids';
+import { makeDiffId, makePlanId, makeResourceLinkId, makeToolId } from './ids';
 import type {
   NormalizedDiff,
   NormalizedEvent,
@@ -672,6 +672,24 @@ export function foldItem(
       return normalizeToolStructure([...base, newMsg], turnId);
     }
 
+    // [XG-CUSTOM 2026-10-10] ACP-native `resource_link`: one standalone row per
+    // block (never merged into a message bubble, never upserted onto another row).
+    case 'resource_link': {
+      const ordinal = flatItems.filter((it) => it.kind === 'resource-link').length;
+      const next = {
+        kind: 'resource-link' as const,
+        id: makeResourceLinkId(turnId, ordinal),
+        seq: nextSeq(flatItems),
+        uri: event.uri,
+        name: event.name,
+        ...(event.title !== undefined ? { title: event.title } : {}),
+        ...(event.description !== undefined ? { description: event.description } : {}),
+        ...(event.mimeType !== undefined ? { mimeType: event.mimeType } : {}),
+        ...(event.size !== undefined ? { size: event.size } : {}),
+      };
+      return normalizeToolStructure([...flatItems, next], turnId);
+    }
+
     case 'thinking': {
       const id = event.itemId;
       const idx = flatItems.findIndex(
@@ -841,7 +859,9 @@ export function finalizeItems(items: TranscriptItem[], at: number): TranscriptIt
 
   return items.map((item): TranscriptItem => {
     switch (item.kind) {
+      // [XG-CUSTOM 2026-10-10] Resource links carry no in-progress state.
       case 'message':
+      case 'resource-link':
         return item;
       case 'thinking':
         return item.status === 'thinking'

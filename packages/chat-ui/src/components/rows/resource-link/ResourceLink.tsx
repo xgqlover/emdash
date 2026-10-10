@@ -64,16 +64,22 @@ export type ResourceLinkProps = {
 export function ResourceLink(props: ResourceLinkProps) {
   const commands = useCommands();
 
+  // [XG-CUSTOM 2026-10-10] `target` is resolved by the desktop enrichment transform and stays
+  // **optional** on the wire schema (the ACP runtime cannot know how this client addresses a
+  // URI). A feed path that forgets to enrich must therefore degrade to an inert row: reading
+  // `item.target.kind` directly would throw and take the whole row (and its panel) down.
+  const resolvedTarget = () => props.item.target ?? ({ kind: 'opaque' } as const);
+
   const displayName = () => props.item.title ?? props.item.name;
   const iconName = () => {
     const name = props.item.name;
     return resolveFileIconClass(name) ?? null;
   };
-  const secondary = () => secondaryLabel(props.item.uri, props.item.target);
-  const isClickable = () => props.item.target.kind !== 'opaque';
+  const secondary = () => secondaryLabel(props.item.uri, resolvedTarget());
+  const isClickable = () => resolvedTarget().kind !== 'opaque';
 
   const handleClick = () => {
-    const target = props.item.target;
+    const target = resolvedTarget();
     if (target.kind === 'workspace-file') {
       commands().onOpenFile?.({
         path: target.path,

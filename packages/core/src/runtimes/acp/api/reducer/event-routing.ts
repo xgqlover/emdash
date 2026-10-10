@@ -34,7 +34,10 @@ export function routeEvent(
   activeTurnId: string | null,
   planTurnId: string | null
 ): EventRoute {
-  if (event.kind === 'message' || event.kind === 'thinking') {
+  // [XG-CUSTOM 2026-10-10] A resource link rides the active turn exactly like
+  // foreground content; without this it would fall through to `turnId: null` and
+  // be dropped (it is not a tool event, so no owner can be established).
+  if (event.kind === 'message' || event.kind === 'thinking' || event.kind === 'resource_link') {
     return { turnId: activeTurnId, foreground: true };
   }
   if (event.kind === 'plan') {

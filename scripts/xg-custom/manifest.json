@@ -7,10 +7,10 @@
     "base": "669a24fe673f4af1a507ddc33fc3f3ffe1039348"
   },
   "stats": {
-    "files": 222,
-    "markers": 1353,
-    "newFiles": 107,
-    "modifiedFiles": 115
+    "files": 231,
+    "markers": 1368,
+    "newFiles": 111,
+    "modifiedFiles": 120
   },
   "files": {
     ".github/workflows/release-prod.yml": {
@@ -916,14 +916,16 @@
       "note": "会话/ACP 定制（专家交接横条、专家表）"
     },
     "apps/emdash-desktop/src/core/features/conversations/browser/acp/acp-chat-store.ts": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        571
+        61,
+        574
       ],
       "anchors": [
+        "import { enrichResourceLinks } from './resource-link-enrichment';",
         "const detail = (() => {"
       ],
-      "hash": "89ceb05bf2e9841f3b47631b554335f1dfc0ad65",
+      "hash": "897c79ecab2c35b1a0c184b45b4950170ff3611e",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -4478,6 +4480,48 @@
       "lastCommit": "501f2b81c|2026-09-28|fix(workspace-server): 恢复无 Docker 本地编译 native 依赖的 [XG-CUSTOM] 补丁",
       "note": "workspace-server fork 运行时（无 Docker 本地编译补丁）"
     },
+    "packages/chat-ui/src/components/rows/message/assistant-images.css.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { style } from '@vanilla-extract/css';"
+      ],
+      "hash": "9a4cd9cd19ee6ef63602157e95a453cbbf561b8b",
+      "origin": "new",
+      "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
+      "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
+      "note": "packages 定制"
+    },
+    "packages/chat-ui/src/components/rows/message/assistant-images.test.ts": {
+      "markers": 1,
+      "lines": [
+        2
+      ],
+      "anchors": [
+        "import { describe, expect, it } from 'vitest';"
+      ],
+      "hash": "d76f4caa662731895d110682b042c306dcfb8b9f",
+      "origin": "new",
+      "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
+      "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
+      "note": "packages 定制"
+    },
+    "packages/chat-ui/src/components/rows/message/assistant-images.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "2026-10-09] Agent-sent image cards for assistant messages."
+      ],
+      "hash": "960561bee54fb085bed503cca14bab5f8a2fe170",
+      "origin": "new",
+      "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
+      "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
+      "note": "packages 定制"
+    },
     "packages/chat-ui/src/components/rows/message/message.def.tsx": {
       "markers": 5,
       "lines": [
@@ -4494,7 +4538,21 @@
         "<Show when={props.data.images?.length}>",
         "// image-only message must not reserve a text line. ⏎ const imagesH ="
       ],
-      "hash": "03bd3a971c6bffb1d78457b3c9f507f2255b12a3",
+      "hash": "887877458fe66abe249f8793aa1fa981ea5d50a4",
+      "origin": "modified",
+      "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
+      "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
+      "note": "packages 定制"
+    },
+    "packages/chat-ui/src/components/rows/resource-link/ResourceLink.tsx": {
+      "markers": 1,
+      "lines": [
+        67
+      ],
+      "anchors": [
+        "const resolvedTarget = () => props.item.target ?? ({ kind: 'opaque' } as const);"
+      ],
+      "hash": "9df65caa71f5055b2a93ae8370e4136f8e14604f",
       "origin": "modified",
       "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
       "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
@@ -4510,26 +4568,28 @@
         "export type ChatMessageImage = {",
         "images?: ChatMessageImage[];"
       ],
-      "hash": "144a096057edb072631cc71eb961568d78789fa1",
+      "hash": "d1e1860a2284e44dd04967c900079a9ed91e3137",
       "origin": "modified",
-      "firstCommit": "19784f6f1|2026-09-05|Merge pull request #3123 from generalaction/fix-collapse-chat-ui-thinking-blocks",
-      "lastCommit": "19784f6f1|2026-09-05|Merge pull request #3123 from generalaction/fix-collapse-chat-ui-thinking-blocks",
+      "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
+      "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "note": "packages 定制"
     },
     "packages/core/src/primitives/acp-transcript/api/normalized-event.ts": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
         20,
-        63
+        63,
+        171
       ],
       "anchors": [
         "export type NormalizedImageBlock = {",
-        "images?: NormalizedImageBlock[];"
+        "images?: NormalizedImageBlock[];",
+        "kind: 'resource_link';"
       ],
-      "hash": "a2c00d21118be6e3b5514fc1e7339c810db82d25",
+      "hash": "0fd9ea462a91914c86470ba65000246248fca1c3",
       "origin": "modified",
-      "firstCommit": "3b825feb7|2026-09-11|fix(acp): keep empty chat composer centered",
-      "lastCommit": "3b825feb7|2026-09-11|fix(acp): keep empty chat composer centered",
+      "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
+      "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "note": "packages 定制"
     },
     "packages/core/src/primitives/skills/api/merge-installed.ts": {
@@ -4580,6 +4640,20 @@
       "lastCommit": "af361c579|2026-10-09|fix(skills): [XG-CUSTOM 2026-10-09] 中央技能库正确接入（逐项容错 / 只读语义 / 分类分组生效）",
       "note": "packages 定制"
     },
+    "packages/core/src/runtimes/acp/api/models/turns/index.ts": {
+      "markers": 1,
+      "lines": [
+        2
+      ],
+      "anchors": [
+        "export * from './resource-links';"
+      ],
+      "hash": "092218aa157642c5a13ca3942288a15609a9a6da",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "note": "packages 定制"
+    },
     "packages/core/src/runtimes/acp/api/models/turns/messages.ts": {
       "markers": 1,
       "lines": [
@@ -4590,40 +4664,103 @@
       ],
       "hash": "44f562128841030c0c50899124253660988197eb",
       "origin": "modified",
-      "firstCommit": "4afbbd18d|2026-09-21|feat(attachments)!: scope stored files to conversation and workspace owners",
-      "lastCommit": "4afbbd18d|2026-09-21|feat(attachments)!: scope stored files to conversation and workspace owners",
+      "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
+      "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
+      "note": "packages 定制"
+    },
+    "packages/core/src/runtimes/acp/api/models/turns/turn.ts": {
+      "markers": 1,
+      "lines": [
+        8
+      ],
+      "anchors": [
+        "export const transcriptItemSchema = z.union(["
+      ],
+      "hash": "dbacc343a2862a1a916b4e3d17e87cd3e934d6fc",
+      "origin": "modified",
+      "firstCommit": "8c252d7f9|2026-09-14|fix(acp): version transcript snapshots and history pages",
+      "lastCommit": "8c252d7f9|2026-09-14|fix(acp): version transcript snapshots and history pages",
+      "note": "packages 定制"
+    },
+    "packages/core/src/runtimes/acp/api/reducer/decode.test.ts": {
+      "markers": 2,
+      "lines": [
+        2,
+        3
+      ],
+      "anchors": [
+        "import type { SessionUpdate } from '@agentclientprotocol/sdk';"
+      ],
+      "hash": "f32adc3aede5557341d4edfb29b38d7bade7b290",
+      "origin": "new",
+      "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
+      "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "note": "packages 定制"
     },
     "packages/core/src/runtimes/acp/api/reducer/decode.ts": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        133
+        133,
+        148
       ],
       "anchors": [
-        "if (update.content.type === 'image') {"
+        "if (update.content.type === 'image') {",
+        "if (update.content.type === 'resource_link') {"
       ],
-      "hash": "a66b4a1b76445ba0aa9185c0b335f751e313c2b5",
+      "hash": "a6a2f8cbc726ff3653a10e47967a88fd23bdc5af",
       "origin": "modified",
-      "firstCommit": "64552aebc|2026-09-04|fix(acp): honor structured tool updates",
-      "lastCommit": "64552aebc|2026-09-04|fix(acp): honor structured tool updates",
+      "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
+      "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
+      "note": "packages 定制"
+    },
+    "packages/core/src/runtimes/acp/api/reducer/event-routing.ts": {
+      "markers": 1,
+      "lines": [
+        37
+      ],
+      "anchors": [
+        "if (event.kind === 'message' || event.kind === 'thinking' || event.kind === 'resource_link') {"
+      ],
+      "hash": "69576b476de146c56506f4fe5bc3c6b5ad4288b5",
+      "origin": "modified",
+      "firstCommit": "4c6b1c4c7|2026-09-09|fix(acp): separate foreground content from async event ownership",
+      "lastCommit": "4c6b1c4c7|2026-09-09|fix(acp): separate foreground content from async event ownership",
+      "note": "packages 定制"
+    },
+    "packages/core/src/runtimes/acp/api/reducer/ids.ts": {
+      "markers": 1,
+      "lines": [
+        48
+      ],
+      "anchors": [
+        "export function makeResourceLinkId(turnId: string, ordinal: number): string {"
+      ],
+      "hash": "1c1372515bfa7d632e908112dbbee2698d74ed4e",
+      "origin": "modified",
+      "firstCommit": "4c6b1c4c7|2026-09-09|fix(acp): separate foreground content from async event ownership",
+      "lastCommit": "4c6b1c4c7|2026-09-09|fix(acp): separate foreground content from async event ownership",
       "note": "packages 定制"
     },
     "packages/core/src/runtimes/acp/api/reducer/item-fold.ts": {
-      "markers": 3,
+      "markers": 5,
       "lines": [
         42,
         626,
-        634
+        634,
+        675,
+        862
       ],
       "anchors": [
         "const XG_IMAGE_MAX_PER_MESSAGE = 60;",
         "...(event.images?.length ? { images: appendImages(msg.images, event.images) } : {}),",
-        "if (event.role === 'assistant' && event.images?.length && event.text === '') {"
+        "if (event.role === 'assistant' && event.images?.length && event.text === '') {",
+        "case 'resource_link': {",
+        "case 'resource-link': ⏎ return item;"
       ],
-      "hash": "6a4d150434852fe7efd8bbc30f376bed900e848b",
+      "hash": "3aa0cee2a70447c02f8e02714fbeb25fcaf48545",
       "origin": "modified",
-      "firstCommit": "4c6b1c4c7|2026-09-09|fix(acp): separate foreground content from async event ownership",
-      "lastCommit": "4c6b1c4c7|2026-09-09|fix(acp): separate foreground content from async event ownership",
+      "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
+      "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "note": "packages 定制"
     },
     "packages/core/src/runtimes/agent-config/node/runtime/skills.ts": {

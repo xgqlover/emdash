@@ -145,6 +145,28 @@ export function decodeSessionUpdate(update: SessionUpdate): NormalizedEvent {
           images: [{ mimeType: update.content.mimeType, data: update.content.data }],
         };
       }
+      // [XG-CUSTOM 2026-10-10] ACP-native `resource_link` block: decode it into its
+      // own row event (routed independently — never appended to the message text).
+      // `uri` and `name` are both required by ACP; a block missing either is
+      // dropped whole rather than producing a half-built row.
+      if (update.content.type === 'resource_link') {
+        const uri = (update.content.uri ?? '').trim();
+        const name = (update.content.name ?? '').trim();
+        if (!uri || !name) return { kind: 'ignored' };
+        const title = (update.content.title ?? '').trim();
+        const description = (update.content.description ?? '').trim();
+        const mimeType = (update.content.mimeType ?? '').trim();
+        const size = update.content.size;
+        return {
+          kind: 'resource_link',
+          uri,
+          name,
+          ...(title ? { title } : {}),
+          ...(description ? { description } : {}),
+          ...(mimeType ? { mimeType } : {}),
+          ...(typeof size === 'number' && Number.isFinite(size) && size >= 0 ? { size } : {}),
+        };
+      }
       if (update.content.type !== 'text' || !update.content.text) return { kind: 'ignored' };
       return {
         kind: 'message',

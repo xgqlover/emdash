@@ -168,6 +168,21 @@ export type NormalizedEvent =
       kind: 'title';
       title: string;
     }
+  // [XG-CUSTOM 2026-10-10] ACP-native `resource_link` content block (sub-artifact /
+  // reference card). Decoded into its own transcript row — it must NOT be folded
+  // into the surrounding assistant message bubble.
+  | {
+      kind: 'resource_link';
+      /** Required by ACP. http(s) URL, absolute path, or a custom scheme. */
+      uri: string;
+      /** Required by ACP; human-readable name shown for the resource. */
+      name: string;
+      title?: string;
+      description?: string;
+      mimeType?: string;
+      /** Size of the linked resource in bytes, when ACP supplied one. */
+      size?: number;
+    }
   | { kind: 'ignored' };
 
 export type EnrichHook = (event: NormalizedEvent, raw: SessionUpdate) => NormalizedEvent;

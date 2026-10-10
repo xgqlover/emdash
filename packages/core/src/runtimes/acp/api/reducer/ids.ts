@@ -45,6 +45,18 @@ export function makeThinkingId(turnId: string, messageId: string | null, ordinal
 }
 
 /**
+ * [XG-CUSTOM 2026-10-10] Stable resource-link item id.
+ *
+ * ACP does not give resource links a provider id, and each block is its own row,
+ * so identity is the block's ordinal within the turn (append-only folding makes
+ * that ordinal stable).
+ * Format: `${turnId}:resource-link:${ordinal}`
+ */
+export function makeResourceLinkId(turnId: string, ordinal: number): string {
+  return `${turnId}:resource-link:${ordinal}`;
+}
+
+/**
  * Stable tool item id.
  * Format: `${turnId}:tool:${toolCallId}`
  */
