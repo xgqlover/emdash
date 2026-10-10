@@ -7,10 +7,10 @@
     "base": "669a24fe673f4af1a507ddc33fc3f3ffe1039348"
   },
   "stats": {
-    "files": 231,
-    "markers": 1368,
-    "newFiles": 111,
-    "modifiedFiles": 120
+    "files": 236,
+    "markers": 1380,
+    "newFiles": 115,
+    "modifiedFiles": 121
   },
   "files": {
     ".github/workflows/release-prod.yml": {
@@ -943,6 +943,34 @@
       "origin": "new",
       "firstCommit": "3a3aa7b4a|2026-09-22|feat: 专家交接台横条（聊天输入框下方 MCP 卡片样式，接下/删除 + list 桥接）",
       "lastCommit": "3a3aa7b4a|2026-09-22|feat: 专家交接台横条（聊天输入框下方 MCP 卡片样式，接下/删除 + list 桥接）",
+      "note": "会话/ACP 定制（专家交接横条、专家表）"
+    },
+    "apps/emdash-desktop/src/core/features/conversations/browser/acp/resource-link-enrichment.test.ts": {
+      "markers": 1,
+      "lines": [
+        2
+      ],
+      "anchors": [
+        "import type { HistoryPage, TranscriptItem } from '@emdash/core/runtimes/acp/api/client';"
+      ],
+      "hash": "761b0fd6e4d859a5318e556d7d1ea2bd4c7261ef",
+      "origin": "new",
+      "firstCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
+      "lastCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
+      "note": "会话/ACP 定制（专家交接横条、专家表）"
+    },
+    "apps/emdash-desktop/src/core/features/conversations/browser/acp/resource-link-enrichment.ts": {
+      "markers": 1,
+      "lines": [
+        2
+      ],
+      "anchors": [
+        "import type {"
+      ],
+      "hash": "dd3251480aa551bc1c20040d59764d2f98e31126",
+      "origin": "new",
+      "firstCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
+      "lastCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
       "note": "会话/ACP 定制（专家交接横条、专家表）"
     },
     "apps/emdash-desktop/src/core/features/conversations/browser/acp/xiangwo-experts.ts": {
@@ -4382,20 +4410,23 @@
       "note": "项我球 orb（球壳 + 聊天/图片网格渲染）"
     },
     "apps/emdash-desktop/src/renderer/orb/xiangwo-images.ts": {
-      "markers": 4,
+      "markers": 6,
       "lines": [
         1,
-        32,
-        170,
-        341
+        7,
+        18,
+        79,
+        111,
+        214
       ],
       "anchors": [
+        "import {",
         "] 图片协议 **xiangwo-images** 的解析 + 网格渲染（项我球面板）。",
-        "export const XIANGWO_IMAGES_LEGACY_RE = /\\[XG-IMG\\]([\\s\\S]*?)\\[\\/XG-IMG\\]/g;",
-        "const legacy: string[] = [];",
+        "function needsAgentBase(payload: XiangwoImagesPayload): boolean {",
+        "caption: captionOf(item),",
         "button.append(fallbackOf('图片不可用'));"
       ],
-      "hash": "c9ca6d1d5f45e45655b978fde5f02bbb7a4eed71",
+      "hash": "5db447f0cc40636b6a4e1c7dd21f13ecf005f3c7",
       "origin": "new",
       "firstCommit": "e60319d08|2026-10-04|feat(orb): [XG-CUSTOM] 图片网格相对地址按 agent 基址拼绝对 + 点击在内嵌浏览器开来源页",
       "lastCommit": "e60319d08|2026-10-04|feat(orb): [XG-CUSTOM] 图片网格相对地址按 agent 基址拼绝对 + 点击在内嵌浏览器开来源页",
@@ -4509,14 +4540,24 @@
       "note": "packages 定制"
     },
     "packages/chat-ui/src/components/rows/message/assistant-images.ts": {
-      "markers": 1,
+      "markers": 6,
       "lines": [
-        1
+        1,
+        21,
+        30,
+        46,
+        51,
+        76
       ],
       "anchors": [
-        "2026-10-09] Agent-sent image cards for assistant messages."
+        "2026-10-09] Agent-sent image cards for assistant messages.",
+        "import { badgeOf, captionOf, isHttpUrl, text } from '@emdash/shared';",
+        "export { hostOf } from '@emdash/shared';",
+        "export function isOpenablePage(url: string): boolean {",
+        "return isHttpUrl(url);",
+        "const caption = captionOf({ alt, source });"
       ],
-      "hash": "960561bee54fb085bed503cca14bab5f8a2fe170",
+      "hash": "0b13d743d317fb5a4bd7035685055dc40a23e3fd",
       "origin": "new",
       "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
@@ -4554,8 +4595,8 @@
       ],
       "hash": "9df65caa71f5055b2a93ae8370e4136f8e14604f",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
+      "lastCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
       "note": "packages 定制"
     },
     "packages/chat-ui/src/model.ts": {
@@ -4650,8 +4691,8 @@
       ],
       "hash": "092218aa157642c5a13ca3942288a15609a9a6da",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
+      "lastCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
       "note": "packages 定制"
     },
     "packages/core/src/runtimes/acp/api/models/turns/messages.ts": {
@@ -4668,6 +4709,34 @@
       "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "note": "packages 定制"
     },
+    "packages/core/src/runtimes/acp/api/models/turns/resource-links.test.ts": {
+      "markers": 1,
+      "lines": [
+        2
+      ],
+      "anchors": [
+        "import { describe, expect, it } from 'vitest';"
+      ],
+      "hash": "4f507254571457dc7181deff481601a55ea40328",
+      "origin": "new",
+      "firstCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
+      "lastCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
+      "note": "packages 定制"
+    },
+    "packages/core/src/runtimes/acp/api/models/turns/resource-links.ts": {
+      "markers": 1,
+      "lines": [
+        4
+      ],
+      "anchors": [
+        "export const resourceTargetSchema = z.discriminatedUnion('kind', ["
+      ],
+      "hash": "96db7f09a65c56dacf66d21fd118ffa537453cf5",
+      "origin": "new",
+      "firstCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
+      "lastCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
+      "note": "packages 定制"
+    },
     "packages/core/src/runtimes/acp/api/models/turns/turn.ts": {
       "markers": 1,
       "lines": [
@@ -4678,8 +4747,8 @@
       ],
       "hash": "dbacc343a2862a1a916b4e3d17e87cd3e934d6fc",
       "origin": "modified",
-      "firstCommit": "8c252d7f9|2026-09-14|fix(acp): version transcript snapshots and history pages",
-      "lastCommit": "8c252d7f9|2026-09-14|fix(acp): version transcript snapshots and history pages",
+      "firstCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
+      "lastCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
       "note": "packages 定制"
     },
     "packages/core/src/runtimes/acp/api/reducer/decode.test.ts": {
@@ -4723,8 +4792,8 @@
       ],
       "hash": "69576b476de146c56506f4fe5bc3c6b5ad4288b5",
       "origin": "modified",
-      "firstCommit": "4c6b1c4c7|2026-09-09|fix(acp): separate foreground content from async event ownership",
-      "lastCommit": "4c6b1c4c7|2026-09-09|fix(acp): separate foreground content from async event ownership",
+      "firstCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
+      "lastCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
       "note": "packages 定制"
     },
     "packages/core/src/runtimes/acp/api/reducer/ids.ts": {
@@ -4737,8 +4806,8 @@
       ],
       "hash": "1c1372515bfa7d632e908112dbbee2698d74ed4e",
       "origin": "modified",
-      "firstCommit": "4c6b1c4c7|2026-09-09|fix(acp): separate foreground content from async event ownership",
-      "lastCommit": "4c6b1c4c7|2026-09-09|fix(acp): separate foreground content from async event ownership",
+      "firstCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
+      "lastCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
       "note": "packages 定制"
     },
     "packages/core/src/runtimes/acp/api/reducer/item-fold.ts": {
@@ -5222,6 +5291,20 @@
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "项我 agent plugin（CLI 桥 8900）"
+    },
+    "packages/shared/src/index.ts": {
+      "markers": 1,
+      "lines": [
+        47
+      ],
+      "anchors": [
+        "// 显式具名导出（不用 `export *`）：本 barrel 一直是这个风格，也避免将来撞名。 ⏎ export {"
+      ],
+      "hash": "aa71792d87728805e2ac53204397938b3c81d7a1",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "note": "packages 定制"
     },
     "scripts/xg-i18n/apply.mjs": {
       "markers": 2,

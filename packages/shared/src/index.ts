@@ -44,3 +44,33 @@ export {
 export { isDeepEqual } from './deep-equal';
 export { once, toPendingLease } from './lifecycle';
 export type { PendingLease, Lease, Unsubscribe } from './lifecycle';
+// [XG-CUSTOM 2026-10-10] 图片协议（球 + 主聊天窗共用的**唯一事实源**）——
+// 显式具名导出（不用 `export *`）：本 barrel 一直是这个风格，也避免将来撞名。
+export {
+  asRecord,
+  badgeOf,
+  captionOf,
+  compactXiangwoImagesBlock,
+  hostOf,
+  isAddressLike,
+  isHttpUrl,
+  normalizeXiangwoImages,
+  parseXiangwoImagesBlock,
+  splitXiangwoImageMeta,
+  text,
+  unique,
+  XG_IMG_META_CLOSE,
+  XG_IMG_META_MAX_ALT,
+  XG_IMG_META_MAX_SOURCE,
+  XG_IMG_META_OPEN,
+  XG_IMG_META_RE_SOURCE,
+  XIANGWO_IMAGES_BLOCK_RE,
+  XIANGWO_IMAGES_LEGACY_RE,
+  XIANGWO_IMAGES_MAX,
+  XIANGWO_IMAGES_STORE_MAX,
+  XIANGWO_IMAGES_TITLE_MAX,
+  type XiangwoImageItem,
+  type XiangwoImageLike,
+  type XiangwoImageMeta,
+  type XiangwoImagesPayload,
+} from './xiangwo-images';

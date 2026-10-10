@@ -1,3 +1,20 @@
+// [XG-CUSTOM 2026-10-10] **协议本体与语义已搬到 `@emdash/shared`**（球 + 主聊天窗共用一份，
+//   唯一事实源 = `packages/shared/src/xiangwo-images.ts`）。本文件只保留**球专属的渲染层**
+//   （cells / 网格 / 点开来源页 / agent 基址拼接）。
+// ⚠️ `import` 是给下面渲染层用的；`export { … } from` 是**兼容面** —— `orb.js` 与
+//   `xiangwo-images.test.ts` / `xiangwo-images-legacy.test.ts` 都从本模块 import 这些名字，
+//   **不许改它们** ⇒ 导出面必须保持不变（内部换实现、对外同一副面孔）。
+// [XG-CUSTOM 2026-10-10] 注意：`export { … } from` **不产生本地绑定** —— 本文件内部还要用这两个类型，
+//   所以必须**同时** import（一次 import、一次 re-export，互不冲突）。
+import {
+  badgeOf,
+  captionOf,
+  isAddressLike,
+  isHttpUrl,
+  unique,
+  type XiangwoImageItem,
+  type XiangwoImagesPayload,
+} from '@emdash/shared';
 // [XG-CUSTOM] 图片协议 **xiangwo-images** 的解析 + 网格渲染（项我球面板）。
 //
 // 协议（见 orb.js 文件头 6.1；agent 侧生成见 xiangwo-agent/agent.py 的 xiangwo_images_block）：
@@ -19,36 +36,18 @@
 // 和 xiangwo-chat.ts 同理放在 TS 里：DOM 由调用方传进来（球传 `document`，单测传 jsdom 的
 // document），纯逻辑 + DOM 都能被 vitest 直接断言（见 xiangwo-images.test.ts）。
 import { resolveXiangwoAssetUrl } from './xiangwo-chat';
-
-/** 协议上限：一次最多 60 条（**别放宽**，agent 侧同一个数） */
-export const XIANGWO_IMAGES_MAX = 60;
-/** title 上限（字符） */
-export const XIANGWO_IMAGES_TITLE_MAX = 200;
-/** 历史落盘只留前 24 条（不落 dataURL，见 orb.js 的 persistConversations） */
-export const XIANGWO_IMAGES_STORE_MAX = 24;
-
-/** 图片块的正则（单独成段的 fenced JSON） */
-export const XIANGWO_IMAGES_BLOCK_RE = /```xiangwo-images\s*([\s\S]*?)```/;
-// [XG-CUSTOM 2026-10-06] **旧标记兼容**：agent 的推图老路径发的是 `[XG-IMG]<地址>[/XG-IMG]`，
-//   球此前只认上面的围栏块 ⇒ 旧标记**认不出、以原始文本裸露在对话里**（用户实际撞到过）。
-//   现在两条都认（旧标记按"一条地址一张图"归一），认不出也**至少剥掉**、不裸露。
-export const XIANGWO_IMAGES_LEGACY_RE = /\[XG-IMG\]([\s\S]*?)\[\/XG-IMG\]/g;
-
-/** 归一化后的一条图片 */
-export type XiangwoImageItem = {
-  /** 图片地址（绝对 http(s) 或 agent 相对路径；'' = 这一条只给得出来源页） */
-  url: string;
-  thumb: string;
-  alt: string;
-  /** 来源标识（searxng|web|zcool|pixelrag…） */
-  source: string;
-  /** 来源作品页（点开就开它；http(s) 或 agent 相对路径） */
-  page: string;
-  /** 原始图片地址（thumb/url 都加载不出来时的最后一次重试） */
-  orig: string;
-};
-
-export type XiangwoImagesPayload = { title: string; images: XiangwoImageItem[] };
+export {
+  XIANGWO_IMAGES_BLOCK_RE,
+  XIANGWO_IMAGES_LEGACY_RE,
+  XIANGWO_IMAGES_MAX,
+  XIANGWO_IMAGES_STORE_MAX,
+  XIANGWO_IMAGES_TITLE_MAX,
+  compactXiangwoImagesBlock,
+  normalizeXiangwoImages,
+  parseXiangwoImagesBlock,
+  type XiangwoImageItem,
+  type XiangwoImagesPayload,
+} from '@emdash/shared';
 
 /**
  * 一个格子的渲染计划（纯数据，DOM 无关 → 可单测）。
@@ -77,136 +76,9 @@ export type XiangwoImagesBridge = {
   orbApi?: (method: string, args?: unknown) => unknown;
 };
 
-function asRecord(value: unknown): Record<string, unknown> {
-  return typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : {};
-}
-
-function text(value: unknown, max = 0): string {
-  const result = typeof value === 'string' ? value.trim() : '';
-  return max > 0 ? result.slice(0, max) : result;
-}
-
-function isHttpUrl(value: string): boolean {
-  return /^https?:\/\//i.test(value);
-}
-
-/** 能用 agent 基址拼成绝对 URL 的地址：http(s) / 协议相对 `//h/x` / 相对路径 `/x` */
-function isAddressLike(value: string): boolean {
-  return isHttpUrl(value) || value.startsWith('//') || value.startsWith('/');
-}
-
-function hostOf(url: string): string {
-  try {
-    return new URL(url).host;
-  } catch {
-    return '';
-  }
-}
-
-/** 去重（保序），顺带丢掉空串 */
-function unique(values: string[]): string[] {
-  const out: string[] = [];
-  for (const value of values) if (value !== '' && !out.includes(value)) out.push(value);
-  return out;
-}
-
-/**
- * 归一化一份图片 payload。每条至少要有 `url`/`orig`/`page` 之一（否则丢掉）；
- * 相对地址**保留原样**（渲染时按当时的 agent 基址拼绝对，历史里存的就是相对路径）。
- * 一条都不剩 → undefined（调用方据此把整段当普通文本，绝不吞消息）。
- * @param raw JSON.parse 后的对象
- */
-export function normalizeXiangwoImages(raw: unknown): XiangwoImagesPayload | undefined {
-  const record = asRecord(raw);
-  const list = Array.isArray(record.images) ? record.images : [];
-  const images: XiangwoImageItem[] = [];
-  for (const entry of list) {
-    const item = asRecord(entry);
-    const url = text(item.url);
-    const thumb = text(item.thumb);
-    const orig = text(item.orig);
-    const page = text(item.page);
-    if (!isAddressLike(url) && !isAddressLike(orig) && !isAddressLike(page)) continue;
-    images.push({
-      url: isAddressLike(url) ? url : '',
-      thumb: isAddressLike(thumb) ? thumb : '',
-      alt: text(item.alt, 200),
-      source: text(item.source, 60),
-      page: isAddressLike(page) ? page : '',
-      orig: isAddressLike(orig) ? orig : '',
-    });
-    if (images.length >= XIANGWO_IMAGES_MAX) break; // 协议上限：≤60 条
-  }
-  if (images.length === 0) return undefined;
-  return { title: text(record.title, XIANGWO_IMAGES_TITLE_MAX), images };
-}
-
-/**
- * 解析回复里的图片网格块（协议见文件头）。
- * 找不到 / JSON 坏了 / 一条合法地址都没有 → 原样返回文本、images = undefined（绝不吞消息）。
- */
-export function parseXiangwoImagesBlock(textValue: unknown): {
-  text: string;
-  images?: XiangwoImagesPayload;
-} {
-  const source = typeof textValue === 'string' ? textValue : '';
-  let text = source;
-  let payload: XiangwoImagesPayload | undefined;
-
-  // ① 优先围栏块（现行协议）
-  const match = XIANGWO_IMAGES_BLOCK_RE.exec(text);
-  if (match !== null) {
-    try {
-      payload = normalizeXiangwoImages(JSON.parse(match[1].trim()));
-    } catch {
-      payload = undefined;
-    }
-    // 归一成功才剥。**既有契约**（见 xiangwo-images.test.ts「坏 JSON 不吞消息」）：
-    // 坏 JSON / 全非法项 → 块留在正文里，别把用户的内容悄悄吞掉；
-    // 而下面的 `[XG-IMG]` 旧标记**一律剥** —— 那是机器标记，用户不该看到（本次修的就是它）。
-    if (payload !== undefined) text = text.replace(match[0], '');
-  }
-
-  // ② [XG-CUSTOM 2026-10-06] 旧标记 `[XG-IMG]<地址>[/XG-IMG]`：收成"一条地址一张图"。
-  //    ★无论能不能归一，**都要从正文里剥掉** —— 绝不把原始标记显示给用户。
-  const legacy: string[] = [];
-  for (const m of text.matchAll(XIANGWO_IMAGES_LEGACY_RE)) {
-    const raw = (m[1] ?? '').trim();
-    if (raw !== '') legacy.push(raw);
-  }
-  // ★空标记也要剥（`[XG-IMG][/XG-IMG]` 不留残渣）；payload 的键是 **images**（见 XiangwoImagesPayload）
-  text = text.replace(XIANGWO_IMAGES_LEGACY_RE, '');
-  if (payload === undefined && legacy.length > 0) {
-    payload = normalizeXiangwoImages({ images: legacy.map((url) => ({ url })) });
-  }
-
-  return payload === undefined ? { text: text.trim() } : { text: text.trim(), images: payload };
-}
-
-/**
- * 历史落盘时压缩图片块：只留前 `max` 条地址（**不落 dataURL**；相对地址原样保留，
- * 下次渲染时按当时的 agent 基址再拼）。压不了/不需要压 → 原样返回（绝不改坏别的文本）。
- */
-export function compactXiangwoImagesBlock(
-  textValue: unknown,
-  max = XIANGWO_IMAGES_STORE_MAX
-): string {
-  const source = typeof textValue === 'string' ? textValue : '';
-  if (!source.includes('```xiangwo-images')) return source;
-  const match = XIANGWO_IMAGES_BLOCK_RE.exec(source);
-  if (match === null) return source;
-  try {
-    const payload = normalizeXiangwoImages(JSON.parse(match[1].trim()));
-    if (payload === undefined || payload.images.length <= max) return source;
-    const stored: { title?: string; images: XiangwoImageItem[] } = {
-      images: payload.images.slice(0, max),
-    };
-    if (payload.title !== '') stored.title = payload.title;
-    return source.replace(match[0], '```xiangwo-images\n' + JSON.stringify(stored) + '\n```');
-  } catch {
-    return source;
-  }
-}
+// [XG-CUSTOM 2026-10-10] 原来的 asRecord/text/isHttpUrl/isAddressLike/hostOf/unique 与
+// normalizeXiangwoImages/parseXiangwoImagesBlock/compactXiangwoImagesBlock **已搬到**
+// `@emdash/shared`（见文件头注释）；下面只剩球专属的渲染层。
 
 /** 这份 payload 里有没有"必须靠 agent 基址才拼得出来"的地址（相对路径） */
 function needsAgentBase(payload: XiangwoImagesPayload): boolean {
@@ -231,14 +103,15 @@ export function xiangwoImageCell(item: XiangwoImageItem, baseUrl: string): Xiang
   const src = candidates.length > 0 ? (candidates[0] ?? '') : '';
   const retrySrc = candidates.length > 1 ? (candidates[1] ?? '') : '';
   const openUrl = resolveXiangwoAssetUrl(baseUrl, item.page);
-  const host = hostOf(openUrl);
   const fallbackAddress = src !== '' ? src : resolveXiangwoAssetUrl(baseUrl, item.url);
   return {
     src,
     retrySrc,
     alt: item.alt,
-    caption: item.alt !== '' ? item.alt : item.source,
-    domain: host !== '' ? host : item.source,
+    // [XG-CUSTOM 2026-10-10] 小字 / 角标改用**共享语义**（`captionOf` / `badgeOf`）——
+    // 与主聊天窗同一个口径；角标传 `openUrl`（已按 agent 基址拼好），保持原来"拼后取 host"的行为。
+    caption: captionOf(item),
+    domain: badgeOf(item, openUrl),
     titleAttr: openUrl !== '' ? openUrl : fallbackAddress,
     openUrl,
     textOnly: src === '',

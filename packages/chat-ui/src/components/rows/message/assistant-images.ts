@@ -17,11 +17,19 @@
 //
 // Text handling: the marker is **always** stripped (it is machine data the user
 // must never see), even when its JSON is unusable.
+//
+// [XG-CUSTOM 2026-10-10] **协议与语义现在只有一份** —— `@emdash/shared` 的
+// `packages/shared/src/xiangwo-images.ts`（球面 `renderer/orb/xiangwo-images.ts` 也用它）。
+// 本文件只保留**主窗专属**的东西：虚拟列表的格子几何 + base64 → data URL + 按位配对。
+// 下面这些 `export` 是**兼容面**（`assistant-images.test.ts` 与 `message.def.tsx` 都从本模块取），
+// 一律保持名字与行为不变。
 
+import { badgeOf, captionOf, isHttpUrl, text } from '@emdash/shared';
 import type { ChatMessageImage } from '@/model';
 
-/** `[XG-IMG-META]<json>[/XG-IMG-META]` — one per turn. Built per call (no shared /g state). */
-const XG_IMG_META_SOURCE = '\\[XG-IMG-META\\]([\\s\\S]*?)\\[/XG-IMG-META\\]';
+// [XG-CUSTOM 2026-10-10] `hostOf` 与 marker 解析都改由共享份提供（**保持导出面**：测试在用）。
+export { hostOf } from '@emdash/shared';
+export { splitXiangwoImageMeta as splitAssistantImageMeta } from '@emdash/shared';
 
 /** Geometry of one image cell. Kept in sync with `assistant-images.css.ts`. */
 export const ASSISTANT_IMAGE_THUMB = 148;
@@ -35,61 +43,13 @@ export type AssistantImageMeta = {
   page: string;
 };
 
-function asRecord(value: unknown): Record<string, unknown> {
-  return typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : {};
-}
-
-function text(value: unknown, max = 0): string {
-  const result = typeof value === 'string' ? value.trim() : '';
-  return max > 0 ? result.slice(0, max) : result;
-}
-
-/** Host of an http(s) URL; '' when unparseable. */
-export function hostOf(url: string): string {
-  try {
-    return new URL(url).host;
-  } catch {
-    return '';
-  }
-}
+// [XG-CUSTOM 2026-10-10] 原来的 `asRecord` / `text` / `hostOf` 已搬到 `@emdash/shared`
+// （`text` 仍然从这里 import，供 base64 → data URL 用）。
 
 /** Only http(s) pages are clickable — never open agent-local paths from a card. */
 export function isOpenablePage(url: string): boolean {
-  return /^https?:\/\//i.test(url);
-}
-
-/**
- * Split the metadata marker out of an assistant message's text.
- *
- * The marker is stripped **unconditionally**; `meta` is only populated when the
- * payload is a JSON array. Any malformed entry degrades to empty strings.
- */
-export function splitAssistantImageMeta(textValue: unknown): {
-  text: string;
-  meta: AssistantImageMeta[];
-} {
-  const source = typeof textValue === 'string' ? textValue : '';
-  const re = new RegExp(XG_IMG_META_SOURCE, 'g');
-  const meta: AssistantImageMeta[] = [];
-  for (const match of source.matchAll(re)) {
-    const raw = (match[1] ?? '').trim();
-    if (raw === '') continue;
-    try {
-      const parsed: unknown = JSON.parse(raw);
-      if (!Array.isArray(parsed)) continue;
-      for (const entry of parsed) {
-        const item = asRecord(entry);
-        meta.push({
-          alt: text(item.alt, 200),
-          source: text(item.source, 80),
-          page: text(item.page),
-        });
-      }
-    } catch {
-      // Broken JSON: the marker is still stripped above — nothing else to do.
-    }
-  }
-  return { text: source.replace(re, '').trim(), meta };
+  // [XG-CUSTOM 2026-10-10] 与共享份同一个口径（`isHttpUrl`）；行为与原来逐字一致。
+  return isHttpUrl(url);
 }
 
 /** Base64 payload -> `data:` URL for `<img src>`. Unknown/empty MIME falls back to PNG. */
@@ -113,8 +73,9 @@ export function buildAssistantImages(
     const alt = entry?.alt ?? '';
     const source = entry?.source ?? '';
     const page = entry?.page ?? '';
-    const caption = alt !== '' ? alt : source;
-    const badge = hostOf(page) !== '' ? hostOf(page) : source;
+    // [XG-CUSTOM 2026-10-10] 小字 / 角标改用**共享语义**（球面同一个口径），别再各写一份。
+    const caption = captionOf({ alt, source });
+    const badge = badgeOf({ page, source });
     const openable = isOpenablePage(page);
     return {
       id: `${itemId}#img${index}`,
