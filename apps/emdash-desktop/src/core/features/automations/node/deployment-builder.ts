@@ -217,8 +217,10 @@ async function buildAutomationDeploymentOnce(
     schedule: {
       // [XG-CUSTOM 2026-10-05] `expr` 现在可选（webhook 触发没有 cron 表达式）→ 兜底空串，
       // 让 runtime 的 validateAutomationSchedule 以 `cron_invalid` **明确拒绝**，而不是静默排一条假计划。
-      // ⚠️ 事件触发的**部署路径是下一轮的活**：它不该是一条 cron 计划，而应是一个 run 入口
-      //    （`scheduler.runNow(deployment, 'webhook')` 已就位，接上摄取端即可）。
+      // ✅ [XG-CUSTOM 2026-10-10] **勘误**：这里原来写着「事件触发的部署路径是下一轮的活」——
+      //    那句**已过期**（会把读者带偏，我自己就被带偏过一分钟）。事件触发的部署路径**已实现**，
+      //    就是本函数上面那个 `isWebhookTrigger()` 分支（`schedule: null` + `webhook{token,filter,promptTemplate}`），
+      //    不是"一条 cron 计划"。这里（**cron 分支**）只管 cron。
       expr: (automation.triggerConfig.expr ?? '').trim(),
       tz: automation.triggerConfig.tz?.trim() || getLocalTimeZone(),
     },
