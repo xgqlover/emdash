@@ -383,7 +383,10 @@ const config: Configuration = {
     allowToChangeInstallationDirectory: true,
     perMachine: false,
   },
-  npmRebuild: false,
+  // [XG-CUSTOM 2026-10-11] 上游是 false（要求先手工 `pnpm run rebuild`），但实测手工重编**打不到
+  //   electron-builder 真正要打的那份拷贝**（pnpm 下 better-sqlite3 多份）⇒ 包内仍是旧 ABI(137)，
+  //   新 Electron 要 143 ⇒ 启动即 "Boot failed; entering recovery mode"。改成 true 由它自己重编"要打的那份"。
+  npmRebuild: true,
   // Encrypt Chromium's on-disk cookie store (in-app browser logins) with OS-level
   // keys, like Chrome does. One-way: never disable once shipped or existing
   // cookie stores become unreadable.
