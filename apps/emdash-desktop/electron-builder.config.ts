@@ -8,13 +8,45 @@ import {
   UPDATE_CHANNEL,
 } from './src/core/primitives/app-identity/api/app-identity.ts';
 
+// [XG-CUSTOM 2026-10-11] 🔴 **版本号兜底（真机踩过）**：
+//   electron-builder 用它**自己那套 TS 加载器**读这个配置文件，实测 `ARTIFACT_PREFIX`
+//   （来自 `app-identity.ts` → `import pkgJson from '../../../../../package.json'`）
+//   在这个上下文里求值成 **`undefined`** ⇒ 产物被打成 **`undefined-x86_64.AppImage`**，
+//   而打包脚本按 `emdash-x86_64.AppImage` 找 ⇒ 报「❌ 没找到产物」（包是好的，名字是错的）。
+//   兜底顺序：① `pnpm run` 注入的 `npm_package_version`（打包脚本走 pnpm，一定有）→
+//   ② 导入来的 `ARTIFACT_PREFIX` → ③ **都没有就直接抛错** —— 宁可不打，
+//   也绝不再产出 `undefined-…` 这种"看着成功、装上去才发现"的包。
+const _envVersion = (process.env.npm_package_version || '').trim();
+// jiti 既不吃 app-identity 的 JSON import，也不注入 npm env ⇒ 再兜一层：读同目录 package.json
+const _fileVersion = (() => {
+  try {
+    const fs = require('node:fs') as typeof import('node:fs');
+    const path = require('node:path') as typeof import('node:path');
+    const raw = fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8');
+    return String(JSON.parse(raw).version || '').trim();
+  } catch {
+    return '';
+  }
+})();
+const _importedVersion = (ARTIFACT_PREFIX || '').replace(/^emdash(-canary)?-/, '').trim();
+const _VERSION = _envVersion || _fileVersion || _importedVersion;
+const _SAFE_PREFIX = _VERSION
+  ? `${ARTIFACT_PREFIX?.startsWith('emdash-canary') ? 'emdash-canary' : 'emdash'}-${_VERSION}`
+  : '';
+if (!_SAFE_PREFIX) {
+  throw new Error(
+    '[XG-CUSTOM] 取不到版本号：`ARTIFACT_PREFIX` 是 undefined 且 `npm_package_version` 也为空。' +
+      '别打 —— 否则产物名会是 undefined-*.（正确入口：pnpm run build 后用 scripts/xg-package-linux.sh）'
+  );
+}
+
 const config: Configuration = {
   appId: APP_ID,
   productName: PRODUCT_NAME,
   executableName: PRODUCT_NAME,
   extraMetadata: { desktopName: `${LINUX_DESKTOP_ID}.desktop` },
   directories: { output: 'release' },
-  artifactName: `${ARTIFACT_PREFIX}-\${arch}.\${ext}`,
+  artifactName: `${_SAFE_PREFIX}-\${arch}.\${ext}`,
   publish: [
     {
       provider: 'github',

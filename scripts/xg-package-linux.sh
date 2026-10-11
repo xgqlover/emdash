@@ -67,9 +67,27 @@ rm -rf "$APP/out"
 
 echo "=== ③ 打包（显式带 pnpm UA —— 文件头那个坑就靠这一行）==="
 UA="pnpm/10.28.2 npm/? node/$(node -v) $(uname -s | tr '[:upper:]' '[:lower:]') $(uname -m)"
-(cd "$APP" && rm -rf release-new && npm_config_user_agent="$UA" \
+# [XG-CUSTOM 2026-10-11] 🔴 必须显式给 `npm_package_version`：本脚本是**直接调** electron-builder
+#   （不走 `pnpm run`）⇒ npm 不会注入它。而 `electron-builder.config.ts` 里取产物前缀
+#   （`ARTIFACT_PREFIX` 来自 `app-identity.ts` 的 JSON import）在 **jiti** 加载器下是 `undefined`
+#   ⇒ 产物名会变成 `undefined-x86_64.AppImage`（真机踩过两次）。这里把版本显式喂进去。
+VER_APP="$(node -p "require('$APP_ABS/package.json').version")"
+echo "  版本 = $VER_APP"
+(cd "$APP" && rm -rf release-new && npm_config_user_agent="$UA" npm_package_version="$VER_APP" \
   ../../node_modules/.bin/electron-builder --linux AppImage --publish never \
   --config electron-builder.config.ts -c.directories.output=release-new) || { echo "❌ 打包失败"; exit 1; }
+# [XG-CUSTOM 2026-10-11] 🔴 产物名**带版本**（`electron-builder.config.ts` 的 artifactName =
+#   `${ARTIFACT_PREFIX}-${arch}.${ext}`），而下面的 ④ ⑤ 步都按**固定路径** `emdash-x86_64.AppImage`
+#   去找 ⇒ 之前会在这一行假失败（真机：`❌ 没找到产物 …/release-new/emdash-x86_64.AppImage`，
+#   而包里躺着的其实是 `emdash-1.2.39-xiangwo-x86_64.AppImage`）。
+#   这里**先摆回固定路径**再做后面所有校验；带版本的那份在第 ⑥ 步另存，不丢。
+if [ ! -f "$PKG" ]; then
+  _found=$(ls -1 "$APP_ABS"/release-new/*.AppImage 2>/dev/null | head -1)
+  if [ -n "${_found:-}" ]; then
+    cp -a "$_found" "$PKG"
+    echo "  产物名带版本：$(basename "$_found") ⇒ 另存为固定路径 $(basename "$PKG")"
+  fi
+fi
 [ -f "$PKG" ] || { echo "❌ 没找到产物 $PKG"; exit 1; }
 
 echo "=== ④ 校验 asar：防「静默缺包」（顶层包数 / workspace 包 / 原生模块）==="
