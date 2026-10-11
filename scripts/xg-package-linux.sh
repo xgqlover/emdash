@@ -30,6 +30,19 @@ else
 fi
 
 echo "=== ② 编译（electron-vite build）==="
+# [XG-CUSTOM 2026-10-11] 🔴 打包前必须重编原生依赖（上游要求，见 agents/quickstart.md:40 与
+#   agents/workflows/flows.md:161：after native dependency changes run `pnpm run rebuild`；
+#   electron-builder.config.ts 里 npmRebuild:false ⇒ 打包**不会**自动重编）。
+#   不做的后果（2026-10-11 实测）：better-sqlite3 还是旧 Electron 的 ABI(137) ⇒ 新 Electron 要 143
+#   ⇒ 启动即 `NODE_MODULE_VERSION` 错 ⇒ 进恢复界面（"老重复问题"的根）。
+echo "=== ⓪ 重编原生依赖（better-sqlite3 → 当前 Electron ABI）==="
+if ! (cd apps/emdash-desktop && pnpm run rebuild); then
+  echo "!! 原生重编失败 ⇒ 不要打包（否则必进恢复界面）"; exit 1
+fi
+# 包内证据：确认 app.asar.unpacked 里的 .node 是刚编的（mtime 比源码新即可）
+echo "=== ⓪b 候选原生模块 ==="
+find node_modules/.pnpm -name "better_sqlite3.node" -newermt "-30 minutes" 2>/dev/null | head -3
+
 # [XG-CUSTOM] 2026-10-06 —— **先清 `out/` 再编译**（实测踩到）：`pnpm run build` 不会删掉上一轮
 #   带内容哈希的旧 chunk，它们会被原样打进 app.asar ⇒ 包里同时存在**多份旧代码**。
 #   实测（1.2.20-xiangwo 那次，两种打法的原始数字）：
@@ -108,4 +121,7 @@ for m in $(mount | awk '/mount_emdash/ {print $3}'); do
 done
 ls -l --time-style=+%m-%d\ %H:%M "$REL/emdash-x86_64.AppImage"
 md5sum "$REL/emdash-x86_64.AppImage"
-echo "=== ✅ 完成。让新包生效： systemctl --user restart emdash   （⚠️ 别 kill，Restart=always 会立刻拉回旧 PID）==="
+# [XG-CUSTOM 2026-10-11] 原来这里写「让新包生效：systemctl --user restart emdash」——**那是错的**：
+#   实测（2026-10-11）restart 会把服务推进 auto-restart 循环、应用起不来、还会因连续失败进恢复界面。
+#   正确：**让用户点桌面图标**（见 emdash-运行经验-OPS.md「启动/重启 emdash（Deepin 25）」）。
+echo "=== ✅ 完成。让新包生效：**请用户点桌面图标**（AI 不要 restart/kill —— 见 OPS「启动/重启 emdash（Deepin 25）」）==="
