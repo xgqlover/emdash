@@ -164,7 +164,7 @@ async function buildAutomationDeploymentOnce(
           type: 'acp',
           start: {
             providerId: conversation.provider,
-            model,
+            ...(conversation.options && { options: conversation.options }),
             initialQueue: [{ text: prompt }],
           },
           title,

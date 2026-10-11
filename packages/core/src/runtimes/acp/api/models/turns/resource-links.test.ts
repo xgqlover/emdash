@@ -21,6 +21,7 @@ const bareLink = {
 
 function pageWith(item: Record<string, unknown>) {
   return {
+    kind: 'available',
     turns: [
       {
         id: 'conv-1:turn:0',
@@ -30,6 +31,8 @@ function pageWith(item: Record<string, unknown>) {
       },
     ],
     nextCursor: null,
+    position: { generation: 'test', historyRevision: 0, lastCommittedTurnSeq: 0 },
+    coverage: { fromSeq: null, beforeSeq: null },
   };
 }
 
@@ -86,6 +89,7 @@ describe('historyPageSchema — the resource link survives the wire', () => {
     const parsed = historyPageSchema.parse(
       pageWith({ ...bareLink, target: { kind: 'external', url: 'https://x.test/poster' } })
     );
+    if (parsed.kind !== 'available') throw new Error('expected an available history page');
     const items = parsed.turns[0]?.items ?? [];
     expect(items).toHaveLength(1);
     expect(items[0]).toMatchObject({

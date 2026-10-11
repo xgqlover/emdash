@@ -71,6 +71,7 @@ export function resolveResourceTarget(uri: string): ResourceTarget {
  * preserved so identity-keyed caches keep working).
  */
 export function enrichResourceLinks(page: HistoryPage): HistoryPage {
+  if (page.kind !== 'available') return page;
   let pageChanged = false;
   const turns = page.turns.map((turn) => {
     let turnChanged = false;

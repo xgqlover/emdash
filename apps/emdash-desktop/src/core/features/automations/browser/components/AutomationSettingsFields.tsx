@@ -137,7 +137,6 @@ export function AutomationSettingsFields({
                       onPromptBlur={onPromptBlur}
                       textareaClassName="min-h-40"
                       placeholder={t('add_prompt')}
-                      showAutoApproveToggle={false}
                       requirePromptDelivery={true}
                     />
                   ),

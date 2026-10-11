@@ -35,7 +35,7 @@ function webhookDeployment(overrides: Partial<AutomationDeployment> = {}): Autom
     webhook: { token: TOKEN, filter: 'action == "opened"' },
     agent: {
       type: 'acp' as const,
-      start: { providerId: 'claude', model: null, initialQueue: [{ text: 'Handle the event' }] },
+      start: { providerId: 'claude', initialQueue: [{ text: 'Handle the event' }] },
     },
     workspace: {
       kind: 'worktree' as const,

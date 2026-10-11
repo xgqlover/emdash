@@ -1,3 +1,4 @@
+import { formatHostRef } from '@emdash/core/primitives/host/api';
 import type { AttachmentRef } from '@emdash/core/services/attachments/api';
 import { ChatComposer, ImageViewerDialog, MermaidViewerDialog } from '@emdash/ui/react/components';
 import type {
@@ -10,7 +11,7 @@ import type {
   PromptEditorRef,
 } from '@emdash/ui/react/components';
 import { Button, toast } from '@emdash/ui/react/primitives';
-import { ArrowDown } from 'lucide-react';
+import { ArrowDown, MessageSquare } from 'lucide-react';
 import { observer, useObserver } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 // [XG-CUSTOM] 项我 @ 专家补全清单（从 suagent_registry.py 生成）
@@ -28,7 +29,16 @@ import type {
   ChatCommands,
   ChatView,
 } from '@core/features/conversations/api/browser/chat/chat-transcript';
+import {
+  diffCommentsMention,
+  hasDiffCommentsMention,
+} from '@core/features/conversations/api/browser/chat/diff-comments-mention';
+import { useProviderSettings } from '@core/features/conversations/api/browser/provider-preferences';
 import { conversationRegistry } from '@core/features/conversations/api/browser/stores/conversation-registry';
+import {
+  providerComposerOptions,
+  selectCachedProviderOptions,
+} from '@core/features/conversations/contributions/browser/provider-composer-options';
 // TODO(conversations-extraction): Inject task editor/file-opening behavior into ACP chat.
 import {
   openFileInAdjacentPane,
@@ -46,6 +56,7 @@ import {
 } from '@core/features/projects/api/browser/stores/project-selectors';
 import { getSearchClient } from '@core/features/search/api/client';
 import { getGitRepositoryStore } from '@core/features/source-control/api/browser/stores/source-control-selectors';
+import { draftCommentsStoreToken } from '@core/features/source-control/contributions/browser/task-stores';
 // TODO(conversations-extraction): Pass task state into ACP chat instead of importing task stores.
 import {
   asProvisioned,
@@ -67,8 +78,9 @@ import { usePaneContext } from '@core/primitives/workbench-shell/browser/tabs/pa
 import type { AcpChatStore, AcpPromptAttachment } from './acp-chat-store';
 import type { AcpChatTabResource } from './acp-chat-tab-resource';
 import { chatViewCommandForShortcut, executeChatViewCommand } from './acp-chat-view-commands';
-import { buildIssueMentionHiddenContext } from './issue-mention-context';
 import { shouldUseAcpImageAttachment, uploadDroppedFile } from './acp-dropped-file';
+import { appendDraftCommentsContext } from './draft-comments-context';
+import { buildIssueMentionHiddenContext } from './issue-mention-context';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -261,6 +273,7 @@ const ComposerForStore = observer(function ComposerForStore({
   const attachments = store.draftAttachments.map(toComposerAttachment);
   const { value: promptLibrary } = usePromptLibrary();
   const disabledReason = projectAvailabilityUi.getLiveActionDisabledReason(store.projectId);
+  const draftComments = getTaskStore(store.projectId, store.taskId)?.get(draftCommentsStoreToken);
 
   // Autofocus when the slot becomes available.
   useEffect(() => {
@@ -306,7 +319,8 @@ const ComposerForStore = observer(function ComposerForStore({
 
   const handleSubmit = useCallback(
     (value: string) => {
-      if (!value.trim() && store.draftAttachments.length === 0) return;
+      const promptAttachments = store.draftAttachments;
+      if (!value.trim() && promptAttachments.length === 0) return;
       editorApiRef.current?.clear();
       // [XG-CUSTOM] 方案 B：@bot/@专家 后左侧切到对应 bot 大仓
       // （@sxsj / @尚享设计主理人 → 切 sxsj 项目；@通用角色 不切；已在该仓则不重复切）
@@ -332,10 +346,14 @@ const ComposerForStore = observer(function ComposerForStore({
           }
         }
       }
-      const hiddenContext = buildHiddenIssueContext(value);
-      store.submitPrompt(value, store.draftAttachments, hiddenContext);
+      const comments = hasDiffCommentsMention(value) ? (draftComments?.comments ?? []) : [];
+      const hiddenContext = appendDraftCommentsContext(buildHiddenIssueContext(value), comments);
+      // Only consume the comments that were sent; ones added or edited mid-flight stay drafted.
+      store.submitPrompt(value, promptAttachments, hiddenContext, () =>
+        draftComments?.deleteSent(comments)
+      );
     },
-    [store, buildHiddenIssueContext, navigate]
+    [store, buildHiddenIssueContext, draftComments, navigate]
   );
 
   const handleStop = useCallback(() => {
@@ -366,27 +384,6 @@ const ComposerForStore = observer(function ComposerForStore({
           store.sendQueuedPromptNow(id);
         }
       });
-    },
-    [store]
-  );
-
-  const handleModelChange = useCallback(
-    (modelId: string) => {
-      store.setModel(modelId);
-    },
-    [store]
-  );
-
-  const handleModeChange = useCallback(
-    (modeId: string) => {
-      store.setMode(modeId);
-    },
-    [store]
-  );
-
-  const handleEffortChange = useCallback(
-    (effortId: string) => {
-      store.setEffort(effortId);
     },
     [store]
   );
@@ -510,7 +507,8 @@ const ComposerForStore = observer(function ComposerForStore({
       conversationRegistry.get(store.taskId)?.conversations.get(store.conversationId)?.data
         .providerId ?? '';
     const isXiangwo = curProvId.startsWith('xiangwo');
-    if (!workspaceId && !linkedIssue && !issueProvider && !isXiangwo) return undefined;
+    if (!workspaceId && !linkedIssue && !issueProvider && !draftComments && !isXiangwo)
+      return undefined;
     const wsId = workspaceId;
     return {
       async search(query: string): Promise<MentionItem[]> {
@@ -595,13 +593,36 @@ const ComposerForStore = observer(function ComposerForStore({
           description: f.relativePath,
         }));
 
-        return [...expertItems, ...pinnedIssueItems, ...fileItems, ...searchedIssueItems];
+        const draftCommentCount = draftComments?.count ?? 0;
+        const commentItems: MentionItem[] =
+          draftCommentCount > 0 &&
+          diffCommentsMention.name.toLowerCase().includes(query.trim().toLowerCase())
+            ? [
+                {
+                  ...diffCommentsMention,
+                  description:
+                    draftCommentCount === 1
+                      ? '1 pending comment'
+                      : `${draftCommentCount} pending comments`,
+                  icon: <MessageSquare size={13} />,
+                },
+              ]
+            : [];
+
+        return [
+          ...expertItems,
+          ...commentItems,
+          ...pinnedIssueItems,
+          ...fileItems,
+          ...searchedIssueItems,
+        ];
       },
     };
   }, [
     workspaceId,
     linkedIssue,
     issueProvider,
+    draftComments,
     store.projectId,
     store.taskId,
     store.conversationId,
@@ -624,7 +645,19 @@ const ComposerForStore = observer(function ComposerForStore({
   const providerId =
     conversationRegistry.get(store.taskId)?.conversations.get(store.conversationId)?.data
       .providerId ?? null;
+  const providerOptions = store.providerOptions;
+  const { settings } = useProviderSettings(
+    providerOptions === undefined && providerId
+      ? {
+          host: formatHostRef(hostRefFromConnectionId(getProjectSshConnectionId(store.projectId))),
+          providerId,
+        }
+      : null
+  );
+  const composerOptions =
+    providerOptions ?? selectCachedProviderOptions(settings.catalogs, store.configuredOptions);
   const renderMentionIcon = useCallback(({ id, kind }: { id: string; kind: string }) => {
+    if (id === diffCommentsMention.id) return <MessageSquare size={12} />;
     if (kind !== 'issue') return null;
     const target = parseIssueMentionToken(id);
     if (!target) return null;
@@ -741,15 +774,13 @@ const ComposerForStore = observer(function ComposerForStore({
           onReorderQueuedPrompts={(ids) => store.reorderQueuedPrompts(ids)}
           onSendQueuedPromptNow={handleSendQueuedPromptNow}
           editorApiRef={editorApiRef}
-          modelOptions={store.modelOptions}
-          selectedModel={store.model ?? undefined}
-          onModelChange={handleModelChange}
-          effortOptions={store.effortOptions}
-          selectedEffort={store.effort ?? undefined}
-          onEffortChange={handleEffortChange}
-          permissionModeOptions={store.permissionModeOptions}
-          selectedPermissionMode={store.permissionMode ?? undefined}
-          onPermissionModeChange={handleModeChange}
+          {...providerComposerOptions(
+            composerOptions,
+            store.configuredOptions,
+            (id, value) => store.setOption(id, value),
+            store.canSetOptions,
+            providerOptions !== undefined
+          )}
           mcpServers={store.mcpServers}
           agentOptions={agentOptions}
           selectedAgent={providerId ?? undefined}

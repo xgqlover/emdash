@@ -610,6 +610,10 @@ export function foldItem(
 ): TranscriptItem[] {
   const flatItems = flattenItems(items);
   switch (event.kind) {
+    case 'notification': {
+      const seq = nextSeq(flatItems);
+      return [...items, { ...event, id: `${turnId}:notification:${seq}`, seq }];
+    }
     case 'message': {
       const id = event.itemId;
       const base = flatItems;
@@ -860,6 +864,7 @@ export function finalizeItems(items: TranscriptItem[], at: number): TranscriptIt
   return items.map((item): TranscriptItem => {
     switch (item.kind) {
       // [XG-CUSTOM 2026-10-10] Resource links carry no in-progress state.
+      case 'notification':
       case 'message':
       case 'resource-link':
         return item;

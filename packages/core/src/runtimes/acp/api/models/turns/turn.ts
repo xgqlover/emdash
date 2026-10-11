@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { stopReasonSchema } from '#runtimes/acp/api/models/stop-reason';
-import { transcriptMessageSchema } from './messages';
+import { transcriptMessageSchema, transcriptNotificationSchema } from './messages';
 import { transcriptResourceLinkSchema } from './resource-links';
 import { transcriptThinkingSchema } from './thinking';
 import { toolNodeSchema } from './tool-calls';
@@ -9,6 +9,7 @@ import { toolNodeSchema } from './tool-calls';
 // links survive the wire (zod strips unknown members otherwise).
 export const transcriptItemSchema = z.union([
   transcriptMessageSchema,
+  transcriptNotificationSchema,
   transcriptThinkingSchema,
   transcriptResourceLinkSchema,
   toolNodeSchema,
@@ -36,7 +37,6 @@ export const errorTurnReasonSchema = z.enum([
   'load_session_failed',
   'cancel_failed',
   'set_config_failed',
-  'set_mode_failed',
 ]);
 export type ErrorTurnReason = z.infer<typeof errorTurnReasonSchema>;
 

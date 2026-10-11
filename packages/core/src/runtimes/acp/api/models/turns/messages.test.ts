@@ -38,6 +38,7 @@ function messageWith(images: unknown): Record<string, unknown> {
 
 function pageWith(item: Record<string, unknown>) {
   return {
+    kind: 'available',
     turns: [
       {
         id: 'conv-1:turn:0',
@@ -47,6 +48,8 @@ function pageWith(item: Record<string, unknown>) {
       },
     ],
     nextCursor: null,
+    position: { generation: 'test', historyRevision: 0, lastCommittedTurnSeq: 0 },
+    coverage: { fromSeq: null, beforeSeq: null },
   };
 }
 
@@ -82,6 +85,7 @@ describe('transcriptMessageSchema — image metadata', () => {
 describe('historyPageSchema — image metadata survives the wire', () => {
   it('round-trips uri/caption/sourceHost instead of stripping them', () => {
     const parsed = historyPageSchema.parse(pageWith(messageWith([carriedImage])));
+    if (parsed.kind !== 'available') throw new Error('expected an available history page');
     const items = parsed.turns[0]?.items ?? [];
     expect(items).toHaveLength(1);
     expect(items[0]).toMatchObject({ kind: 'message', images: [carriedImage] });

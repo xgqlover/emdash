@@ -11,8 +11,8 @@ export function TaskNameField({ state }: TaskNameFieldProps) {
 
   return (
     <Field.Root className="flex flex-col gap-1">
-      <Field.Label>{t('task_name_label')}</Field.Label>
       <Input
+        aria-label={t('task_name_label')}
         bare
         autoFocus
         value={taskName}

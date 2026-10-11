@@ -7,9 +7,9 @@
     "base": "669a24fe673f4af1a507ddc33fc3f3ffe1039348"
   },
   "stats": {
-    "files": 241,
-    "markers": 1414,
-    "newFiles": 120,
+    "files": 243,
+    "markers": 1416,
+    "newFiles": 122,
     "modifiedFiles": 121
   },
   "files": {
@@ -156,7 +156,7 @@
         301,
         303,
         305,
-        362
+        374
       ],
       "anchors": [
         "] 精确收集 emdash-desktop 的直接依赖（electron-builder 在 pnpm workspace 下",
@@ -166,7 +166,7 @@
         "asarUnpack: [",
         "msi: {"
       ],
-      "hash": "82c204bcbf80eb97ffb1d36b118255bb8629cf5d",
+      "hash": "3e40c83e8acda410a5c598cb4849e045654d8ae0",
       "origin": "modified",
       "firstCommit": "32fb70f94|2026-09-18|fix: 去掉 win azureSignOptions（fork 无 Azure 凭据，签名卡 6h 超时），打 unsigned 包",
       "lastCommit": "32fb70f94|2026-09-18|fix: 去掉 win azureSignOptions（fork 无 Azure 凭据，签名卡 6h 超时），打 unsigned 包",
@@ -344,7 +344,7 @@
         "import { t } from '@renderer/lib/i18n';",
         "interface AutomationSettingsFieldsProps {"
       ],
-      "hash": "845ad0859b232e135a4c797923ebc59997e49681",
+      "hash": "2ea2eedecb839279e1087e5fa51534d466374d87",
       "origin": "modified",
       "firstCommit": "f4503b5b2|2026-10-05|chore(xg-custom): [XG-CUSTOM 2026-10-05] 补 AutomationSettingsFields 的定制标记（模块级）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -421,14 +421,42 @@
       "lastCommit": "b0825bb3a|2026-10-10|[XG-CUSTOM 2026-10-10] WorkRally 并入「自动化」第三 Tab + 集成↔自动化 互指（用户要「结合」，不要两个孤立入口）",
       "note": "core feature 定制"
     },
+    "apps/emdash-desktop/src/core/features/automations/browser/components/xg-tab.test.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { describe, expect, it } from 'vitest';"
+      ],
+      "hash": "a1224e962602e833df04ddf5a074d04c7fde7913",
+      "origin": "new",
+      "firstCommit": "cb6635879|2026-10-10|[XG-CUSTOM 2026-10-11] fix(automations): 修「打开自动化整页报错」——params 用在自己的声明之前（TDZ）",
+      "lastCommit": "cb6635879|2026-10-10|[XG-CUSTOM 2026-10-11] fix(automations): 修「打开自动化整页报错」——params 用在自己的声明之前（TDZ）",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/automations/browser/components/xg-tab.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "export type XgTab = 'automations' | 'kaneo' | 'workrally';"
+      ],
+      "hash": "3ae4928eec982b184011beadb286ee90d100a863",
+      "origin": "new",
+      "firstCommit": "cb6635879|2026-10-10|[XG-CUSTOM 2026-10-11] fix(automations): 修「打开自动化整页报错」——params 用在自己的声明之前（TDZ）",
+      "lastCommit": "cb6635879|2026-10-10|[XG-CUSTOM 2026-10-11] fix(automations): 修「打开自动化整页报错」——params 用在自己的声明之前（TDZ）",
+      "note": "core feature 定制"
+    },
     "apps/emdash-desktop/src/core/features/automations/browser/useAutomationFormState.ts": {
       "markers": 5,
       "lines": [
         98,
-        196,
-        213,
-        253,
-        267
+        194,
+        212,
+        268,
+        282
       ],
       "anchors": [
         "const [triggerKind, setTriggerKind] = useState<'cron' | 'webhook'>(",
@@ -437,7 +465,7 @@
         "setCronExpr(template.defaultTrigger.expr ?? '');",
         "2026-10-05] 触发源（表单渲染「On schedule / On event」）"
       ],
-      "hash": "bfbbeccf42bb329c5ccd8e14d11255f71aa9d3b3",
+      "hash": "53f60bf4a7acb9d8ec47c55febb31a5ab340a787",
       "origin": "modified",
       "firstCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
       "lastCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
@@ -460,12 +488,12 @@
     "apps/emdash-desktop/src/core/features/automations/node/deployment-builder.test.ts": {
       "markers": 1,
       "lines": [
-        236
+        235
       ],
       "anchors": [
         "it('webhook 触发 → schedule 为 null，并把 token/filter/promptTemplate 带进部署', async () => {"
       ],
-      "hash": "06d0bd2e327176ee8527fa6d2b89b71c0d3278e2",
+      "hash": "08955f343f8b200fb496a9778c8db996ade35e96",
       "origin": "modified",
       "firstCommit": "d1e61545e|2026-10-05|feat(automations/orb): [XG-CUSTOM 2026-10-05] 收尾四项（promptTemplate / builder 单测 / 市场卡体检 / 归一表）",
       "lastCommit": "d1e61545e|2026-10-05|feat(automations/orb): [XG-CUSTOM 2026-10-05] 收尾四项（promptTemplate / builder 单测 / 市场卡体检 / 归一表）",
@@ -482,7 +510,7 @@
         "if (isWebhookTrigger(automation.triggerConfig)) {",
         "expr: (automation.triggerConfig.expr ?? '').trim(),"
       ],
-      "hash": "d5c816e9629999e54601c3f5e6b32dcd447b7172",
+      "hash": "6672b000c80431ffde09dc915673651186e97432",
       "origin": "modified",
       "firstCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
       "lastCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
@@ -851,20 +879,20 @@
     "apps/emdash-desktop/src/core/features/conversations/browser/acp/acp-chat-panel.tsx": {
       "markers": 14,
       "lines": [
-        16,
-        18,
-        57,
-        61,
-        81,
-        259,
-        311,
-        316,
-        508,
-        517,
-        659,
-        777,
-        887,
-        1027
+        17,
+        19,
+        68,
+        72,
+        93,
+        271,
+        325,
+        330,
+        505,
+        515,
+        692,
+        808,
+        918,
+        1058
       ],
       "anchors": [
         "import { XIANGWO_BOTS, XIANGWO_ROLES, XIANGWO_SUBAGENTS } from './xiangwo-experts';",
@@ -882,7 +910,7 @@
         "const handoffHandledRef = useRef<string | null>(null);",
         "<ChatTranscript"
       ],
-      "hash": "310b12fcc7f60063a23e052e1c4a7829cc440cc1",
+      "hash": "7a6513f2f81b6cc0b6477f018629cb4c5df04510",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -921,14 +949,14 @@
     "apps/emdash-desktop/src/core/features/conversations/browser/acp/acp-chat-store.ts": {
       "markers": 2,
       "lines": [
-        61,
-        574
+        56,
+        514
       ],
       "anchors": [
         "import { enrichResourceLinks } from './resource-link-enrichment';",
         "const detail = (() => {"
       ],
-      "hash": "897c79ecab2c35b1a0c184b45b4950170ff3611e",
+      "hash": "e4bdb186e9e24e5dd0abf45c1498a5f21d6a0f11",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -956,7 +984,7 @@
       "anchors": [
         "import type { HistoryPage, TranscriptItem } from '@emdash/core/runtimes/acp/api/client';"
       ],
-      "hash": "761b0fd6e4d859a5318e556d7d1ea2bd4c7261ef",
+      "hash": "59375ebaf239c54daacd2dc0555faca8d64ffc78",
       "origin": "new",
       "firstCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
       "lastCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
@@ -970,7 +998,7 @@
       "anchors": [
         "import type {"
       ],
-      "hash": "dd3251480aa551bc1c20040d59764d2f98e31126",
+      "hash": "f36eae01bf9d075e4b1a5ad2d4ed234a32b684ea",
       "origin": "new",
       "firstCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
       "lastCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
@@ -1310,12 +1338,12 @@
     "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/commits-list.tsx": {
       "markers": 1,
       "lines": [
-        20
+        22
       ],
       "anchors": [
         "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "3428157a0c7cf4c7d71a6cba574e048b9a28e726",
+      "hash": "b358da34b290dc28578c73d7d4dc84d84d012af5",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
@@ -1371,7 +1399,7 @@
       "anchors": [
         "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "f39e9f1412135f59d77c48c42ecc8f85a0a89161",
+      "hash": "ab8f8d754928a7d067ef77fe7686121c0af5d778",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
@@ -1441,7 +1469,7 @@
       "anchors": [
         "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "1b3494ba39c597c58f8bdecf74d6575030bb33d0",
+      "hash": "0f70295d0cd26b0c8137a837c59fa2014133da32",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
@@ -1557,7 +1585,7 @@
       "anchors": [
         "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "efb6a106602b687e5c4f050567b29f54eb30b555",
+      "hash": "5fc2b5cdb1e0c5e1cbd32ec7dfbdc33d80bdcd81",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1571,7 +1599,7 @@
       "anchors": [
         "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "5d5d4b746fd550ca7456713e958f7f6c3c5af8c4",
+      "hash": "d1aa30e0eaefca4cf55d4060f3f9ffec5017b94b",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1734,8 +1762,8 @@
       "lines": [
         69,
         72,
-        509,
-        524
+        492,
+        507
       ],
       "anchors": [
         "export type TaskTabKindName = 'conversation' | 'file' | 'diff' | 'browser' | 'terminal';",
@@ -1743,7 +1771,7 @@
         "lastTabEntryOfKind(kind: TaskTabKindName): TabEntry<unknown> | undefined {",
         "activateTabOfKind(kind: TaskTabKindName, tabId: string): void {"
       ],
-      "hash": "3d9109ac36dc8fda5bd615ed307a1c51f9b02380",
+      "hash": "a69413f2d730f8f1708db8d15e6d358e2251b60b",
       "origin": "modified",
       "firstCommit": "903d9865d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 开页复用同 task 同 profile 的已有标签（治「球一喊就叠 N 个同样的页」）+ bump 1.2.25-xiangwo",
       "lastCommit": "903d9865d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 开页复用同 task 同 profile 的已有标签（治「球一喊就叠 N 个同样的页」）+ bump 1.2.25-xiangwo",
@@ -1979,7 +2007,7 @@
       "anchors": [
         "export const triggerConfigSchema = z.object({"
       ],
-      "hash": "c386570c2ba7be3b42d59e1c68876c69c936e480",
+      "hash": "8edc7a073f0a07117369848c69e3b00b236e8529",
       "origin": "modified",
       "firstCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
       "lastCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
@@ -2042,28 +2070,28 @@
     "apps/emdash-desktop/src/core/primitives/desktop-host/api/host-contract.ts": {
       "markers": 22,
       "lines": [
-        65,
-        81,
-        93,
-        119,
-        139,
-        180,
-        194,
-        204,
-        246,
-        289,
-        293,
-        321,
-        330,
-        335,
-        340,
-        345,
-        350,
-        363,
-        379,
-        396,
-        401,
-        406
+        66,
+        82,
+        94,
+        120,
+        140,
+        181,
+        195,
+        205,
+        247,
+        290,
+        294,
+        322,
+        331,
+        336,
+        341,
+        346,
+        351,
+        364,
+        380,
+        397,
+        402,
+        407
       ],
       "anchors": [
         "export interface ExpertHandoffTopic {",
@@ -2089,7 +2117,7 @@
         "kaneoBoard: procedure({",
         "kaneoAct: procedure({"
       ],
-      "hash": "41909ca14b9adb47a22afc816a6b8c495919d40b",
+      "hash": "028af8207602691c970d5d76e3fc6846d0420399",
       "origin": "modified",
       "firstCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -2234,13 +2262,13 @@
     "apps/emdash-desktop/src/main/bootstrap/boot/phases/services.ts": {
       "markers": 7,
       "lines": [
-        153,
         155,
-        182,
-        352,
-        370,
-        384,
-        388
+        157,
+        184,
+        362,
+        380,
+        394,
+        398
       ],
       "anchors": [
         "import { applyNativeTheme, isAppFocused, registerXiangwoChatTarget } from '@main/host/window';",
@@ -2251,7 +2279,7 @@
         "log.warn('",
         "const resolveToolWindowUrl = async (remotePort: number, path = '/'): Promise<string> => {"
       ],
-      "hash": "a24db35b3b8544469e02ffcb9de3979cde689587",
+      "hash": "1e4b2d46f1b0c39a5aa89bae524d48b3fa311a0b",
       "origin": "modified",
       "firstCommit": "d7996e9ec|2026-09-19|fix(integrations): WeKnora/T8 窗口走 SSH 端口转发，修 Windows 远程项目打不开",
       "lastCommit": "d7996e9ec|2026-09-19|fix(integrations): WeKnora/T8 窗口走 SSH 端口转发，修 Windows 远程项目打不开",
@@ -2354,7 +2382,7 @@
         "kaneoAct: (payload) => kaneoActCall(payload as unknown as Record<string, unknown>),",
         "taskSpaceList: () => taskSpaceCall('list'),"
       ],
-      "hash": "6362a17d2b21180a395598bdfff946847ef6a997",
+      "hash": "f5c5310065192016a3fbb66f9f59479cfddc1450",
       "origin": "modified",
       "firstCommit": "67ccd329e|2026-09-22|feat: 专家交接台升级（wire RPC 修复 + bot/专家二级分组 + 并入对话 Sheet + 横条关闭）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -2368,7 +2396,7 @@
       "anchors": [
         "const connection = await current.runtime.client();"
       ],
-      "hash": "b6bc592094df5aa62b4dbf4d213513b9aa14c0d5",
+      "hash": "8a723999d6db7abf59f284c992787372e59e6f9a",
       "origin": "modified",
       "firstCommit": "2cdb9136d|2026-09-22|fix: 远程 runtime 首次获取 client 等待就绪（高延迟 SSH 下避免立即抛 runtime-unavailable）",
       "lastCommit": "2cdb9136d|2026-09-22|fix: 远程 runtime 首次获取 client 等待就绪（高延迟 SSH 下避免立即抛 runtime-unavailable）",
@@ -4536,17 +4564,17 @@
     "apps/workspace-server/scripts/package.ts": {
       "markers": 4,
       "lines": [
-        58,
-        154,
-        556,
-        559
+        56,
+        152,
+        476,
+        479
       ],
       "anchors": [
         "const artifactsDirectory = join(appDirectory, 'dist-artifacts');",
         "await buildLinuxRuntimeDependencies(nodeDistributionDirectory, temporaryDirectory);",
         "async function buildLinuxRuntimeDependencies("
       ],
-      "hash": "8570eddc30bbaaeed5e60c5e9cec99d20147ac31",
+      "hash": "3310b51d65ed2e65682968a4ca9f161f839e254c",
       "origin": "modified",
       "firstCommit": "501f2b81c|2026-09-28|fix(workspace-server): 恢复无 Docker 本地编译 native 依赖的 [XG-CUSTOM] 补丁",
       "lastCommit": "501f2b81c|2026-09-28|fix(workspace-server): 恢复无 Docker 本地编译 native 依赖的 [XG-CUSTOM] 补丁",
@@ -4677,8 +4705,8 @@
         34,
         39,
         43,
-        75,
-        183
+        80,
+        184
       ],
       "anchors": [
         "export type NormalizedImageBlock = {",
@@ -4688,7 +4716,7 @@
         "images?: NormalizedImageBlock[];",
         "kind: 'resource_link';"
       ],
-      "hash": "14260a4caf1629dbc5562b6f1ffc6b5bd1292d6e",
+      "hash": "95dff9d5140850f7be8bea26993c06fbe9966e57",
       "origin": "modified",
       "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
@@ -4764,7 +4792,7 @@
       "anchors": [
         "import { describe, expect, it } from 'vitest';"
       ],
-      "hash": "b7e323b80c7a7f97d175a56d894f191c6388c464",
+      "hash": "09fef7dc840be7fb9f9212419faba5b26cb4b21d",
       "origin": "new",
       "firstCommit": "f8c593237|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 收掉 [XG-IMG-META]，改走 ACP 原生 uri + _meta",
       "lastCommit": "f8c593237|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 收掉 [XG-IMG-META]，改走 ACP 原生 uri + _meta",
@@ -4779,7 +4807,7 @@
       "anchors": [
         "images: z"
       ],
-      "hash": "afd51c042a104d1f179e3276b0358232a72d1bcc",
+      "hash": "36e7058c4aa61cdf3c8bc7efee3bda20bc581de3",
       "origin": "modified",
       "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
@@ -4793,7 +4821,7 @@
       "anchors": [
         "import { describe, expect, it } from 'vitest';"
       ],
-      "hash": "4f507254571457dc7181deff481601a55ea40328",
+      "hash": "6d9d9d0ad06c5eddb5fc09c322d039c9ef7c92dd",
       "origin": "new",
       "firstCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
       "lastCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
@@ -4821,7 +4849,7 @@
       "anchors": [
         "export const transcriptItemSchema = z.union(["
       ],
-      "hash": "dbacc343a2862a1a916b4e3d17e87cd3e934d6fc",
+      "hash": "f71d7a046646419ff213439cad8de485748bc0f5",
       "origin": "modified",
       "firstCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
       "lastCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
@@ -4851,11 +4879,11 @@
     "packages/core/src/runtimes/acp/api/reducer/decode.ts": {
       "markers": 5,
       "lines": [
-        52,
-        64,
-        151,
-        157,
-        183
+        53,
+        65,
+        153,
+        159,
+        185
       ],
       "anchors": [
         "function imageMetaValue(meta: unknown, key: string): unknown {",
@@ -4863,7 +4891,7 @@
         "if (update.content.type === 'image') {",
         "if (update.content.type === 'resource_link') {"
       ],
-      "hash": "b75496e6ca6296c8fe42195353ddd973aecb72bb",
+      "hash": "1377cb4ca6052d858ca155f6d598c6336480649e",
       "origin": "modified",
       "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
@@ -4901,10 +4929,10 @@
       "markers": 5,
       "lines": [
         42,
-        626,
-        634,
-        675,
-        862
+        630,
+        638,
+        679,
+        866
       ],
       "anchors": [
         "const XG_IMAGE_MAX_PER_MESSAGE = 60;",
@@ -4913,7 +4941,7 @@
         "case 'resource_link': {",
         "case 'resource-link': ⏎ return item;"
       ],
-      "hash": "3aa0cee2a70447c02f8e02714fbeb25fcaf48545",
+      "hash": "17a39bea985683bd52f6e3c0f38a25b1c307842b",
       "origin": "modified",
       "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
@@ -5089,7 +5117,7 @@
       "anchors": [
         "import { ok } from '@emdash/shared';"
       ],
-      "hash": "8afdf9dd991f9d91f2accfcb276d78b38bcfb39f",
+      "hash": "198d86947d6900739908f7fe800a706647bb729d",
       "origin": "new",
       "firstCommit": "3cdea3da2|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 事件触发接进运行时（第 3 项第三片，端到端可用）",
       "lastCommit": "3cdea3da2|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 事件触发接进运行时（第 3 项第三片，端到端可用）",

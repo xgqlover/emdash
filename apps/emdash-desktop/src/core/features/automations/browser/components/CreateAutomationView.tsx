@@ -12,7 +12,6 @@ import { CheckCircle2 } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import type { Automation } from '@core/primitives/automations/api';
-import type { ConversationConfig } from '@core/primitives/automations/api';
 import { assertValidCronTrigger } from '@core/primitives/automations/api';
 import { ConfirmButton } from '@core/primitives/keybindings/browser/confirm-button';
 import { useLocalStorage } from '@core/primitives/react-hooks/browser/useLocalStorage';
@@ -43,7 +42,6 @@ export const CreateAutomationView = observer(function CreateAutomationView({
     name,
     setName,
     effectiveProjectId,
-    prompt,
     provider,
     canSave,
     triggerConfig,
@@ -53,6 +51,7 @@ export const CreateAutomationView = observer(function CreateAutomationView({
 
   const [error, setError] = useState<string | null>(null);
   const [cronError, setCronError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [templatesCollapsed, setTemplatesCollapsed] = useLocalStorage(
     TEMPLATE_SECTION_COLLAPSED_KEY,
     false
@@ -63,10 +62,10 @@ export const CreateAutomationView = observer(function CreateAutomationView({
   const runtimeAvailable = availability.data?.available === true;
   const canCreate = canSave && runtimeAvailable;
   const { toast } = useToast();
-  const isPending = create.isPending;
+  const isPending = isSaving || create.isPending;
 
   async function handleSave() {
-    if (!effectiveProjectId || !provider || !canCreate) return;
+    if (!effectiveProjectId || !provider || !canCreate || isPending) return;
     setError(null);
     const taskConfig = buildTaskConfig(effectiveProjectId);
     if (!taskConfig) return;
@@ -77,15 +76,11 @@ export const CreateAutomationView = observer(function CreateAutomationView({
       return;
     }
     setCronError(null);
-    const useChatUi = formState.initialConversation.useChatUi;
-    const conversationConfig: ConversationConfig = {
-      prompt: prompt.trim(),
-      provider,
-      autoApprove: false,
-      model: formState.model ?? undefined,
-      type: useChatUi ? 'acp' : 'pty',
-    };
+    const conversationConfig = formState.buildConversationConfig();
+    if (!conversationConfig) return;
+    setIsSaving(true);
     try {
+      await formState.initialConversation.flushSettings();
       const trimmedName = name.trim();
       const saved = await create.mutateAsync({
         name: trimmedName,
@@ -101,6 +96,8 @@ export const CreateAutomationView = observer(function CreateAutomationView({
       onSaved?.(saved);
     } catch (saveError) {
       setError(formatAutomationError(saveError));
+    } finally {
+      setIsSaving(false);
     }
   }
 

@@ -106,6 +106,7 @@ export const PullRequestsSectionHeader = observer(function PullRequestsSectionHe
     taskBranch,
     pullRequests,
     currentPr,
+    showBranchCommits,
     sectionLabel,
     sectionCount,
   } = usePullRequestsSectionModel();
@@ -113,6 +114,7 @@ export const PullRequestsSectionHeader = observer(function PullRequestsSectionHe
   const { toast } = useToast();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { mode: viewMode, setMode: setViewMode } = useChangesViewMode('pr');
+  const { mode: commitsViewMode, setMode: setCommitsViewMode } = useChangesViewMode('commits');
   const context = asAvailableProject(getProjectStore(projectId));
   const hostActionReason = context
     ? projectAvailabilityUi.getLiveActionDisabledReason(projectId)
@@ -199,6 +201,13 @@ export const PullRequestsSectionHeader = observer(function PullRequestsSectionHe
               value={viewMode}
               onChange={setViewMode}
               label={t('pull_request_files')}
+            />
+          )}
+          {showBranchCommits && (
+            <ChangesViewModeToggle
+              value={commitsViewMode}
+              onChange={setCommitsViewMode}
+              label="Branch commits"
             />
           )}
           <Tooltip.Root>
@@ -303,10 +312,15 @@ export const PullRequestsSectionBody = observer(function PullRequestsSectionBody
 });
 
 function BranchCommitsEntry({ range }: { range: CommitRange }) {
+  const { mode: viewMode } = useChangesViewMode('commits');
   return (
     <div className="flex min-h-0 flex-1 flex-col border-t border-border">
       <div className="min-h-0 flex-1 px-2.5">
-        <CommitRangeCommitsList range={range} emptyState={BRANCH_COMMITS_EMPTY_STATE} />
+        <CommitRangeCommitsList
+          range={range}
+          emptyState={BRANCH_COMMITS_EMPTY_STATE}
+          viewMode={viewMode}
+        />
       </div>
     </div>
   );

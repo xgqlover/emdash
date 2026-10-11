@@ -2,9 +2,7 @@ import type {
   RequestPermissionRequest,
   RequestPermissionResponse,
   SessionConfigOption,
-  SessionModeState,
   SetSessionConfigOptionRequest,
-  SetSessionModeRequest,
 } from '@agentclientprotocol/sdk';
 import type { Result } from '@emdash/shared';
 import { ok, toSerializedError } from '@emdash/shared';
@@ -34,6 +32,8 @@ import {
   makeToolId,
   SESSION_PLAN_ID,
 } from '#runtimes/acp/api';
+import { acceptsProviderValue } from '#runtimes/acp/api/models/config';
+import { wrapHiddenContext } from '#runtimes/acp/api/models/prompt';
 import {
   type Command,
   type DomainEvent,
@@ -51,16 +51,11 @@ export interface AcpChatHistory {
   active: TranscriptTurn | null;
 }
 
-type ConfigDimension = 'model' | 'effort' | 'collaborationMode';
-
 export type SessionConfigCatalog =
   | { kind: 'pending' }
   | {
       kind: 'ready';
-      config: Pick<
-        SessionConfigState,
-        'modelOptions' | 'efforts' | 'modeOptions' | 'collaborationModeOptions'
-      >;
+      config: Pick<SessionConfigState, 'options'>;
     };
 
 export class SessionCell {
@@ -76,6 +71,7 @@ export class SessionCell {
   private lastRunningAgentCount = 0;
   private readonly effectDriver: MachineEffectDriver<Effect>;
   private preparedPromptEffects: Effect[] | null = null;
+  private disposed = false;
 
   constructor(private readonly deps: SessionCellDeps) {
     this._acpSessionId = deps.acpSessionId;
@@ -121,9 +117,8 @@ export class SessionCell {
     const state = this.machine.sessionState();
     return {
       ...state,
-      historyRevision: this.transcript.historyRevision,
       // Partial replay is never an authoritative transcript position.
-      ...(state.lifecycle === 'replaying' ? {} : { transcript: this.transcript.snapshot }),
+      transcript: state.lifecycle === 'replaying' ? null : this.transcript.snapshot,
     };
   }
 
@@ -133,10 +128,10 @@ export class SessionCell {
 
   get configCatalog(): SessionConfigCatalog {
     if (this.configCatalogState === 'pending') return { kind: 'pending' };
-    const { modelOptions, efforts, modeOptions, collaborationModeOptions } = this.config;
+    const { options } = this.config;
     return {
       kind: 'ready',
-      config: { modelOptions, efforts, modeOptions, collaborationModeOptions },
+      config: { options },
     };
   }
 
@@ -213,26 +208,17 @@ export class SessionCell {
     this.emitTranscriptChanged();
   }
 
-  applySessionReady(meta?: {
-    modes?: SessionModeState | null;
-    configOptions?: readonly SessionConfigOption[] | null;
-  }): void {
+  applySessionReady(meta?: { configOptions?: readonly SessionConfigOption[] | null }): void {
     this.applyEvent({ type: 'SessionReady' });
     this.seedTranscriptMeta(meta, 'complete');
   }
 
-  applySessionLoaded(meta?: {
-    modes?: SessionModeState | null;
-    configOptions?: readonly SessionConfigOption[] | null;
-  }): void {
+  applySessionLoaded(meta?: { configOptions?: readonly SessionConfigOption[] | null }): void {
     this.applyEvent({ type: 'SessionLoaded' });
     this.seedTranscriptMeta(meta, 'complete');
   }
 
-  applySessionMeta(meta: {
-    modes?: SessionModeState | null;
-    configOptions?: readonly SessionConfigOption[] | null;
-  }): void {
+  applySessionMeta(meta: { configOptions?: readonly SessionConfigOption[] | null }): void {
     this.seedTranscriptMeta(meta);
   }
 
@@ -388,70 +374,38 @@ export class SessionCell {
     return this.permissions.request(request);
   }
 
-  async setMode(modeId: string): Promise<Result<void, AcpSetOptionError>> {
-    const result = this.dispatchFor<AcpSetOptionError>({ type: 'SetMode', modeId }, [
-      'invalid_state',
-      'set_mode_failed',
-    ]);
-    if (!result.success) return result;
-    const configId = this.transcript.config.modeOptions?.configId ?? null;
-    if (configId && this.deps.agent.setSessionConfigOption) {
-      try {
-        const response = await this.deps.agent.setSessionConfigOption({
-          sessionId: this.acpSessionId,
-          configId,
-          value: modeId,
-        } satisfies SetSessionConfigOptionRequest);
-        this.seedTranscriptMeta({ configOptions: response.configOptions });
-        return ok();
-      } catch (e) {
-        return acpErr.setModeFailed(toSerializedError(e));
-      }
-    }
-    if (!this.deps.agent.setSessionMode) {
-      return acpErr.setModeFailed({
-        name: 'Error',
-        message: 'Agent connection does not support setSessionMode',
-      });
-    }
-    try {
-      await this.deps.agent.setSessionMode({
-        sessionId: this.acpSessionId,
-        modeId,
-      } satisfies SetSessionModeRequest);
-      return ok();
-    } catch (e) {
-      return acpErr.setModeFailed(toSerializedError(e));
-    }
-  }
-
-  async setConfigOption(
-    dimension: ConfigDimension,
-    value: string
+  async setOption(
+    configId: string,
+    value: string | boolean
   ): Promise<Result<void, AcpSetOptionError>> {
-    const configId = this.configIdForDimension(dimension);
-    if (!configId) {
+    const option = this.config.options?.find((item) => item.id === configId);
+    if (!option || !acceptsProviderValue(option, value)) {
       return acpErr.setConfigFailed({
-        name: 'Error',
-        message: `Agent connection does not expose ${dimension} configuration`,
+        name: 'UnsupportedOption',
+        message: `Unsupported value for ${configId}`,
       });
     }
-    const result = this.dispatchFor<AcpSetOptionError>(
+    const allowed = this.dispatchFor<AcpSetOptionError>(
       { type: 'SetConfigOption', configId, value },
       ['invalid_state', 'set_config_failed']
     );
-    if (!result.success) return result;
-    if (!this.deps.agent.setSessionConfigOption) return ok();
+    if (!allowed.success) return allowed;
+    if (!this.deps.agent.setSessionConfigOption) {
+      return acpErr.setConfigFailed({
+        name: 'UnsupportedOption',
+        message: 'Agent does not support configuration updates',
+      });
+    }
     try {
       const response = await this.deps.agent.setSessionConfigOption({
         sessionId: this.acpSessionId,
         configId,
-        value,
+        ...(typeof value === 'boolean' ? { type: 'boolean', value } : { value }),
       } satisfies SetSessionConfigOptionRequest);
       this.seedTranscriptMeta({ configOptions: response.configOptions });
       return ok();
-    } catch (e) {
-      return acpErr.setConfigFailed(toSerializedError(e));
+    } catch (error) {
+      return acpErr.setConfigFailed(toSerializedError(error));
     }
   }
 
@@ -469,6 +423,7 @@ export class SessionCell {
   }
 
   dispose(): void {
+    this.disposed = true;
     this.clearQuiesce();
     this.preparedPromptEffects = null;
     this.effectDriver.dispose();
@@ -523,14 +478,22 @@ export class SessionCell {
           break;
         }
         this.deps.callbacks?.onSendQueuedPrompt?.(effect.prompt);
-        void this.sendPromptInternal(effect.prompt).then((result) => {
-          if (!result.success) {
-            this.deps.logger.warn('SessionCell: failed to send queued prompt', {
+        void this.sendPromptInternal(effect.prompt).then(
+          (result) => {
+            if (!result.success) {
+              this.deps.logger.warn('SessionCell: failed to send queued prompt', {
+                conversationId: this.conversationId,
+                error: result.error,
+              });
+            }
+          },
+          (error: unknown) => {
+            this.deps.logger.error('SessionCell: queued prompt execution failed', {
               conversationId: this.conversationId,
-              error: result.error,
+              error,
             });
           }
-        });
+        );
         break;
       case 'warn':
         this.deps.logger.warn(`SessionCell: ${effect.message}`, {
@@ -575,6 +538,8 @@ export class SessionCell {
     });
     this.emitTranscriptChanged();
 
+    let outcome: TranscriptTurnOutcome;
+    let result: Result<SessionPromptResult, AcpSendPromptError>;
     try {
       const resolvedAttachments =
         acceptance?.resolvedAttachments ??
@@ -592,7 +557,9 @@ export class SessionCell {
             mimeType: attachment.mimeType,
           })),
           ...(prompt.text ? [{ type: 'text' as const, text: prompt.text }] : []),
-          ...(prompt.hiddenContext ? [{ type: 'text' as const, text: prompt.hiddenContext }] : []),
+          ...(prompt.hiddenContext
+            ? [{ type: 'text' as const, text: wrapHiddenContext(prompt.hiddenContext) }]
+            : []),
         ],
       };
       this.rawLog.record({
@@ -607,30 +574,37 @@ export class SessionCell {
         sessionId: this.acpSessionId,
         stopReason: response.stopReason,
       });
-      this.settleTurn(outcomeFromStopReason(response.stopReason));
-      return ok({ queued: false });
+      outcome = outcomeFromStopReason(response.stopReason);
+      result = ok({ queued: false });
     } catch (e) {
-      const err = acpErr.promptFailed(toSerializedError(e));
       this.rawLog.record({
         kind: 'prompt_result',
         sessionId: this.acpSessionId,
         stopReason: null,
       });
-      this.settleTurn({ kind: 'error', reason: 'prompt_failed' });
-      return err;
+      outcome = { kind: 'error', reason: 'prompt_failed' };
+      result = acpErr.promptFailed(toSerializedError(e));
     }
+    // Teardown is bounded, so the provider can answer after this activation was disposed.
+    if (this.disposed) {
+      this.deps.logger.debug('SessionCell: provider answered after the activation ended', {
+        conversationId: this.conversationId,
+        outcome,
+      });
+      return result;
+    }
+    this.settleTurn(outcome);
+    return result;
   }
 
   private seedTranscriptMeta(
     meta?: {
-      modes?: SessionModeState | null;
       configOptions?: readonly SessionConfigOption[] | null;
     },
     catalogBoundary: 'incremental' | 'complete' = 'incremental'
   ): void {
     if (!meta && catalogBoundary === 'incremental') return;
     const configOptions = meta?.configOptions;
-    const modes = meta?.modes;
     const completesCatalog =
       configOptions !== undefined ||
       (catalogBoundary === 'complete' && this.configCatalogState === 'pending');
@@ -641,13 +615,7 @@ export class SessionCell {
       });
       this.configCatalogState = 'ready';
     }
-    if (modes?.currentModeId) {
-      this.transcript.pushEvent({
-        kind: 'mode_selected',
-        modeId: modes.currentModeId,
-      });
-    }
-    if (completesCatalog || modes?.currentModeId) {
+    if (completesCatalog) {
       this.emitTranscriptChanged();
     }
   }
@@ -696,32 +664,13 @@ export class SessionCell {
 
   private context(): SessionMachineContext {
     return {
-      modeIds: this.transcript.config.modeOptions?.available.map((mode) => mode.id) ?? [],
-      configOptionIds: [
-        ...(this.transcript.config.modelOptions
-          ? [this.transcript.config.modelOptions.configId]
-          : []),
-        ...(this.transcript.config.efforts ? [this.transcript.config.efforts.configId] : []),
-        ...(this.transcript.config.collaborationModeOptions
-          ? [this.transcript.config.collaborationModeOptions.configId]
-          : []),
-      ],
+      configOptionIds: (this.config.options ?? []).map((option) => option.id),
     };
-  }
-
-  private configIdForDimension(dimension: ConfigDimension): string | null {
-    switch (dimension) {
-      case 'model':
-        return this.transcript.config.modelOptions?.configId ?? null;
-      case 'effort':
-        return this.transcript.config.efforts?.configId ?? null;
-      case 'collaborationMode':
-        return this.transcript.config.collaborationModeOptions?.configId ?? null;
-    }
   }
 
   private isTranscriptEvent(event: NormalizedEvent): boolean {
     switch (event.kind) {
+      case 'notification':
       case 'message':
       case 'thinking':
       case 'tool_call':

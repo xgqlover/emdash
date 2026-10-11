@@ -1,10 +1,10 @@
 import type { ChatContext, ChatImageAttachment, ChatState, ChatView } from '@emdash/chat-ui';
-import { formatHostRef } from '@emdash/core/primitives/host/api';
 import {
   sessionNotFoundErrorSchema,
   type AcpSessionStartMode,
   type PromptAttachment,
   type PromptInput,
+  type ProviderConfigOption,
   type QueuedPrompt,
   type SessionMcpServer,
 } from '@emdash/core/runtimes/acp/api/client';
@@ -14,10 +14,6 @@ import { systemClock } from '@emdash/shared/scheduling';
 import {
   PromptEditorModel,
   type CommandItem,
-  type ComposerCollaborationModeOption,
-  type ComposerEffortOption,
-  type ComposerModelOption,
-  type ComposerPermissionModeOption,
   type ComposerQueuedPrompt,
 } from '@emdash/ui/react/components';
 import { toast } from '@emdash/ui/react/primitives';
@@ -35,7 +31,6 @@ import {
   type ConversationsClient,
 } from '@core/features/conversations/api/browser/client';
 import { conversationRegistry } from '@core/features/conversations/api/browser/stores/conversation-registry';
-import { updateProviderPreference } from '@core/features/conversations/browser/provider-preferences';
 import {
   ACP_DRAFT_MAX_LENGTH,
   acpDraftMemento,
@@ -125,6 +120,10 @@ export class AcpChatStore {
   private _bootstrapped = false;
   private _unsubs: Array<() => void> = [];
   private readonly _scope: Scope;
+  private readonly _lastProviderOptions = observable.box<ProviderConfigOption[] | undefined>(
+    undefined,
+    { deep: false }
+  );
   private readonly _draftSpace: SubjectSpace<'conversation'>;
   private readonly _draftHandle: MementoHandle<AcpDraftState>;
   private readonly _disposeComposerSubscription: () => void;
@@ -167,14 +166,6 @@ export class AcpChatStore {
       draftText: computed,
       draftAttachments: observable.shallow,
       unconfirmedPromptIds: observable.shallow,
-      model: computed,
-      modelOptions: computed,
-      permissionMode: computed,
-      permissionModeOptions: computed,
-      collaborationMode: computed,
-      collaborationModeOptions: computed,
-      effort: computed,
-      effortOptions: computed,
       commands: computed,
       mcpServers: computed,
       permissionQueue: computed,
@@ -184,10 +175,9 @@ export class AcpChatStore {
       isEmpty: computed,
       submitPrompt: action,
       stop: action,
-      setModel: action,
-      setMode: action,
-      setCollaborationMode: action,
-      setEffort: action,
+      providerOptions: computed,
+      configuredOptions: computed,
+      setOption: action,
       resolvePermission: action,
       editQueuedPrompt: action,
       deleteQueuedPrompt: action,
@@ -199,6 +189,14 @@ export class AcpChatStore {
       exportTranscript: action,
       retry: action,
     });
+    this._scope.add(
+      reaction(
+        () => this.session?.config.current().options,
+        (options) => {
+          if (options !== undefined) this._lastProviderOptions.set(options);
+        }
+      )
+    );
     this._disposeComposerSubscription = this.composerModel.subscribe(() => {
       runInAction(() => this._draftText.set(this.composerModel.getText()));
     });
@@ -257,66 +255,6 @@ export class AcpChatStore {
         void this._rehydrateDraftAttachmentPreviews();
       },
       (error: unknown) => getMementoClient().reportError(error)
-    );
-  }
-
-  get model(): string | null {
-    return this.session?.config.current().modelOptions?.selected ?? null;
-  }
-
-  get modelOptions(): Record<string, ComposerModelOption> | null {
-    const options = this.session?.config.current().modelOptions;
-    if (!options) return null;
-    return Object.fromEntries(
-      options.available.map((option) => [
-        option.id,
-        { name: option.name, description: option.description },
-      ])
-    );
-  }
-
-  get permissionMode(): string | null {
-    return this.session?.config.current().modeOptions?.selected ?? null;
-  }
-
-  get permissionModeOptions(): Record<string, ComposerPermissionModeOption> | null {
-    const options = this.session?.config.current().modeOptions;
-    if (!options) return null;
-    return Object.fromEntries(
-      options.available.map((option) => [
-        option.id,
-        { name: option.name, description: option.description },
-      ])
-    );
-  }
-
-  get collaborationMode(): string | null {
-    return this.session?.config.current().collaborationModeOptions?.selected ?? null;
-  }
-
-  get collaborationModeOptions(): Record<string, ComposerCollaborationModeOption> | null {
-    const options = this.session?.config.current().collaborationModeOptions;
-    if (!options) return null;
-    return Object.fromEntries(
-      options.available.map((option) => [
-        option.id,
-        { name: option.name, description: option.description },
-      ])
-    );
-  }
-
-  get effort(): string | null {
-    return this.session?.config.current().efforts?.selected ?? null;
-  }
-
-  get effortOptions(): Record<string, ComposerEffortOption> | null {
-    const options = this.session?.config.current().efforts;
-    if (!options) return null;
-    return Object.fromEntries(
-      options.available.map((option) => [
-        option.id,
-        { name: option.name, description: option.description },
-      ])
     );
   }
 
@@ -479,7 +417,8 @@ export class AcpChatStore {
   submitPrompt(
     text: string,
     attachments: AcpPromptAttachment[] = [],
-    hiddenContext?: string | Promise<string | undefined>
+    hiddenContext?: string | Promise<string | undefined>,
+    onAccepted?: () => void
   ): void {
     if (
       this.hostAccess?.liveAction.kind === 'disabled' ||
@@ -506,6 +445,7 @@ export class AcpChatStore {
     }
 
     void this._submitPrompt(promptId, text, promptAttachments, hiddenContext).then((outcome) => {
+      if (outcome === 'accepted') onAccepted?.();
       if (outcome !== 'rejected') return;
       runInAction(() => {
         if (this._disposed || submissionSequence !== this._submissionSequence) return;
@@ -551,27 +491,27 @@ export class AcpChatStore {
       .catch((error: unknown) => this._toastError('Failed to stop', error));
   }
 
-  setModel(model: string): void {
-    if (!this.liveActionsEnabled) return;
-    void this.session
-      ?.setOption('model', model)
-      .then((result) => {
-        if (!result.success) {
-          this._toastError('Failed to change model', result.error);
-          return;
-        }
-        void this._rememberPreference({ model });
-      })
-      .catch((error: unknown) => this._toastError('Failed to change model', error));
+  get providerOptions() {
+    return this.session?.config.current().options ?? this._lastProviderOptions.get();
+  }
+  get configuredOptions() {
+    const conversation = conversationRegistry
+      .get(this.taskId)
+      ?.conversations.get(this.conversationId)?.data;
+    return this.session?.config.current().configuredOptions ?? conversation?.options ?? {};
   }
 
-  setMode(modeId: string): void {
-    if (!this.liveActionsEnabled) return;
+  get canSetOptions() {
+    return this.liveActionsEnabled && this.session?.config.current().options !== undefined;
+  }
+
+  setOption(configId: string, value: string | boolean): void {
+    if (!this.canSetOptions || !configId) return;
     void this.session
-      ?.setOption('mode', modeId)
+      ?.setOption(configId, value)
       .then((result) => {
         if (!result.success) {
-          // [XG-CUSTOM] 诊断：把错误详情显示在 toast，定位「R2 不在 available」还是「setSessionConfigOption 异常」
+          // [XG-CUSTOM] 诊断：把错误详情显示在 toast，定位「选项不在 available」还是「setSessionConfigOption 异常」
           const detail = (() => {
             try {
               return JSON.stringify(result.error);
@@ -579,40 +519,30 @@ export class AcpChatStore {
               return String(result.error);
             }
           })();
-          this._toastError(`Failed to change session mode: ${detail}`, result.error);
+          this._toastError(`Failed to change setting: ${detail}`, result.error);
           return;
         }
-        void this._rememberPreference({ modeId });
-      })
-      .catch((error: unknown) => this._toastError('Failed to change session mode', error));
-  }
-
-  setCollaborationMode(modeId: string): void {
-    if (!this.liveActionsEnabled) return;
-    void this.session
-      ?.setOption('collaborationMode', modeId)
-      .then((result) => {
-        if (!result.success) {
-          this._toastError('Failed to change collaboration mode', result.error);
-          return;
+        if (result.data.reapplyFailures.length) {
+          toast.warning('Setting saved, but some settings could not be restored', {
+            description: result.data.reapplyFailures
+              .map(({ configId, error }) => {
+                const name =
+                  this.providerOptions?.find((option) => option.id === configId)?.name ?? configId;
+                const message =
+                  error.type === 'set_config_failed' ? error.cause?.message : error.message;
+                return message ? `${name}: ${message}` : name;
+              })
+              .join('\n'),
+          });
         }
-        void this._rememberPreference({ collaborationMode: modeId });
-      })
-      .catch((error: unknown) => this._toastError('Failed to change collaboration mode', error));
-  }
-
-  setEffort(effort: string): void {
-    if (!this.liveActionsEnabled) return;
-    void this.session
-      ?.setOption('effort', effort)
-      .then((result) => {
-        if (!result.success) {
-          this._toastError('Failed to change effort', result.error);
-          return;
+        if (result.data.preferenceSaveError !== undefined) {
+          toast.warning(
+            'Setting saved for this conversation, but could not be remembered for new conversations',
+            { description: result.data.preferenceSaveError }
+          );
         }
-        void this._rememberPreference({ effort });
       })
-      .catch((error: unknown) => this._toastError('Failed to change effort', error));
+      .catch((error: unknown) => this._toastError('Failed to change setting', error));
   }
 
   resolvePermission(optionId: string): void {
@@ -721,22 +651,12 @@ export class AcpChatStore {
       if (this._disposed || this._historyEpoch !== epoch || this.session !== attachedSession)
         return;
       if (!history.success) throw new AcpStartError(history.error);
-      if (history.data.unavailable && !this.historyKnown && this.messageCount === 0) {
+      if (history.data.kind === 'unavailable' && !this.historyKnown && this.messageCount === 0) {
         this._failBootstrap({
           kind: 'history_unavailable',
           message: 'Conversation history is unavailable. Retry loading this conversation.',
         });
         return;
-      }
-      if (started.data.clearedConfiguration?.length) {
-        await this._rememberPreference(
-          Object.fromEntries(started.data.clearedConfiguration.map((key) => [key, null])) as {
-            model?: null;
-            modeId?: null;
-            effort?: null;
-            collaborationMode?: null;
-          }
-        );
       }
 
       if (this._disposed || this._historyEpoch !== epoch || this.session !== attachedSession)
@@ -971,12 +891,9 @@ export class AcpChatStore {
 
   private _subscribeLiveSession(session: AcpLiveSession): void {
     this._unsubs.splice(0).forEach((unsub) => unsub());
-    let previousLifecycle = session.sessionState.current().lifecycle;
-    let previousHistoryRevision = session.sessionState.current().historyRevision;
     const disconnectChatSession = getChatUiRuntime().connectSession(
       this.chatState,
       {
-        activeTurn: asValueSource(session.activeTurn),
         plan: asValueSource(session.plan),
         sessionState: asValueSource(session.sessionState),
       },
@@ -988,19 +905,7 @@ export class AcpChatStore {
     this._unsubs.push(
       disconnectChatSession,
       this._bindTerminalOutputs(session),
-      session.sessionState.onChange((state) => {
-        const replayCompleted = previousLifecycle === 'replaying' && state.lifecycle === 'ready';
-        const historyChanged =
-          state.lifecycle === 'ready' && previousHistoryRevision !== state.historyRevision;
-        previousLifecycle = state.lifecycle;
-        previousHistoryRevision = state.historyRevision;
-        runInAction(() => {
-          this._syncMessageCount();
-        });
-        if (historyChanged || (replayCompleted && !this.historyLoading))
-          this._requestHistoryRefresh();
-      }),
-      session.activeTurn.onChange(() => runInAction(() => this._syncMessageCount()))
+      session.sessionState.onChange(() => runInAction(() => this._syncMessageCount()))
     );
   }
 
@@ -1038,23 +943,6 @@ export class AcpChatStore {
       (client) => client.attachments
     );
     return this._attachmentsClientPromise;
-  }
-
-  private async _rememberPreference(patch: {
-    model?: string | null;
-    modeId?: string | null;
-    effort?: string | null;
-    collaborationMode?: string | null;
-  }): Promise<void> {
-    const providerId = conversationRegistry.get(this.taskId)?.conversations.get(this.conversationId)
-      ?.data.providerId;
-    if (!providerId) return;
-    const host = formatHostRef(hostRefFromConnectionId(getProjectSshConnectionId(this.projectId)));
-    try {
-      await updateProviderPreference(host, providerId, 'acp', patch);
-    } catch (error) {
-      getMementoClient().reportError(error);
-    }
   }
 
   private _bindTerminalOutputs(session: AcpLiveSession): () => void {
@@ -1119,17 +1007,17 @@ export class AcpChatStore {
         const history = await session.loadHistory(before, 100);
         if (this._disposed || this.session !== session || this._historyEpoch !== epoch) return true;
         if (!history.success) throw new AcpStartError(history.error);
-        if (history.data.unavailable) return !transcript.needsHistory;
+        if (history.data.kind === 'unavailable') return !transcript.needsHistory;
         const position = history.data.position;
         // A change between pages requires another pass over the loaded range, including
         // its latest page. A newer old-page response alone cannot prove we caught up.
         if (
           before !== undefined &&
-          (position?.historyRevision !== revision || position?.generation !== generation)
+          (position.historyRevision !== revision || position.generation !== generation)
         )
           return false;
-        revision = position?.historyRevision;
-        generation = position?.generation;
+        revision = position.historyRevision;
+        generation = position.generation;
         let applied = false;
         runInAction(() => {
           applied = transcript.applyPage(enrichResourceLinks(history.data));
@@ -1141,13 +1029,7 @@ export class AcpChatStore {
         });
         if (!applied) return false;
         const cursor = history.data.nextCursor;
-        if (
-          !position ||
-          cursor === null ||
-          oldestVisibleSeq === undefined ||
-          cursor <= oldestVisibleSeq
-        )
-          break;
+        if (cursor === null || oldestVisibleSeq === undefined || cursor <= oldestVisibleSeq) break;
         if (before !== undefined && cursor >= before) return false;
         before = cursor;
       } while (!this._disposed);

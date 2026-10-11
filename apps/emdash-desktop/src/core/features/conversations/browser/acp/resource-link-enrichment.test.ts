@@ -28,6 +28,7 @@ function link(uri: string, extra: Record<string, unknown> = {}): TranscriptItem 
 
 function page(items: TranscriptItem[]): HistoryPage {
   return {
+    kind: 'available',
     turns: [{ id: 'conv-1:turn:0', seq: 0, initiator: 'agent', items }],
     nextCursor: null,
   } as HistoryPage;
@@ -88,6 +89,7 @@ describe('enrichResourceLinks', () => {
     const enriched = enrichResourceLinks(
       page([link('https://x.test/poster'), link('/media/lib/a.jpg'), link('memory://kb/1')])
     );
+    if (enriched.kind !== 'available') throw new Error('expected an available history page');
     const items = enriched.turns[0]?.items ?? [];
     expect(items.map((item) => item.kind)).toEqual([
       'resource-link',
@@ -106,6 +108,7 @@ describe('enrichResourceLinks', () => {
       target: { kind: 'external', url: 'https://kept.example/a' },
     });
     const enriched = enrichResourceLinks(page([resolved]));
+    if (enriched.kind !== 'available') throw new Error('expected an available history page');
     expect(enriched.turns[0]?.items[0]).toBe(resolved);
   });
 
@@ -131,6 +134,7 @@ describe('enrichResourceLinks', () => {
       text: '参考：',
     } as TranscriptItem;
     const enriched = enrichResourceLinks(page([message, link('/media/lib/a.jpg')]));
+    if (enriched.kind !== 'available') throw new Error('expected an available history page');
     expect(enriched.turns[0]?.items[0]).toBe(message);
   });
 });

@@ -20,6 +20,7 @@ import { ProviderTokenDispatcher } from '@core/features/account/node/services/pr
 import { getPluginMetadata } from '@core/features/agents/api/node/plugin-registry';
 import { AutomationsService } from '@core/features/automations/api/node/automations-service';
 import { buildAutomationDeployment } from '@core/features/automations/node/deployment-builder';
+import { getProviderSettingsService } from '@core/features/conversations/node/provider-settings-service';
 import { createConversationDeletionSweepKind } from '@core/features/conversations/node/sweep/conversation-deletion-sweep';
 import { ConversationBackfillService } from '@core/features/conversations/node/sync/conversation-backfill';
 import { ConversationSyncService } from '@core/features/conversations/node/sync/conversation-sync-service';
@@ -83,6 +84,7 @@ import { TaskSessionLaunchContextResolver } from '@core/features/tasks/api/node/
 import { TaskSessionManager } from '@core/features/tasks/api/node/task-session-manager';
 import { installAutomationTelemetry } from '@core/features/telemetry/node/automation-telemetry';
 import { installTaskTelemetry } from '@core/features/telemetry/node/task-telemetry';
+import { createUsageOverview } from '@core/features/usage/node/usage-overview';
 import { desktopHostEvents } from '@core/features/workbench/node/event-host';
 import {
   createWorkspaceLifecycleParticipants,
@@ -191,6 +193,7 @@ export type ServicesBundle = {
   readonly sessionLaunchContexts: TaskSessionLaunchContextResolver;
   readonly taskService: TaskService;
   readonly taskSessions: TaskSessionManager;
+  readonly usage: ReturnType<typeof createUsageOverview>;
   readonly workspacePlacement: WorkspacePlacementResolver;
   readonly conversationSync: ConversationSyncService;
   readonly reconcileSweep: ReconcileSweepService;
@@ -203,6 +206,13 @@ export async function bootServices(
 ): Promise<ServicesBundle> {
   const { appSettings: appSettingsService, db, sqlite, workspaceIdentity } = database;
   const { clients, broker: runtimes } = desktopRuntimes;
+  const usage = createUsageOverview({
+    scope: appScope,
+    runtimes,
+    machines: infrastructure.ssh.machines,
+    hosts: infrastructure.hosts,
+    hostAvailability: desktopRuntimes.hostAvailability,
+  });
   const getMementosRuntimeClient = async () => clients.mementos;
   const getPullRequestsRuntimeClient = async () => clients.pullRequests;
   const getTerminalsRuntimeClient = async () => clients.terminals;
@@ -767,6 +777,7 @@ export async function bootServices(
     acquireWorkspaceRuntime: createDesktopWorkspaceRuntimeAcquirer(runtimes, workspaceIdentity),
     emitHostEvent: (event) => desktopHostEvents.emit(undefined, event),
   });
+  appScope.add(() => appService.dispose());
   await step('services:app-settings-init', () => appSettingsService.initialize());
   setTrayVisible((await appSettingsService.get('interface')).showTrayIcon);
   applyNativeTheme(await appSettingsService.get('theme'));
@@ -801,6 +812,8 @@ export async function bootServices(
     runtimes,
     onError: (context, error) => log.warn(context, { error }),
   });
+  const conversationPreferences = getProviderSettingsService(db);
+  appScope.add(() => conversationPreferences.dispose());
   const conversationSync = new ConversationSyncService({
     db,
     runtimes,
@@ -943,6 +956,7 @@ export async function bootServices(
     sessionLaunchContexts,
     taskService,
     taskSessions: taskSessionManager,
+    usage,
     workspacePlacement,
     conversationSync,
     reconcileSweep,

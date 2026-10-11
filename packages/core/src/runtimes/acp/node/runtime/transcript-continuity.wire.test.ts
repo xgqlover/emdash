@@ -6,6 +6,7 @@ import { observe, remote, snapshot } from '@emdash/wire/state';
 import { createTestWire } from '@emdash/wire/testing';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { acpApiContract, type StopReason, type TranscriptTurn } from '#runtimes/acp/api';
+import { wrapHiddenContext } from '#runtimes/acp/api/models/prompt';
 import { makeAcpHarness, makeStartInput } from '#runtimes/acp/node/acp-test-support';
 import { createAcpController } from '#runtimes/acp/node/api/controller';
 import { AcpRuntime } from './runtime';
@@ -25,13 +26,14 @@ async function createHarness() {
   const session = models({ conversationId });
   const observed: Array<TranscriptTurn | null> = [];
   observe(
-    session.states.activeTurn,
+    session.states.state,
     (next) => {
-      if (next.value !== undefined) observed.push(structuredClone(next.value));
+      if (next.value !== undefined)
+        observed.push(structuredClone(next.value.transcript?.activeTurn ?? null));
     },
     { scope }
   );
-  await session.states.activeTurn.refresh();
+  await session.states.state.refresh();
   const gates: Array<ReturnType<typeof deferred<{ stopReason: StopReason }>>> = [];
   return {
     provider,
@@ -41,7 +43,7 @@ async function createHarness() {
     session,
     observed,
     get active() {
-      return snapshot(session.states.activeTurn).value;
+      return snapshot(session.states.state).value?.transcript?.activeTurn ?? null;
     },
     gate() {
       const gate = deferred<{ stopReason: StopReason }>();
@@ -58,6 +60,7 @@ async function createHarness() {
     async history(before?: number, limit = 100) {
       const result = await wire.client.loadHistory({ conversationId, before, limit });
       if (!result.success) throw new Error(`History failed: ${result.error.type}`);
+      if (result.data.kind !== 'available') throw new Error('Expected available history');
       return result.data;
     },
     async dispose() {
@@ -354,7 +357,9 @@ describe('completed history through real runtime and Wire', () => {
       )
     ).toMatchObject({ status: 'done' });
     await vi.waitFor(() => expect(h.active?.id).toBe(activeId));
-    expect(h.runtime.getSessionState(h.conversationId).historyRevision).toBeGreaterThan(0);
+    expect(h.runtime.getSessionState(h.conversationId).transcript?.historyRevision).toBeGreaterThan(
+      0
+    );
   });
 
   it.each([false, true])(
@@ -470,7 +475,7 @@ describe('completed history through real runtime and Wire', () => {
       expect.objectContaining({
         prompt: [
           { type: 'text', text: 'visible request' },
-          { type: 'text', text: 'private orchestration instructions' },
+          { type: 'text', text: wrapHiddenContext('private orchestration instructions') },
         ],
       })
     );
