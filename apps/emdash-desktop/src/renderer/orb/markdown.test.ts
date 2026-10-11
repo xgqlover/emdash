@@ -50,14 +50,22 @@ describe('renderXiangwoMarkdown：安全（模型输出不可信）', () => {
     expect(html).toContain('href="https://example.com/a?b=1"');
   });
 
-  it('Markdown 图片降级成文字（不产生 <img>：球里的图只走 xiangwo-images 代理）', () => {
-    const html = renderXiangwoMarkdown('![包装图](https://evil/x.png)');
-    expect(html).not.toContain('<img');
-    expect(html).toContain('包装图');
+  it('[XG-CUSTOM 2026-10-11] Markdown 图片改写成 `/xg/img?u=` 代理形（球里**能看见图**，且不直连外链）', () => {
+    const html = renderXiangwoMarkdown('![handkerchief](https://award.example.com/a/handkerchief.png)');
+    expect(html).toContain('<img');
+    expect(html).toContain('/xg/img?u=' + encodeURIComponent('https://award.example.com/a/handkerchief.png'));
+    expect(html).not.toContain('src="https://award.example.com');
+    expect(html).toContain('alt="handkerchief"');
+    expect(html).toContain('loading="lazy"');
   });
-});
 
-describe('stripXiangwoMachineMarkers：机器标记不给用户看', () => {
+  it('[XG-CUSTOM 2026-10-11] 拿不到可代理地址（data:/相对路径）⇒ 仍退回文字占位，绝不产生 <img>', () => {
+    const html = renderXiangwoMarkdown('![x](data:image/png;base64,AAAA)\n\n![y](/etc/passwd)');
+    expect(html).not.toContain('<img');
+    expect(html).toContain('🖼 x');
+    expect(html).toContain('🖼 y');
+  });
+
   it('清掉 [XG-PREVIEW]…[/XG-PREVIEW]（agent 侧 _sse_stream 会写进正文）', () => {
     expect(stripXiangwoMachineMarkers('开好了。\n[XG-PREVIEW]http://x/y[/XG-PREVIEW]\n可以看了。'))
       .toBe('开好了。\n\n可以看了。');

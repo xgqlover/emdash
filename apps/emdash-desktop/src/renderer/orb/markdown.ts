@@ -20,8 +20,11 @@
 //     `<script>alert(1)</script>` / `<iframe>` / `<img onerror=…>` **一个都不进输出**；
 //   * 但 **`javascript:` 链接会原样透出**（实测 `[x](javascript:alert(2))` → `href="javascript:…"`）
 //     ⇒ 本模块自己走一遍 hast 树：**非 http(s)/mailto/# 的 `href` 一律删掉**；
-//   * **`img` 一律降级成文字**：球里的图走 `xiangwo-images` 块（服务端 `/xg/img` 代理：防盗链 +
-//     不暴露本机路径）；放开 `<img>` = 让模型绕开那条代理、让渲染器直接去拉任意外链。
+//   * **`img` 一律改写成 `/xg/img?u=` 代理形**（[XG-CUSTOM 2026-10-11] 用户第二次报「怎么又这样看作品图」后改）：
+//     旧做法是**降级成 `🖼 alt` 文字** —— 结果模型用 `web_render` 取回来的作品图（markdown `![alt](url)`）
+//     在球里**全变成文字占位符**，用户"根本看不见图"。现在**保留 `<img>` 但只允许它指向我们的取图代理**
+//     （`/xg/img?u=<encodeURIComponent(原绝对URL)>`）⇒ 图能看见、又不让渲染器直连任意外链、也不暴露本机路径。
+//     `data:` / `blob:` / `file:` / 相对路径 **一律丢**（拿不到可代理地址 ⇒ 退回 `🖼 alt` 文字）。
 //   * 任务列表的 `<input type=checkbox disabled>` **保留** —— 原始 HTML 已被丢弃，
 //     唯一的来源就是 remark-gfm 自己的生成器（构造上安全），保留才与聊窗观感一致。
 //
@@ -67,19 +70,45 @@ export function stripXiangwoMachineMarkers(text: string): string {
   return out;
 }
 
-/** 走一遍 hast：删危险 href；`img` 降级成文字（理由见文件头）。 */
+/** [XG-CUSTOM 2026-10-11] 球的取图代理路径（服务端 `/xg/img`：防盗链 + 远端取 + 不暴露本机路径）。 */
+const XIANGWO_IMG_PROXY_PREFIX = '/xg/img?u=';
+
+/** 把**绝对** http(s) 图地址改写成代理形；拿不到可代理地址 ⇒ `''`（调用方退回文字占位）。 */
+export function proxyXiangwoImageSrc(raw: unknown): string {
+  const v = typeof raw === 'string' ? raw.trim() : '';
+  if (v === '') return '';
+  if (v.startsWith(XIANGWO_IMG_PROXY_PREFIX)) return v;   // 已经是代理形（服务端图块里常见）
+  let u: URL;
+  try {
+    u = new URL(v);
+  } catch {
+    return '';                                            // 相对路径 / 畸形地址 ⇒ 丢（防本机路径泄漏）
+  }
+  if (u.protocol !== 'http:' && u.protocol !== 'https:') return '';   // data:/blob:/file: 一律丢
+  return XIANGWO_IMG_PROXY_PREFIX + encodeURIComponent(u.toString());
+}
+
+/** 走一遍 hast：删危险 href；`img` 改写成 `/xg/img?u=` 代理形（理由见文件头）。 */
 function hardenHast(node: HastNode): void {
   if (node.type === 'element') {
     const props = node.properties ?? (node.properties = {});
     const href = props.href;
     if (typeof href === 'string' && !XIANGWO_MD_URI_RE.test(href)) delete props.href;
-    const src = props.src;
-    if (typeof src === 'string' && !XIANGWO_MD_URI_RE.test(src)) delete props.src;
     if (node.tagName === 'img') {
       const alt = typeof props.alt === 'string' ? props.alt : '';
-      node.tagName = 'span';
-      node.properties = {};
-      node.children = [{ type: 'text', value: alt === '' ? '（图片）' : `🖼 ${alt}` }];
+      const proxied = proxyXiangwoImageSrc(props.src);
+      if (proxied === '') {
+        node.tagName = 'span';
+        node.properties = {};
+        node.children = [{ type: 'text', value: alt === '' ? '（图片）' : `🖼 ${alt}` }];
+      } else {
+        // 只保留我们自己构造的代理地址：渲染器**永远不会**直连任意外链
+        node.properties = { src: proxied, alt, loading: 'lazy', decoding: 'async' };
+        node.children = [];
+      }
+    } else {
+      const src = props.src;
+      if (typeof src === 'string' && !XIANGWO_MD_URI_RE.test(src)) delete props.src;
     }
   }
   for (const child of node.children ?? []) hardenHast(child);
