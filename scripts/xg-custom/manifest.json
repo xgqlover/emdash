@@ -1997,10 +1997,10 @@
       "anchors": [
         "const PKG_VERSION = require(\"../package.json\").version as string;"
       ],
-      "hash": "150f60dfaf1082ad603739b1584fad9a715591d5",
+      "hash": "65363c6b1de78c4a17b4a13dce5732b85a47c773",
       "origin": "modified",
-      "firstCommit": "0bf55f442|2026-09-26|Merge remote-tracking branch 'origin/main'",
-      "lastCommit": "8ad3582ef|2026-09-21|fix(linux): align desktop launcher and window identities",
+      "firstCommit": "cd5929eb5|2026-10-11|fix(packaging): [XG-CUSTOM] 产物名带版本（在 ARTIFACT_PREFIX 定义处拼 PKG_VERSION）",
+      "lastCommit": "cd5929eb5|2026-10-11|fix(packaging): [XG-CUSTOM] 产物名带版本（在 ARTIFACT_PREFIX 定义处拼 PKG_VERSION）",
       "note": "core 基元定制"
     },
     "apps/emdash-desktop/src/core/primitives/automations/api/config.test.ts": {
