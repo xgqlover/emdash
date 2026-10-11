@@ -105,6 +105,20 @@ if [ "${TOP:-0}" -lt "$EXPECT_TOP" ] || [ "${CORE:-0}" -eq 0 ]; then
 fi
 echo "   ✅ 顶层包 $TOP ≥ $EXPECT_TOP，且 @emdash/core 在包里"
 
+# [XG-CUSTOM 2026-10-11] 产物名现在带版本（electron-builder 的 artifactName）
+#   ⇒ 这里先把它摆回**固定路径**（桌面/菜单/wrapper 都指着 release/emdash-x86_64.AppImage），
+#      再另存一份**带版本**的归档件（交付/回滚用）——  XG-VERSIONED
+VER=$(node -p "require('./apps/emdash-desktop/package.json').version")
+for f in apps/emdash-desktop/release-new/*.AppImage; do
+  [ -e "$f" ] || continue
+  case "$f" in *emdash-x86_64.AppImage) NEW="$f";; *"$VER"*) NEW="$f";; esac
+done
+if [ -n "${NEW:-}" ] && [ "$(basename "$NEW")" != "emdash-x86_64.AppImage" ]; then
+  cp -a "$NEW" "apps/emdash-desktop/release-new/emdash-$VER-x86_64.AppImage"
+  mv -f "$NEW" apps/emdash-desktop/release-new/emdash-x86_64.AppImage
+  echo "  产物已摆回固定路径 + 另存 emdash-$VER-x86_64.AppImage"
+fi
+
 echo "=== ⑤ 原子替换（先备份在用的那份，名字带 .bak- 不会被 pre-check 当脏）==="
 # ⚠️ 必须用 `mv`（rename）而不是就地覆盖：正在跑的实例把 AppImage 以 FUSE 只读挂载着，
 #    覆盖同一 inode 会让它的后续读失败（可能崩）；rename 只换目录项，**跑着的旧实例照旧活着**，

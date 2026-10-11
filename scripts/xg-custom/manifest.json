@@ -4,11 +4,11 @@
   "hint": "标记是锚点，hash 只作辅助：上游 rebase 后 hash/行号必变，判「定制还在不在」看 markers 与 anchors",
   "upstream": {
     "ref": "origin/main",
-    "base": "669a24fe673f4af1a507ddc33fc3f3ffe1039348"
+    "base": "760b60caade30f4f1dc870d26af4a612dd426cd7"
   },
   "stats": {
     "files": 243,
-    "markers": 1416,
+    "markers": 1421,
     "newFiles": 122,
     "modifiedFiles": 121
   },
@@ -42,7 +42,7 @@
       "note": "忽略 xg-custom 台账备份文件"
     },
     "apps/emdash-desktop/electron-builder.config.ts": {
-      "markers": 113,
+      "markers": 115,
       "lines": [
         34,
         43,
@@ -156,7 +156,9 @@
         301,
         303,
         305,
-        374
+        374,
+        386,
+        389
       ],
       "anchors": [
         "] 精确收集 emdash-desktop 的直接依赖（electron-builder 在 pnpm workspace 下",
@@ -164,9 +166,11 @@
         "2026-10-02] @octokit/rest 的传递依赖（缺 @octokit/core 会导致启动失败：",
         "2026-10-02] 依赖闭包自动补全（防 whack-a-mole）",
         "asarUnpack: [",
-        "msi: {"
+        "msi: {",
+        "electronFuses: {",
+        "npmRebuild: false,"
       ],
-      "hash": "3e40c83e8acda410a5c598cb4849e045654d8ae0",
+      "hash": "a4704ab4fa404414ba9a78ac7057d192b1f06b52",
       "origin": "modified",
       "firstCommit": "32fb70f94|2026-09-18|fix: 去掉 win azureSignOptions（fork 无 Azure 凭据，签名卡 6h 超时），打 unsigned 包",
       "lastCommit": "32fb70f94|2026-09-18|fix: 去掉 win azureSignOptions（fork 无 Azure 凭据，签名卡 6h 超时），打 unsigned 包",
@@ -2545,7 +2549,7 @@
         "export function systemProxyIsConfigured(probe: unknown): boolean {",
         "export function applySystemFirstDefault("
       ],
-      "hash": "9c05e79980fc56bc8a10cbf6149b2bf736904e6a",
+      "hash": "89239988c670d5531ecb21e5a16fa40d5afc9679",
       "origin": "new",
       "firstCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
       "lastCommit": "c605b87e9|2026-09-30|[XG-CUSTOM] 项我球远程/Windows 三断点：聊天地址跟着主机走 + 失败重试 + Windows 两坑",
@@ -5488,16 +5492,22 @@
       "note": "中文化台账 + 还原器 apply.mjs"
     },
     "scripts/xg-package-linux.sh": {
-      "markers": 2,
+      "markers": 5,
       "lines": [
         2,
-        33
+        25,
+        56,
+        108,
+        148
       ],
       "anchors": [
         "] 2026-10-05 —— 本机 AppImage 打包**唯一推荐入口** —— 顺手堵上「静默缺包」这条坑。",
-        "UA=\"pnpm/10.28.2 npm/? node/$(node -v) $(uname -s | tr '[:upper:]' '[:lower:]') $(uname -m)\""
+        "ELEC_VER=$(node -p \"require('./apps/emdash-desktop/package.json').devDependencies.electron\" | tr -d '^~')",
+        "UA=\"pnpm/10.28.2 npm/? node/$(node -v) $(uname -s | tr '[:upper:]' '[:lower:]') $(uname -m)\"",
+        "VER=$(node -p \"require('./apps/emdash-desktop/package.json').version\")",
+        "2026-10-11] 原来这里写「让新包生效：systemctl --user restart emdash」——**那是错的**："
       ],
-      "hash": "e55f646556c7c495d5b1452395820c710233948c",
+      "hash": "022313c495823a9b81452e44eddf36764d4890db",
       "origin": "new",
       "firstCommit": "b9973dba1|2026-10-05|chore(xg-custom): 标记规范化（裸 [XG-CUSTOM] 才入账）+ 新增本机打包入口 xg-package-linux.sh",
       "lastCommit": "b9973dba1|2026-10-05|chore(xg-custom): 标记规范化（裸 [XG-CUSTOM] 才入账）+ 新增本机打包入口 xg-package-linux.sh",
