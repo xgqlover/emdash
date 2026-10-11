@@ -36,7 +36,9 @@ echo "=== ② 编译（electron-vite build）==="
 #   不做的后果（2026-10-11 实测）：better-sqlite3 还是旧 Electron 的 ABI(137) ⇒ 新 Electron 要 143
 #   ⇒ 启动即 `NODE_MODULE_VERSION` 错 ⇒ 进恢复界面（"老重复问题"的根）。
 echo "=== ⓪ 重编原生依赖（better-sqlite3 → 当前 Electron ABI）==="
-if ! (cd apps/emdash-desktop && pnpm run rebuild); then
+# ⚠️ 必须在**仓库根**跑：better-sqlite3 是 hoisted 到根 node_modules 的那份，
+#   在 apps/emdash-desktop 下跑 electron-rebuild **碰不到它**（2026-10-11 实测：包内仍是旧 ABI）。
+if ! node_modules/.bin/electron-rebuild -f --only=better-sqlite3; then
   echo "!! 原生重编失败 ⇒ 不要打包（否则必进恢复界面）"; exit 1
 fi
 # 包内证据：确认 app.asar.unpacked 里的 .node 是刚编的（mtime 比源码新即可）
