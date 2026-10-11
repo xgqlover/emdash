@@ -22,6 +22,29 @@ APP_ABS="$(pwd)/$APP"
 PKG="$APP_ABS/release-new/emdash-x86_64.AppImage"
 EXPECT_TOP=${XG_EXPECT_TOP_MODULES:-500}          # asar 顶层 node_modules 下限（正常 561）
 
+# [XG-CUSTOM 2026-10-11] 🔴 原生模块：**重编只是 best-effort，闸门是判据**
+#   背景（当天实测）：上游 `npmRebuild:false` ⇒ 打包不自动重编；但**手工重编也常打偏**
+#   （pnpm hoisted 下 electron-rebuild 扫的不是被打包的那份）。而**唯一能回答 ABI 对不对**的是
+#   **用 Electron 自己的 node 去 require**：md5 只能回答"是不是同一个文件"。
+#   ⇒ 本步：先按 Electron 目标装一次 prebuild（失败只警告，因为可能无网/无缓存），
+#      **然后无条件跑判据；判据不过就 exit 1 拒绝出包**（绝不允许再打出必进恢复界面的包）。
+echo "=== ⓪ 原生模块：Electron 目标重装（best-effort）+ ABI 判据（闸门）==="
+ELEC_VER=$(node -p "require('./apps/emdash-desktop/package.json').devDependencies.electron" | tr -d '^~')
+( cd node_modules/better-sqlite3 && ../../node_modules/.bin/prebuild-install \
+    --runtime=electron --target="$ELEC_VER" --arch=x64 >/dev/null 2>&1 \
+  && echo "   prebuild-install: OK（目标 electron $ELEC_VER）" \
+  || echo "   prebuild-install: 跳过/失败（无网或无缓存）—— 交给下面的判据裁决" )
+echo "   判据：Electron $ELEC_VER 能否 require 原生模块"
+ELECTRON_RUN_AS_NODE=1 node_modules/electron/dist/electron -e "
+  const fs=require('fs'), path=require('path');
+  const roots=[['better-sqlite3','node_modules/better-sqlite3']];
+  let bad=0;
+  for (const [name,dir] of roots) {
+    try { require(path.resolve(dir)); console.log('   ✅ '+name+' 可加载（ABI 匹配）'); }
+    catch(e){ bad++; console.log('   ❌ '+name+' 加载失败: '+String(e.message||e).split('\n')[0]); }
+  }
+  process.exit(bad?1:0)" || { echo "!! 原生模块 ABI 判据不过 ⇒ 拒绝打包（打出来必进恢复界面）"; exit 1; }
+
 echo "=== ① 打包前检查（未提交改动会被编进包！脚本自己那句提示是错的，见文件头）==="
 if [ "${XG_ALLOW_DIRTY:-}" = "1" ]; then
   bash scripts/xg-pre-package.sh --force || true
@@ -30,21 +53,6 @@ else
 fi
 
 echo "=== ② 编译（electron-vite build）==="
-# [XG-CUSTOM 2026-10-11] 🔴 打包前必须重编原生依赖（上游要求，见 agents/quickstart.md:40 与
-#   agents/workflows/flows.md:161：after native dependency changes run `pnpm run rebuild`；
-#   electron-builder.config.ts 里 npmRebuild:false ⇒ 打包**不会**自动重编）。
-#   不做的后果（2026-10-11 实测）：better-sqlite3 还是旧 Electron 的 ABI(137) ⇒ 新 Electron 要 143
-#   ⇒ 启动即 `NODE_MODULE_VERSION` 错 ⇒ 进恢复界面（"老重复问题"的根）。
-echo "=== ⓪ 重编原生依赖（better-sqlite3 → 当前 Electron ABI）==="
-# ⚠️ 必须在**仓库根**跑：better-sqlite3 是 hoisted 到根 node_modules 的那份，
-#   在 apps/emdash-desktop 下跑 electron-rebuild **碰不到它**（2026-10-11 实测：包内仍是旧 ABI）。
-if ! node_modules/.bin/electron-rebuild -f --only=better-sqlite3; then
-  echo "!! 原生重编失败 ⇒ 不要打包（否则必进恢复界面）"; exit 1
-fi
-# 包内证据：确认 app.asar.unpacked 里的 .node 是刚编的（mtime 比源码新即可）
-echo "=== ⓪b 候选原生模块 ==="
-find node_modules/.pnpm -name "better_sqlite3.node" -newermt "-30 minutes" 2>/dev/null | head -3
-
 # [XG-CUSTOM] 2026-10-06 —— **先清 `out/` 再编译**（实测踩到）：`pnpm run build` 不会删掉上一轮
 #   带内容哈希的旧 chunk，它们会被原样打进 app.asar ⇒ 包里同时存在**多份旧代码**。
 #   实测（1.2.20-xiangwo 那次，两种打法的原始数字）：
