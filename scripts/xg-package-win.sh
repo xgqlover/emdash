@@ -23,7 +23,11 @@ cd "$(dirname "$0")/.." || exit 1
 APP=apps/emdash-desktop
 APP_ABS="$(pwd)/$APP"
 OUT="$APP_ABS/release-new"
-EXE="$OUT/emdash-x64.exe"
+# [XG-CUSTOM 2026-10-12] 🔴 **产物名带版本号**（`ARTIFACT_PREFIX` 含 `PKG_VERSION`）⇒
+#   老写法 `emdash-x64.exe` **永远找不到**（真机：1.2.40 那次 exe 明明打出来了，
+#   脚本却报「❌ 没找到产物 …/emdash-x64.exe」并 exit 1 ⇒ 后面的 asar 校验与
+#   `release/` 原子替换**全被跳过**）。判据要与时俱进：先按**带版本**的 glob 找，再退回老名。
+EXE_GLOB="$OUT/emdash-*-x64.exe"
 EXPECT_TOP=${XG_EXPECT_TOP_MODULES:-500}          # asar 顶层 node_modules 下限（正常 561）
 
 export ELECTRON_MIRROR=${ELECTRON_MIRROR:-https://npmmirror.com/mirrors/electron/}
@@ -74,7 +78,18 @@ UA="pnpm/10.28.2 npm/? node/$(node -v) linux x86_64"
   ../../node_modules/.bin/electron-builder --win nsis --publish never \
   --config electron-builder.config.ts -c.directories.output=release-new) || { echo "❌ 打包失败"; exit 1; }
 ls -l "$OUT" 2>/dev/null | sed 's/^/   /'
-[ -f "$EXE" ] || { echo "❌ 没找到产物 $EXE"; exit 1; }
+# 解析真正的产物名（排除 `__uninstaller.exe` 这种中间物）
+EXE=""
+for _c in $(ls -1 $EXE_GLOB 2>/dev/null | grep -v '__uninstaller' | sort -r); do EXE="$_c"; break; done
+if [ -z "$EXE" ]; then
+  [ -f "$OUT/emdash-x64.exe" ] && EXE="$OUT/emdash-x64.exe"      # 老命名兜底
+fi
+[ -n "$EXE" ] && [ -f "$EXE" ] || {
+  echo "❌ 没找到产物（找过：$EXE_GLOB 与 $OUT/emdash-x64.exe）—— $OUT 里实际有："
+  ls -la "$OUT" 2>/dev/null | sed 's/^/     /' | head -12
+  exit 1
+}
+echo "   产物：$EXE（$(stat -c %s "$EXE") 字节）"
 
 echo "=== ⑤ 校验：★ 正确判据（旧的「顶层包 ≥500」已过期，见 emdash-Windows-exe-本机打包-2026-10-09.md §三）==="
 # 为什么旧判据错：本仓 electron-builder 配置有一条 [XG-CUSTOM] 显式收集清单，**只收 emdash-desktop 的直接依赖**；
