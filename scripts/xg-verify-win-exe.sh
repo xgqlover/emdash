@@ -163,12 +163,15 @@ else
     fail "没有 app.asar，没法搜代码串"
   else
     # 按 `|` 切开逐个搜。**必须 grep -a -F**（见文件头 ② 与上面的注释）。
-    # 用 while read 而不是 for（串里可能有空格）；IFS='|' 让 read 按 | 切。
-    while IFS= read -r s; do
+    # 🔴 [XG-CUSTOM 2026-10-12] `read` 的**最后一行**：`printf '%s'` **不带结尾换行** ⇒
+    #   最后一行 `read` 返回**非 0**（虽然 s 已被赋值）⇒ 循环体**不执行**：
+    #     单串时整段静默跳过、多串时**最后一个串从不被验** ⇒ 传一个根本不存在的串仍然 ✅ / exit 0 = **假通过**
+    #   （2026-10-12 实测；同族的"空 ≠ 失败/假通过"）。⇒ 用 `|| [ -n "$s" ]` 收下这一行。
+    while IFS= read -r s || [ -n "$s" ]; do
       [ -n "$s" ] || continue
       n="$(grep -a -F -c -- "$s" "$ASAR" 2>/dev/null)"
       if [ "${n:-0}" -gt 0 ]; then echo "   ✅ 命中 ×$n : $s"; else fail "缺失    : $s"; fi
-    done < <(printf '%s' "$XG_VERIFY_STRINGS" | tr '|' '\n')
+    done < <(printf '%s\n' "$XG_VERIFY_STRINGS" | tr '|' '\n')
   fi
 fi
 
