@@ -614,6 +614,70 @@ body.running #composer {
   visibility: hidden;
 }
 
+/* [XG-CUSTOM 2026-10-12] 待发图片条（发图不再立刻发 ⇒ 缩略图停在这里等用户打字/回车）。
+ * 定位**贴着输入框**（用同一个 --composer-height 变量，输入框长高它就往上让），
+ * 面板向下展开时（expand-down）镜像到下方 —— 与 #composer 的两条锚定规则一一对应。 */
+#attachments {
+  position: absolute;
+  z-index: 3;
+  box-sizing: border-box;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 12px;
+}
+
+body.expand-up #attachments {
+  bottom: calc(var(--composer-height) + 6px);
+}
+
+body.expand-down #attachments {
+  top: calc(var(--composer-height) + 6px);
+}
+
+body.running #attachments {
+  visibility: hidden;
+}
+
+#attachments .attachment {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--white);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 12%);
+}
+
+#attachments .attachment img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+#attachments .attachment-remove {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  border-bottom-left-radius: 8px;
+  background: rgb(0 0 0 / 55%);
+  color: var(--white);
+  font-size: 10px;
+  line-height: 16px;
+  cursor: pointer;
+}
+
+#attachments .attachment-remove:hover {
+  background: rgb(0 0 0 / 80%);
+}
+
 #input-label {
   position: absolute;
   width: 1px;

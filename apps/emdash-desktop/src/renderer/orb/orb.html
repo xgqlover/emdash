@@ -90,6 +90,9 @@
       <div id="transcript" role="log" aria-live="polite"></div>
       <div id="history-list" role="listbox" hidden></div>
       <p id="status" role="status"></p>
+      <!-- [XG-CUSTOM 2026-10-12] 待发图片条：发图**不再立刻发出去** —— 图先停在这里（缩略图 + ✕ 移除），
+           用户在输入框打完字后按回车/发送，**文字跟图一起发**（见 orb.js 的 renderAttachments / planSend） -->
+      <div id="attachments" hidden></div>
       <form id="composer">
         <label id="input-label" for="prompt"></label>
         <div

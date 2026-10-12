@@ -2,6 +2,17 @@
 //   原来这里是 `bubble.textContent = text` = 纯文本，`**粗**`/`- 列表`/`| 表 |` 全原样显示；
 //   聊窗有 react-markdown + remark-gfm。实现在 ./markdown.ts（复用既有 remark 链，**零新增依赖**）。
 import { paintXiangwoMarkdown } from './markdown';
+// [XG-CUSTOM 2026-10-12] **待发图片队列**：发图**不再立刻发**，先攥在手里，等用户打完字
+//   一起发（用户原话：「在发图时能不能让我能打字跟图一起发，我一发图就自己发出去了」）。
+//   纯逻辑在 ./orb-attachments.ts（可单测），这里只做 DOM 接线。
+import {
+  addPendingImage,
+  isFull,
+  makePendingImageId,
+  MAX_PENDING_IMAGES,
+  planSend,
+  removePendingImage,
+} from './orb-attachments';
 // [XG-CUSTOM 2026-10-05] 动作块（球指挥主界面：`[XG-ACTION]`→ host.runCommand；协议见 ./xiangwo-action.ts）
 import {
   actionFailureText,
@@ -649,6 +660,8 @@ async function main() {
   const permissionMenu = document.querySelector('#permission-menu');
   const status = document.querySelector('#status');
   const prompt = document.querySelector('#prompt');
+  // [XG-CUSTOM 2026-10-12] 待发图片缩略图条（发图后停在这里，等用户打字再发）
+  const attachments = document.querySelector('#attachments');
   const composer = document.querySelector('#composer');
   const stop = document.querySelector('#stop');
   const pagesButton = document.querySelector('#pages');
@@ -696,6 +709,10 @@ async function main() {
   let pinned = false;
   let running = false;
   let sending = false;
+  // [XG-CUSTOM 2026-10-12] 待发图片（内存里，dataURL；**不落盘**，同既有约定）。
+  //   入队 ≠ 发送：只有 submit（回车/发按钮）才按 `planSend` 逐条发出去。
+  let pendingImages = [];
+  let pendingSeq = 0;
   let sendAbort;
   let attachedUrl = '';
   let historyOpen = false;
@@ -910,6 +927,8 @@ async function main() {
 
   function startConversation(id) {
     current = { id: id ?? newId(), title: '新对话', messages: [] };
+    // [XG-CUSTOM 2026-10-12] 换会话 ⇒ 丢掉上一段没发出去的待发图（别把图带进新会话）
+    clearPendingImages();
     persistConversations();
     return current;
   }
@@ -2064,8 +2083,17 @@ async function main() {
       return;
     }
     const instruction = promptText(prompt).trim();
-    if (instruction === '') return;
-    void send(instruction);
+    // [XG-CUSTOM 2026-10-12] **文字 + 待发图一起发**（用户要的就是这个）：
+    //   ① 一条都没有 ⇒ 什么都不发（老行为：空输入直接 return）；
+    //   ② 有图没字也**允许发**（纯图，回车即发）；
+    //   ③ 文字挂在第一条出站消息上，多余图各成一条纯图（8900 一条只认一张图，见 `planSend`）。
+    const plan = planSend(instruction, pendingImages);
+    if (plan.length === 0) return;
+    // 出站计划已经**拷进 plan**（dataURL 在内存里）⇒ 界面上可以先清掉缩略图，别让用户以为还没发
+    clearPendingImages();
+    void (async () => {
+      for (const message of plan) await send(message.text, message.image);
+    })();
   });
 
   stop.addEventListener('click', () => {
@@ -2315,9 +2343,11 @@ async function main() {
 
   /**
    * [XG-CUSTOM] 发图 / 发文件（照旧浮窗 `XiangwoFloatingPanel.tsx` 的实现搬过来）：
-   * - 图片：`FileReader.readAsDataURL` → `send('', dataUrl)` → 请求体里是 image_url 结构；
+   * - 图片：`FileReader.readAsDataURL` → **入待发队列**（[XG-CUSTOM 2026-10-12] 原来是
+   *   `send('', dataUrl)` **立刻发**；用户反馈"一发图就自己发出去了，没法配字" ⇒ 现在只入队，
+   *   等用户在输入框打完字、按回车/发送时**跟图一起发**，见 `planSend`）；
    *   **dataURL 不落盘**：`persistConversations()` 只保留 role/text/answer（图片只在内存里）。
-   * - 其它文件：`readAsText` → `send('[文件 <name>]\n' + 前 8000 字)`。
+   * - 其它文件：`readAsText` → `send('[文件 <name>]\n' + 前 8000 字)`（**行为不变**：文件仍即时发）。
    * @param {File[]} files 待处理文件（来自 file input / paste / drop）
    */
   async function handleIncomingFiles(files) {
@@ -2325,7 +2355,7 @@ async function main() {
       try {
         if (file.type.startsWith('image/')) {
           const dataUrl = await readFileAsDataUrl(file);
-          if (typeof dataUrl === 'string' && dataUrl !== '') await send('', dataUrl);
+          if (typeof dataUrl === 'string' && dataUrl !== '') queueImage(file.name, dataUrl);
           continue;
         }
         const text = await readFileAsText(file);
@@ -2333,6 +2363,56 @@ async function main() {
       } catch (cause) {
         status.textContent = `读取文件失败: ${describeError(cause)}`;
       }
+    }
+  }
+
+  /** [XG-CUSTOM 2026-10-12] 入队一张待发图 + 重画缩略图条（**不发**）。 */
+  function queueImage(name, dataUrl) {
+    if (isFull(pendingImages)) {
+      status.textContent = `最多一次带 ${String(MAX_PENDING_IMAGES)} 张图（先删掉一张再发）`;
+      return;
+    }
+    pendingSeq += 1;
+    pendingImages = addPendingImage(pendingImages, {
+      id: makePendingImageId(pendingSeq),
+      name: name === '' ? '粘贴的图片' : name,
+      dataUrl,
+    });
+    renderAttachments();
+  }
+
+  /** [XG-CUSTOM 2026-10-12] 清空待发图（发出去之后 / 换会话时）。 */
+  function clearPendingImages() {
+    if (pendingImages.length === 0) return;
+    pendingImages = [];
+    renderAttachments();
+  }
+
+  /** [XG-CUSTOM 2026-10-12] 画缩略图条：每张一个 36px 缩略图 + ✕ 删除；空了就隐藏整条。 */
+  function renderAttachments() {
+    if (attachments === null) return;
+    attachments.replaceChildren();
+    attachments.hidden = pendingImages.length === 0;
+    for (const item of pendingImages) {
+      const cell = document.createElement('div');
+      cell.className = 'attachment';
+      cell.title = `${item.name}（发出去前可以先打字；点 ✕ 移除）`;
+      const thumb = document.createElement('img');
+      thumb.src = item.dataUrl;
+      thumb.alt = item.name;
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'attachment-remove';
+      remove.title = '移除这张图';
+      remove.textContent = '✕';
+      remove.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        pendingImages = removePendingImage(pendingImages, item.id);
+        renderAttachments();
+      });
+      cell.append(thumb, remove);
+      attachments.append(cell);
     }
   }
 
