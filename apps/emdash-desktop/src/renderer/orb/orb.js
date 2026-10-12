@@ -154,6 +154,7 @@ import {
   openXiangwoImageSource,
   parseXiangwoImagesBlock,
   renderXiangwoImageGrid,
+  xiangwoOpenFailureNotice,
 } from './xiangwo-images';
 // [XG-CUSTOM 2026-10-05] MCP 工具市场卡（协议 xiangwo-mcp；解析/渲染/过滤见 ./xiangwo-mcp.ts）
 import { parseXiangwoMcpBlock, renderXiangwoMcpMarket } from './xiangwo-mcp';
@@ -631,10 +632,29 @@ async function main() {
   const panel = document.querySelector('#panel');
   const ball = document.querySelector('#ball');
   const transcript = document.querySelector('#transcript');
+  // [XG-CUSTOM 2026-10-12] 开页失败的一行人话回执（复用 `xiangwo-open-url` 分支已有的
+  //   `.transcript-action-notice` 气泡写法）。`near` 传点击的那个元素 → 回执就挂在它所在
+  //   `transcript-row` 下面；挂不上就挂到 transcript 末尾。**失败必须有回执**（原来主进程把
+  //   `{ok:false,reason}` 丢了，球里点一下链接什么都没发生、日志里也没有一行）。
+  function showTranscriptActionNotice(text, near) {
+    if (text === '') return;
+    const notice = document.createElement('div');
+    notice.className = 'transcript-action-notice';
+    notice.textContent = text;
+    const row =
+      near !== null && near !== undefined && typeof near.closest === 'function'
+        ? near.closest('.transcript-row')
+        : null;
+    if (row !== null) row.append(notice);
+    else transcript.append(notice);
+    transcript.scrollTop = transcript.scrollHeight;
+  }
+
   // [XG-CUSTOM 2026-10-10] Markdown 里的链接：拦下来，走**与图片卡同一条**内嵌浏览器通道
   //   （`openXiangwoImageSource` → 主进程 `host.openEmbeddedBrowser`）。
   //   为什么不让它自己跳：electron 里裸 `<a href>` 点击行为不可控（可能开出系统浏览器/新窗口），
   //   而球面板的既有约定是"开页只开在 emdash 内嵌浏览器里"。
+  // [XG-CUSTOM 2026-10-12] 开页结果现在会回来（主进程等主窗口渲染进程的回执）⇒ 失败**当场说清**。
   transcript.addEventListener('click', (event) => {
     const target = event.target;
     if (target === null || typeof target.closest !== 'function') return;
@@ -643,7 +663,9 @@ async function main() {
     const href = anchor.getAttribute('href') ?? '';
     if (!/^https?:\/\//i.test(href)) return; // 只接 http(s)：mailto/# 交给系统默认行为
     event.preventDefault();
-    openXiangwoImageSource(href, currentBotId, bridge);
+    openXiangwoImageSource(href, currentBotId, bridge, (result) => {
+      showTranscriptActionNotice(xiangwoOpenFailureNotice(result, href), anchor);
+    });
   });
   const historyButton = document.querySelector('#history');
   const historyList = document.querySelector('#history-list');
@@ -1002,6 +1024,10 @@ async function main() {
             baseUrl: agentBaseUrl,
             botId: currentBotId,
             bridge,
+            // [XG-CUSTOM 2026-10-12] 整卡点击开页失败 → 这一行下面给一句人话回执（含原因码）
+            onOpenFailure: (result, url) => {
+              showTranscriptActionNotice(xiangwoOpenFailureNotice(result, url), row);
+            },
           })
         );
       }
