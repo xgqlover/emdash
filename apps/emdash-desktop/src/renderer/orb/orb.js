@@ -3121,9 +3121,15 @@ async function main() {
       /* 拿不到就整颗芯片不显示 */
     }
     if (full === '') {
-      workspaceChip.hidden = true;
+      // [XG-CUSTOM 2026-10-12] 没配工作区 ⇒ **显式说明**（原来整颗隐藏：用户只看到"什么都没有"，
+      //   分不清"没配"还是"拿不到"）。文案里直接给设置方式；样式用 `.is-empty` 弱化。
+      workspaceChip.textContent = '未设工作区';
+      workspaceChip.title = '当前没有配置工作区。设环境变量 XIANGWO_WORKSPACE=<项目目录> 后重启 emdash 生效。';
+      workspaceChip.classList.add('is-empty');
+      workspaceChip.hidden = false;
       return;
     }
+    workspaceChip.classList.remove('is-empty');
     // 主进程给的是本机路径，用 node:path 的语义拆（两种分隔符都认，兼容 Windows 工作区）
     const parts = full.split(/[\\/]/).filter((part) => part !== '');
     workspaceChip.textContent = parts.length === 0 ? full : parts[parts.length - 1];

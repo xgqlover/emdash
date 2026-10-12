@@ -1504,6 +1504,14 @@ body.has-avatar #ball-mark {
   display: none;
 }
 
+/* [XG-CUSTOM 2026-10-12] 「未设工作区」是**提示**不是值 ⇒ 弱化（虚线 + 降饱和），一眼能跟真路径区分 */
+#workspace-chip.is-empty {
+  color: var(--pin);
+  opacity: 0.72;
+  border: 1px dashed currentColor;
+  background: transparent;
+}
+
 #image:hover,
 #file:hover {
   box-shadow: inset 0 0 0 1px var(--pin);

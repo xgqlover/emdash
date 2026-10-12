@@ -441,14 +441,14 @@ function readAvatarUrl(): string {
  * 当前 bot 的工作空间路径（真实值，别让 UI 显示空）。
  * 可用 XIANGWO_WORKSPACE 覆盖；否则用应用目录（dev = 仓库 checkout，packaged = asar 目录）。
  */
+// [XG-CUSTOM 2026-10-12] 🔴 **没配工作区就返回空串**，不再回退 `app.getAppPath()`。
+//   为什么改（真机证据 memory/2026-10-12）：打包运行时 `app.getAppPath()` = `…/resources/app.asar`
+//   ⇒ 球面板那颗"工作区"芯片显示成 **`app.asar`**：既零信息量、又误导（asar 是**只读归档**，
+//   谁把它当工作目录谁倒霉）。渲染侧拿到空串会**显式写「未设工作区」**（`orb.js::renderWorkspaceChip`）。
+//   要配：环境变量 `XIANGWO_WORKSPACE=<真项目目录>`。
 function orbWorkspacePath(): string {
   const override = process.env.XIANGWO_WORKSPACE;
-  if (typeof override === 'string' && override !== '') return override;
-  try {
-    return app.getAppPath();
-  } catch {
-    return process.cwd();
-  }
+  return typeof override === 'string' ? override.trim() : '';
 }
 
 /** 我们 8900 通道背后的模型标识（真实值；渲染进程的模型菜单用它，不再显示空串） */
