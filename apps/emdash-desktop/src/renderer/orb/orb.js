@@ -13,6 +13,7 @@ import {
   planSend,
   removePendingImage,
 } from './orb-attachments';
+import { planOutbound } from './orb-outbound';
 // [XG-CUSTOM 2026-10-05] 动作块（球指挥主界面：`[XG-ACTION]`→ host.runCommand；协议见 ./xiangwo-action.ts）
 import {
   actionFailureText,
@@ -1077,6 +1078,13 @@ async function main() {
       );
       for (const action of actionsToRun) {
         void runXiangwoAction(action, (method, payload) => {
+          // [XG-CUSTOM 2026-10-12] **「球 → 主窗」唯一判定处**：出球前先过 `planOutbound()`
+          //   （意图 → 通道；`model_only` 还没实现时这里**如实返回不支持**，不再"发了但没人接"）。
+          //   别的动作方法 = `pass-through` ⇒ 原有白名单行为**零变化**。
+          const plan = planOutbound({ intent: 'open_tab', method, payload });
+          if (plan.channel === 'unsupported') {
+            return { ok: false, reason: plan.reason };
+          }
           const call = bridge.orbApi;
           return typeof call === 'function'
             ? call(method, payload)
