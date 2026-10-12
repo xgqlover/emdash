@@ -41,16 +41,212 @@
 #       XG_WIN_BUILD_ROOT=/home/me/tmp ...                   # 克隆放哪（默认 $TMPDIR 或 /tmp）
 #       XG_WIN_OUT_DIR=/path ...                             # 产物拷到哪（默认 ~/Desktop）
 #       XG_VERIFY_STRINGS="串A|串B" ...                       # 覆盖验收闸门的"关键代码串"
+#       XG_WIN_DELIVER_TEST=1 bash scripts/xg-package-win.sh  # **廉价自测**：跳过真构建，
+#                                                            #   只造"目标已存在且内容不同"的假产物，
+#                                                            #   走完 ⑩ 归档/拷/校验/manifest（不用 wine）
 # 退出码: 0 = 打出并通过验收（产物已拷到 `XG_WIN_OUT_DIR`）；非 0 = 没打成/验收没过（**不动 release/ 里在用的东西**）
+#
+# 🔴 [XG-CUSTOM 2026-10-12] **改脚本必重跑端到端**（死规矩，两条）：
+#   ① 本脚本**改动一行**就必须**重跑一次真构建**（`bash scripts/xg-package-win.sh`）——
+#      因为"提交版脚本 ≠ 端到端跑过的脚本"会让「这包是哪份脚本打的」永久无法证明
+#      （2026-10-12 实际踩到：提交版与跑过的差 1 行，而那一行所在分支当次没走到）。
+#   ② 没重跑过就不许把产物当"已验证"交付 —— 要么重跑，要么在产物名/manifest 里显式标 **「未验证」**。
+#   📌 廉价自测（`XG_WIN_DELIVER_TEST=1`）**只能证明交付段的逻辑**，**不能**替代 ① 的端到端（它不构建）。
 set -uo pipefail
 SRC="$(cd "$(dirname "$0")/.." && pwd)"      # 源仓（共用工作区）—— 本脚本只读它
 cd "$SRC" || exit 1
+# [XG-CUSTOM 2026-10-12] 「这包是哪份脚本打的」可证：脚本自身 md5 + git commit 一开头就落盘（日志 + manifest）。
+SELF_MD5="$(md5sum "$0" | cut -d' ' -f1)"
+HEAD_FULL="$(git rev-parse HEAD 2>/dev/null)"
+if [ -n "$(git status --porcelain 2>/dev/null)" ]; then HEAD_TAG="${HEAD_FULL}+dirty"; else HEAD_TAG="$HEAD_FULL"; fi
+BUILD_TS="$(date +%Y-%m-%dT%H:%M:%S%z)"
+echo "=== xg-package-win.sh 身份（可证「这包是哪份脚本打的」）==="
+echo "   脚本: $0"
+echo "   脚本 md5: $SELF_MD5"
+echo "   git HEAD: ${HEAD_TAG:-（读不到）}"
+echo "   时间: $BUILD_TS"
 APP_REL=apps/emdash-desktop
 APP="$SRC/$APP_REL"
 VER_APP="$(node -p "require('$APP/package.json').version" 2>/dev/null)"
 [ -n "$VER_APP" ] && [ "$VER_APP" != "undefined" ] || { echo "❌ 读不到 $APP_REL/package.json 的 version"; exit 1; }
 EXPECT_TOP=${XG_EXPECT_TOP_MODULES:-500}          # 只用来打印参考值；真正的判据见 ⑧
 
+# ============================================================================
+# [XG-CUSTOM 2026-10-12] ⑩/⑪ 交付段 = **归档 → 拷贝 → md5 校验 → 写 manifest**
+#   为什么抽成函数：真实交付与 `XG_WIN_DELIVER_TEST=1` 的**廉价自测必须走同一份代码**
+#   （否则"自测通过"证明不了交付段；本项目的病就是"以为验了"）。
+#   入参：outdir / exe / note("端到端"|"自测")
+#   依赖：$GATE_RC · $GATE_HITS/$GATE_STRINGS · 全局 SELF_MD5/HEAD_TAG/BUILD_TS/VER_APP（调用时才用到）
+# ============================================================================
+xg_md5() { md5sum "$1" 2>/dev/null | cut -d' ' -f1; }
+
+xg_deliver() {
+  local outdir="$1" exe="$2" note="$3"
+  local name dest src_md5 dest_md5 i
+  name="$(basename "$exe")"
+  dest="$outdir/$name"
+  mkdir -p "$outdir" || { echo "❌ 建不了 $outdir"; return 1; }
+  src_md5="$(xg_md5 "$exe")"
+  BAK=""
+  # ── 覆盖前：同名且内容不同 ⇒ **先归档**；归档失败 ⇒ 不许往下走（非 0）
+  if [ -f "$dest" ] && [ "$(xg_md5 "$dest")" != "$src_md5" ]; then
+    echo "   [归档分支] 同名但内容不同 ⇒ 先归档（源 md5=$src_md5，旧 md5=$(xg_md5 "$dest")）"
+    BAK="$dest.bak-$(date +%Y%m%d-%H%M)"
+    i=1
+    while [ -e "$BAK" ]; do BAK="$dest.bak-$(date +%Y%m%d-%H%M)-$i"; i=$((i+1)); done
+    # 🔴 归档失败就**不许往下走**：2026-10-12 我在一条临时命令里写了 `mv …; echo 已备份`，
+    #   mv 没生效而 echo 照样打印，紧接着的 `cp -f` 就把旧产物盖掉了（同一族老病：
+    #   "拿容易取到的信号当判据"/`cmd | head && echo ✅` 永远打印）。
+    if [ "${XG_WIN_TEST_ARCHIVE_RO:-}" = "1" ]; then
+      echo "   [自测注入] XG_WIN_TEST_ARCHIVE_RO=1 ⇒ 假装归档不可写"
+      echo "❌ 归档旧产物失败（注入）⇒ **不覆盖**，退出"; return 1
+    fi
+    mv -f "$dest" "$BAK" || { echo "❌ 归档旧产物失败（$dest → $BAK）⇒ **不覆盖**，退出"; return 1; }
+    [ -f "$BAK" ] || { echo "❌ 归档后 $BAK 不存在 ⇒ 视为归档失败，**不覆盖**，退出"; return 1; }
+    echo "   ⚠️ 同名但内容不同（可能是另一条线同版本的产物）⇒ 旧的已归档 → $BAK（$(stat -c %s "$BAK") 字节）"
+  fi
+  # ── 拷贝
+  if [ "${XG_WIN_TEST_COPY_RC:-}" = "1" ]; then
+    echo "   [自测注入] XG_WIN_TEST_COPY_RC=1 ⇒ 拷贝内容故意损坏（测下面那条 md5 判据）"
+    printf 'corrupted-by-test\n' > "$outdir/.xg-test-corrupt" && cp -f "$outdir/.xg-test-corrupt" "$dest"
+  else
+    cp -f "$exe" "$dest" || { echo "❌ 拷不到 $dest"; return 1; }
+  fi
+  # ── 拷贝后：**立刻比对源与目标的 md5**；不一致 ⇒ 不许交付
+  dest_md5="$(xg_md5 "$dest")"
+  [ "$dest_md5" = "$src_md5" ] \
+    || { echo "❌ 拷贝后 md5 不一致（源 $src_md5 ≠ 目标 $dest_md5）⇒ 不交付，退出"; return 1; }
+  echo "   ✅ 拷贝后 md5 一致：$dest_md5"
+  # ── 写 manifest（产物旁 `<exe>.manifest.txt`）
+  xg_write_manifest "$dest" "$src_md5" "$note"
+}
+
+xg_write_manifest() {
+  local dest="$1" md5v="$2" note="$3"
+  local shaval bytes man tool file_out
+  shaval="$(sha256sum "$dest" | cut -d' ' -f1)"
+  bytes="$(stat -c %s "$dest")"
+  man="$dest.manifest.txt"
+  # 🔴 这个字段**只按"这份脚本这次是不是完整跑过端到端"来定**，别拿 note 反推：
+  #   真路径（note="端到端"）走到这里 = 构建+结构校验+验收闸门+交付**全跑过** ⇒ yes；
+  #   自测（note="自测"）不构建 ⇒ no。第一版这里写反了（端到端跑过却打 no），端到端实测抓出来的。
+  tool="$([ "$note" = "端到端" ] && echo yes || echo 'no（未重跑端到端 ⇒ 不能当已验收）')"
+  file_out="$(file -b "$dest" | cut -c1-90)"
+  {
+    echo "# emdash Windows exe 交付 manifest —— [XG-CUSTOM 2026-10-12]"
+    echo "artifact           : $dest"
+    echo "md5                : $md5v"
+    echo "sha256             : $shaval"
+    echo "bytes              : $bytes"
+    echo "file               : $file_out"
+    echo "version            : $VER_APP"
+    echo "build_time         : $BUILD_TS"
+    echo "git_commit         : ${HEAD_TAG:-unknown}   # 脏树时带 +dirty"
+    echo "script             : $0"
+    echo "script_md5         : $SELF_MD5   # ⇒ 「这包是哪份脚本打的」由这一行证明"
+    echo "acceptance.gate_rc : $GATE_RC   # 验收闸门退出码（0 = 过；非 0 根本走不到这里）"
+    echo "acceptance.strings : $GATE_HITS/$GATE_STRINGS   # 关键代码串命中数（在产物的 app.asar 里现数）"
+    echo "acceptance.tool    : xg-verify-win-exe.sh"
+    echo "archived_previous  : ${BAK:-（无：目标原本不存在或内容相同）}"
+    echo "delivered_at       : $(date +%Y-%m-%dT%H:%M:%S%z)"
+    echo "verified_end_to_end: $tool   # 改动本脚本后必须重跑端到端；否则产物标「未验证」"
+  } > "$man" || { echo "❌ 写不了 manifest（$man）⇒ 不交付，退出"; return 1; }
+  echo "   manifest: $man"
+  sed 's/^/     /' "$man"
+}
+
+# ============================================================================
+# [XG-CUSTOM 2026-10-12] ★ 廉价自测（`XG_WIN_DELIVER_TEST=1`）：**跳过真构建**，
+#   只造"目标已存在且内容不同"的假产物 ⇒ 走完 ⑩ 的 归档/拷贝/校验/manifest ⇒ 自验 4 条判据。
+#   为什么需要：交付段的分支（同名不同内容）在真构建里**很多次才走到一次**（今天就是"改了没走到"）。
+#   ⚠️ 它**不构建**，所以**不能**替代"改脚本必重跑端到端"（见文件头两条死规矩）。
+#   失败注入：`XG_WIN_TEST_ARCHIVE_RO=1`（归档不可写）· `XG_WIN_TEST_COPY_RC=1`（拷贝后 md5 不一致）。
+# ============================================================================
+if [ "${XG_WIN_DELIVER_TEST:-}" = "1" ]; then
+  echo
+  echo "=== [自测] XG_WIN_DELIVER_TEST=1：不构建，只测 ⑩ 交付段 ==="
+  TD="$(mktemp -d /tmp/xg-win-deliver-test-XXXXXX)"
+  trap - EXIT                      # 保住自测目录（要人工复核）
+  NAME="emdash-${VER_APP}-x64.exe"
+  EXE="$TD/$NAME"                  # 假产物（源）
+  printf 'new-artifact-%s\n' "$(date +%s%N)" > "$EXE"
+  OUTDIR="${XG_WIN_OUT_DIR:-$TD/out}"
+  mkdir -p "$OUTDIR"
+  printf 'old-stale-artifact-different-content\n' > "$OUTDIR/$NAME"   # 目标已存在且内容不同
+  OLD_MD5="$(xg_md5 "$OUTDIR/$NAME")"
+  GATE_RC=0
+  GATE_HITS="n/a（自测不构建产物）"
+  GATE_STRINGS="n/a"
+  echo "   自测目录: $TD"
+  echo "   源  (假产物): $EXE  md5=$(xg_md5 "$EXE")"
+  echo "   目标(已存在): $OUTDIR/$NAME  md5=$(xg_md5 "$OUTDIR/$NAME")"
+  xg_deliver "$OUTDIR" "$EXE" "自测" || { echo "❌ [自测] 交付段失败（rc=$?）"; exit 1; }
+  # ── 自验 5 条判据（**打到目标自己的字段上**，不拿"打印过什么"当判据）
+  TFAIL=0
+  ARCH=""
+  for _c in "$OUTDIR/$NAME".bak-*; do [ -e "$_c" ] && ARCH="$_c"; done
+  [ -n "$ARCH" ] && [ -f "$ARCH" ]     || { echo "   ❌ 判据1：归档文件不存在"; TFAIL=1; }
+  [ -n "$ARCH" ] && [ "$(xg_md5 "$ARCH")" = "$OLD_MD5" ] \
+                                       || { echo "   ❌ 判据1b：归档内容 ≠ 原来的旧产物"; TFAIL=1; }
+  [ "$(xg_md5 "$OUTDIR/$NAME")" = "$(xg_md5 "$EXE")" ] \
+                                       || { echo "   ❌ 判据2：目标没被替换成源内容"; TFAIL=1; }
+  [ -f "$OUTDIR/$NAME.manifest.txt" ]  || { echo "   ❌ 判据3：manifest 不存在"; TFAIL=1; }
+  for k in md5 sha256 bytes version build_time git_commit script_md5 gate_rc; do
+    grep -q "^[a-zA-Z._]*$k" "$OUTDIR/$NAME.manifest.txt" 2>/dev/null || { echo "   ❌ 判据4：manifest 缺字段 $k"; TFAIL=1; }
+  done
+  grep -q "^md5 *: $(xg_md5 "$OUTDIR/$NAME")" "$OUTDIR/$NAME.manifest.txt" \
+                                       || { echo "   ❌ 判据5：manifest 里的 md5 ≠ 实际目标的 md5"; TFAIL=1; }
+  grep -q "^script_md5 *: $(md5sum "$0" | cut -d' ' -f1)" "$OUTDIR/$NAME.manifest.txt" \
+                                       || { echo "   ❌ 判据5b：manifest 里的 script_md5 ≠ 本脚本现算的 md5"; TFAIL=1; }
+  echo "   --- manifest 实际内容 ---"
+  sed 's/^/   | /' "$OUTDIR/$NAME.manifest.txt"
+  echo "   --- 判据 ---"
+  echo "   1 归档文件在        : ${ARCH:-缺失}（md5=$(xg_md5 "$ARCH") vs 原目标 $OLD_MD5）"
+  echo "   2 目标已替换成源内容: md5=$(xg_md5 "$OUTDIR/$NAME")（源=$(xg_md5 "$EXE")）"
+  echo "   3 manifest 存在     : $OUTDIR/$NAME.manifest.txt"
+  echo "   4 manifest 关键字段 : $(grep -c -E '^(md5|sha256|bytes|version|build_time|git_commit|script_md5)' "$OUTDIR/$NAME.manifest.txt")/7"
+  echo "   5 manifest↔实际一致 : md5 与 script_md5 都等于现算值"
+  if [ "$TFAIL" != "0" ]; then echo "❌ [自测] 失败 ⇒ exit 1"; exit 1; fi
+  echo "✅ [自测] 通过（退出码 0）"
+  echo "   归档文件保留：$ARCH"
+  echo "   自测目录保留：$TD（要清就 rm -rf）"
+
+  # ── 失败注入 2：归档目标不可写 ⇒ 必须 exit 1（⚠️ 必须在**子 shell** 里跑：`exit 1` 只许退子 shell，
+  #    否则它会连测试自己的进程一起带走）
+  echo
+  echo "=== [自测] 失败注入：归档不可写（XG_WIN_TEST_ARCHIVE_RO=1）⇒ 期望 exit 1，且**不覆盖**旧产物 ==="
+  TD2="$(mktemp -d /tmp/xg-win-deliver-fail-XXXXXX)"
+  mkdir -p "$TD2/out" "$TD2/src"
+  printf 'keep-me-old\n' > "$TD2/out/$NAME"
+  OLD_MD5="$(xg_md5 "$TD2/out/$NAME")"
+  # ⚠️ 源必须**同名**（否则 `xg_deliver` 的 dest 会变成源自己，cp 会报"同一文件"、exit 1 来自拷贝而不是归档
+  #    ⇒ 注入"看起来通过"却根本没测到归档分支 = 假通过）。放 src/ 子目录即可同名。
+  printf 'new\n' > "$TD2/src/$NAME"
+  ( BAK=""; export XG_WIN_TEST_ARCHIVE_RO=1
+    xg_deliver "$TD2/out" "$TD2/src/$NAME" "自测-归档失败注入" ) ; RC=$?
+  echo "   注入 rc=$RC（期望 1）"
+  [ "$RC" = "1" ] || { echo "❌ [自测] 归档失败注入应当 exit 1"; exit 1; }
+  [ "$(xg_md5 "$TD2/out/$NAME")" = "$OLD_MD5" ] || { echo "❌ [自测] 归档失败后旧产物被改动了"; exit 1; }
+  ls "$TD2/out/$NAME".bak-* >/dev/null 2>&1 && { echo "❌ [自测] 归档失败却出现了归档文件"; exit 1; }
+  echo "   ✅ 归档失败 ⇒ exit 1，且旧产物未被覆盖（md5=$OLD_MD5）、没留半个归档"
+
+  # ── 失败注入 3：拷贝后 md5 不一致 ⇒ 必须 exit 1
+  echo
+  echo "=== [自测] 失败注入：拷贝后 md5 不一致（XG_WIN_TEST_COPY_RC=1）⇒ 期望 exit 1 ==="
+  TD3="$(mktemp -d /tmp/xg-win-deliver-corrupt-XXXXXX)"
+  printf 'source-content\n' > "$TD3/$NAME"
+  SRC3_MD5="$(xg_md5 "$TD3/$NAME")"
+  ( BAK=""; export XG_WIN_TEST_COPY_RC=1
+    xg_deliver "$TD3" "$TD3/$NAME" "自测-拷贝损坏注入" ) ; RC3=$?
+  echo "   注入 rc=$RC3（期望 1）"
+  [ "$RC3" = "1" ] || { echo "❌ [自测] 拷贝 md5 不一致应当 exit 1"; exit 1; }
+  # 再验"确实是坏在 md5 判据上"：目标的 md5 必须 ≠ 源的 md5
+  [ "$(xg_md5 "$TD3/$NAME")" != "$SRC3_MD5" ] || { echo "❌ [自测] 注入后目标竟与源一致（注入没生效）"; exit 1; }
+  echo "   ✅ 拷贝 md5 不一致 ⇒ exit 1（目标 md5=$(xg_md5 "$TD3/$NAME") ≠ 源 $SRC3_MD5）"
+  echo
+  echo "=== ✅ [自测] 全部通过：正路 exit 0 + 两条失败注入都 exit 1 ==="
+  exit 0
+fi
 export ELECTRON_MIRROR=${ELECTRON_MIRROR:-https://npmmirror.com/mirrors/electron/}
 export ELECTRON_BUILDER_BINARIES_MIRROR=${ELECTRON_BUILDER_BINARIES_MIRROR:-https://npmmirror.com/mirrors/electron-builder-binaries/}
 WINE_BIN=${XG_WINE_BIN:-/opt/deepin-wine8-stable/bin}
@@ -77,7 +273,7 @@ BUILD_ROOT="${XG_WIN_BUILD_ROOT:-${TMPDIR:-/tmp}}"
 mkdir -p "$BUILD_ROOT" || { echo "❌ 建不了 $BUILD_ROOT"; exit 1; }
 CLONE="$(mktemp -d "$BUILD_ROOT/xg-pack-win-XXXXXX")" || { echo "❌ mktemp 失败（$BUILD_ROOT）"; exit 1; }
 cleanup() {
-  if [ "${XG_WIN_KEEP_CLONE:-}" = "1" ]; then echo "== 克隆保留（排查用）：$CLONE"
+  if [ "${XG_WIN_KEEP_CLONE:-}" = "1" ] || [ "${XG_WIN_DELIVER_TEST:-}" = "1" ]; then echo "== 克隆/构建目录保留（排查/自测用）：$CLONE"
   else rm -rf "$CLONE"; fi
 }
 trap cleanup EXIT
@@ -253,27 +449,34 @@ echo "=== ⑨ ★ 验收闸门：xg-verify-win-exe.sh（**必经步骤**；不�
 #   这里补一个结尾换行绕开它 —— **不改** `xg-verify-win-exe.sh`（那份归另一条线；已在本会话报告里说明）。
 VSTR="${XG_VERIFY_STRINGS:-openEmbeddedBrowser|开内嵌浏览器}"
 echo "   关键代码串（按串逐个验）：$VSTR"
-XG_VERIFY_STRINGS="$VSTR"$'\n' bash "$SRC/scripts/xg-verify-win-exe.sh" "$EXE" || {
-  echo "❌ 验收不过 ⇒ **不交付**（exe 只在克隆里，克隆退出即删；要复核加 XG_WIN_KEEP_CLONE=1）"
+if XG_VERIFY_STRINGS="$VSTR"$'\n' bash "$SRC/scripts/xg-verify-win-exe.sh" "$EXE"; then
+  GATE_RC=0
+else
+  GATE_RC=$?
+  echo "❌ 验收不过（退出码 $GATE_RC）⇒ **不交付**（exe 只在克隆里，克隆退出即删；要复核加 XG_WIN_KEEP_CLONE=1）"
   exit 1
-}
-
-echo "=== ⑩ 交付：把验过的 exe 拷出克隆（克隆退出就删）==="
-# 为什么必须拷出来：产物在 `mktemp -d` 的克隆里，脚本一退出就没了。
-# 默认落桌面（OPS §四 的交付纪律：`emdash-<版本>-xiangwo-x64.exe`）；同名且内容不同时**先备份旧的**、绝不静默盖掉。
-OUTDIR="${XG_WIN_OUT_DIR:-$HOME/Desktop}"
-NAME="$(basename "$EXE")"
-DEST="$OUTDIR/$NAME"
-mkdir -p "$OUTDIR" || { echo "❌ 建不了 $OUTDIR"; exit 1; }
-if [ -f "$DEST" ] && [ "$(md5sum < "$DEST" | cut -d' ' -f1)" != "$(md5sum < "$EXE" | cut -d' ' -f1)" ]; then
-  BAK="$DEST.bak-$(date +%Y%m%d-%H%M)"
-  # 🔴 `|| exit 1` 不是形式：2026-10-12 我在一条**临时命令**里写了 `mv …; echo 已备份`，
-  #   结果 mv 没生效而 echo 照样打印，紧接着的 `cp -f` 就把旧产物盖掉了（**同一族老病**：
-  #   "拿容易取到的信号当判据"/`cmd | head && echo ✅` 永远打印）。归档失败就**不许往下走**。
-  mv -f "$DEST" "$BAK" || { echo "❌ 归档旧产物失败（$DEST → $BAK）⇒ **不覆盖**，退出"; exit 1; }
-  echo "   ⚠️ 同名但内容不同（可能是另一条线同版本的产物）⇒ 旧的已归档 → $BAK（$(stat -c %s "$BAK") 字节）"
 fi
-cp -f "$EXE" "$DEST" || { echo "❌ 拷不到 $DEST"; exit 1; }
+# [XG-CUSTOM 2026-10-12] 验收结论进 manifest：**闸门退出码** + **关键串命中数**。
+#   命中数在**产物自己的 app.asar 上现数一遍**（`grep -a -F -c`，与闸门 ⑤ 同一条判据），
+#   不去 parse 闸门的 stdout（那正是"拿容易取到的信号当判据"的老病）。
+ASAR_OUT="$OUT/win-unpacked/resources/app.asar"
+GATE_HIT_ALL=1
+IFS='|' read -r -a _VARR <<< "$VSTR"
+for _s in "${_VARR[@]}"; do
+  [ -n "$_s" ] || continue
+  _n="$(grep -a -F -c -- "$_s" "$ASAR_OUT" 2>/dev/null)"
+  [ "${_n:-0}" -gt 0 ] || GATE_HIT_ALL=0
+done
+GATE_STRINGS="${#_VARR[@]}"
+GATE_HITS=$([ "$GATE_HIT_ALL" = 1 ] && echo "$GATE_STRINGS" || echo "0")
+
+# ── ⑩ 交付（真构建路径）：归档 → 拷贝 → md5 校验 → manifest
+echo "=== ⑩ 交付：归档 → 拷贝 → md5 校验 → manifest（产物旁 <exe>.manifest.txt）==="
+# 为什么必须拷出来：产物在 `mktemp -d` 的克隆里，脚本一退出就没了。
+# 默认落桌面（OPS §四 的交付纪律：`emdash-<版本>-xiangwo-x64.exe`）；同名且内容不同时**先归档**、绝不静默盖掉。
+OUTDIR="${XG_WIN_OUT_DIR:-$HOME/Desktop}"
+xg_deliver "$OUTDIR" "$EXE" "端到端" || exit 1
+DEST="$OUTDIR/$(basename "$EXE")"
 
 echo "=== ⑪ 交付指纹 ==="
 ls -l --time-style=+%m-%d\ %H:%M "$DEST" | sed 's/^/   /'
