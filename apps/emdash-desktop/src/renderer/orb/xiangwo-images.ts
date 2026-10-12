@@ -146,28 +146,98 @@ export function xiangwoImageErrorAction(
  * 真的开一个内嵌浏览器标签页 —— 与 agent 的 9223 桥 / 反向通道**同一条**通道，不另造机制。
  *
  * 不是 http(s) / 桥不可用 / 调不通 → **什么都不做**（不悄悄开系统浏览器、绝不离开球面板）。
+ *
+ * [XG-CUSTOM 2026-10-12] **失败不再静默**：主进程现在会等主窗口渲染进程的**真实回执**
+ * （`{ok:false, reason}`，见 main/host/browser/embedded-browser-open-ack.ts），拿到就调
+ * `onFailure`（球里用它显示一行 `transcript-action-notice` 人话回执 —— 文案由
+ * `xiangwoOpenFailureNotice` 生成，`reason` 原样带出）。**成功不回调**（不打扰用户）。
+ *
  * @param openUrl 要打开的地址（`cell.openUrl`；'' = 不可点）
  * @param botId 当前 bot（开页落到该 bot 的浏览器 profile；'' = 不指定）
  * @param bridge 宿主桥（球里传 `window.electronAPI`）
+ * @param onFailure 失败回执（不传 = 什么都不做，老调用方零回归）
  */
 export function openXiangwoImageSource(
   openUrl: string,
   botId: string,
-  bridge?: XiangwoImagesBridge
+  bridge?: XiangwoImagesBridge,
+  onFailure?: (result: XiangwoOpenSourceResult) => void
 ): void {
   if (!isHttpUrl(openUrl)) return;
   const call = bridge?.orbApi;
-  if (typeof call !== 'function') return;
+  if (typeof call !== 'function') {
+    // 桥没接上（球窗口的 preload 异常）：以前是完全静默的一下"点空"，现在如实说一句
+    onFailure?.({ ok: false, reason: 'unavailable' });
+    return;
+  }
   const request: { url: string; bot?: string } = { url: openUrl };
   const bot = typeof botId === 'string' ? botId.trim() : '';
   if (bot !== '') request.bot = bot;
   try {
-    void Promise.resolve(call('host.openEmbeddedBrowser', request)).catch(() => {
-      /* 主进程没接上/调用失败：这一下点空，别的卡照常 */
-    });
+    void Promise.resolve(call('host.openEmbeddedBrowser', request))
+      .then((raw) => {
+        // 主进程回来的形状：{ok:true} / {ok:false, reason}（未知方法/null 也算失败 —— 不许假装开好了）
+        const record =
+          typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>) : {};
+        if (record.ok === true) return;
+        onFailure?.({
+          ok: false,
+          reason: typeof record.reason === 'string' ? record.reason : 'failed',
+        });
+      })
+      .catch(() => {
+        /* 主进程没接上/调用失败：这一下点空，别的卡照常 */
+        onFailure?.({ ok: false, reason: 'unavailable' });
+      });
   } catch {
     /* 同步抛（桥烂掉）也不影响其它卡 */
+    onFailure?.({ ok: false, reason: 'unavailable' });
   }
+}
+
+/** 开页结果（主进程原样回的：成功 `{ok:true}` / 失败 `{ok:false, reason}`） */
+export type XiangwoOpenSourceResult = { ok: boolean; reason?: string };
+
+/** 已知原因码 → 一句人话（**不粉饰**：没开就说没开，并能说清是哪一种没开） */
+const OPEN_FAILURE_TEXT: Record<string, string> = {
+  'no-task': 'emdash 里一个任务都没有 —— 内嵌浏览器页得挂在任务下面，所以我没开',
+  'no-task-view': '目标是找到了，但那个任务的界面还没准备好（可能还在创建），所以我没开',
+  unavailable: '球的这条开页通道没接上（球连不上主界面），所以我没开',
+  timeout: '主界面没回话（开页那条广播没人接），所以我没确认开成',
+  'bad-url': '这个地址不是 http(s) 开头（或者为空），所以我没开',
+  failed: '内嵌浏览器没开成',
+};
+
+/**
+ * agent 本机地址（`127.0.0.1` / `localhost` / `::1`）—— **只提示，不改写**。
+ * [XG-CUSTOM 2026-10-12] 口径（用户定的）：Linux 上 agent 与本机浏览器同机，这种地址**能开**；
+ * 而 Windows 客户端上的 emdash 去打 `127.0.0.1` 打到的是**它自己那台机器** ⇒ 开不出来。
+ * 我们**不改写 URL**（改写会让 Linux 本机那条反而坏），只在回执里提示一句。
+ */
+export function isAgentLocalAddress(url: string): boolean {
+  const match = /^https?:\/\/([^/?#]+)/i.exec(url.trim());
+  if (match === null) return false;
+  const hostPort = match[1] ?? '';
+  const host = (hostPort.startsWith('[') ? hostPort.slice(1, hostPort.indexOf(']')) : hostPort.split(':')[0] ?? '')
+    .trim()
+    .toLowerCase();
+  return host === '127.0.0.1' || host === 'localhost' || host === '::1' || host === '0.0.0.0';
+}
+
+/**
+ * 开页失败 → 给用户看的**一行**人话回执（纯函数，可离线单测）。
+ *   · 成功 → `''`（成功不吵）
+ *   · **原因码原样带出**（`（原因：no-task）`）—— 别把它翻译没了，排障就靠它
+ *   · agent 本机地址（127.0.0.1 / localhost）**只加一句提示、不改写 URL**（R7 兜底）
+ */
+export function xiangwoOpenFailureNotice(result: XiangwoOpenSourceResult, url = ''): string {
+  if (result.ok === true) return '';
+  const reason = typeof result.reason === 'string' && result.reason !== '' ? result.reason : 'failed';
+  const text = OPEN_FAILURE_TEXT[reason] ?? '内嵌浏览器没开成';
+  const hint = isAgentLocalAddress(url)
+    ? '（另外：这条是 agent 本机地址，远端那台机器上可能打不开。）'
+    : '';
+  return `${text}（原因：${reason}）${hint}`;
 }
 
 export type XiangwoImageGridOptions = {
@@ -176,6 +246,12 @@ export type XiangwoImageGridOptions = {
   /** 当前 bot（点开来源页时带上，落到该 bot 的浏览器 profile） */
   botId?: string;
   bridge?: XiangwoImagesBridge;
+  /**
+   * [XG-CUSTOM 2026-10-12] 整卡点击**开页失败**的回执（球里用它显示一行
+   * `transcript-action-notice`；不传 = 不显示，老调用方零回归）。
+   * 文案由 `xiangwoOpenFailureNotice(result, cell.openUrl)` 生成。
+   */
+  onOpenFailure?: (result: XiangwoOpenSourceResult, url: string) => void;
 };
 
 function renderCell(
@@ -256,7 +332,10 @@ function renderCell(
   }
   if (cell.openUrl !== '') {
     button.addEventListener('click', () => {
-      openXiangwoImageSource(cell.openUrl, options.botId ?? '', options.bridge);
+      // [XG-CUSTOM 2026-10-12] 开页失败要有回执（以前是"点一下，没反应，也没日志"）
+      openXiangwoImageSource(cell.openUrl, options.botId ?? '', options.bridge, (result) => {
+        options.onOpenFailure?.(result, cell.openUrl);
+      });
     });
   }
   return button;

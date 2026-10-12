@@ -200,6 +200,13 @@ export function requestEmbeddedBrowserOpen(request: XiangwoOpenBrowserRequest): 
       //   渲染侧消费者见 embedded-browser-open-request.ts 的 `presentToUser`（pickTargetTask 分叉）。
       //   ⚠️ 只有显式 true 才下发 —— **不带时事件与改动前逐字节一致**（老调用方零回归）。
       ...(request.presentToUser === true ? { presentToUser: true } : {}),
+      // [XG-CUSTOM] 2026-10-12 **回执编号透明透传**：带了它 = 请求方在等渲染进程的真实结果
+      //   （球里点链接/图片卡那条路 —— 消费方见 main/host/xiangwo-orb-api.ts 的
+      //   `host.openEmbeddedBrowser` 与 main/host/browser/embedded-browser-open-ack.ts）。
+      //   不带 = 事件与改动前逐字节一致（agent 9223 桥 / 反向通道仍是 fire-and-forget）。
+      ...(typeof request.requestId === 'string' && request.requestId !== ''
+        ? { requestId: request.requestId }
+        : {}),
     });
   } catch (error) {
     log.warn('[XG-CUSTOM] 广播内嵌浏览器开页请求失败', {

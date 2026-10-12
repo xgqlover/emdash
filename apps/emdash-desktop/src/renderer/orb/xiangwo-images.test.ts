@@ -9,14 +9,17 @@ import { JSDOM } from 'jsdom';
 import { describe, expect, it, vi } from 'vitest';
 import {
   compactXiangwoImagesBlock,
+  isAgentLocalAddress,
   normalizeXiangwoImages,
   openXiangwoImageSource,
   parseXiangwoImagesBlock,
   renderXiangwoImageGrid,
   xiangwoImageCells,
   xiangwoImageErrorAction,
+  xiangwoOpenFailureNotice,
   XIANGWO_IMAGES_MAX,
   XIANGWO_IMAGES_STORE_MAX,
+  type XiangwoOpenSourceResult,
 } from './xiangwo-images';
 
 const BASE = 'http://10.239.5.174:8900';
@@ -164,6 +167,127 @@ describe('[XG-CUSTOM] xiangwo-images ② 点击 → 内嵌浏览器打开来源�
     expect(bridge.orbApi).toHaveBeenCalledWith('host.openEmbeddedBrowser', {
       url: 'https://a.example/w',
     });
+  });
+});
+
+// [XG-CUSTOM 2026-10-12] 修法 2：**失败要看得见** —— 球里点链接/图片卡开页失败时，
+// 球显示一行人话回执（`.transcript-action-notice`），`reason` 原样带出。
+describe('[XG-CUSTOM] xiangwo-images ②′ 开页失败 → 回执文案 + 回调', () => {
+  /** 把微任务队列冲干净（openXiangwoImageSource 的 .then 在下一轮才跑） */
+  const flush = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0));
+
+  it('★ 每个已知原因码都有话说，且**原因码原样带出**（排障就靠它）', () => {
+    for (const reason of ['no-task', 'no-task-view', 'unavailable', 'timeout', 'bad-url', 'failed']) {
+      const text = xiangwoOpenFailureNotice({ ok: false, reason }, 'https://a.example/w');
+      expect(text).not.toBe('');
+      expect(text).toContain(reason);
+    }
+  });
+
+  it('★ 未知原因码也不许静默：原样带出（不把 reason 翻译没了）', () => {
+    const text = xiangwoOpenFailureNotice({ ok: false, reason: 'weird-code' }, 'https://a.example/w');
+    expect(text).toContain('weird-code');
+    expect(text).not.toBe('');
+  });
+
+  it('成功不受影响：{ok:true} → 空文案（成功不吵用户）', () => {
+    expect(xiangwoOpenFailureNotice({ ok: true }, 'https://a.example/w')).toBe('');
+  });
+
+  it('R7 兜底：agent 本机地址只**提示一句**、绝不改写 URL', () => {
+    expect(isAgentLocalAddress('http://127.0.0.1:8900/x')).toBe(true);
+    expect(isAgentLocalAddress('http://localhost:8900/x')).toBe(true);
+    expect(isAgentLocalAddress('https://a.example/w')).toBe(false);
+    expect(isAgentLocalAddress('https://127.0.0.1.evil.example/w')).toBe(false);
+
+    const text = xiangwoOpenFailureNotice(
+      { ok: false, reason: 'unavailable' },
+      'http://127.0.0.1:8900/x'
+    );
+    expect(text).toContain('本机地址');
+    // 只提示、不改写：原文里的地址一个字符都不许被换掉
+    expect(text).not.toContain('10.239.5.174');
+  });
+
+  it('★ 主进程回 {ok:false, reason} → onFailure 拿到**同一个 reason**', async () => {
+    const failures: XiangwoOpenSourceResult[] = [];
+    openXiangwoImageSource(
+      'https://a.example/w',
+      'sxsj',
+      { orbApi: async () => ({ ok: false, reason: 'no-task' }) },
+      (result) => failures.push(result)
+    );
+    await flush();
+    expect(failures).toEqual([{ ok: false, reason: 'no-task' }]);
+  });
+
+  it('★ 成功路径不受影响：回 {ok:true} → onFailure 一次都不调', async () => {
+    const failures: XiangwoOpenSourceResult[] = [];
+    openXiangwoImageSource(
+      'https://a.example/w',
+      '',
+      { orbApi: async () => ({ ok: true }) },
+      (result) => failures.push(result)
+    );
+    await flush();
+    expect(failures).toEqual([]);
+  });
+
+  it('桥没接上（undefined / 没有 orbApi）→ 同步就有回执，不静默', () => {
+    const failures: XiangwoOpenSourceResult[] = [];
+    const collect = (result: XiangwoOpenSourceResult): void => {
+      failures.push(result);
+    };
+    openXiangwoImageSource('https://a.example/w', '', undefined, collect);
+    openXiangwoImageSource('https://a.example/w', '', {}, collect);
+    expect(failures).toEqual([
+      { ok: false, reason: 'unavailable' },
+      { ok: false, reason: 'unavailable' },
+    ]);
+  });
+
+  it('调不通（抛）/ 回了个不是对象的玩意 → 都算失败（reason: unavailable / failed）', async () => {
+    const failures: XiangwoOpenSourceResult[] = [];
+    const collect = (result: XiangwoOpenSourceResult): void => {
+      failures.push(result);
+    };
+    openXiangwoImageSource(
+      'https://a.example/w',
+      '',
+      {
+        orbApi: async () => {
+          throw new Error('boom');
+        },
+      },
+      collect
+    );
+    openXiangwoImageSource('https://a.example/w', '', { orbApi: async () => null }, collect);
+    await flush();
+    // 两条异步路各自落地，**顺序不定**（rejection 比 resolution 多一跳微任务）⇒ 只断言内容集合
+    expect(failures.map((item) => item.reason).sort()).toEqual([
+      'failed',
+      'unavailable',
+    ]);
+  });
+
+  it('整卡点击走同一条回执（renderXiangwoImageGrid 的 onOpenFailure 带上 url）', async () => {
+    const dom = new JSDOM('<!doctype html><html><body></body></html>');
+    const bridge = { orbApi: vi.fn(async () => ({ ok: false, reason: 'no-task-view' })) };
+    const seen: Array<{ result: XiangwoOpenSourceResult; url: string }> = [];
+    const payload = payloadOf({
+      images: [{ url: RELATIVE_IMG, page: 'https://www.zcool.com.cn/work/Z1.html' }],
+    });
+    const grid = renderXiangwoImageGrid(dom.window.document, payload, {
+      baseUrl: BASE,
+      botId: 'sxsj',
+      bridge,
+      onOpenFailure: (result, url) => seen.push({ result, url }),
+    });
+    click(dom, grid.querySelector('.image-cell') as Element);
+    await flush();
+    expect(seen).toEqual([
+      { result: { ok: false, reason: 'no-task-view' }, url: 'https://www.zcool.com.cn/work/Z1.html' },
+    ]);
   });
 });
 

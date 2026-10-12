@@ -20,6 +20,13 @@ export type BrowserEvent =
       profileId?: string;
       botId?: string;
       presentToUser?: boolean;
+      // [XG-CUSTOM 2026-10-12] **这次开页的回执编号**：带上它 = 发起方在等一个真实结果
+      //   （球里点链接/图片卡就是这条路 —— 主进程 `host.openEmbeddedBrowser` 发出广播后会等
+      //   渲染进程把 `{ok, reason}` 回话，再原样回给球；登记处见
+      //   main/host/browser/embedded-browser-open-ack.ts）。
+      //   渲染进程侧：干完活经 Wire 的 `reportEmbeddedBrowserOpenResult` 回执。
+      //   **不带 = 与改动前逐字节一致**（agent 9223 桥 / 反向通道那条 fire-and-forget 的路）。
+      requestId?: string;
     }
   | { type: 'link-copied'; kind: 'image' | 'link' | 'url'; url: string };
 

@@ -14,6 +14,12 @@ export type BrowserOperations = {
   clearData(browserId: string, kind: BrowserDataClearKind): Promise<BrowserActionResult>;
   clearProfileStorage(profileId: string): Promise<BrowserActionResult>;
   clearBrowsingData(kind: BrowsingDataKind): Promise<BrowserActionResult>;
+  // [XG-CUSTOM 2026-10-12] 「从零开页」的回执（渲染进程 → 主进程）；见 api/contract.ts
+  reportEmbeddedBrowserOpenResult(input: {
+    requestId: string;
+    ok: boolean;
+    reason?: string;
+  }): { accepted: boolean };
 };
 
 type BrowserActionResult = { success: boolean; error?: string };
@@ -30,6 +36,8 @@ export function createBrowserWireController(browserOperations: BrowserOperations
     clearData: ({ browserId, kind }) => browserOperations.clearData(browserId, kind),
     clearProfileStorage: ({ profileId }) => browserOperations.clearProfileStorage(profileId),
     clearBrowsingData: ({ kind }) => browserOperations.clearBrowsingData(kind),
+    reportEmbeddedBrowserOpenResult: (input) =>
+      browserOperations.reportEmbeddedBrowserOpenResult(input),
     events: browserEvents,
   });
 }

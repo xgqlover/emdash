@@ -1,5 +1,12 @@
 import { readFileSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
 import { isHostCommand, listHostCommands, requiresApproval } from './xiangwo-host-commands'; // [XG-CUSTOM 2026-10-05]
+// [XG-CUSTOM 2026-10-12] 开页回执登记处（球点链接 → 主窗口渲染进程 → 结果回给球）
+import {
+  nextEmbeddedBrowserOpenRequestId,
+  settleEmbeddedBrowserOpenResult,
+  waitEmbeddedBrowserOpenResult,
+  type EmbeddedBrowserOpenOutcome,
+} from './browser/embedded-browser-open-ack';
 import { extname, join } from 'node:path';
 // [XG-CUSTOM] 项我控制球 API 适配层。
 //
@@ -27,8 +34,10 @@ export type OrbDirection = { horizontal: 'left' | 'right'; vertical: 'up' | 'dow
 /**
  * [XG-CUSTOM 2026-10-03] 球里「点图片卡片 → 在内嵌浏览器打开来源页」的要打开请求。
  * `bot` 选填（带了就落到该 bot 的浏览器 profile，与 agent 开页同一个维度）；不带 = default。
+ * [XG-CUSTOM 2026-10-12] `requestId`：这一次开页的**回执编号**（见 `browser/embedded-browser-open-ack.ts`）。
+ *   带上它 = 主窗口渲染进程干完活会**回话**（成功/失败的**可判别原因**）；不带 = 与改动前逐字节一致。
  */
-export type OrbOpenEmbeddedBrowserRequest = { url: string; bot?: string };
+export type OrbOpenEmbeddedBrowserRequest = { url: string; bot?: string; requestId?: string };
 
 /**
  * [XG-CUSTOM 2026-10-03] 「开内嵌浏览器」的真实实现（由 boot 注入，见
@@ -898,17 +907,47 @@ export async function routeOrbApi(
       void shell.openExternal(url);
       return true;
     }
-    // [XG-CUSTOM 2026-10-03] 图片网格的整卡点击：在 emdash **内嵌浏览器**里打开来源作品页
-    // （不是系统浏览器 —— 球面板不该因此离开）。通道 = boot 注入的 requestEmbeddedBrowserOpen，
-    // 与 agent 的 9223 桥 / 反向通道**完全同一条**「从零开页」广播；没注入/地址不合法就如实
-    // 回 ok:false（不假装成功，也不悄悄换开法）。
+    // [XG-CUSTOM 2026-10-03] 图片网格的整卡点击 / [XG-CUSTOM 2026-10-10] 球里点 Markdown 链接：
+    // 在 emdash **内嵌浏览器**里打开页面（不是系统浏览器 —— 球面板不该因此离开）。通道 =
+    // boot 注入的 requestEmbeddedBrowserOpen，与 agent 的 9223 桥 / 反向通道**完全同一条**
+    // 「从零开页」广播；没注入/地址不合法就如实回 ok:false（不假装成功，也不悄悄换开法）。
+    // [XG-CUSTOM 2026-10-12] 🔴 **不再是发完广播就回 `{ok:true}`**：那条广播是 fire-and-forget，
+    //   渲染进程那边的真实结果（没有 task / task 视图没建好 / 内嵌浏览器打不开）主进程根本收不到
+    //   ⇒ 球收到的永远是"成功"，失败**完全静默**（用户点了没反应，日志里也没有一行）。
+    //   现在：发广播前登记 requestId → 随事件下发 → 主窗口渲染进程经 Wire 回执
+    //   （`reportEmbeddedBrowserOpenResult`）→ 这里等到的才是**真实结果**（原样回给球；
+    //   没人回话就等 `EMBEDDED_BROWSER_OPEN_ACK_TIMEOUT_MS` 后如实回 `timeout`，不卡死点击）。
+    //   ⚠️ 只影响**球这条路**（只有它会带 requestId）；agent 9223 桥 / 反向通道仍走老行为，零回归。
+    //   顺带：无论成败都打一行日志 —— 这条链接路原来失败时 `emdash.log` 里一个字都没有。
     case 'host.openEmbeddedBrowser': {
       const url = typeof payload.url === 'string' ? payload.url.trim() : '';
-      if (url === '' || !/^https?:\/\//.test(url)) return { ok: false, reason: 'bad-url' };
       const bot = typeof payload.bot === 'string' ? payload.bot.trim() : '';
       const open = openEmbeddedBrowserImpl;
-      if (open === null) return { ok: false, reason: 'unavailable' };
-      return { ok: open(bot === '' ? { url } : { url, bot }) };
+      let outcome: EmbeddedBrowserOpenOutcome;
+      if (url === '' || !/^https?:\/\//.test(url)) {
+        outcome = { ok: false, reason: 'bad-url' };
+      } else if (open === null) {
+        outcome = { ok: false, reason: 'unavailable' };
+      } else {
+        const requestId = nextEmbeddedBrowserOpenRequestId();
+        const waiting = waitEmbeddedBrowserOpenResult(requestId);
+        try {
+          open(bot === '' ? { url, requestId } : { url, bot, requestId });
+          outcome = await waiting;
+        } catch (error) {
+          // 广播本身抛了（极罕见）：不要留一个等不到回执的登记
+          settleEmbeddedBrowserOpenResult(requestId, { ok: false, reason: 'failed' });
+          outcome = { ok: false, reason: 'failed' };
+          log.warn('[XG-CUSTOM] orb 开内嵌浏览器广播失败', { url, bot, error: String(error) });
+        }
+      }
+      log.warn('[XG-CUSTOM] orb 开内嵌浏览器', {
+        url,
+        bot,
+        ok: outcome.ok,
+        reason: outcome.ok ? '' : outcome.reason,
+      });
+      return outcome;
     }
     // [XG-CUSTOM 2026-10-05] 球的「指挥主界面」动作面 —— **只放白名单命令**
     //   （白名单与判据见 `./xiangwo-host-commands`；这里只做「查表 + 受控转发」）

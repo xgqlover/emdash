@@ -143,6 +143,10 @@ export type XiangwoOpenBrowserRequest = {
   //           用户在屏幕上什么都没看到，而回报是"打开了"）。
   //   不带/false = **维持原行为**（先开进 bot 自己的 task，隔离使用）⇒ 老调用方零回归。
   presentToUser?: boolean;
+  // [XG-CUSTOM] 2026-10-12 `requestId`：**这次开页的回执编号**（透明透传给渲染进程）。
+  //   只有球那条路会带（`host.openEmbeddedBrowser` 在等结果的 `{ok, reason}`）；agent 9223 桥 /
+  //   反向通道**不带** ⇒ 事件与改动前逐字节一致（登记处见 `browser/embedded-browser-open-ack.ts`）。
+  requestId?: string;
 };
 
 /**

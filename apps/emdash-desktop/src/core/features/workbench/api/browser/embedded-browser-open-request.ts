@@ -27,10 +27,28 @@ import { getBrowserClient } from '@core/features/browser/api/browser/client';
 import { openBrowserTabOrReuse } from '@core/features/browser/api/browser/open-browser-tab';
 import { taskViewDef } from '@core/features/tasks/contributions/views';
 import { getSidebarStore } from '@core/features/workbench/contributions/browser/app-stores';
+// [XG-CUSTOM 2026-10-12] **失败要进 `emdash.log`**：原来这三条路只有 `console.warn`
+//   （渲染进程的 console 不进 emdash.log），所以"点了链接没反应"在日志里查不到任何痕迹。
+//   这是仓库的标准 slice logger（`console.warn` + Wire 转发到主进程 file-logger，二合一）。
+import { log } from '@core/primitives/logging/browser/logger';
 import { getNavigation } from '@core/primitives/navigation/browser/navigation-selectors';
 import { getTaskComposition } from './task-composition-selectors';
 
 type TaskRef = { readonly projectId: string; readonly taskId: string };
+
+/**
+ * [XG-CUSTOM 2026-10-12] 「从零开页」的结果 —— **从 boolean 改成可判别的原因码**。
+ *
+ * 为什么必须改：球里点链接那条路要**把失败说出来**（原来只回一个 `false`/`{ok:true}`，
+ * 失败完全静默）；而且原因要能**原样带回球侧**（球按 reason 决定说哪一句人话），
+ * 所以这里给的是稳定的小写码，不是给日志看的长句。
+ *   · `no-task`      = emdash 里一个可见 task 都没有（内嵌浏览器标签页必须挂在 task view 下）
+ *   · `no-task-view` = 找到了 task，但拿不到它的 view（还没 provision 完 / 组合器还没建好）
+ *   · `unavailable`  = task view 在，但开页/导航这条路没成（见 `openBrowserTabOrReuse`）
+ */
+export type OpenEmbeddedBrowserOutcome =
+  | { ok: true }
+  | { ok: false; reason: 'no-task' | 'no-task-view' | 'unavailable' };
 
 /** 主窗口当前正在看的 task（不是 task 视图 / 参数不全 → undefined）。 */
 function currentTaskRef(): TaskRef | undefined {
@@ -135,8 +153,11 @@ function resolveTargetTask(
 }
 
 /**
- * 按请求把 url 开进一个内嵌浏览器标签页。返回是否成功（调用方只用于日志/回报）。
+ * 按请求把 url 开进一个内嵌浏览器标签页。返回**结果**（调用方拿它回报/记日志）。
  * 不抛：任何一步失败都只 warn —— 这是「尽力自动开页」，绝不能把渲染进程搞崩。
+ *
+ * [XG-CUSTOM 2026-10-12] 返回类型 `boolean` → `{ok, reason}`：`reason` 会被主进程原样回给球
+ * （球里点链接时显示一句人话），所以**原因码要稳定**（见 `OpenEmbeddedBrowserOutcome`）。
  *
  * [XG-CUSTOM] bot ⟷ profile：`profileId` 由主进程按 bot 解析好塞在事件里；不带 →
  * `paneLayout.open('browser', { initialUrl })`，与改动前逐字节一致（渲染进程用 defaultProfileId）。
@@ -154,26 +175,27 @@ export function openEmbeddedBrowserTab(
   //   聊天下面的网页吗」⇒ 默认就开在**用户正在看的那个 task**（= 他聊天的那个 bot 的会话下面）。
   //   要回到"agent 自用、开在 bot 自己 task"的隔离行为 → 显式传 false。
   presentToUser = true
-): boolean {
+): OpenEmbeddedBrowserOutcome {
   // [XG-CUSTOM 2026-10-05] presentToUser=true（用户要看）→ 开在**用户当前 task**，见 pickTargetTask
   const target = resolveTargetTask(botId, presentToUser);
   if (target === undefined) {
-    console.warn(
+    log.warn(
       '[XG-CUSTOM] 项我要开内嵌浏览器，但 emdash 里没有任何 task（内嵌浏览器标签页挂在 task view 下）',
-      { url }
+      { url, reason: 'no-task' }
     );
-    return false;
+    return { ok: false, reason: 'no-task' };
   }
   if (target.needsNavigation) {
     getNavigation().navigate(taskViewDef(target.ref));
   }
   const taskView = getTaskComposition(target.ref.projectId, target.ref.taskId);
   if (taskView === undefined) {
-    console.warn('[XG-CUSTOM] 找到 task 但拿不到它的 view（可能还没 provision 完）', {
+    log.warn('[XG-CUSTOM] 找到 task 但拿不到它的 view（可能还没 provision 完）', {
       ...target.ref,
       url,
+      reason: 'no-task-view',
     });
-    return false;
+    return { ok: false, reason: 'no-task-view' };
   }
   // [XG-CUSTOM] 2026-10-06 —— **同一个 task 里已有同 profile 的 browser 标签 → 导航它，不叠新标签**。
   //   病根（用户真机实证）：球/agent 每说一次「打开 X」都会走到这里，而 `paneLayout.open` 对
@@ -195,11 +217,37 @@ export function openEmbeddedBrowserTab(
     try {
       taskView.activateLastTabOfKind('browser');
     } catch (error) {
-      console.warn('[XG-CUSTOM] 激活 browser 标签失败（页面已开，可能不在前台）', error);
+      log.warn('[XG-CUSTOM] 激活 browser 标签失败（页面已开，可能不在前台）', error);
     }
   }
   taskView.setFocusedRegion('main');
-  return outcome !== 'unavailable';
+  return outcome === 'unavailable' ? { ok: false, reason: 'unavailable' } : { ok: true };
+}
+
+/**
+ * [XG-CUSTOM 2026-10-12] 把开页结果**回执**给主进程（Wire：`browser.reportEmbeddedBrowserOpenResult`）。
+ *
+ * 不抛、不阻塞：回执失败 = 球那边等超时后收到 `timeout`（照样有回执文案，只是不能说清是哪一种），
+ * 所以这里只记一行日志就够，绝不能因为回执失败影响开页本身。
+ * @param client 已经在订阅里拿到的 browser 域客户端（复用，不再拉一次连接）
+ */
+async function reportEmbeddedBrowserOpenResult(
+  client: Awaited<ReturnType<typeof getBrowserClient>>,
+  requestId: string,
+  outcome: OpenEmbeddedBrowserOutcome
+): Promise<void> {
+  try {
+    await client.reportEmbeddedBrowserOpenResult({
+      requestId,
+      ok: outcome.ok,
+      ...(outcome.ok ? {} : { reason: outcome.reason }),
+    });
+  } catch (error) {
+    log.warn('[XG-CUSTOM] 回执「内嵌浏览器开页结果」失败（球侧会按超时处理）', {
+      requestId,
+      error,
+    });
+  }
 }
 
 /**
@@ -219,14 +267,26 @@ export function useEmbeddedBrowserOpenRequests(): void {
             if (event.type !== 'open-in-embedded-browser') return;
             // [XG-CUSTOM 2026-10-05] 用户要看的页 → presentToUser（agent 自用则不带，维持隔离）
             const present = 'presentToUser' in event && event.presentToUser === true;
-            openEmbeddedBrowserTab(event.url, event.profileId, event.botId, present);
+            const outcome = openEmbeddedBrowserTab(
+              event.url,
+              event.profileId,
+              event.botId,
+              present
+            );
+            // [XG-CUSTOM 2026-10-12] **把真实结果回给主进程**（只有发起方在等的那些请求才带
+            // `requestId` —— 球里点链接/图片卡就是这条路；agent 9223 桥 / 反向通道不带 ⇒ 不回执，
+            // 与改动前逐字节一致）。主进程拿它落地球那边的等待（球据此显示失败回执），
+            // 并在真的开成时把主窗提上来（见 main/host/browser/controller.ts）。
+            if ('requestId' in event && typeof event.requestId === 'string' && event.requestId !== '') {
+              void reportEmbeddedBrowserOpenResult(client, event.requestId, outcome);
+            }
           },
           onGap: () => {},
         });
         if (disposed) off();
         else unsubscribe = off;
       } catch (error) {
-        console.warn('[XG-CUSTOM] 订阅内嵌浏览器开页事件失败（从零开页不可用）', error);
+        log.warn('[XG-CUSTOM] 订阅内嵌浏览器开页事件失败（从零开页不可用）', error);
       }
     })();
     return () => {

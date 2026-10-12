@@ -9,7 +9,10 @@ import {
 import { getAppSettingsService } from '@main/bootstrap/core/service-instances';
 import { configureBrowserProfileSession } from '@main/host/browser/browser-profile-session';
 import { browserWebContentsRegistry } from '@main/host/browser/browser-webcontents-registry';
+// [XG-CUSTOM 2026-10-12] 「从零开页」回执的落地点 + 开成之后把主窗提上来（只在用户看不见时）
+import { settleEmbeddedBrowserOpenResult } from '@main/host/browser/embedded-browser-open-ack';
 import { isBrowserPartition } from '@main/host/browser/webview-security';
+import { revealMainWindowIfHidden } from '@main/host/window';
 
 export const browserOperations = {
   registerSession: (args: { browserId: string; partition: string }) => {
@@ -66,6 +69,21 @@ export const browserOperations = {
     }
     const partitions = await collectBrowserPartitions();
     return { success: await browserWebContentsRegistry.clearBrowsingData(kind, partitions) };
+  },
+
+  // [XG-CUSTOM 2026-10-12] 「从零开页」的回执（主窗口渲染进程 → 主进程）。两件事，都很窄：
+  //   ① 落地等待中的结果（球那边就能拿到真实的 `{ok:false, reason}` —— 原来失败完全静默）；
+  //   ② **只在这一页真的开成时**，把主窗提上来 —— 且只在主窗**用户看不见**（隐藏/最小化）时，
+  //      并且不抢焦点（见 `revealMainWindowIfHidden` 的注释）。为什么：球里点一下链接，
+  //      页开在隐藏的主窗里 = 屏幕上什么都没发生（真机事故就是这么来的）。
+  //   `accepted=false`（已超时/重复/伪造 id）⇒ 什么都不做，免得重复揭示窗口。
+  reportEmbeddedBrowserOpenResult: (args: { requestId: string; ok: boolean; reason?: string }) => {
+    const accepted = settleEmbeddedBrowserOpenResult(args.requestId, {
+      ok: args.ok,
+      ...(typeof args.reason === 'string' ? { reason: args.reason } : {}),
+    });
+    if (accepted && args.ok) revealMainWindowIfHidden();
+    return { accepted };
   },
 };
 

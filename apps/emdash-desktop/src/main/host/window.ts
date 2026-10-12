@@ -828,6 +828,34 @@ export function isAppFocused(): boolean {
   return windows.some((window) => !window.isDestroyed() && window.isFocused());
 }
 
+/**
+ * [XG-CUSTOM 2026-10-12] 把主窗**只在用户看不见它时**提上来，且**绝不抢焦点**。
+ *
+ * 用途（唯一调用方：`main/host/browser/controller.ts` 的 `reportEmbeddedBrowserOpenResult`）：
+ * 球里点一下链接 → 页开在主窗的 task 视图里；而主窗的「关闭」只是 `hide()`（见本文件 close 处理），
+ * 最小化也一样 —— 用户屏幕上**什么都没发生**，他只会以为"点了没反应"。
+ *
+ * 三条保守约束（别放宽）：
+ *   ① **只在隐藏 / 最小化时动手**：主窗可见（哪怕被别的应用盖住、或用户正在别的应用里）
+ *      一律 **return false 什么都不做** —— 不弹、不激活、不打扰。
+ *   ② **不抢焦点**：刻意**不用** `showMainWindow()`（那个会 `app.focus()` + `win.focus()`；
+ *      球上双击"打开主界面"是用户主动动作、抢焦点没问题，这里是开页的副作用，抢焦点会打断
+ *      用户正在打的字）。这里只用 `showInactive()` —— Electron 定义为"显示但不激活"。
+ *   ③ **没有主窗就什么都不做**（不顺手 createMainWindow 拉一个新窗口出来）。
+ *
+ * @returns 是否真的动过窗口（false = 用户本来就看得见 / 没有主窗）
+ */
+export function revealMainWindowIfHidden(): boolean {
+  const win = mainWindow && !mainWindow.isDestroyed() ? mainWindow : null;
+  if (win === null) return false;
+  if (win.isVisible() && !win.isMinimized()) return false;
+  // 最小化要先拉回来（各平台 `showInactive` 对最小化窗口的行为不一致）；`restore()` 本身不调
+  // `focus()`，而且这个场景就是"用户刚最小化、但他在球里点了一下要开页"——恢复窗口正是他的意图。
+  if (win.isMinimized()) win.restore();
+  win.showInactive();
+  return true;
+}
+
 export function focusAppFromNotification(): BrowserWindow | null {
   const win = getMainWindow();
   if (!win || win.isDestroyed()) return null;
