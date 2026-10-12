@@ -1853,11 +1853,18 @@ async function main() {
     event.preventDefault();
     // [XG-CUSTOM] 粘贴的图片：走发图路径（旧浮窗只处理 text/plain，图片会被丢掉）
     const files = [...(event.clipboardData?.files ?? [])];
+    const pastedText = event.clipboardData?.getData('text/plain') ?? '';
     if (files.some((file) => file.type.startsWith('image/'))) {
       void handleIncomingFiles(files);
+      // [XG-CUSTOM 2026-10-12] 剪贴板里**同时**有文字（网页上"复制图片+说明"很常见）⇒
+      //   把文字**留在输入框**当配文（以前直接丢掉；现在图不立刻发，正好可以改完再一起发）。
+      if (pastedText.trim() !== '') {
+        insertPlainText(prompt, pastedText);
+        syncComposerHeight();
+      }
       return;
     }
-    insertPlainText(prompt, event.clipboardData?.getData('text/plain') ?? '');
+    insertPlainText(prompt, pastedText);
     syncComposerHeight();
   });
   composer.addEventListener('click', (event) => {
