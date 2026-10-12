@@ -122,21 +122,15 @@ else
   echo "   （没有 file 命令，跳过）"
 fi
 
-echo "--- ④ 版本串必须在 app.asar 里命中（版本号取自 apps/emdash-desktop/package.json）---"
+echo "--- ④ 版本串必须在 app.asar 里命中（**以包内版本为准**；仓里版本只作提示）---"
 if [ ! -f "$ASAR" ]; then
   fail "没有 app.asar，没法验版本串"
 else
-  # `-a`：asar 是二进制；`-F`：固定串（这个项目的代码串里常带 `[XG-CUSTOM]`，正则下会变成字符类 ⇒ 假缺失）。
-  n="$(grep -a -F -c -- "$VER" "$ASAR" 2>/dev/null)"
-  if [ "${n:-0}" -gt 0 ]; then
-    echo "   ✅ 命中 ×$n : $VER"
-  else
-    fail "app.asar 里搜不到版本串 $VER（打进包的 app 不是这个版本？）"
-  fi
-  # 被验的 exe 文件名本身带不带版本（只**提示**，不判死）—— 2026-10-12 的坑是脚本按不带版本的名字找产物。
-  case "$(basename "$EXE")" in *"$VER"*) ;; *) echo "   ⚠️ exe 文件名里没有版本串 $VER（交付命名纪律：`emdash-<版本>-x64.exe`）";; esac
-  # 更强的判据（有 @electron/asar 时）：直接读 asar 内嵌 package.json 的 version 字段比。**是字段相等，不是"全文里出现过"**。
-  if node -e "require.resolve('@electron/asar')" >/dev/null 2>&1; then :; elif (cd "$ROOT" && node -e "require.resolve('@electron/asar')" >/dev/null 2>&1); then :; fi
+  # 🔴 [XG-CUSTOM 2026-10-12] **版本判据以「包内」为准**：
+  #   本脚本原来拿仓里 `apps/emdash-desktop/package.json` 当期望值并**判死** ⇒ 多会话共用工作区时，
+  #   **构建期间**另一条线 bump 版本（今天实测：包是 1.2.41、仓里已是 1.2.42）⇒ **"包是好的却验收不过"（假失败）**。
+  #   ⇒ 先读出 asar 内嵌 package.json 的 version，以它为准；仓里版本不一致只**警告**。
+  #   真正的"压根没打进版本"仍然判死（那是结构性问题）。
   ASAR_VER="$(cd "$ROOT" && node -e '
     try {
       const a = require("@electron/asar");
@@ -144,11 +138,21 @@ else
       process.stdout.write(String(JSON.parse(buf.toString("utf-8")).version || ""));
     } catch (e) { process.stdout.write(""); }
   ' "$ASAR" 2>/dev/null)"
+  EXPECT_VER="${ASAR_VER:-$VER}"
+  # `-a`：asar 是二进制；`-F`：固定串（这个项目的代码串里常带 `[XG-CUSTOM]`，正则下会变成字符类 ⇒ 假缺失）。
+  n="$(grep -a -F -c -- "$EXPECT_VER" "$ASAR" 2>/dev/null)"
+  if [ "${n:-0}" -gt 0 ]; then
+    echo "   ✅ 命中 ×$n : $EXPECT_VER"
+  else
+    fail "app.asar 里搜不到版本串 $EXPECT_VER（打进包的 app 不是这个版本？）"
+  fi
+  # 被验的 exe 文件名本身带不带版本（只**提示**，不判死）—— 2026-10-12 的坑是脚本按不带版本的名字找产物。
+  case "$(basename "$EXE")" in *"$EXPECT_VER"*) ;; *) echo "   ⚠️ exe 文件名里没有版本串 $EXPECT_VER（交付命名纪律：`emdash-<版本>-x64.exe`）";; esac
   if [ -n "$ASAR_VER" ]; then
     if [ "$ASAR_VER" = "$VER" ]; then
-      echo "   ✅ asar 内 package.json.version = $ASAR_VER（字段相等）"
+      echo "   ✅ asar 内 package.json.version = $ASAR_VER（与仓里一致）"
     else
-      fail "asar 内 package.json.version = $ASAR_VER ≠ 仓里的 $VER"
+      echo "   ⚠️ 包内版本 $ASAR_VER ≠ 仓里 $VER —— 多半是**构建期间有人 bump**（多会话常态）⇒ **以包内为准，不判死**"
     fi
   else
     echo "   （没解析出 asar 内 package.json，跳过字段比对；上面的 grep 命中已足够）"
@@ -176,7 +180,7 @@ else
 fi
 
 if [ "$FAIL" = "0" ]; then
-  echo "== 结论: ✅ 验收通过（$VER / better_sqlite3.node = PE32+ / 版本串命中）"
+  echo "== 结论: ✅ 验收通过（${EXPECT_VER:-$VER} / better_sqlite3.node = PE32+ / 版本串命中）"
   [ "${XG_VERIFY_KEEP:-}" = "1" ] || { rm -rf "$WORK"; WORK="(已删；要复核加 XG_VERIFY_KEEP=1)"; }
   echo "== 解包目录: $WORK"
 else
