@@ -6,92 +6,201 @@
 #   （`/opt/deepin-wine8-stable/bin/wine` = wine-8.16，以前 MEMORY 记的"缺 wine"已不成立）
 #   ⇒ 本机也能打 NSIS 单文件 exe。**不上传源码、不等 CI、不花钱。**
 #
-# 🔴 两条铁律（与 Linux 版同源，别省）：
-#   ① **依赖收集器必须是 pnpm** —— 否则走 npm 收集器 ⇒ 静默缺包。判定顺序：
-#      `package.json#packageManager` → 目录 lockfile → 环境变量 UA → 兜底 npm。本脚本显式带 pnpm UA，
-#      并且 app 的 package.json 现已声明 `"packageManager": "pnpm@10.28.2"`（双保险）。
+# 🔴 六条铁律（别省任何一条）：
+#   ① **依赖收集器必须是 pnpm** —— 否则走 npm 收集器 ⇒ 静默缺包。本脚本显式带 pnpm UA，
+#      并且 app 的 package.json 已声明 `"packageManager": "pnpm@10.28.2"`（双保险）。
 #      ⚠️ 别再拿"顶层包 ≥500 / @emdash/core 在包里"当判据 —— **CI 正品同样是 0**（那是 electron-vite 打进 out/ 的）。
 #   ② **`--config electron-builder.config.ts` 不能省** —— 省了会拿包名 `@emdash/emdash-desktop`
 #      当 executableName ⇒ 产物名变成 `@...exe`。
+#   ③ [XG-CUSTOM 2026-10-12] **win32 可选依赖**只能在**构建目录**里装：
+#      `pnpm-workspace.yaml` 的 `supportedArchitectures` 必须写 `os: [current, win32]`
+#      （**只写 `[win32]` 会把 Linux 侧依赖剥掉 ⇒ 构建失败**），而工作区根那个文件**是被跟踪的**。
+#   ④ [XG-CUSTOM 2026-10-12] ★ **原生 `.node` 的平台**才是那个致命坑（见下面「设计选择」）。
+#   ⑤ [XG-CUSTOM 2026-10-12] **`git archive HEAD` 的临时克隆**里跑全程 —— 共用工作区零改动。
+#   ⑥ [XG-CUSTOM 2026-10-12] **打完必经 `scripts/xg-verify-win-exe.sh` 验收**，不过就非 0 退出。
+#
+# 🔴 [XG-CUSTOM 2026-10-12] 设计选择 = (b) **临时克隆**，而不是 (a)「原地换 + 结束还原」。理由与代价：
+#   · 病根：本机 `pnpm install` 出来的 `node_modules/better-sqlite3/build/Release/better_sqlite3.node`
+#     是 **Linux ELF**，而 `electron-builder.config.ts` 是 `npmRebuild:false`（打包**不**重编）
+#     ⇒ ELF 被原样收进包 ⇒ 真机启动即 `…better_sqlite3.node is not a valid Win32 application`
+#     （Emdash Recovery）。旧脚本只检查"win32 可选依赖在不在"，**从没查过这份 `.node` 是哪个平台的**。
+#   · 为什么否掉 (a)：原生件就在**共用** `node_modules` 里，此刻**另一条线可能在跑 `pnpm dev`/测试/打
+#     AppImage** —— 换掉的那几分钟他们拿到的是 win32 的 `.node`；而且 win32 可选依赖也得装进共用
+#     `node_modules`、还得改被跟踪的 `pnpm-workspace.yaml`（工作区变脏 ⇒ 别人的 pre-check 直接失败）；
+#     最后 (a) 靠 trap 还原，`kill -9` 就漏，会把工作区留成"只能在 Windows 上跑"。
+#   · (b) 的实测代价（本机 2026-10-12）：`git archive HEAD`（99 MB）+ 克隆里 `pnpm install --prefer-offline`
+#     （store 全命中：**3.4 秒**，`reused 1520 / downloaded 0`）≈ 2.2 GB 磁盘（pnpm 硬链接自 store，新增极少）。
+#     ⇒ **可测判据：跑完本脚本，共用工作区那份 `.node` 的 md5 不变**（脚本全程只读源仓）。
+#   · ⚠️ 语义变化：克隆 = **HEAD 的确切内容**（`git archive`）；`XG_ALLOW_DIRTY=1` 时会再把**未提交改动**
+#     （含未跟踪但非忽略的文件）覆盖进克隆 = 旧脚本"WIP 也编进包"的行为。
 #
 # 用法: bash scripts/xg-package-win.sh
-#       XG_ALLOW_DIRTY=1 bash scripts/xg-package-win.sh     # 明知有 WIP 也打（会编进包）
-#       XG_WINE_BIN=/usr/bin bash scripts/xg-package-win.sh # 换 wine 位置
-# 退出码: 0 = 打出并通过校验；非 0 = 没打成/校验没过（**不会**动 release/ 里在用的东西）
+#       XG_ALLOW_DIRTY=1 bash scripts/xg-package-win.sh      # 树脏（别人的 WIP）也打；WIP 会覆盖进克隆
+#       XG_WINE_BIN=/usr/bin bash scripts/xg-package-win.sh  # 换 wine 位置
+#       XG_WIN_KEEP_CLONE=1 ...                              # 保留构建克隆（排查用）
+#       XG_WIN_BUILD_ROOT=/home/me/tmp ...                   # 克隆放哪（默认 $TMPDIR 或 /tmp）
+#       XG_WIN_OUT_DIR=/path ...                             # 产物拷到哪（默认 ~/Desktop）
+#       XG_VERIFY_STRINGS="串A|串B" ...                       # 覆盖验收闸门的"关键代码串"
+# 退出码: 0 = 打出并通过验收（产物已拷到 `XG_WIN_OUT_DIR`）；非 0 = 没打成/验收没过（**不动 release/ 里在用的东西**）
 set -uo pipefail
-cd "$(dirname "$0")/.." || exit 1
-APP=apps/emdash-desktop
-APP_ABS="$(pwd)/$APP"
-OUT="$APP_ABS/release-new"
-# [XG-CUSTOM 2026-10-12] 🔴 **产物名带版本号**（`ARTIFACT_PREFIX` 含 `PKG_VERSION`）⇒
-#   老写法 `emdash-x64.exe` **永远找不到**（真机：1.2.40 那次 exe 明明打出来了，
-#   脚本却报「❌ 没找到产物 …/emdash-x64.exe」并 exit 1 ⇒ 后面的 asar 校验与
-#   `release/` 原子替换**全被跳过**）。判据要与时俱进：先按**带版本**的 glob 找，再退回老名。
-EXE_GLOB="$OUT/emdash-*-x64.exe"
-EXPECT_TOP=${XG_EXPECT_TOP_MODULES:-500}          # asar 顶层 node_modules 下限（正常 561）
+SRC="$(cd "$(dirname "$0")/.." && pwd)"      # 源仓（共用工作区）—— 本脚本只读它
+cd "$SRC" || exit 1
+APP_REL=apps/emdash-desktop
+APP="$SRC/$APP_REL"
+VER_APP="$(node -p "require('$APP/package.json').version" 2>/dev/null)"
+[ -n "$VER_APP" ] && [ "$VER_APP" != "undefined" ] || { echo "❌ 读不到 $APP_REL/package.json 的 version"; exit 1; }
+EXPECT_TOP=${XG_EXPECT_TOP_MODULES:-500}          # 只用来打印参考值；真正的判据见 ⑧
 
 export ELECTRON_MIRROR=${ELECTRON_MIRROR:-https://npmmirror.com/mirrors/electron/}
 export ELECTRON_BUILDER_BINARIES_MIRROR=${ELECTRON_BUILDER_BINARIES_MIRROR:-https://npmmirror.com/mirrors/electron-builder-binaries/}
 WINE_BIN=${XG_WINE_BIN:-/opt/deepin-wine8-stable/bin}
 export PATH="$WINE_BIN:$PATH"
 
-echo "=== ① 前置：wine 必须在 PATH（nsis 单文件靠它设 exe 资源）==="
+echo "=== ① 前置（宿主）：wine / 版本 / 镜像 ==="
 command -v wine >/dev/null || { echo "❌ PATH 里没有 wine（用 XG_WINE_BIN=... 指一个）"; exit 1; }
 echo "   wine: $(wine --version 2>/dev/null)"
-echo "   electron: $(node -p "require('./node_modules/electron/package.json').version" 2>/dev/null || echo '?')"
+echo "   版本: $VER_APP（来自 $APP_REL/package.json）"
 echo "   镜像: $ELECTRON_MIRROR"
 
-echo "=== ①b 平台可选依赖必须是 win32 版（本机打 win 特有的坑）==="
-# [XG-CUSTOM 2026-10-09] 在 Linux 上 `pnpm install` 装出来的是 **linux 版**可选依赖
-#   （`@parcel/watcher-linux-x64-glibc` / `@typescript/native-preview-linux-x64`），而 CI 在 Windows runner
-#   上装的是 win32 版 ⇒ 打出来的包会缺 win 侧实现（文件监听/TS 原生预览退化）。
-#   修法（在**构建用的克隆**里做，别改共用工作区）：
-#     pnpm-workspace.yaml 加：
-#       supportedArchitectures:
-#         os: [win32]
-#         cpu: [x64]
-#     然后 `pnpm install --no-frozen-lockfile`
-MISS_PLAT=0
-for m in "@parcel/watcher-win32-x64" "@typescript/native-preview-win32-x64"; do
-  [ -e "node_modules/$m" ] || { MISS_PLAT=1; echo "   ❌ 缺 win32 可选依赖：node_modules/$m"; }
-done
-if [ "$MISS_PLAT" = "1" ]; then
-  echo "   ⇒ 先按上面注释里的两步装 win32 可选依赖，再重跑本脚本（否则打出来的包与 CI 正品包构成不一致）。"
-  exit 1
-fi
-echo "   ✅ win32 可选依赖在位"
-
-echo "=== ② 树干净检查（未提交改动会被编进包）==="
+echo "=== ② 树干净检查（**对源仓**做；克隆里没有 .git）==="
+# [XG-CUSTOM 2026-10-12] 这一步必须在**源仓**做：克隆是 `git archive` 出来的、没有 `.git`。
+#   📌 从这个版本起，pre-check 里那句"打包读的是【已提交】的代码"**才是真的**
+#      （克隆 = HEAD 的确切内容；只有 XG_ALLOW_DIRTY=1 才会把 WIP 覆盖进去）。
 if [ "${XG_ALLOW_DIRTY:-}" = "1" ]; then
   bash scripts/xg-pre-package.sh --force || true
 else
   bash scripts/xg-pre-package.sh || { echo "❌ 树不干净；确认要带 WIP 打就加 XG_ALLOW_DIRTY=1"; exit 1; }
 fi
 
-echo "=== ③ 编译（先清 out/，防带内容哈希的旧 chunk 混进包）==="
-rm -rf "$APP/out"
-(cd "$APP" && pnpm run build) || { echo "❌ 编译失败"; exit 1; }
-
-echo "=== ④ 打包（--win nsis，显式带 pnpm UA）==="
-UA="pnpm/10.28.2 npm/? node/$(node -v) linux x86_64"
-(cd "$APP" && rm -rf release-new && npm_config_user_agent="$UA" \
-  ../../node_modules/.bin/electron-builder --win nsis --publish never \
-  --config electron-builder.config.ts -c.directories.output=release-new) || { echo "❌ 打包失败"; exit 1; }
-ls -l "$OUT" 2>/dev/null | sed 's/^/   /'
-# 解析真正的产物名（排除 `__uninstaller.exe` 这种中间物）
-EXE=""
-for _c in $(ls -1 $EXE_GLOB 2>/dev/null | grep -v '__uninstaller' | sort -r); do EXE="$_c"; break; done
-if [ -z "$EXE" ]; then
-  [ -f "$OUT/emdash-x64.exe" ] && EXE="$OUT/emdash-x64.exe"      # 老命名兜底
+echo "=== ③ 建构建克隆（mktemp -d + git archive HEAD；共用工作区零改动）==="
+BUILD_ROOT="${XG_WIN_BUILD_ROOT:-${TMPDIR:-/tmp}}"
+mkdir -p "$BUILD_ROOT" || { echo "❌ 建不了 $BUILD_ROOT"; exit 1; }
+CLONE="$(mktemp -d "$BUILD_ROOT/xg-pack-win-XXXXXX")" || { echo "❌ mktemp 失败（$BUILD_ROOT）"; exit 1; }
+cleanup() {
+  if [ "${XG_WIN_KEEP_CLONE:-}" = "1" ]; then echo "== 克隆保留（排查用）：$CLONE"
+  else rm -rf "$CLONE"; fi
+}
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+trap 'exit 129' HUP
+git archive HEAD | tar -x -C "$CLONE" || { echo "❌ git archive HEAD 失败"; exit 1; }
+DIRTY_NOTE=""
+if [ "${XG_ALLOW_DIRTY:-}" = "1" ]; then
+  # 把未提交改动覆盖进克隆（= 旧脚本"WIP 也编进包"的行为）。
+  # `--exclude-standard` 让 gitignore 的（node_modules / release / out / dist…）自动不进列表；
+  #   `-z`+`--null` 是为了扛住带空格/换行的文件名。
+  git diff --name-only --diff-filter=d HEAD -z | tar -C "$SRC" --null -c -f - -T - | tar -x -C "$CLONE" -f -
+  git ls-files --others --exclude-standard -z | tar -C "$SRC" --null -c -f - -T - | tar -x -C "$CLONE" -f -
+  DIRTY_NOTE=" + 未提交改动($(git status --porcelain | wc -l) 项)"
+  echo "   ⚠️ XG_ALLOW_DIRTY=1：已把未提交改动覆盖进克隆（HEAD = $(git rev-parse --short HEAD)$DIRTY_NOTE）"
 fi
+echo "   克隆: $CLONE（内容 = $(git rev-parse --short HEAD)${DIRTY_NOTE}）"
+
+echo "=== ④ 【只在克隆里】win32 可选依赖（supportedArchitectures 不能动共用工作区）==="
+# [XG-CUSTOM 2026-10-09] 在 Linux 上 `pnpm install` 装出来的是 **linux 版**可选依赖
+#   （`@parcel/watcher-linux-x64-glibc` / `@typescript/native-preview-linux-x64`），而 CI 在 Windows runner
+#   上装的是 win32 版 ⇒ 打出来的包会缺 win 侧实现（文件监听/TS 原生预览退化）。
+#   🔴 `os` 必须写 `[current, win32]`：**只写 `[win32]` 会把 Linux 侧依赖剥掉 ⇒ 构建直接失败**。
+#   🔴 这行**只能在克隆里**加（工作区根那份 `pnpm-workspace.yaml` 是被跟踪的，改了别人的 pre-check 就失败）。
+{
+  echo ''
+  echo '# [XG-CUSTOM 2026-10-12] 本机打 win 包：**在克隆里**加 win32 侧可选依赖（保留 current，别只写 win32）'
+  echo 'supportedArchitectures:'
+  echo '  os: [current, win32]'
+  echo '  cpu: [x64]'
+} >> "$CLONE/pnpm-workspace.yaml"
+sed 's/^/   /' "$CLONE/pnpm-workspace.yaml"
+# `--prefer-offline`：store/缓存命中就不走网（实测 3.4 秒、downloaded 0）。
+if ! (cd "$CLONE" && pnpm install --frozen-lockfile --prefer-offline > "$CLONE/.xg-install.log" 2>&1); then
+  echo "❌ 克隆里 pnpm install 失败（尾部 30 行）："; tail -30 "$CLONE/.xg-install.log" | sed 's/^/   /'; exit 1
+fi
+tail -2 "$CLONE/.xg-install.log" | sed 's/^/   /'
+MISS_PLAT=0
+for m in "@parcel/watcher-win32-x64" "@typescript/native-preview-win32-x64"; do
+  [ -e "$CLONE/node_modules/$m" ] || { MISS_PLAT=1; echo "   ❌ 缺 win32 可选依赖：node_modules/$m"; }
+done
+if [ "$MISS_PLAT" = "1" ]; then
+  echo "   ⇒ 上面那条 supportedArchitectures 没生效（或 lockfile 太旧）⇒ 打出来的包与 CI 正品构成不一致。"
+  exit 1
+fi
+echo "   ✅ win32 可选依赖在位"
+
+echo "=== ⑤ ★ 原生件平台判据 + 自动换 win32（今天那个致命坑的正解）==="
+# 判据 = 「这份 `.node` 是不是 win32 的 PE」——**只有它能防住 ELF 混进 win 包**；
+#   「asar 里有没有这个文件 / 顶层包够不够」永远发现不了。
+BS="$CLONE/node_modules/better-sqlite3/build/Release/better_sqlite3.node"
+[ -f "$BS" ] || { echo "❌ 克隆里没有 $BS"; exit 1; }
+# electron 版本**从仓里读**（克隆里 `pnpm install` 装的那份 = 真正会被打进包的 Electron），别写死。
+ELEC_VER="$(node -p "require('$CLONE/node_modules/electron/package.json').version" 2>/dev/null)"
+ELEC_BIN="$CLONE/node_modules/electron/dist/electron"
+ABI="$(ELECTRON_RUN_AS_NODE=1 "$ELEC_BIN" -p 'process.versions.modules' 2>/dev/null | tr -d '[:space:]')"
+plat() { head -c 2 "$1" | od -An -c | tr -d ' \n'; }     # `MZ` = PE；`\177ELF` = Linux
+echo "   electron $ELEC_VER（ABI ${ABI:-?}，来自克隆里 node_modules/electron）"
+echo "   换前: $(plat "$BS") / $(file -b "$BS")"
+if [ "$(plat "$BS")" != "MZ" ]; then
+  echo "   ⇒ 不是 PE（MZ）⇒ 自动装 win32 x64 预编译："
+  echo "     prebuild-install --runtime=electron --target=$ELEC_VER --platform=win32 --arch=x64 -d"
+  # ⚠️ 这个版本 prebuild-install 的 `-d` = **`--download`**（`rc.js` 里 `download: 'd'`），**不是 --debug**。
+  #    有缓存（`${npm_config_cache:-~/.npm}/_prebuilds`）时它直接解缓存、不走网。
+  if ! ( cd "$CLONE/node_modules/better-sqlite3" && "$CLONE/node_modules/.bin/prebuild-install" \
+        --runtime=electron --target="$ELEC_VER" --platform=win32 --arch=x64 -d ); then
+    echo "❌ 换 win32 原生件失败（无网且无缓存？缓存路径 = \${npm_config_cache:-~/.npm}/_prebuilds）"; exit 1
+  fi
+fi
+# 三条判据，任一条不过就**拒绝打包**（宁可不打，也不出"装到 Windows 就崩"的包）：
+#   ① 头两字节 `MZ`（PE 魔数，比 `file` 更底层） ② `file` 说 PE32+（Windows x64 的 DLL 形状）
+#   ③ 导出 `node_register_module_v<ABI>`（回答"是不是给**这个** Electron 编的"，`file` 回答不了）
+BS_PLAT="$(plat "$BS")"; BS_FILE="$(file -b "$BS")"
+echo "   换后: $BS_PLAT / $BS_FILE"
+[ "$BS_PLAT" = "MZ" ] || { echo "❌ better_sqlite3.node 头两字节不是 MZ（还是宿主平台的 ELF？）"; exit 1; }
+case "$BS_FILE" in *PE32+*) ;; *) echo "❌ better_sqlite3.node 不是 PE32+：$BS_FILE"; exit 1;; esac
+if [ -n "$ABI" ]; then
+  grep -a -q -F -- "node_register_module_v$ABI" "$BS" \
+    || { echo "❌ 没有导出 node_register_module_v$ABI ⇒ ABI 不对（真机症状 NODE_MODULE_VERSION）"; exit 1; }
+  echo "   ✅ 判据通过：MZ + PE32+ + node_register_module_v$ABI（md5 $(md5sum "$BS" | cut -d' ' -f1)）"
+else
+  echo "   ⚠️ 问不到 electron 的 ABI（$ELEC_BIN 不可执行）⇒ 只验 MZ + PE32+"
+fi
+
+echo "=== ⑥ 编译 ==="
+# [XG-CUSTOM 2026-10-12] 克隆是干净的 HEAD ⇒ `packages/*/dist` 不存在（gitignore 的）⇒ **必须先跑根 build**，
+#   否则 rollup 报 `Failed to resolve import "@emdash/wire/worker"`（文档"坎 2"）。
+#   `NX_NO_CLOUD=true NX_DAEMON=false` 防 nx 云请求 600s 超时（文档"坎 3"）。
+if ! (cd "$CLONE" && NX_NO_CLOUD=true NX_DAEMON=false pnpm run build > "$CLONE/.xg-build-root.log" 2>&1); then
+  echo "❌ 根 build 失败（尾部 30 行）："; tail -30 "$CLONE/.xg-build-root.log" | sed 's/^/   /'; exit 1
+fi
+echo "   根 build 完成（$(ls -d "$CLONE"/packages/*/dist 2>/dev/null | wc -l) 个 packages/*/dist）"
+# 先清 `out/`，防带内容哈希的旧 chunk 混进包（实测：不清会让 asar 里同时存在多份旧代码）。
+rm -rf "$CLONE/$APP_REL/out"
+(cd "$CLONE/$APP_REL" && pnpm run build) || { echo "❌ 编译失败"; exit 1; }
+
+echo "=== ⑦ 打包（--win nsis，显式带 pnpm UA）==="
+UA="pnpm/10.28.2 npm/? node/$(node -v) linux x86_64"
+OUT="$CLONE/$APP_REL/release-new"
+# `npm_package_version` 必须显式给：本脚本是**直接调** electron-builder（不走 `pnpm run`）⇒ npm 不会注入它，
+#   而 `electron-builder.config.ts` 的 artifactName 兜底（jiti 下取不到 ARTIFACT_PREFIX 时）就靠它
+#   —— 同 `xg-package-linux.sh` 的做法。
+if ! (cd "$CLONE/$APP_REL" && rm -rf release-new && npm_config_user_agent="$UA" npm_package_version="$VER_APP" \
+      "$CLONE/node_modules/.bin/electron-builder" --win nsis --publish never \
+      --config electron-builder.config.ts -c.directories.output=release-new); then
+  echo "❌ 打包失败"; exit 1
+fi
+ls -l "$OUT" 2>/dev/null | sed 's/^/   /'
+# [XG-CUSTOM 2026-10-12] 产物名**带版本**（`emdash-<版本>-x64.exe`）—— 老写法死找 `emdash-x64.exe`，
+#   会"exe 明明打出来了却报没找到产物并 exit 1"（真机踩过，见 `119215d05`）⇒ 后面的 asar 校验与验收全被跳过。
+#   先按**带版本**的 glob 找（排除 `__uninstaller.exe` 中间物），再退回老名。
+EXE=""
+for _c in $(ls -1 "$OUT"/emdash-*-x64.exe 2>/dev/null | grep -v '__uninstaller' | sort -r); do EXE="$_c"; break; done
+if [ -z "$EXE" ]; then [ -f "$OUT/emdash-x64.exe" ] && EXE="$OUT/emdash-x64.exe"; fi
 [ -n "$EXE" ] && [ -f "$EXE" ] || {
-  echo "❌ 没找到产物（找过：$EXE_GLOB 与 $OUT/emdash-x64.exe）—— $OUT 里实际有："
+  echo "❌ 没找到产物（找过：$OUT/emdash-*-x64.exe 与 $OUT/emdash-x64.exe）—— $OUT 里实际有："
   ls -la "$OUT" 2>/dev/null | sed 's/^/     /' | head -12
   exit 1
 }
 echo "   产物：$EXE（$(stat -c %s "$EXE") 字节）"
 
-echo "=== ⑤ 校验：★ 正确判据（旧的「顶层包 ≥500」已过期，见 emdash-Windows-exe-本机打包-2026-10-09.md §三）==="
+echo "=== ⑧ 结构校验：★ 正确判据（旧的「顶层包 ≥500」已过期，见 emdash-Windows-exe-本机打包-2026-10-09.md §三）==="
 # 为什么旧判据错：本仓 electron-builder 配置有一条 [XG-CUSTOM] 显式收集清单，**只收 emdash-desktop 的直接依赖**；
 #   workspace 包（@emdash/core 等）是 electron-vite 打进 `out/` 的 ⇒ 本来就不在 node_modules 里。
 #   CI 正品实测同样是「顶层包 0 个 @emdash/core」。
@@ -99,7 +208,7 @@ echo "=== ⑤ 校验：★ 正确判据（旧的「顶层包 ≥500」已过期�
 ASAR="$OUT/win-unpacked/resources/app.asar"
 UNPACKED="$OUT/win-unpacked/resources/app.asar.unpacked/node_modules"
 [ -f "$ASAR" ] || { echo "❌ 没找到 $ASAR（win-unpacked 没生成？）"; exit 1; }
-STATS=$(node - "$ASAR" "$UNPACKED" "$APP_ABS/package.json" <<'EOF'
+STATS=$(node - "$ASAR" "$UNPACKED" "$CLONE/$APP_REL/package.json" <<'EOF'
 const a = require('@electron/asar');
 const fs = require('fs');
 const [asar, unpacked, pkgPath] = process.argv.slice(2);
@@ -131,8 +240,45 @@ console.log(bad ? "   ❌ 校验不过：依赖不全或 out/ 不完整 ⇒ 别�
 process.exit(bad ? 1 : 0);
 ' "$STATS" || exit 1
 
-echo "=== ⑥ 交付路径 + 指纹 ==="
-ls -l --time-style=+%m-%d\ %H:%M "$EXE" | sed 's/^/   /'
-file -b "$EXE" | cut -c1-90 | sed 's/^/   file: /'
-sha256sum "$EXE" | sed 's/^/   sha256: /'
-echo "=== ✅ 完成：$EXE （拷到 Windows 覆盖安装即可）==="
+echo "=== ⑨ ★ 验收闸门：xg-verify-win-exe.sh（**必经步骤**；不过就非 0 退出）==="
+# 用**源仓**那份脚本（不是克隆里的那份）：它自己的 `ROOT` 指向源仓 ⇒ 期望版本与 electron ABI
+#   都从源仓现读（版本写死就变成"永远通过/永远失败"两种假信号）。
+# 关键代码串：默认这两条来自最近"球点链接/图片卡 → 开内嵌浏览器"那条链的**真实代码串**
+#   （HEAD 里分别出现在 15 / 7 个源文件），可被 `XG_VERIFY_STRINGS` 覆盖（`|` 分隔）。
+# 🔴 必须给**结尾换行**：`xg-verify-win-exe.sh` 的 ⑤ 是
+#   `while IFS= read -r s; do … done < <(printf '%s' "$XG_VERIFY_STRINGS" | tr '|' '\n')`，
+#   而 `printf '%s'` **不带结尾换行** ⇒ `read` 在最后一行因"EOF 且无换行"返回非 0 ⇒ **循环体不执行**：
+#   单串时整段**静默跳过**、多串时**最后一个串从不被验**（本会话实测：
+#   `XG_VERIFY_STRINGS='不存在的串' bash scripts/xg-verify-win-exe.sh <exe>` 仍然 ✅ / exit 0 = 假通过）。
+#   这里补一个结尾换行绕开它 —— **不改** `xg-verify-win-exe.sh`（那份归另一条线；已在本会话报告里说明）。
+VSTR="${XG_VERIFY_STRINGS:-openEmbeddedBrowser|开内嵌浏览器}"
+echo "   关键代码串（按串逐个验）：$VSTR"
+XG_VERIFY_STRINGS="$VSTR"$'\n' bash "$SRC/scripts/xg-verify-win-exe.sh" "$EXE" || {
+  echo "❌ 验收不过 ⇒ **不交付**（exe 只在克隆里，克隆退出即删；要复核加 XG_WIN_KEEP_CLONE=1）"
+  exit 1
+}
+
+echo "=== ⑩ 交付：把验过的 exe 拷出克隆（克隆退出就删）==="
+# 为什么必须拷出来：产物在 `mktemp -d` 的克隆里，脚本一退出就没了。
+# 默认落桌面（OPS §四 的交付纪律：`emdash-<版本>-xiangwo-x64.exe`）；同名且内容不同时**先备份旧的**、绝不静默盖掉。
+OUTDIR="${XG_WIN_OUT_DIR:-$HOME/Desktop}"
+NAME="$(basename "$EXE")"
+DEST="$OUTDIR/$NAME"
+mkdir -p "$OUTDIR" || { echo "❌ 建不了 $OUTDIR"; exit 1; }
+if [ -f "$DEST" ] && [ "$(md5sum < "$DEST" | cut -d' ' -f1)" != "$(md5sum < "$EXE" | cut -d' ' -f1)" ]; then
+  BAK="$DEST.bak-$(date +%Y%m%d-%H%M)"
+  # 🔴 `|| exit 1` 不是形式：2026-10-12 我在一条**临时命令**里写了 `mv …; echo 已备份`，
+  #   结果 mv 没生效而 echo 照样打印，紧接着的 `cp -f` 就把旧产物盖掉了（**同一族老病**：
+  #   "拿容易取到的信号当判据"/`cmd | head && echo ✅` 永远打印）。归档失败就**不许往下走**。
+  mv -f "$DEST" "$BAK" || { echo "❌ 归档旧产物失败（$DEST → $BAK）⇒ **不覆盖**，退出"; exit 1; }
+  echo "   ⚠️ 同名但内容不同（可能是另一条线同版本的产物）⇒ 旧的已归档 → $BAK（$(stat -c %s "$BAK") 字节）"
+fi
+cp -f "$EXE" "$DEST" || { echo "❌ 拷不到 $DEST"; exit 1; }
+
+echo "=== ⑪ 交付指纹 ==="
+ls -l --time-style=+%m-%d\ %H:%M "$DEST" | sed 's/^/   /'
+file -b "$DEST" | cut -c1-90 | sed 's/^/   file: /'
+md5sum "$DEST" | sed 's/^/   md5: /'
+sha256sum "$DEST" | sed 's/^/   sha256: /'
+echo "   包内 better_sqlite3.node: 换后 = $BS_PLAT / $BS_FILE（判据在 ⑨ 由 xg-verify-win-exe.sh 复查）"
+echo "=== ✅ 完成：$DEST（拷到 Windows 覆盖安装即可）==="
