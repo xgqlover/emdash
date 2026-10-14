@@ -103,15 +103,28 @@ export function xiangwoImageCell(item: XiangwoImageItem, baseUrl: string): Xiang
   ]);
   const src = candidates.length > 0 ? (candidates[0] ?? '') : '';
   const retrySrc = candidates.length > 1 ? (candidates[1] ?? '') : '';
-  // [XG-CUSTOM 2026-10-14] **点击目标改为「page → orig → 不动」**（用户真机反馈：
-  //   「点了没图的框，没反应、也没有网址能在 emdash 里打开」）。原来只认 `page`，
-  //   拿不到时**连 click 处理器都不挂**（本文件头那套协议）⇒ 点了真的什么都不发生。
-  //   `orig` = 图片**原始**地址：打开它走**真浏览器自己的网络**（我方直连/2080/1080 取不到的站，
-  //   用户点一下也能自己看 —— 与 agent 侧那条『浏览器腿』同源）。
+  // [XG-CUSTOM 2026-10-14] ★ **点击目标的兜底顺序（真机两次反馈后定稿）**：
+  //   ① `page`（来源作品页）→ ② `orig` 原文 → ③ **从 `/xg/img?u=…` 里解出原始地址**。
+  //   背景：原协议**只认 `page`**，拿不到就连 click 都不挂 ⇒ 用户「点了没反应」（第一次反馈）。
+  //   加了 `orig` 兜底后仍不对：兜底重建出来的块**没有 `orig`** ⇒ 落到 `url`（`/xg/img?u=…` 代理形）
+  //   ⇒ 打开的是我们自己的代理 ⇒ 死链把 agent 的 `{"error":…,"status":404}` JSON 怼给用户（第二次反馈）。
+  //   ⇒ 定稿：点击**一律交给浏览器取原始地址**，不再经我们的代理；`page` 优先（那是作品页）。
+  //   注：`resolveXiangwoAssetUrl` 对 http(s) 是**原样返回**（`xiangwo-chat.ts:101`），不代理化 —— 别再把锅算它头上。
+  const unproxy = (raw: unknown): string => {
+    const t = String(raw ?? '');
+    const m = /[?&]u=([^&]+)/.exec(t);
+    if (m === null || !t.includes('/xg/img?')) return '';
+    try {
+      return decodeURIComponent(m[1] ?? '');
+    } catch {
+      return '';
+    }
+  };
+  const rawOrig = unproxy(item.orig) || String(item.orig ?? '');
   const openUrl =
     resolveXiangwoAssetUrl(baseUrl, item.page) ||
-    resolveXiangwoAssetUrl(baseUrl, item.orig) ||
-    resolveXiangwoAssetUrl(baseUrl, item.url);
+    (/^https?:\/\//i.test(rawOrig) ? rawOrig : '') ||
+    unproxy(item.url);
   const fallbackAddress = src !== '' ? src : resolveXiangwoAssetUrl(baseUrl, item.url);
   return {
     src,
