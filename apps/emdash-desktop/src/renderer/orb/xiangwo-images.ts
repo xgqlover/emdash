@@ -92,7 +92,8 @@ function needsAgentBase(payload: XiangwoImagesPayload): boolean {
 /**
  * 把一条图片变成渲染计划（纯函数）：
  * 图片源优先级 `thumb > url > orig`（第一个加载不出来就试下一个）；
- * 点击目标 **只认 `page`**（来源作品页）—— 拿不到就不开（协议：page > 拿不到就不开 > 什么都不做）。
+ * 点击目标 = **`page`（来源作品页）→ `orig`（图片原始地址）→ 都没有才不挂点击**。
+ * [XG-CUSTOM 2026-10-14] 原协议是「只认 page、拿不到就不开」⇒ 真机反馈「点了没反应」⇒ 已加 `orig` 兜底。
  */
 export function xiangwoImageCell(item: XiangwoImageItem, baseUrl: string): XiangwoImageCell {
   const candidates = unique([
@@ -102,7 +103,15 @@ export function xiangwoImageCell(item: XiangwoImageItem, baseUrl: string): Xiang
   ]);
   const src = candidates.length > 0 ? (candidates[0] ?? '') : '';
   const retrySrc = candidates.length > 1 ? (candidates[1] ?? '') : '';
-  const openUrl = resolveXiangwoAssetUrl(baseUrl, item.page);
+  // [XG-CUSTOM 2026-10-14] **点击目标改为「page → orig → 不动」**（用户真机反馈：
+  //   「点了没图的框，没反应、也没有网址能在 emdash 里打开」）。原来只认 `page`，
+  //   拿不到时**连 click 处理器都不挂**（本文件头那套协议）⇒ 点了真的什么都不发生。
+  //   `orig` = 图片**原始**地址：打开它走**真浏览器自己的网络**（我方直连/2080/1080 取不到的站，
+  //   用户点一下也能自己看 —— 与 agent 侧那条『浏览器腿』同源）。
+  const openUrl =
+    resolveXiangwoAssetUrl(baseUrl, item.page) ||
+    resolveXiangwoAssetUrl(baseUrl, item.orig) ||
+    resolveXiangwoAssetUrl(baseUrl, item.url);
   const fallbackAddress = src !== '' ? src : resolveXiangwoAssetUrl(baseUrl, item.url);
   return {
     src,

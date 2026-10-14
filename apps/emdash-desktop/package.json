@@ -1,6 +1,6 @@
 {
   "name": "@emdash/emdash-desktop",
-  "version": "1.2.42-xiangwo",
+  "version": "1.2.43-xiangwo",
   "description": "A cross-platform Electron app that orchestrates multiple coding agents in parallel",
   "keywords": [
     "claude",
@@ -196,5 +196,6 @@
       }
     }
   },
-  "packageManager": "pnpm@10.28.2"
+  "packageManager": "pnpm@10.28.2",
+  "xgCustomNote": "[XG-CUSTOM 2026-10-14] 版本 1.2.43-xiangwo：取图网格点击目标 page→orig 兜底（真机反馈「点了没图的框没反应」）；另 1.2.41 未设工作区回退、1.2.42 planOutbound(MCP Apps)。⚠️ JSON 不能写注释 ⇒ 台账靠本键认这个文件的定制，升级上游别丢。"
 }
