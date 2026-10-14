@@ -131,7 +131,9 @@ describe('[XG-CUSTOM] xiangwo-images ② 点击 → 内嵌浏览器打开来源�
     });
   });
 
-  it('没有 page：卡片不可点（也不给手型），点它一次都不调桥', () => {
+  it('★ 没有 page（新协议）：仍可点，打开的是**原始地址**而不是我们的 /xg/img 代理', () => {
+    // [XG-CUSTOM 2026-10-14] 协议变更：原「只认 page、拿不到就不开」⇒ 真机反馈「点了没反应」；
+    //   现为 `page` → `orig` 原文 → 从 `/xg/img?u=…` 解出原始地址。判据：打开的 URL 必须是原始地址。
     const dom = new JSDOM('<!doctype html><html><body></body></html>');
     const bridge = { orbApi: vi.fn(async () => ({ ok: true })) };
     const payload = payloadOf({ images: [{ url: RELATIVE_IMG, source: 'searxng' }] });
@@ -141,15 +143,42 @@ describe('[XG-CUSTOM] xiangwo-images ② 点击 → 内嵌浏览器打开来源�
       bridge,
     });
     const button = grid.querySelector('.image-cell');
-    expect(button?.className).toContain('image-cell-static');
-    expect(button?.className).not.toContain('image-cell-clickable');
-    // title 退化成图片地址（没有可开的页面）
-    expect(button?.getAttribute('title')).toBe(`${BASE}${RELATIVE_IMG}`);
+    expect(button?.className).toContain('image-cell-clickable');
+    const rawUrl = decodeURIComponent(String(RELATIVE_IMG).split('u=')[1] ?? '');
+    expect(button?.getAttribute('title')).toBe(rawUrl);
 
     click(dom, button as Element);
-    expect(bridge.orbApi).not.toHaveBeenCalled();
-    // 域名角标回落 source
-    expect(grid.querySelector('.image-domain')?.textContent).toBe('searxng');
+    expect(bridge.orbApi).toHaveBeenCalledWith('host.openEmbeddedBrowser', {
+      url: rawUrl,
+      bot: 'sxsj',
+    });
+  });
+
+  it('★ A 打底：内嵌开不了（no-task）⇒ 自动退系统浏览器（host.openExternal），并如实回报原因码', async () => {
+    const dom = new JSDOM('<!doctype html><html><body></body></html>');
+    const calls: Array<[string, unknown]> = [];
+    const bridge = {
+      orbApi: vi.fn(async (method: string, params: unknown) => {
+        calls.push([method, params]);
+        if (method === 'host.openEmbeddedBrowser') return { ok: false, reason: 'no-task' };
+        return { ok: true };
+      }),
+    };
+    const payload = payloadOf({ images: [{ url: RELATIVE_IMG, source: 'searxng' }] });
+    const failures: unknown[] = [];
+    const grid = renderXiangwoImageGrid(dom.window.document, payload, {
+      baseUrl: BASE,
+      botId: 'sxsj',
+      bridge,
+      onOpenFailure: (r) => failures.push(r),
+    });
+    click(dom, grid.querySelector('.image-cell') as Element);
+    await Promise.resolve();
+    await Promise.resolve();
+    const rawUrl = decodeURIComponent(String(RELATIVE_IMG).split('u=')[1] ?? '');
+    expect(calls.map((c) => c[0])).toEqual(['host.openEmbeddedBrowser', 'host.openExternal']);
+    expect(calls[1]?.[1]).toEqual({ url: rawUrl });
+    expect(failures).toEqual([{ ok: false, reason: 'opened-external' }]);
   });
 
   it('openXiangwoImageSource：非 http(s) / 没有桥 → 什么都不做（不悄悄开系统浏览器）', () => {

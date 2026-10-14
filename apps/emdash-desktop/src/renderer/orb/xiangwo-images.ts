@@ -195,6 +195,19 @@ export function openXiangwoImageSource(
   const request: { url: string; bot?: string } = { url: openUrl };
   const bot = typeof botId === 'string' ? botId.trim() : '';
   if (bot !== '') request.bot = bot;
+  // [XG-CUSTOM 2026-10-14] **A 打底**：内嵌开页开不了（没工作区/没 task/通道没接上/开失败）时，
+  //   退到 emdash **原生**的「交给系统默认浏览器」（`host.openExternal`，本文件上方协议里的 B 增强在前面）。
+  //   为什么：真机两次反馈「点了没反应」——内嵌那条路要求"停在 task 视图且有 task"（`no-task`/`no-task-view`），
+  //   而系统浏览器**不依赖工作区**、永远可用；只挂一行小字提示等于还是"没反应"。
+  const openedExternal = (reason: string): void => {
+    void Promise.resolve(call('host.openExternal', { url: openUrl }))
+      .then((r2) => {
+        const ok2 =
+          typeof r2 === 'object' && r2 !== null && (r2 as Record<string, unknown>).ok === true;
+        onFailure?.({ ok: false, reason: ok2 ? 'opened-external' : reason });
+      })
+      .catch(() => onFailure?.({ ok: false, reason }));
+  };
   try {
     void Promise.resolve(call('host.openEmbeddedBrowser', request))
       .then((raw) => {
@@ -202,18 +215,11 @@ export function openXiangwoImageSource(
         const record =
           typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>) : {};
         if (record.ok === true) return;
-        onFailure?.({
-          ok: false,
-          reason: typeof record.reason === 'string' ? record.reason : 'failed',
-        });
+        openedExternal(typeof record.reason === 'string' ? record.reason : 'failed');
       })
-      .catch(() => {
-        /* 主进程没接上/调用失败：这一下点空，别的卡照常 */
-        onFailure?.({ ok: false, reason: 'unavailable' });
-      });
+      .catch(() => openedExternal('unavailable'));
   } catch {
-    /* 同步抛（桥烂掉）也不影响其它卡 */
-    onFailure?.({ ok: false, reason: 'unavailable' });
+    openedExternal('unavailable');
   }
 }
 
@@ -228,6 +234,8 @@ const OPEN_FAILURE_TEXT: Record<string, string> = {
   timeout: '主界面没回话（开页那条广播没人接），所以我没确认开成',
   'bad-url': '这个地址不是 http(s) 开头（或者为空），所以我没开',
   failed: '内嵌浏览器没开成',
+  // [XG-CUSTOM 2026-10-14] A 打底生效：内嵌没开成，但**已经用系统浏览器打开了**（如实说，不假装没开）
+  'opened-external': '内嵌浏览器开不了（没有可挂的任务），已改用**系统浏览器**打开',
 };
 
 /**
