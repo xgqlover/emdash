@@ -459,9 +459,16 @@ export function streamFailureText(cause: unknown): string {
     record.firstByteTimeout === true || NETWORK_FAILURE_PATTERN.test(message);
   const detail = unreachable ? '连不上后端（8900）' : message;
   const retried = retries > 0 ? `重试 ${String(retries)} 次也没连上` : '没能连上';
-  return `调用失败: ${detail}（${waited}首字节 ${String(
-    Math.round(XIANGWO_FIRST_BYTE_TIMEOUT_MS / 1000)
-  )} 秒等不到，${retried}）`;
+  // [XG-CUSTOM 2026-10-15] ⛔ 这里原来**无条件**拼「首字节 20 秒等不到」—— 它把
+  //   `NETWORK_FAILURE_PATTERN`（连接压根没建立）那一整路也说成了"首字节超时"。
+  //   真机当晚我照着这句话查了半小时：文案说"首字节 20 秒等不到"，可"已等待 13 秒"
+  //   **根本对不上**（真首字节超时要 3×20s+7s≈67 秒）；真相是后端在重启、连接被拒。
+  //   ⇒ **判据与文案必须一一对应**：只有 `firstByteTimeout === true` 才说"首字节等不到"。
+  const why =
+    record.firstByteTimeout === true
+      ? `首字节 ${String(Math.round(XIANGWO_FIRST_BYTE_TIMEOUT_MS / 1000))} 秒等不到`
+      : '连接就没建立起来（后端没在听/正在重启）';
+  return `调用失败: ${detail}（${waited}${why}，${retried}）`;
 }
 
 export type StreamXiangwoChatOptions = {

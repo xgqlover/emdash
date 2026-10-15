@@ -605,6 +605,29 @@ describe('[XG-CUSTOM] streamXiangwoChat 耐心（首字节 / 流内空闲）', (
     expect(text).not.toContain('Failed to fetch');
   });
 
+  // [XG-CUSTOM 2026-10-15] **文案不许把两路原因合并成一路**：连接压根没建立时，
+  // 说「首字节 20 秒等不到」会把排查带偏（真机当晚就是这样，害我照"超时"查了半小时）。
+  it('连接直接失败（后端没在听）→ 文案必须说"连接没建立"，不许说"首字节 20 秒等不到"', async () => {
+    const failing = () => Promise.reject(new TypeError('Failed to fetch'));
+    const pending = streamXiangwoChat({
+      url: 'http://h/v1/chat/completions',
+      body: {},
+      fetchImpl: failing as unknown as typeof fetch,
+      sleep: async () => {},
+      retryDelaysMs: [1, 2],
+    });
+    const cause = await pending.then(
+      () => null,
+      (error: unknown) => error
+    );
+    expect(cause).toBeInstanceOf(XiangwoStreamFailure);
+    const text = streamFailureText(cause);
+    expect(text).toContain('连不上后端（8900）');
+    expect(text).toContain('连接就没建立起来');
+    expect(text).not.toContain('首字节 20 秒等不到');
+    expect(text).toContain('重试 2 次也没连上');
+  });
+
   it('收到过字节后长空闲（空闲阈值内）→ 不判失败、提示"已等待 N 秒"', async () => {
     const stream = fakeStreamResponse();
     const { fetchImpl } = fakeFetch([() => stream.response]);
