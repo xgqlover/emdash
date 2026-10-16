@@ -2476,6 +2476,39 @@ async function main() {
   }
 
   /** 拖拽文件到面板：图片走发图、其它走发文件（dragover 必须 preventDefault，否则浏览器不认 drop） */
+  /**
+   * [XG-CUSTOM 2026-10-16] 「回到底部」钮 —— **照 DSH 聊天窗那一个的不变量**：
+   *  · 只在**不在底部**时出现；"在底部"的判定与 DSH 一致：`scrollHeight - scrollTop - clientHeight <= 25`；
+   *  · 点击**瞬时**回到底（DSH 也是 `el.scrollTop = el.scrollHeight`，不是 smooth）；
+   *  · 内容还在流式增长 ⇒ 用 MutationObserver 重算（否则"正在流"时按钮状态是旧的）。
+   * ⚠️ **不动既有的自动贴底逻辑**（`transcript.scrollTop = scrollHeight` 那几处），只在旁边加。
+   */
+  function wireToBottom() {
+    const transcript = document.getElementById('transcript');
+    const btn = document.getElementById('to-bottom');
+    if (transcript === null || btn === null) return;
+    const NEAR = 25; /* 与 DSH 同阈值（它的 syncActiveTurn / landOnRow 都用 25） */
+    const sync = () => {
+      const away = transcript.scrollHeight - transcript.scrollTop - transcript.clientHeight > NEAR;
+      if (away === btn.hidden) btn.hidden = !away;
+    };
+    transcript.addEventListener('scroll', sync, { passive: true });
+    try {
+      new MutationObserver(sync).observe(transcript, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+      });
+    } catch {
+      /* 观察不到就退化：只在 scroll 时更新 */
+    }
+    btn.addEventListener('click', () => {
+      transcript.scrollTop = transcript.scrollHeight; /* 瞬时，与 DSH 一致 */
+      btn.hidden = true;
+    });
+    sync();
+  }
+
   function wireDropTarget() {
     if (panel === null) return;
     panel.addEventListener('dragover', (event) => {
@@ -3179,6 +3212,7 @@ async function main() {
   }
   if (selectionToolbarEnabled) wireSelectionBar();
   wireDropTarget();
+  wireToBottom();
   // [XG-CUSTOM] 上游这里用 backend.subscribe 等 dsh 就绪；我们的 8900 通道是直连，
   // 只在启动时确认一次后端状态，失败也不卡 UI（发消息时会自然报错）。
   try {

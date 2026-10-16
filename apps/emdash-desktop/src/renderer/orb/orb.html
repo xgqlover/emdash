@@ -93,6 +93,22 @@
       <!-- [XG-CUSTOM 2026-10-12] 待发图片条：发图**不再立刻发出去** —— 图先停在这里（缩略图 + ✕ 移除），
            用户在输入框打完字后按回车/发送，**文字跟图一起发**（见 orb.js 的 renderAttachments / planSend） -->
       <div id="attachments" hidden></div>
+      <!-- [XG-CUSTOM 2026-10-16] 「**回到底部**」圆钮 —— 照 **DSH 聊天窗**那一个做（用户指着它问"球侧怎么没有"）。
+           口径全部对齐 DSH：**只在"不在底部"时出现**（阈值 25px，见 orb.js wireToBottom）、
+           34px 圆钮、下箭头、点击**瞬时**回到底、`aria-label="回到底部"`。
+           DSH 原文：`@deepseek-ai/dsh-client-ui-chat/lib/client.js` 的 `chat.toBottom` / `.toBottomSlot`。 -->
+      <button id="to-bottom" type="button" hidden title="回到底部" aria-label="回到底部">
+        <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+          <path
+            d="M8 3.5v8M4.5 8 8 11.5 11.5 8"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ></path>
+        </svg>
+      </button>
       <form id="composer">
         <label id="input-label" for="prompt"></label>
         <div

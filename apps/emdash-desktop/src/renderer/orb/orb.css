@@ -641,6 +641,63 @@ body.running #attachments {
   visibility: hidden;
 }
 
+/* [XG-CUSTOM 2026-10-16] 「回到底部」圆钮 —— **照 DSH 聊天窗那一个**（用户指着它问"球侧怎么没有"）。
+ * 抄的是它的**不变量**，不是像素：34px 圆钮 / 下箭头 / 只在离开底部时出现 / 点击瞬时回到底 /
+ * 位置避开输入框（`--composer-height` 就是球的"输入框高度"，DSH 那边是 `--dsh-composer-height`）。
+ * 球这边 `#panel` 自己不滚（只有 #transcript 滚）⇒ 绝对定位挂在 #panel 上，
+ * 等价于 DSH 的 `position:sticky; height:0; margin-top:-34px`（视觉一致，且不用跟 flex gap 打架）。 */
+#to-bottom {
+  position: absolute;
+  z-index: 3;
+  right: 26px;
+  box-sizing: border-box;
+  width: 34px; /* DSH: 34px */
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0; /* DSH: border:0 */
+  border-radius: 100px;
+  background: var(--white); /* 白底（用户口径："白色按钮"；DSH 用 button-floating-fill） */
+  color: var(--black);
+  box-shadow: 0 2px 10px rgba(17, 17, 17, 0.22);
+  cursor: pointer;
+  transition:
+    background 120ms ease-out,
+    transform 120ms ease-out;
+}
+
+#to-bottom[hidden] {
+  display: none;
+}
+
+#to-bottom:hover {
+  background: var(--input-bg);
+}
+
+#to-bottom:active {
+  transform: scale(0.94);
+}
+
+#to-bottom svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* 避开输入框：DSH 是 composer-height + 16px，这里用同一个变量 */
+body.expand-up #to-bottom {
+  bottom: calc(var(--composer-height) + 16px);
+}
+
+body.expand-down #to-bottom {
+  top: calc(var(--composer-height) + 16px);
+}
+
+body.running #to-bottom {
+  visibility: hidden;
+}
+
 #attachments .attachment {
   position: relative;
   width: 44px;
