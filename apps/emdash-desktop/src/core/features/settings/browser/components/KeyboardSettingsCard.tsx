@@ -149,6 +149,7 @@ const KeyboardSettingsCard: React.FC = observer(function KeyboardSettingsCard() 
                             onClick={recorder.cancelRecording}
                             disabled={saving}
                           >
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                             {t('press_keys')}
                           </Button>
                           <Button
@@ -158,6 +159,7 @@ const KeyboardSettingsCard: React.FC = observer(function KeyboardSettingsCard() 
                             onClick={recorder.cancelRecording}
                             disabled={saving}
                           >
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                             {t('cancel')}
                           </Button>
                         </>
@@ -188,6 +190,7 @@ const KeyboardSettingsCard: React.FC = observer(function KeyboardSettingsCard() 
                                         <RotateCcw className="h-3.5 w-3.5" />
                                       </Button>
                                     </Tooltip.Trigger>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                                     <Tooltip.Content side="top">{t('reset_to_default')}</Tooltip.Content>
                                   </Tooltip.Root>
                                 )}
@@ -213,6 +216,7 @@ const KeyboardSettingsCard: React.FC = observer(function KeyboardSettingsCard() 
                                         <X className="h-3.5 w-3.5" />
                                       </Button>
                                     </Tooltip.Trigger>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                                     <Tooltip.Content side="top">{t('remove_shortcut')}</Tooltip.Content>
                                   </Tooltip.Root>
                                 )}

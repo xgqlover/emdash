@@ -44,11 +44,13 @@ export const RenameProjectModal = observer(function RenameProjectModal({
   return (
     <>
       <Dialog.Header showCloseButton={false}>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
         <Dialog.Title>{t('rename_project')}</Dialog.Title>
       </Dialog.Header>
       <Dialog.Body className="pt-0">
         <Field.Group>
           <Field.Root>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
             <Field.Label>{t('project_name')}</Field.Label>
             <Input
               value={name}

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { stopReasonSchema } from '#runtimes/acp/api/models/stop-reason';
 import { transcriptMessageSchema, transcriptNotificationSchema } from './messages';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { transcriptResourceLinkSchema } from './resource-links';
 import { transcriptThinkingSchema } from './thinking';
 import { toolNodeSchema } from './tool-calls';

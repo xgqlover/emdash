@@ -39,6 +39,7 @@ export function NewWorktreePanel({
             <Combobox.Trigger className="flex w-full items-center justify-between gap-2 rounded-lg border border-border px-2.5 py-2 outline-none hover:bg-background-2 data-popup-open:bg-background-1">
               <div className="flex flex-col gap-1 text-left text-sm">
                 <span className="text-xs text-foreground-passive">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                   {createBranchAndWorktree ? t('from_branch') : t('branch')}
                 </span>
                 <span className="flex items-center gap-1">

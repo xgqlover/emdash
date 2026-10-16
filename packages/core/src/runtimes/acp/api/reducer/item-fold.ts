@@ -26,6 +26,7 @@ import type {
   ToolNode,
   ToolStatus,
 } from '../models/turns';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { makeDiffId, makePlanId, makeResourceLinkId, makeToolId } from './ids';
 import type {
   NormalizedDiff,

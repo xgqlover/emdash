@@ -45,6 +45,7 @@ export const PrRow = memo(function PrRow({
                   <ExternalLink className="size-3.5" />
                 </Button>
               </Tooltip.Trigger>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
               <Tooltip.Content>{t('open_pr_on_github')}</Tooltip.Content>
             </Tooltip.Root>
           </div>

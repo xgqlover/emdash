@@ -1,5 +1,6 @@
 import { app, dialog } from 'electron';
 import { configureChromiumCommandLine } from '@main/host/chromium-command-line';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { log } from '@main/lib/logger';
 
 // Packaged Electron does not set NODE_ENV, so environment-keyed defaults (such

@@ -75,10 +75,12 @@ export function ResourceLink(props: ResourceLinkProps) {
     const name = props.item.name;
     return resolveFileIconClass(name) ?? null;
   };
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   const secondary = () => secondaryLabel(props.item.uri, resolvedTarget());
   const isClickable = () => resolvedTarget().kind !== 'opaque';
 
   const handleClick = () => {
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
     const target = resolvedTarget();
     if (target.kind === 'workspace-file') {
       commands().onOpenFile?.({

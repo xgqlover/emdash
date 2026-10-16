@@ -9,6 +9,7 @@ import { PromptLibraryView } from '../browser/prompts/prompt-library-view';
 
 export const promptsSettingsPage = defineSettingsPageContribution({
   id: 'prompts',
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   label: t('prompts'),
   icon: 'message-square-text',
   component: PromptLibraryView,

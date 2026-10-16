@@ -39,6 +39,7 @@ import { createAutomationRunExecutor } from './runs/executor';
 import { AutomationRunTransitions, type OnRunChanged } from './runs/transitions';
 import { validateAutomationSchedule } from './scheduling/cron';
 import { AutomationScheduler } from './scheduling/scheduler';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { parseWebhookFilter } from './scheduling/webhook-filter';
 import { withWebhookPrompt } from './scheduling/webhook-prompt';
 import { AutomationWebhookServer, type WebhookTarget } from './webhook-server';

@@ -15,6 +15,7 @@ export const DiffToolbar = observer(function DiffToolbar({ tab }: DiffToolbarPro
   const canPreview = tab.renderer.kind === 'text' && tab.renderer.previewKind !== undefined;
 
   const diffSourceLabel = (() => {
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
     if (tab.diffGroup === 'staged') return t('staged');
     if (tab.diffGroup === 'disk') return t('changed');
     if (tab.diffGroup === 'pr') return 'PR';

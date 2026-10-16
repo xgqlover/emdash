@@ -116,6 +116,7 @@ export const CreateTaskModal = observer(function CreateTaskModal({
   return (
     <>
       <Dialog.Header className="flex items-center gap-2">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
         <Dialog.Title>{t('create_task')}</Dialog.Title>
       </Dialog.Header>
       <Dialog.Body>
@@ -145,11 +146,13 @@ export const CreateTaskModal = observer(function CreateTaskModal({
               tabs={[
                 {
                   value: 'conversation',
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
                   label: t('initial_conversation'),
                   content: <ConversationField />,
                 },
                 {
                   value: 'workspace',
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
                   label: t('workspace_settings'),
                   content: <WorkspaceSettingsSection defaultOpen={false} />,
                 },
@@ -169,6 +172,7 @@ export const CreateTaskModal = observer(function CreateTaskModal({
           title={createDisabledReason}
           aria-label={createDisabledReason ? `${t('create')}. ${createDisabledReason}` : t('create')}
         >
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
           {t('create')}
         </ConfirmButton>
       </Dialog.Footer>

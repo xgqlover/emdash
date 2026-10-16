@@ -1,5 +1,6 @@
 import { app } from 'electron';
 import devIcon from '@/assets/images/emdash/emdash-dev.png?asset';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { configureDohHostResolver } from '@main/host/chromium-doh';
 import { initializeFileLogger, registerProcessErrorLogging } from '@main/host/file-logger';
 import { registerAppScheme } from '@main/host/protocol';

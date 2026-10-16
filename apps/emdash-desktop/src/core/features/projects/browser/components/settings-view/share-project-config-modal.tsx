@@ -123,6 +123,7 @@ export function ShareProjectConfigModal({
   return (
     <>
       <Dialog.Header showCloseButton={false}>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
         <Dialog.Title>{t('share_settings_with_team')}</Dialog.Title>
       </Dialog.Header>
       <Dialog.Body className="pt-0">
@@ -133,6 +134,7 @@ export function ShareProjectConfigModal({
             after pulling.
           </p>
           <Field.Root>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
             <Field.Label>{t('write_to')}</Field.Label>
             <ComboboxPopover
               items={targets}
@@ -175,6 +177,7 @@ export function ShareProjectConfigModal({
           </Field.Root>
 
           <Field.Root>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
             <Field.Label>{t('settings_to_share')}</Field.Label>
             <div className="grid grid-cols-2 gap-2">
               {availableFields.map((field) => (

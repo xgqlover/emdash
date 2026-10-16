@@ -1,3 +1,4 @@
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { app, session, type Session } from 'electron';

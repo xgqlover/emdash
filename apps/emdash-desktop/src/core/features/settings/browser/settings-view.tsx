@@ -4,6 +4,7 @@ import { useCallback, useLayoutEffect, type ReactNode } from 'react';
 import { SettingsPage } from '@core/features/settings/browser/components/SettingsPage';
 import { settingsScope } from '@core/features/settings/contributions/scopes';
 import { settingsViewDef, type SettingsPageTab } from '@core/features/settings/contributions/views';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { Titlebar } from '@core/features/workbench/contributions/browser/Titlebar';
 import { useCurrentViewParams } from '@core/primitives/navigation/browser/navigation-hooks';
 import { getNavigation } from '@core/primitives/navigation/browser/navigation-selectors';
@@ -83,6 +84,7 @@ export function SettingsViewWrapper({
   );
 }
 
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 export function SettingsTitlebar() {
   return (
     <Titlebar

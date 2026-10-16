@@ -56,6 +56,7 @@ function CommentItem({ comment }: { comment: PullRequestConversationItem }) {
           {comment.isResolved && (
             <>
               <span className="shrink-0 text-foreground-passive">/</span>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
               <span className="shrink-0 text-foreground-passive">{t('resolved')}</span>
             </>
           )}
@@ -96,14 +97,17 @@ export function CommentsList({
   const sorted = useMemo(() => [...comments].sort(sortPullRequestConversationItems), [comments]);
 
   if (isLoading && sorted.length === 0) {
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
     return <div className="px-3 py-2 text-xs text-foreground-passive">{t('loading_comments')}</div>;
   }
 
   if (error && sorted.length === 0) {
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
     return <div className="px-3 py-2 text-xs text-foreground-passive">{t('unable_load_comments')}</div>;
   }
 
   if (sorted.length === 0) {
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
     return <div className="px-3 py-2 text-xs text-foreground-passive">{t('no_comments_available')}</div>;
   }
 

@@ -228,6 +228,7 @@ export const CreatePrModal = observer(function CreatePrModal({
               className="min-h-[58px] w-full"
               renderTrigger={(selected) => (
                 <div className="flex flex-col gap-0.5 text-left text-sm">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                   <span className="text-xs text-foreground-passive">{t('target')}</span>
                   <span className="flex items-center gap-1">
                     <GitPullRequest
@@ -253,6 +254,7 @@ export const CreatePrModal = observer(function CreatePrModal({
             trigger={
               <Combobox.Trigger className="flex w-full items-center justify-between gap-2 rounded-md border border-border p-2 text-left outline-none">
                 <div className="flex flex-col gap-0.5 text-left text-sm">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                   <span className="text-xs text-foreground-passive">{t('base_branch')}</span>
                   <span className="flex items-center gap-1">
                     <GitBranch
@@ -260,6 +262,7 @@ export const CreatePrModal = observer(function CreatePrModal({
                       strokeWidth={2}
                       className="size-3.5 shrink-0 text-foreground-muted"
                     />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                     <Combobox.Value placeholder={t('select_base_branch')} />
                   </span>
                 </div>
@@ -271,6 +274,7 @@ export const CreatePrModal = observer(function CreatePrModal({
         <Separator />
         <Field.Group>
           <Field.Root>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
             <Field.Label>{t('title_label')}</Field.Label>
             <Input
               placeholder={t('pr_title_placeholder')}
@@ -281,6 +285,7 @@ export const CreatePrModal = observer(function CreatePrModal({
             />
           </Field.Root>
           <Field.Root>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
             <Field.Label>{t('description_placeholder')}</Field.Label>
             <Textarea
               value={description}
@@ -312,6 +317,7 @@ export const CreatePrModal = observer(function CreatePrModal({
         ) : null}
         {error && (
           <Alert.Root status="destructive">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
             <Alert.Title>{t('failed_create_pr')}</Alert.Title>
             <Alert.Description>{error}</Alert.Description>
           </Alert.Root>
@@ -331,6 +337,7 @@ export const CreatePrModal = observer(function CreatePrModal({
               },
               {
                 id: 'create-only',
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
                 label: draft ? t('create_draft') : t('create_pr'),
                 description: 'Skip push and open a PR from the current remote state',
               },
@@ -353,6 +360,7 @@ export const CreatePrModal = observer(function CreatePrModal({
               identityBlocked
             }
           >
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
             {isCreating ? t('creating') : draft ? t('create_draft') : t('create_pr')}
           </ConfirmButton>
         )}

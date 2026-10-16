@@ -1,6 +1,8 @@
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { readFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { err, ok, type Result } from '@emdash/shared';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import type { Logger } from '@emdash/shared/logger';
 import {
   generateSkillMd,
@@ -12,6 +14,7 @@ import type { AgentConfigSkillsError } from '#runtimes/agent-config/api';
 import type { AgentConfigSkillsModel } from '#runtimes/agent-config/node/state/live-models';
 import { publishLiveModelState } from '#runtimes/agent-config/node/state/live-models';
 import type { PluginFs } from '#services/agent-plugins/api/plugins';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { createLocalPluginFs } from '#services/agent-plugins/api/plugins/helpers';
 import type { AgentConfigRuntimeDeps } from './types';
 
@@ -73,6 +76,7 @@ export class AgentSkillsManager {
   }
 
   async refresh(): Promise<CatalogSkill[]> {
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
     const installed = await getInstalledSkills(
       this.deps.agentHost.fs,
       this.deps.agentHost.homeDir,
@@ -249,6 +253,7 @@ async function collectFromRoot(
       installId: entry,
       displayName: parsed.frontmatter.name || entry,
       description: parsed.frontmatter.description || '',
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
       source: external ? 'central' : record ? 'skillssh' : 'local',
       sourceRef: record?.sourceRef ?? originRef,
       catalogSkillId: record?.catalogSkillId,
@@ -256,6 +261,7 @@ async function collectFromRoot(
       skillMdContent: content,
       frontmatter: parsed.frontmatter,
       installed: true,
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
       readOnly: external || undefined,
       localPath: `${root}/${dir}/${entry}`,
     });

@@ -1,3 +1,4 @@
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { configureDohCommandLine } from './chromium-doh';
 import { LIBSECRET_PASSWORD_STORE, shouldForceLibsecretBackend } from './linux-secret-storage';
 

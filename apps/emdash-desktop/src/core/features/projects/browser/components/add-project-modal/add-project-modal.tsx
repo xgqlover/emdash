@@ -274,6 +274,7 @@ export const AddProjectModal = observer(function AddProjectModal({
     <ModalLayout
       header={
         <Dialog.Header showCloseButton={submitState === 'idle'}>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
           <Dialog.Title>{t('add_project')}</Dialog.Title>
         </Dialog.Header>
       }

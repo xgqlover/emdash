@@ -50,6 +50,7 @@ const RepositorySettingsCard: React.FC = () => {
             />
           </div>
           <div className="text-xs text-foreground-passive">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
             {t('branch_prefix_empty')}
           </div>
         </div>

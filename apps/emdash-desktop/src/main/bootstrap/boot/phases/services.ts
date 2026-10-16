@@ -8,6 +8,7 @@ import { integrationPluginRegistry } from '@emdash/plugins/integrations';
 import { err, ok } from '@emdash/shared';
 import { runWithTimeout } from '@emdash/shared/scheduling';
 import { peek } from '@emdash/wire/state';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { desc } from 'drizzle-orm';
 import { app, powerMonitor } from 'electron';
 import { providerTokenRegistry } from '@core/features/account/api/node/provider-token-registry';
@@ -61,6 +62,7 @@ import {
 import { LocalSettingsSync } from '@core/features/machines/node/local-settings-sync';
 import { previewServerService } from '@core/features/preview-servers/api/node/preview-server-service-instance';
 import { PreviewServerAccessService } from '@core/features/preview-servers/node/preview-server-access-service';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { previewServerUrl } from '@core/primitives/preview-servers/api';
 import type { ProjectAttachmentManager } from '@core/features/projects/api/node/project-attachment-manager';
 import { projectEvents } from '@core/features/projects/api/node/project-events';
@@ -102,6 +104,7 @@ import { startPeriodicSweep } from '@core/primitives/periodic-sweep/node/periodi
 import { DEFAULT_AGENT_GIT_CREDENTIALS } from '@core/primitives/project-settings/api';
 import type { HostReachabilityProbe } from '@core/primitives/ssh/api';
 import { AppDbKeyValueStore } from '@core/services/app-db/node/key-value-store';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { sshConnections } from '@core/services/app-db/node/schema';
 import { createNotificationService } from '@core/services/notifications/node';
 import { LegacyAccountImports } from '@core/services/provider-accounts/node/migrations/legacy-account-imports';
@@ -944,6 +947,7 @@ export async function bootServices(
     issueProviders,
     notifications: notificationService,
     previewServerAccess,
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
     forwardManualPreview,
     resolveToolWindowUrl,
     promptLibrary: promptLibraryService,

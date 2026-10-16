@@ -45,6 +45,7 @@ export function ShareableSettingTitle({
             {isPersonal ? (
               <Tooltip.Root>
                 <Tooltip.Trigger className="inline-flex h-4.5 items-center">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                   <Badge variant="outline">{t('personal')}</Badge>
                 </Tooltip.Trigger>
                 <Tooltip.Content side="top" align="end" className="max-w-sm">

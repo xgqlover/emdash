@@ -103,6 +103,7 @@ export function MergeFooter({
             checked={bypassRequirements}
             onCheckedChange={(checked) => onBypassRequirementsChange(Boolean(checked))}
           />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
           <span>{t('merge_bypass_rules')}</span>
         </label>
       )}

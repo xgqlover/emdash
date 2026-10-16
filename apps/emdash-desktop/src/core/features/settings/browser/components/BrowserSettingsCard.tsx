@@ -10,6 +10,7 @@ import {
   toast,
 } from '@emdash/ui/react/primitives';
 import { Check, ChevronDown, Ellipsis, Eraser, Pencil, Plus, Trash2, X } from 'lucide-react';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { useEffect, useRef, useState } from 'react';
 import { browserControlsRegistry } from '@core/features/browser/api/browser/browser-controls-registry';
 import { browserSessionStore } from '@core/features/browser/api/browser/browser-session-store';
@@ -232,6 +233,7 @@ export function BrowserSettingsCard() {
         </SeparatedList>
       </SettingsCard>
 
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
       <SettingsSection title={t('browser_profiles')} bare>
         <SettingsCard>
           <div className="text-xs text-foreground-passive">
@@ -349,10 +351,12 @@ export function BrowserSettingsCard() {
                       >
                         <DropdownMenu.Item onClick={() => setEditingProfileId(profile.id)}>
                           <Pencil className="size-4" />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                           {t('rename')}
                         </DropdownMenu.Item>
                         <DropdownMenu.Item onClick={() => clearProfileStorage(profile)}>
                           <Eraser className="size-4" />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                           {t('clear_storage')}
                         </DropdownMenu.Item>
                         <DropdownMenu.Separator />
@@ -362,6 +366,7 @@ export function BrowserSettingsCard() {
                           onClick={() => deleteProfile(profile)}
                         >
                           <Trash2 className="size-4" />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                           {t('delete')}
                         </DropdownMenu.Item>
                       </DropdownMenu.Content>

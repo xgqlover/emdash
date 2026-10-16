@@ -70,6 +70,7 @@ export function WorkspaceSettingsSection({ defaultOpen = true }: WorkspaceSettin
             )}
           >
             <span className="flex items-center gap-2">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
               <span className="text-foreground-muted">{t('settings')}</span>
               <ChevronRight className="ml-auto size-3.5 shrink-0 text-foreground-passive transition-transform duration-150 group-data-open:rotate-90" />
             </span>
@@ -80,6 +81,7 @@ export function WorkspaceSettingsSection({ defaultOpen = true }: WorkspaceSettin
               onValueChange={(v) => setCreateBranchAndWorktree(v === 'create')}
             >
               <Tabs.List>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                 <Tabs.Tab value="checkout">{t('checkout_branch')}</Tabs.Tab>
                 <Tabs.Tab value="create">{t('create_new_branch')}</Tabs.Tab>
               </Tabs.List>

@@ -104,6 +104,7 @@ export const UnstagedSectionBody = observer(function UnstagedSectionBody() {
     const paths = [...changesView.unstagedSelection];
     void (async () => {
       const outcome = await openConfirmActionModal({
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
         title: t('discard_files_changes'),
         variant: 'destructive',
         description:
@@ -123,6 +124,7 @@ export const UnstagedSectionBody = observer(function UnstagedSectionBody() {
   const handleDiscardAll = () => {
     void (async () => {
       const outcome = await openConfirmActionModal({
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
         title: t('discard_all_changes'),
         variant: 'destructive',
         description: 'Are you sure you want to discard all changes? This can not be undone.',
@@ -173,6 +175,7 @@ export const UnstagedSectionBody = observer(function UnstagedSectionBody() {
                 className="text-foreground-destructive"
               >
                 <Undo2 className="size-3" />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                 {t('discard')}
               </Button>
               <Button
@@ -182,6 +185,7 @@ export const UnstagedSectionBody = observer(function UnstagedSectionBody() {
                 title={t('stage_selected_files')}
               >
                 <Plus className="size-3" />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                 {t('stage')}
               </Button>
             </>
@@ -197,6 +201,7 @@ export const UnstagedSectionBody = observer(function UnstagedSectionBody() {
                 className="text-foreground-destructive"
               >
                 <Undo2 className="size-3" />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                 {t('discard_all')}
               </Button>
               <Button
@@ -207,6 +212,7 @@ export const UnstagedSectionBody = observer(function UnstagedSectionBody() {
                 title={t('stage_all_changes')}
               >
                 <Plus className="size-3" />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                 {t('stage_all')}
               </Button>
             </>

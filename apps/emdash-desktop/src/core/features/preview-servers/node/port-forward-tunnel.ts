@@ -87,6 +87,7 @@ export async function openPortForwardTunnel(
         options.preferredLocalPort !== undefined &&
         isLocalBindUnavailable(error)
       ) {
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
         const fallback = await bindTunnel(ownedOptions, 0, dialOrder, scope);
         log.warn('PortForwardTunnel: preferred local port unavailable; using an OS-selected port', {
           remotePort: options.remotePort,

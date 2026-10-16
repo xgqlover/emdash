@@ -11,6 +11,7 @@ export function RepositorySettingsPage() {
         title={t('repository')}
         description={t('repository_desc')}
       />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
       <SettingsSection title={t('branches')} bare>
         <RepositorySettingsCard />
       </SettingsSection>

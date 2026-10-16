@@ -5,6 +5,7 @@ import { Clock, FolderInput, Inbox, MessageSquareShare, Settings, Users } from '
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { automationsViewDef } from '@core/features/automations/contributions/views';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { handoffViewDef } from '@core/features/handoff/contributions/views';
 import { expertRosterViewDef } from '@core/features/expert-roster/contributions/views';
 import { settingsViewDef } from '@core/features/settings/contributions/views';
@@ -93,6 +94,7 @@ export const LeftSidebar: React.FC = observer(function LeftSidebar() {
       {isDragOver && (
         <div className="pointer-events-none absolute inset-0 z-50 flex flex-col items-center justify-center gap-2 bg-background-tertiary/80 backdrop-blur-sm">
           <FolderInput className="size-8 text-foreground" />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
           <span className="text-xs font-medium text-foreground">{t('drop_to_add_project')}</span>
         </div>
       )}
@@ -121,6 +123,7 @@ export const LeftSidebar: React.FC = observer(function LeftSidebar() {
         <SidebarFooter>
           <SidebarMenu>
             <SidebarSearchTrigger />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
             <SidebarMenuButton
               isActive={isCurrentView(currentView, 'handoff')}
               onClick={() => navigate(handoffViewDef())}
@@ -151,6 +154,7 @@ export const LeftSidebar: React.FC = observer(function LeftSidebar() {
             >
               <span className="flex min-w-0 items-center gap-2">
                 <Clock className="h-5 w-5 shrink-0 sm:h-4 sm:w-4" />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                 <span className="truncate">{t('automations')}</span>
               </span>
             </SidebarMenuButton>
@@ -162,6 +166,7 @@ export const LeftSidebar: React.FC = observer(function LeftSidebar() {
             >
               <span className="flex items-center gap-2">
                 <Settings className="h-5 w-5 sm:h-4 sm:w-4" />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                 {t('settings')}
               </span>
               <BoundShortcut command="app.settings" variant="keycaps" />
@@ -178,6 +183,7 @@ export const LeftSidebar: React.FC = observer(function LeftSidebar() {
             onClick={() => void openFeedbackModal({})}
           >
             <MessageSquareShare className="size-4 shrink-0" />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
             <span className="truncate">{t('give_feedback')}</span>
           </button>
           <UpdateSection />

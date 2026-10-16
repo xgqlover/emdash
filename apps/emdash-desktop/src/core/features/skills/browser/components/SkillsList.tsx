@@ -67,6 +67,7 @@ export const SkillsList: React.FC<SkillsListProps> = ({ skills, onOpenTerminal }
   return (
     <div className="flex flex-col text-foreground">
       <div className="flex flex-col gap-8 pt-3 pb-8">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
         {groupedExternal.map(([title, list]) => (
           <CardGridSection key={title} title={title}>
             {list.map((skill) => (

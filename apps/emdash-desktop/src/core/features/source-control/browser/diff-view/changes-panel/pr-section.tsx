@@ -30,6 +30,7 @@ import { useChangesViewMode } from './hooks/use-changes-view-mode';
 import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 const BRANCH_COMMITS_EMPTY_STATE = {
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   label: t('no_commits'),
   description: 'No commits ahead of the base branch.',
 };
@@ -85,6 +86,7 @@ function usePullRequestsSectionModel() {
     currentPr,
     branchCommitRange,
     showBranchCommits,
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
     sectionLabel: showBranchCommits ? t('branch_commits') : t('pull_requests'),
     sectionCount: showBranchCommits ? (branchCommitCount ?? 0) : pullRequests.length,
   };
@@ -248,6 +250,7 @@ export const PullRequestsSectionHeader = observer(function PullRequestsSectionHe
                 </Button>
               }
             />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
             <Tooltip.Content>{hostActionReason ?? t('refresh_pull_requests')}</Tooltip.Content>
           </Tooltip.Root>
         </>

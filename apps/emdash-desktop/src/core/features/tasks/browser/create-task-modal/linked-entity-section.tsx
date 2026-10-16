@@ -27,6 +27,7 @@ export function LinkedEntitySection({
       <div
         className={`flex w-full items-center justify-between gap-2 px-2 py-1 ${state.linkedType ? 'border-b' : ''}`}
       >
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
         <span className="shrink-0 text-sm text-foreground-muted">{t('based_on')}</span>
         <ToggleGroup.Root
           className="bg-transparent"
@@ -36,9 +37,11 @@ export function LinkedEntitySection({
           }}
         >
           <ToggleGroup.Item className="text-xs" value="issue" disabled={!hasAnyIssueIntegration}>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
             {t('issue')}
           </ToggleGroup.Item>
           <ToggleGroup.Item className="text-xs" value="pr" disabled={!hasPrSupport}>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
             {t('pull_request')}
           </ToggleGroup.Item>
         </ToggleGroup.Root>

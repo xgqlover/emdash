@@ -7,6 +7,7 @@ import InterfaceSettingsCard from '../components/InterfaceSettingsCard';
 import KeyboardSettingsCard from '../components/KeyboardSettingsCard';
 import SidebarMetadataSettingsCard from '../components/SidebarMetadataSettingsCard';
 import TerminalSettingsCard from '../components/TerminalSettingsCard';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import ThemeCard from '../components/ThemeCard';
 
 export function InterfaceSettingsPage() {
@@ -17,24 +18,30 @@ export function InterfaceSettingsPage() {
         title={t('interface')}
         description={t('interface_desc')}
       />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
       <SettingsSection title={t('color_mode')} bare>
         <ThemeCard />
       </SettingsSection>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
       <SettingsSection title={t('terminal')} bare>
         <TerminalSettingsCard />
       </SettingsSection>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
       <SettingsSection title={t('files')} bare>
         <FilesSettingsCard />
       </SettingsSection>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
       <SettingsSection title={t('sidebar')} bare>
         <SidebarMetadataSettingsCard />
       </SettingsSection>
       <SettingsSection bare>
         <InterfaceSettingsCard />
       </SettingsSection>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
       <SettingsSection title={t('keyboard_shortcuts')} bare>
         <KeyboardSettingsCard />
       </SettingsSection>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
       <SettingsSection title={t('tools')} bare>
         <HiddenToolsSettingsCard />
       </SettingsSection>

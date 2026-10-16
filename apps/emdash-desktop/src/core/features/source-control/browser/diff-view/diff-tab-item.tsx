@@ -32,6 +32,7 @@ export const DiffTabBarItem = observer(function DiffTabBarItem({
   ctx,
 }: TabBarItemProps<DiffTabResource>) {
   const resource = tab.resource;
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   const fileName = resource.path.split('/').pop() ?? t('untitled');
   const suffix = diffGroupSuffix(resource.diffGroup);
 
@@ -66,6 +67,7 @@ export const DiffTabBarItem = observer(function DiffTabBarItem({
 
 export function DiffTabBarItemDragPreview({ tab }: { tab: ResolvedTab<DiffTabResource> }) {
   const resource = tab.resource;
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   const fileName = resource.path.split('/').pop() ?? t('untitled');
   const suffix = diffGroupSuffix(resource.diffGroup);
   return (

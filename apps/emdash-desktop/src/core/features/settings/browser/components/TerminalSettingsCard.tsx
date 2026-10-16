@@ -241,6 +241,7 @@ const TerminalSettingsCard: React.FC = () => {
                       disabled={loading || saving}
                       className="flex h-9 w-full items-center justify-between rounded-md border border-border bg-transparent px-2.5 py-1 text-left text-sm font-normal outline-none disabled:opacity-50"
                     >
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                       <Combobox.Value placeholder={t('default_font', { font: DEFAULT_FONT_FAMILY })} />
                       <ChevronsUpDownIcon className="ml-2 size-4 shrink-0 text-foreground-muted" />
                     </button>
@@ -281,9 +282,11 @@ const TerminalSettingsCard: React.FC = () => {
                   </Combobox.List>
                   {loadingFonts ? (
                     <div className="px-1 pb-1">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                       <div className="px-2 py-1.5 text-xs text-foreground-muted">{t('installed')}</div>
                       <div className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-foreground-muted">
                         <LoaderCircle className="size-3.5 shrink-0 animate-spin" />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                         <span className="truncate">{t('loading_fonts')}</span>
                       </div>
                     </div>

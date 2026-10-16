@@ -24,11 +24,13 @@ const projectViewItems: readonly PillTab<ProjectView>[] = [
   { value: 'tasks', label: t('tasks'), icon: <ListTodo className="size-3.5" /> },
   {
     value: 'pull-request',
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
     label: t('pull_requests'),
     icon: <GitPullRequest className="size-3.5" />,
   },
   {
     value: 'workspaces',
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
     label: t('workspaces'),
     icon: <PanelsTopLeft className="size-3.5" />,
   },

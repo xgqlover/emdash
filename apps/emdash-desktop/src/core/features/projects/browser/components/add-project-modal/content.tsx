@@ -62,6 +62,7 @@ export function PickExistingPanel({
                 checked={state.initGitRepository}
                 onCheckedChange={state.setinitGitRepository}
               />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
               <Field.Label>{t('initialize_git_repository')}</Field.Label>
             </Field.Root>
             <p className="mt-1.5 text-xs text-foreground-muted">
@@ -129,6 +130,7 @@ export function CreateRepositoryPanel({
           </Field.Root>
           <span className="pb-2 text-sm text-foreground-muted">/</span>
           <Field.Root className="min-w-0">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
             <Field.Label htmlFor={repositoryNameId}>{t('repository_name')}</Field.Label>
             <Input
               id={repositoryNameId}

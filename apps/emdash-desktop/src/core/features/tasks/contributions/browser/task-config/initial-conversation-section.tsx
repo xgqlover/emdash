@@ -384,6 +384,7 @@ export function InitialConversationField({
           description: promptPreview(prompt.prompt),
           behavior: 'insert-text' as const,
           insertText: prompt.prompt,
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
           section: t('prompts'),
         }));
     },
@@ -438,6 +439,7 @@ export function InitialConversationField({
               onCheckedChange={state.setAutoApprove}
               disabled={!state.provider}
             />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
             <Field.Label htmlFor={autoApproveSwitchId}>{t('auto_approve_permissions')}</Field.Label>
           </div>
         ) : null}

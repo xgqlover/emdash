@@ -46,6 +46,7 @@ export const SidebarSearchTrigger = observer(function SidebarSearchTrigger() {
     >
       <span className="flex min-w-0 items-center gap-2">
         <Search className="h-5 w-5 shrink-0 sm:h-4 sm:w-4" />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
         <span className="truncate">{t('search_ellipsis')}</span>
       </span>
       <BoundShortcut command="app.commandPalette" variant="keycaps" />

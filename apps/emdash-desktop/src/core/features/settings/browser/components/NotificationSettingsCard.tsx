@@ -45,6 +45,7 @@ function PreviewSoundButton({
             </Button>
           }
         />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
         <Tooltip.Content side="top">{t('preview')}</Tooltip.Content>
       </Tooltip.Root>
     </Tooltip.Provider>
@@ -172,6 +173,7 @@ const NotificationSettingsCard: React.FC = () => {
                           >
                             <FolderOpen className="size-3.5 shrink-0" />
                             <span className="truncate">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                               {customSoundPath ? getFileName(customSoundPath) : t('choose_file')}
                             </span>
                           </Button>

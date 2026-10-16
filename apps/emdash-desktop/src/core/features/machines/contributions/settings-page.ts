@@ -24,6 +24,7 @@ function projectBreadcrumbLabel(path: string[]): string | null {
 
 export const systemSettingsPage = defineSettingsPageContribution({
   id: 'system',
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   label: t('system'),
   icon: 'activity',
   component: SystemSettingsPage,
@@ -31,6 +32,7 @@ export const systemSettingsPage = defineSettingsPageContribution({
 
 export const localWorkspacesSettingsPage = defineSettingsPageContribution({
   id: 'workspaces-local',
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   label: t('workspaces_local'),
   icon: 'folder-git-2',
   component: LocalWorkspacesSettingsPage,
@@ -42,6 +44,7 @@ export const localWorkspacesSettingsPage = defineSettingsPageContribution({
 
 export const conversationsSettingsPage = defineSettingsPageContribution({
   id: 'conversations',
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   label: t('conversations'),
   icon: 'message-square',
   component: ConversationsSettingsPage,
@@ -49,6 +52,7 @@ export const conversationsSettingsPage = defineSettingsPageContribution({
 
 export const machinesConnectionsPage = defineSettingsPageContribution({
   id: 'connections',
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   label: t('connections'),
   icon: 'server',
   component: MachinesSettingsPage,

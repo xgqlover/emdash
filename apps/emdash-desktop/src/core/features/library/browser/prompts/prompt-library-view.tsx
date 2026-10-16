@@ -146,6 +146,7 @@ export function PromptLibraryView() {
 
   const deletePrompt = (prompt: PromptLibraryPrompt) => {
     void openConfirm({
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
       title: t('delete_prompt'),
       description: t('delete_prompt_desc', { title: prompt.title }),
       confirmLabel: t('delete'),
@@ -154,6 +155,7 @@ export function PromptLibraryView() {
       updatePromptLibrary(
         promptLibrary.filter((item) => item.id !== prompt.id),
         {
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
           onSuccess: () => toast(t('prompt_deleted')),
         }
       );
@@ -210,8 +212,10 @@ const PromptsToolbar = observer(function PromptsToolbar({
       />
       <CollectionToolbar.Spacer />
       <CollectionToolbar.Group>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
         <Button variant="primary" onClick={onNewPrompt} disabled={disabled} aria-label={t('new_prompt')}>
           <Plus className="size-4" />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
           <span className="[@container(max-width:520px)]:hidden">{t('new_prompt')}</span>
         </Button>
       </CollectionToolbar.Group>
@@ -226,6 +230,7 @@ function PromptsEmptyState({ hasPrompts }: { hasPrompts: boolean }) {
     <div className="flex min-h-48 flex-col items-center justify-center p-8 text-center">
       <LibraryIcon className="mb-3 size-8 text-foreground-passive" />
       <div className="text-sm text-foreground">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
         {hasPrompts ? t('no_prompts_match') : t('no_prompts')}
       </div>
       <p className="mt-1 max-w-sm text-xs text-foreground-passive">

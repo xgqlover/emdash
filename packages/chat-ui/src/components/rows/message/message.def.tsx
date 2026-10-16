@@ -1,3 +1,4 @@
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { useCommands } from '@components/contexts/CommandsContext';
 import { StreamContext, type StreamAnimation } from '@components/contexts/StreamContext';
 import { BlockStackView } from '@components/primitives/BlockStackView';
@@ -11,6 +12,7 @@ import type { SegmentCtx } from '@core/units';
 import { defineUnit } from '@core/units';
 import { pxTokens } from '@styles/px-tokens';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { Show, For, createMemo } from 'solid-js';
 import type { ChatMessage, ChatMessageImage } from '@/model';
 import {
@@ -22,6 +24,7 @@ import {
 } from './assistant-images';
 import { attachStripHeight, type MessageVars, userInnerWidth } from './metrics';
 import { UserMessageCard } from './UserMessageCard';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import {
   imageBadge,
   imageCaption,
@@ -55,6 +58,7 @@ export function messageFromItem(item: ChatMessage, ctx: SegmentCtx): ChatMessage
       : undefined;
   return {
     ...item,
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
     text: parsed.text,
     streaming: ctx.active && item.role === 'assistant',
     attachments: item.attachments?.map((attachment) => ({
@@ -93,6 +97,7 @@ export function measureMessage(item: ChatMessage, ctx: MeasureCtx, vars: Message
   const imagesH =
     item.role === 'assistant' ? assistantImageGridHeight(item.images?.length ?? 0, ctx.width) : 0;
   if (blocks.length === 0) {
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
     if (imagesH > 0) return imagesH + footer;
     return ctx.theme.fonts.body.lineHeight + footer;
   }
@@ -299,6 +304,7 @@ export const messageUnitDef = defineUnit<ChatMessage, MessageVars>({
       const est =
         aH + lines * ctx.theme.fonts.body.lineHeight + 2 * vars.userCardPadY + 2 * vars.cardBorder;
       return Math.min(est, ctx.expandedId === item.id ? vars.expandedMaxH : vars.collapsedMaxH);
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
     }
     const footer = item.role === 'assistant' ? vars.footerH : 0;
     // [XG-CUSTOM 2026-10-09] Keep the estimate shape identical to measure(): an

@@ -166,6 +166,7 @@ const ActiveTaskTitlebar = observer(function ActiveTaskTitlebar({
                   </Popover.Trigger>
                 }
               />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
               <Tooltip.Content>{t('link_to_issue')}</Tooltip.Content>
             </Tooltip.Root>
             <Popover.Content align="start" className="flex w-96 flex-col gap-2 p-4">
@@ -191,10 +192,12 @@ const ActiveTaskTitlebar = observer(function ActiveTaskTitlebar({
                             onClick={() => fetch()}
                           >
                             <RefreshCcw className="size-3" />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                             {isFetching ? t('fetching') : 'Fetch'}
                           </Button>
                         </Tooltip.Trigger>
                         <Tooltip.Content>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                           {isFetching ? t('fetching') : t('fetch_changes')}
                         </Tooltip.Content>
                       </Tooltip.Root>
@@ -266,6 +269,7 @@ const ActiveTaskTitlebar = observer(function ActiveTaskTitlebar({
                           onClick={() => publish()}
                         >
                           <ArrowUp className="size-3" />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                           {isPublishing ? 'Publishing...' : t('publish_branch')}
                         </Button>
                       </Tooltip.Trigger>

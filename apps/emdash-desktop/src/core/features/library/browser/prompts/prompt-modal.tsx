@@ -38,11 +38,13 @@ export function PromptModal({ initialPrompt }: Props) {
   return (
     <>
       <Dialog.Header>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
         <Dialog.Title>{initialPrompt ? t('edit_prompt') : t('new_prompt')}</Dialog.Title>
       </Dialog.Header>
       <Dialog.Body className="gap-4 pt-0">
         <Field.Group>
           <Field.Root>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
             <Field.Label>{t('title')}</Field.Label>
             <Input
               data-autofocus
@@ -52,6 +54,7 @@ export function PromptModal({ initialPrompt }: Props) {
             />
           </Field.Root>
           <Field.Root>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
             <Field.Label>{t('prompt')}</Field.Label>
             <Textarea
               value={form.prompt}

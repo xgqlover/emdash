@@ -8,20 +8,26 @@
   },
   "stats": {
     "files": 322,
-    "markers": 1619,
+    "markers": 1864,
     "newFiles": 130,
     "modifiedFiles": 192
   },
   "files": {
     ".github/workflows/release-prod.yml": {
-      "markers": 1,
+      "markers": 4,
       "lines": [
-        36
+        36,
+        123,
+        131,
+        147
       ],
       "anchors": [
-        "continue-on-error: true ⏎ env:"
+        "continue-on-error: true ⏎ env:",
+        "- name: Build Windows packages ⏎ shell: bash",
+        "ELECTRON_MIRROR: https://npmmirror.com/mirrors/electron/",
+        "run: echo \"Skipping code signature verification (unsigned fork build).\""
       ],
-      "hash": "a466d9228739ad6110a8e03402c9c7462cd90ec5",
+      "hash": "06b7d412f8567ff1ca719610b2ed09093420f1db",
       "origin": "modified",
       "firstCommit": "57c025643|2026-10-09|[XG-CUSTOM 2026-10-09] CI：建草稿前先清旧草稿（占用永久有界，别再攒到把 Actions 顶停）",
       "lastCommit": "88bedf086|2026-09-16|skip code signing for fork unsigned build",
@@ -42,129 +48,131 @@
       "note": "忽略 xg-custom 台账备份文件"
     },
     "apps/emdash-desktop/electron-builder.config.ts": {
-      "markers": 117,
+      "markers": 118,
       "lines": [
         11,
         38,
-        66,
-        75,
-        85,
-        121,
-        123,
-        125,
-        127,
-        129,
-        131,
-        133,
-        135,
-        137,
-        139,
-        141,
-        143,
-        145,
-        147,
-        149,
-        151,
-        153,
-        155,
-        157,
-        159,
-        161,
-        163,
-        165,
-        167,
-        169,
-        171,
-        173,
-        175,
-        177,
-        179,
-        181,
-        183,
-        185,
-        187,
-        189,
-        191,
-        193,
-        195,
-        197,
-        199,
-        201,
-        203,
-        205,
-        207,
-        209,
-        211,
-        213,
-        215,
-        217,
-        219,
-        221,
-        223,
-        225,
-        227,
-        229,
-        231,
-        233,
-        235,
-        237,
-        239,
-        241,
-        243,
-        245,
-        247,
-        249,
-        251,
-        253,
-        255,
-        257,
-        259,
-        261,
-        263,
-        265,
-        267,
-        269,
-        271,
-        273,
-        275,
-        277,
-        279,
-        281,
-        283,
-        285,
-        287,
-        289,
-        291,
-        293,
-        295,
-        297,
-        299,
-        301,
-        303,
-        305,
-        307,
-        309,
-        311,
-        313,
-        315,
-        317,
-        319,
-        321,
-        323,
-        325,
-        327,
-        329,
-        331,
-        333,
-        335,
-        337,
-        406,
-        418,
-        421
+        49,
+        67,
+        76,
+        86,
+        122,
+        124,
+        126,
+        128,
+        130,
+        132,
+        134,
+        136,
+        138,
+        140,
+        142,
+        144,
+        146,
+        148,
+        150,
+        152,
+        154,
+        156,
+        158,
+        160,
+        162,
+        164,
+        166,
+        168,
+        170,
+        172,
+        174,
+        176,
+        178,
+        180,
+        182,
+        184,
+        186,
+        188,
+        190,
+        192,
+        194,
+        196,
+        198,
+        200,
+        202,
+        204,
+        206,
+        208,
+        210,
+        212,
+        214,
+        216,
+        218,
+        220,
+        222,
+        224,
+        226,
+        228,
+        230,
+        232,
+        234,
+        236,
+        238,
+        240,
+        242,
+        244,
+        246,
+        248,
+        250,
+        252,
+        254,
+        256,
+        258,
+        260,
+        262,
+        264,
+        266,
+        268,
+        270,
+        272,
+        274,
+        276,
+        278,
+        280,
+        282,
+        284,
+        286,
+        288,
+        290,
+        292,
+        294,
+        296,
+        298,
+        300,
+        302,
+        304,
+        306,
+        308,
+        310,
+        312,
+        314,
+        316,
+        318,
+        320,
+        322,
+        324,
+        326,
+        328,
+        330,
+        332,
+        334,
+        336,
+        338,
+        407,
+        419,
+        422
       ],
       "anchors": [
         "const _envVersion = (process.env.npm_package_version || '').trim();",
         "const config: Configuration = {",
+        "artifactName: `${_SAFE_PREFIX}-\\${arch}.\\${ext}`,",
         "] 精确收集 emdash-desktop 的直接依赖（electron-builder 在 pnpm workspace 下",
         "2026-10-09] 本机（Linux）打 Windows 包时依赖树遍历**收不到**它，而",
         "2026-10-02] @octokit/rest 的传递依赖（缺 @octokit/core 会导致启动失败：",
@@ -174,7 +182,7 @@
         "electronFuses: {",
         "npmRebuild: false,"
       ],
-      "hash": "bcb2537af93bb8b515b7a4a5acff56886e03e028",
+      "hash": "e4fb6d852523fa2c0fb7419411f22ca82cc0d9a2",
       "origin": "modified",
       "firstCommit": "32fb70f94|2026-09-18|fix: 去掉 win azureSignOptions（fork 无 Azure 凭据，签名卡 6h 超时），打 unsigned 包",
       "lastCommit": "32fb70f94|2026-09-18|fix: 去掉 win azureSignOptions（fork 无 Azure 凭据，签名卡 6h 超时），打 unsigned 包",
@@ -357,16 +365,18 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/automations/browser/components/AutomationDetailView.tsx": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
         1,
-        3
+        3,
+        65
       ],
       "anchors": [
         "import { Button, DropdownMenu, Input, Switch, Tabs, Tooltip } from '@emdash/ui/react/primitives';",
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<SheetHeader title={t('automation_details')} onClose={onClose} />"
       ],
-      "hash": "a7d40130911a8f7c24cf61961a33c8ba6bc3ada0",
+      "hash": "70ede2aeb3f25fb0b0f6ae895784c91ba0c76291",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -389,66 +399,82 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/automations/browser/components/AutomationSettingsFields.tsx": {
-      "markers": 2,
+      "markers": 5,
       "lines": [
-        9,
-        12
+        1,
+        10,
+        13,
+        56,
+        77
       ],
       "anchors": [
+        "import { Field, Input, Label } from '@emdash/ui/react/primitives';",
         "import { t } from '@renderer/lib/i18n';",
-        "interface AutomationSettingsFieldsProps {"
+        "interface AutomationSettingsFieldsProps {",
+        "<Label>Trigger</Label>",
+        "{state.triggerKind === 'cron' ? ( ⏎ <Field.Root>"
       ],
-      "hash": "2ea2eedecb839279e1087e5fa51534d466374d87",
+      "hash": "a1cf35b0952031f3190eef3ef2335ef817e09cba",
       "origin": "modified",
       "firstCommit": "f4503b5b2|2026-10-05|chore(xg-custom): [XG-CUSTOM 2026-10-05] 补 AutomationSettingsFields 的定制标记（模块级）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/automations/browser/components/AutomationTemplatesEmptyState.tsx": {
-      "markers": 2,
+      "markers": 4,
       "lines": [
         1,
-        3
+        3,
+        20,
+        23
       ],
       "anchors": [
         "import { Label } from '@emdash/ui/react/primitives';",
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<Label>{t('start_with_template')}</Label>",
+        "</p>"
       ],
-      "hash": "1e23b207919425d86695da9263df57032ab0cda9",
+      "hash": "30a385dffdeefad0ad4bdc4de8a0e772afd1d4d2",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/automations/browser/components/AutomationsBreadcrumb.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        8
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "</span>"
       ],
-      "hash": "70ff3ce963d65fe805b7c62cae69354cc34ba1c2",
+      "hash": "bdca787379f1f21436a1f196d6472c782af519fe",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/automations/browser/components/AutomationsView.tsx": {
-      "markers": 9,
+      "markers": 11,
       "lines": [
         2,
-        34,
+        9,
+        13,
         36,
-        46,
+        38,
         48,
-        51,
-        63,
-        133,
-        140
+        50,
+        53,
+        65,
+        135,
+        142
       ],
       "anchors": [
         "import { t } from '@renderer/lib/i18n';",
+        "import { Button, Sheet, Tabs, toast } from '@emdash/ui/react/primitives';",
+        "import { useEffect, useState } from 'react';",
         "import { isXgTab, xgTabOf, type XgTab } from './xg-tab';",
         "import { WorkRallyPanel } from './WorkRallyPanel';",
         "const { params, setParams } = useCurrentViewParams(automationsViewDef);",
@@ -456,21 +482,23 @@
         "<Tabs.Root value={tab} onValueChange={(v) => setTab(v as XgTab)}>",
         "<Tabs.Tab value=\"workrally\">WorkRally 出图</Tabs.Tab>"
       ],
-      "hash": "b43f433a87d03bdcc8cc2b06941f29adf0c4056f",
+      "hash": "d6206f5227a3ca2a2eae2ce54648e9290435f67a",
       "origin": "modified",
       "firstCommit": "c7b4f3958|2026-10-08|[XG-CUSTOM 2026-10-08] 「自动化」加 Kaneo 看板 Tab + 修台账漏搜带日期标记",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/automations/browser/components/CreateAutomationView.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        113
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<SheetHeader title={t('create_automation')} onClose={onClose} />"
       ],
-      "hash": "9f5c78bcc63b0b0b2b8ab194039c6c21a43ff678",
+      "hash": "7a1800d1544afb8056b6323a599ec753787fb59d",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -536,16 +564,18 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/automations/browser/components/pickers/UseTemplateButton.tsx": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
         1,
-        3
+        3,
+        30
       ],
       "anchors": [
         "import { DropdownMenu } from '@emdash/ui/react/primitives';",
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<span>{t('use_template')}</span>"
       ],
-      "hash": "4f2323200843877aa665a7dbeef44cd6877285f9",
+      "hash": "89ab801b2ac566a0afa68877cd26c56cda786182",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -580,22 +610,24 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/automations/browser/useAutomationFormState.ts": {
-      "markers": 5,
+      "markers": 6,
       "lines": [
-        98,
-        194,
-        212,
-        268,
-        282
+        26,
+        99,
+        195,
+        213,
+        269,
+        283
       ],
       "anchors": [
+        "import { getLocalTimeZone, validateTriggerConfig } from '@core/primitives/automations/api';",
         "const [triggerKind, setTriggerKind] = useState<'cron' | 'webhook'>(",
         "const triggerConfig: TriggerConfig =",
         "validateTriggerConfig(triggerConfig) === null;",
         "setCronExpr(template.defaultTrigger.expr ?? '');",
         "2026-10-05] 触发源（表单渲染「On schedule / On event」）"
       ],
-      "hash": "53f60bf4a7acb9d8ec47c55febb31a5ab340a787",
+      "hash": "3eb51cfc2291526684f2a2e1b7a8764d04fec0e7",
       "origin": "modified",
       "firstCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
       "lastCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
@@ -630,17 +662,19 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/automations/node/deployment-builder.ts": {
-      "markers": 3,
+      "markers": 4,
       "lines": [
-        183,
-        218,
-        220
+        10,
+        184,
+        219,
+        221
       ],
       "anchors": [
+        "import {",
         "if (isWebhookTrigger(automation.triggerConfig)) {",
         "expr: (automation.triggerConfig.expr ?? '').trim(),"
       ],
-      "hash": "6672b000c80431ffde09dc915673651186e97432",
+      "hash": "61caf866f6e968531e612c3a5abcf1f62a8aaf1b",
       "origin": "modified",
       "firstCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
       "lastCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
@@ -728,59 +762,73 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/browser/browser-pane.tsx": {
-      "markers": 5,
+      "markers": 7,
       "lines": [
-        46,
-        196,
-        256,
-        274,
-        291
+        24,
+        47,
+        197,
+        257,
+        275,
+        281,
+        293
       ],
       "anchors": [
+        "import { createWebviewWebContentsBinder } from './browser-webview-bind';",
         "const navigateRef = useRef<(url: string) => boolean>(() => false);",
         "// [XG-CUSTOM] 2026-10-06 —— 复用开页的导航把手：与地址栏是**同一个** navigateTo。 ⏎ useEffect(() => {",
         "const binder = createWebviewWebContentsBinder({",
         "binder.bind();",
+        "// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json ⏎ return () => {",
         "navigate: (url) => navigateRef.current(url),"
       ],
-      "hash": "58a764221214e8926efbd777d170373a5d695d05",
+      "hash": "8fa4afe1f4d3eb358ad8a1ad7832386e98495418",
       "origin": "modified",
       "firstCommit": "13acb278f|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
       "lastCommit": "13acb278f|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 内嵌浏览器三修 + 球指挥开网页（TASK 1/3/4）",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/browser/browser-session-store.test.ts": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
-        23,
-        25
+        3,
+        24,
+        26
       ],
       "anchors": [
+        "import { resolveBotBrowserProfileId } from '@core/primitives/browser/api';",
         "it('[XG-CUSTOM] two bots open onto different profile partitions', () => { ⏎ const store = new BrowserSessionStore();",
         "it('"
       ],
-      "hash": "03a2a7498c1d156c634007bd90875a629981dda3",
+      "hash": "90912b884c62eea17f20e38a4553fc56c4654263",
       "origin": "modified",
       "firstCommit": "d4d009b8b|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
       "lastCommit": "d4d009b8b|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/browser/browser-tab-provider.tsx": {
-      "markers": 5,
+      "markers": 9,
       "lines": [
-        34,
+        7,
+        13,
+        26,
         37,
-        101,
-        103,
-        118
+        40,
+        104,
+        106,
+        121,
+        132
       ],
       "anchors": [
+        "import {",
+        "import type { TaskTabContext } from '@core/features/workbench/api/browser/tabs/task-tab-context';",
+        "import { resolveOpenProfile } from './ensure-bot-browser-profile';",
         "profileId?: string;",
         "botId?: string;",
         "const resolution = resolveOpenProfile({",
-        "console.warn('"
+        "console.warn('",
+        "profileId: resolution.profileId,"
       ],
-      "hash": "197fc389de399fb0b4c9fec7561816125a29dda0",
+      "hash": "9e3b04e13b8f0267e2ff9cbf3974c6d9179446bc",
       "origin": "modified",
       "firstCommit": "d4d009b8b|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
       "lastCommit": "d4d009b8b|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
@@ -1021,60 +1069,88 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/node/wire-controller.ts": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        17
+        17,
+        39
       ],
       "anchors": [
-        "reportEmbeddedBrowserOpenResult(input: {"
+        "reportEmbeddedBrowserOpenResult(input: {",
+        "reportEmbeddedBrowserOpenResult: (input) =>"
       ],
-      "hash": "89b3de6bf37c6d128755def395d11d6f2a5ed752",
+      "hash": "548b3da8d1dd48bd07ce89beea3c6faa4ab66f9e",
       "origin": "modified",
       "firstCommit": "612cb7b01|2026-10-12|fix(orb): 球点链接/图片卡开内嵌浏览器 —— 失败不再静默（真实回执 + 日志 + 开成后揭示主窗）",
       "lastCommit": "612cb7b01|2026-10-12|fix(orb): 球点链接/图片卡开内嵌浏览器 —— 失败不再静默（真实回执 + 日志 + 开成后揭示主窗）",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/conversations/browser/acp/acp-chat-panel.tsx": {
-      "markers": 17,
+      "markers": 30,
       "lines": [
         17,
         19,
         68,
         72,
-        84,
-        100,
-        278,
-        332,
+        81,
+        85,
+        95,
+        102,
+        203,
+        239,
+        243,
+        283,
         337,
-        512,
-        522,
-        699,
-        815,
-        925,
-        992,
-        1020,
-        1073
+        342,
+        390,
+        444,
+        483,
+        520,
+        530,
+        603,
+        628,
+        709,
+        744,
+        826,
+        936,
+        1003,
+        1031,
+        1084,
+        1114,
+        1122
       ],
       "anchors": [
         "import { XIANGWO_BOTS, XIANGWO_ROLES, XIANGWO_SUBAGENTS } from './xiangwo-experts';",
         "import { projectViewDef } from '@core/features/projects/contributions/views';",
         "import type { ExpertHandoffTopic } from '@core/primitives/desktop-host/api/host-contract';",
         "import { openExternal } from '@core/primitives/desktop-host/browser/host-client';",
+        "import { shouldUseAcpImageAttachment, uploadDroppedFile } from './acp-dropped-file';",
         "import { createTranscriptFileCommands } from './transcript-file-commands';",
+        "const attachmentDataUrlCache = new Map<string, Promise<string | null>>();",
         "const XIANGWO_PROJECT_BY_KEY: Record<string, string> = {};",
+        "const mimeType = toAttachmentMimeType(file);",
+        "function resolveAttachmentDataUrl(store: AcpChatStore, id: string): Promise<string | null> {",
+        "const promise = store",
         "const { navigate } = useNavigate();",
         "const mentionMatch = value.match(/@([a-zA-Z0-9_-]+|[\\u4e00-\\u9fff]+)/);",
         "const isBigBot = XIANGWO_BOTS.some((b) => b.id === token || b.name === token);",
+        "title: '进行中',",
+        "const supportedFiles = files.filter((file) => toAttachmentMimeType(file) !== null);",
+        "const images = files.filter((f) => f.type.startsWith('image/'));",
         "const curProvId =",
         "const q = query.trim();",
+        "const fileItems = files.map((f) => ({",
+        "return [",
         "const curProviderId =",
+        "{disabledReason && ( ⏎ <div",
         "{/* <ExpertHandoffBar bot=\"\" session=\"\" /> */} ⏎ </div>",
         "const handoffHandledRef = useRef<string | null>(null);",
         "const fileCommands = store",
         "classifyLink: fileCommands?.classifyLink,",
-        "<ChatTranscript"
+        "<ChatTranscript",
+        "<span className=\"text-foreground\">聊天不可用</span>",
+        "{agent?.name ?? '此 agent'} 需要你登录。 ⏎ </span>"
       ],
-      "hash": "15b8a730d67e935b545281bf575494420c416d98",
+      "hash": "3356e6407ec85bf6aca5e5faaa0c7bf09675e74e",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1111,16 +1187,18 @@
       "note": "会话/ACP 定制（专家交接横条、专家表）"
     },
     "apps/emdash-desktop/src/core/features/conversations/browser/acp/acp-chat-store.ts": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
         56,
-        514
+        514,
+        665
       ],
       "anchors": [
         "import { enrichResourceLinks } from './resource-link-enrichment';",
-        "const detail = (() => {"
+        "const detail = (() => {",
+        "const applied = this.chatState.transcript.applyPage(enrichResourceLinks(history.data));"
       ],
-      "hash": "e4bdb186e9e24e5dd0abf45c1498a5f21d6a0f11",
+      "hash": "d4ff57eb27bdf99e2765f6082aaf112d73ce1359",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1183,16 +1261,20 @@
       "note": "会话/ACP 定制（专家交接横条、专家表）"
     },
     "apps/emdash-desktop/src/core/features/conversations/browser/create-conversation-modal.tsx": {
-      "markers": 2,
+      "markers": 4,
       "lines": [
         1,
-        3
+        3,
+        124,
+        154
       ],
       "anchors": [
         "import { formatHostRef } from '@emdash/core/primitives/host/api';",
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<Dialog.Title>创建对话</Dialog.Title>",
+        "<Field.Label>{t('auto_approve_permissions')}</Field.Label>"
       ],
-      "hash": "eb49d38b2de09bc71ef271baffa6ce980b1c9762",
+      "hash": "d0e6bce13ed295cf4d6e2afedcf277807d2d33ec",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1213,14 +1295,16 @@
       "note": "会话/ACP 定制（专家交接横条、专家表）"
     },
     "apps/emdash-desktop/src/core/features/conversations/contributions/browser.ts": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        2
+        2,
+        6
       ],
       "anchors": [
-        "import { expertHandoffModal } from '../browser/expert-handoff-modal';"
+        "import { expertHandoffModal } from '../browser/expert-handoff-modal';",
+        "modalDefs: [createConversationModal, expertHandoffModal],"
       ],
-      "hash": "a07f08cab6c2b983b9643951b0ec5548f78070a8",
+      "hash": "dbf202b3a06576f00fcd88557bfbd480ebf5c67b",
       "origin": "modified",
       "firstCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",
       "lastCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",
@@ -1343,152 +1427,194 @@
       "note": "专家交接台 feature"
     },
     "apps/emdash-desktop/src/core/features/library/browser/prompts/prompt-library-view.tsx": {
-      "markers": 1,
+      "markers": 6,
       "lines": [
-        1
+        1,
+        149,
+        158,
+        215,
+        218,
+        233
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "title: t('delete_prompt'),",
+        "onSuccess: () => toast(t('prompt_deleted')),",
+        "<Button variant=\"primary\" onClick={onNewPrompt} disabled={disabled} aria-label={t('new_prompt')}>",
+        "<span className=\"[@container(max-width:520px)]:hidden\">{t('new_prompt')}</span>",
+        "{hasPrompts ? t('no_prompts_match') : t('no_prompts')} ⏎ </div>"
       ],
-      "hash": "8cf4c08825bf6ca3fe0105b89ad2ea4ff9e80ffd",
+      "hash": "35080c150a93eb364e0b9b32b6f17971de51ba56",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "3ccb54206|2026-09-18|中文化提示词库 + 项我 MCP 能力声明 + T8 入口 + electron-builder cache",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/library/browser/prompts/prompt-modal.tsx": {
-      "markers": 1,
+      "markers": 4,
       "lines": [
-        1
+        1,
+        41,
+        47,
+        57
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<Dialog.Title>{initialPrompt ? t('edit_prompt') : t('new_prompt')}</Dialog.Title>",
+        "<Field.Label>{t('title')}</Field.Label>",
+        "<Field.Label>{t('prompt')}</Field.Label>"
       ],
-      "hash": "2f4906f54079658be3d43bc94b74132c16c51722",
+      "hash": "064bc570d548b9ba6a21ee6e39a82f8a267f3c20",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "3ccb54206|2026-09-18|中文化提示词库 + 项我 MCP 能力声明 + T8 入口 + electron-builder cache",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/library/contributions/settings-page.ts": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        12
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "label: t('prompts'),"
       ],
-      "hash": "2816edc194807767176c638ce3859237a64bf670",
+      "hash": "613ae18024b9c8ac9793dc5ef296507332ded737",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/machines/contributions/settings-page.ts": {
-      "markers": 1,
+      "markers": 5,
       "lines": [
-        1
+        1,
+        27,
+        35,
+        47,
+        55
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "label: t('system'),",
+        "label: t('workspaces_local'),",
+        "label: t('conversations'),",
+        "label: t('connections'),"
       ],
-      "hash": "49880c50ecd177a50552e4dab6f3795b23ce6985",
+      "hash": "7c435c5ab25eb15fe65ffb7838b513be32396f1b",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/mcp/contributions/settings-page.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        13
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "label: t('mcp'),"
       ],
-      "hash": "bf68c93b724eb4979339bc3bd8d43f72fbd34a4a",
+      "hash": "0ae82d4faef0645cfd58881dfea6fd4e0d25cb2e",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/preview-servers/node/port-forward-tunnel.ts": {
-      "markers": 3,
+      "markers": 4,
       "lines": [
         3,
         75,
-        241
+        90,
+        242
       ],
       "anchors": [
         "import { log } from '@emdash/shared/logger';",
         "if (",
+        "const fallback = await bindTunnel(ownedOptions, 0, dialOrder, scope);",
         "function isLocalBindUnavailable(error: unknown): boolean {"
       ],
-      "hash": "bcf5195524d74be3bc70006f25deb77fe601e779",
+      "hash": "35664eacd76c802ea2c3eb378cb553c80c70280d",
       "origin": "modified",
       "firstCommit": "22f7e53c1|2026-10-16|修复：点蓝字 → logo 浮窗/空窗（① 回补 classifyLink ② externalLinks 非 http(s) 改 deny ③ 隧道绑定失败回退 port:0）+ [XG-CUSTOM]",
       "lastCommit": "22f7e53c1|2026-10-16|修复：点蓝字 → logo 浮窗/空窗（① 回补 classifyLink ② externalLinks 非 http(s) 改 deny ③ 隧道绑定失败回退 port:0）+ [XG-CUSTOM]",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/add-project-modal/add-project-modal.tsx": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
         1,
-        3
+        3,
+        277
       ],
       "anchors": [
         "import { Dialog, Input, ModalLayout, SelectableCard, toast } from '@emdash/ui/react/primitives';",
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<Dialog.Title>{t('add_project')}</Dialog.Title>"
       ],
-      "hash": "2ac116b18b8fa6e11061c57f98c68fa89e216329",
+      "hash": "78fd0d5ffc6ffc976651a2e680428884175ca292",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/add-project-modal/content.tsx": {
-      "markers": 2,
+      "markers": 4,
       "lines": [
         1,
-        3
+        3,
+        65,
+        133
       ],
       "anchors": [
         "import { SettingsRow } from '@emdash/ui/react/patterns';",
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<Field.Label>{t('initialize_git_repository')}</Field.Label>",
+        "<Field.Label htmlFor={repositoryNameId}>{t('repository_name')}</Field.Label>"
       ],
-      "hash": "e0477ebe412fbe52ac1e971f3ab1e8a5d187cb3d",
+      "hash": "9f25dd89931f5316047ce3d3dbcf93e3ab1c4df5",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/directory-selector-modal.tsx": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
         1,
-        3
+        3,
+        59
       ],
       "anchors": [
         "import { Button, Dialog, Field, Input, ModalLayout } from '@emdash/ui/react/primitives';",
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<Dialog.Title>{t('select_remote_directory')}</Dialog.Title>"
       ],
-      "hash": "504944a7f8971c051cab0186782ba2234ed4536e",
+      "hash": "faa224077f992b83ee51973c09b1cf20ac022c97",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/main-panel/active-project.tsx": {
-      "markers": 2,
+      "markers": 4,
       "lines": [
         1,
-        3
+        3,
+        27,
+        33
       ],
       "anchors": [
         "import { getPillTabId, PillTabs, type PillTab } from '@emdash/ui/react/patterns';",
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "label: t('pull_requests'),",
+        "label: t('workspaces'),"
       ],
-      "hash": "1daa6d6c5effb31164c7412fbadd8ef08400b53b",
+      "hash": "59d9415ec8705fb0c7158275c2a07ebac84f9d03",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1511,80 +1637,104 @@
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/pr-view/pr-row.tsx": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
         1,
-        3
+        3,
+        48
       ],
       "anchors": [
         "import { Button, RelativeTime, Tooltip } from '@emdash/ui/react/primitives';",
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<Tooltip.Content>{t('open_pr_on_github')}</Tooltip.Content>"
       ],
-      "hash": "3d252788baaaaa32e225431b5b54fcd1f3a68c9d",
+      "hash": "e6372cd6025423bf85f6ec780e882dc20df013dc",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/pr-view/pr-sync-status-card.tsx": {
-      "markers": 2,
+      "markers": 5,
       "lines": [
         1,
-        3
+        3,
+        13,
+        54,
+        136
       ],
       "anchors": [
         "import { ListPopoverCard, type ListPopoverCardStatus } from '@emdash/ui/react/components';",
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "repository: t('pull_requests'),",
+        "</span>",
+        "const error = state?.error ? pullRequestErrorMessage(state.error) : t('unknown_error');"
       ],
-      "hash": "1a51ed8d872c50efe2ef65c787270c60a872d5ac",
+      "hash": "396b5989696cb127e853a7a983504bfd818b7fb4",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/pr-view/pr-view.tsx": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
         1,
-        3
+        3,
+        413
       ],
       "anchors": [
         "import { CollectionToolbar, CollectionView, SortSelect } from '@emdash/ui/react/patterns';",
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<ToggleGroup.Item value=\"open\">{t('open')}</ToggleGroup.Item>"
       ],
-      "hash": "f45c38e286a4135d34166536ef85ba62c42241cd",
+      "hash": "0ae3eaed6bac66708224abad88cbe46c11c44eb5",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/rename-project-modal.tsx": {
-      "markers": 2,
+      "markers": 4,
       "lines": [
         1,
-        3
+        3,
+        47,
+        53
       ],
       "anchors": [
         "import { Button, Dialog, Field, Input } from '@emdash/ui/react/primitives';",
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<Dialog.Title>{t('rename_project')}</Dialog.Title>",
+        "<Field.Label>{t('project_name')}</Field.Label>"
       ],
-      "hash": "7026e919087a73de232217fbc5ecf773b98dc058",
+      "hash": "a5e708e2d18bac74dec7470c726a6febf8411fc5",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/project-config-import-modal.tsx": {
-      "markers": 2,
+      "markers": 7,
       "lines": [
         1,
-        3
+        3,
+        99,
+        115,
+        132,
+        143,
+        153
       ],
       "anchors": [
         "import { err, type Result } from '@emdash/shared';",
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<Dialog.Title>{t('import_project_config')}</Dialog.Title>",
+        "{selectedMigration?.label ?? t('select_config')} ⏎ </span>",
+        "<p>{t('settings_to_import')}</p>",
+        "<p>{t('save_to')}</p>",
+        "<p>{t('personal_settings')}</p>"
       ],
-      "hash": "7dd47508a8997f55971416f74ffc42982924f122",
+      "hash": "220c2545dfe5d3c5bd39a06cb5f5759415137149",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
@@ -1607,16 +1757,18 @@
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/sections/shareable-project-settings-section.tsx": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
         1,
-        4
+        4,
+        231
       ],
       "anchors": [
         "import { Button, Field, Input, Separator, Switch, Textarea } from '@emdash/ui/react/primitives';",
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<Field.Label>{t('lifecycle_scripts')}</Field.Label>"
       ],
-      "hash": "664207fca3fdca7802b00c348567f4dfdf169924",
+      "hash": "9a824989fa8d62bcdc0ba24089a72175ab23a9e9",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1639,32 +1791,40 @@
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/share-project-config-modal.tsx": {
-      "markers": 2,
+      "markers": 5,
       "lines": [
         1,
-        3
+        3,
+        126,
+        137,
+        180
       ],
       "anchors": [
         "import { err, type Result } from '@emdash/shared';",
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<Dialog.Title>{t('share_settings_with_team')}</Dialog.Title>",
+        "<Field.Label>{t('write_to')}</Field.Label>",
+        "<Field.Label>{t('settings_to_share')}</Field.Label>"
       ],
-      "hash": "e2a92287774d949a0b7a064cce20750ac858f5e8",
+      "hash": "0b0366200769a41f36ad72541cf9909b0a13025c",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/shareable-setting-title.tsx": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
         1,
-        3
+        3,
+        48
       ],
       "anchors": [
         "import { Badge, Button, Field, Tooltip } from '@emdash/ui/react/primitives';",
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<Badge variant=\"outline\">{t('personal')}</Badge>"
       ],
-      "hash": "1adb0de5d34e9555726364c70f2152a78c4223e0",
+      "hash": "9480197b7008152aeeb8813f1e78f683601ca3e7",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
@@ -1687,16 +1847,24 @@
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/task-view/task-list-empty-state.tsx": {
-      "markers": 2,
+      "markers": 6,
       "lines": [
         1,
-        3
+        3,
+        53,
+        62,
+        76,
+        81
       ],
       "anchors": [
         "import { menuItemBase } from '@emdash/ui/styles/recipes/menu-item';",
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "label: t('create_from_branch'),",
+        "label: t('create_from_issue'),",
+        "label: t('create_from_pr'),",
+        "disabledReason: createDisabledReason ?? t('no_remote_repository'),"
       ],
-      "hash": "f1493eacd385660b7539a6e61404ed6a85e22138",
+      "hash": "b2771a668cca000a15f4da89b11bbcbd18573e6e",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1719,48 +1887,76 @@
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/components/AccountTab.tsx": {
-      "markers": 1,
+      "markers": 10,
       "lines": [
-        1
+        1,
+        62,
+        76,
+        107,
+        118,
+        121,
+        136,
+        147,
+        150,
+        165
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "title: t('sign_out_confirm'),",
+        "{t('loading_account')} ⏎ </div>",
+        "{t('sign_out')} ⏎ </Button>",
+        "<p className=\"text-sm font-medium text-foreground\">{t('session_expired')}</p>",
+        "{t('session_expired_desc')} ⏎ </p>",
+        "{signInMutation.isPending ? t('signing_in') : t('sign_in')} ⏎ </Button>",
+        "<p className=\"text-sm font-medium text-foreground\">{t('emdash_account')}</p>",
+        "{t('emdash_account_desc')} ⏎ </p>",
+        "{signInMutation.isPending ? t('creating_account') : t('create_account')} ⏎ </Button>"
       ],
-      "hash": "88c9376f67c5ee7af99eed654e4e9d8fabbd770f",
+      "hash": "3e3984201d27f597abb53346e9ef210dc79f9f18",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/components/BrowserSettingsCard.tsx": {
-      "markers": 11,
+      "markers": 16,
       "lines": [
         1,
-        19,
-        48,
-        60,
-        84,
-        93,
-        240,
-        293,
-        500,
-        503,
-        509
+        13,
+        20,
+        49,
+        61,
+        85,
+        94,
+        236,
+        242,
+        295,
+        354,
+        359,
+        369,
+        505,
+        508,
+        514
       ],
       "anchors": [
         "import { t } from '@renderer/lib/i18n';",
+        "import { useEffect, useRef, useState } from 'react';",
         "import { expertRoster } from '@core/primitives/desktop-host/browser/host-client';",
         "const [botOptions, setBotOptions] = useState<ReadonlyArray<{ id: string; name: string }>>([]);",
         "useEffect(() => {",
         "console.warn('",
         "const bindProfileBot = (profileId: string, botId: string) => {",
+        "<SettingsSection title={t('browser_profiles')} bare>",
         "<div className=\"mt-1 text-xs text-foreground-passive\">",
         "被没绑定身份的 agent 用到）。选项来自专家名册（main/role/sub 三类身份）。 */} ⏎ <Select.Root",
+        "{t('rename')} ⏎ </DropdownMenu.Item>",
+        "{t('clear_storage')} ⏎ </DropdownMenu.Item>",
+        "{t('delete')} ⏎ </DropdownMenu.Item>",
         "const UNBOUND_BOT_VALUE = '__unbound__';",
         "function withBotId(profile: BrowserProfile, botId: string): BrowserProfile {",
         "function botLabelFor("
       ],
-      "hash": "d464043136b8a0c9f069f8eef4ae2c5254d6eddf",
+      "hash": "6ae3a22b3d37f2716591bf5b48207b47ad7bcfc8",
       "origin": "modified",
       "firstCommit": "d4d009b8b|2026-10-02|[XG-CUSTOM] bot ⟷ 浏览器 profile：每个 bot 一套 cookie/登录态",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1781,28 +1977,32 @@
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/components/HiddenToolsSettingsCard.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        53
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "detected: t('detected'),"
       ],
-      "hash": "32be0eb73d4edeb7e5a2724353e9e405a98149a6",
+      "hash": "2f4548f54f9e393abc9ee558a614ee01346bd0bf",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/components/IntegrationGridCard.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        70
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<Tooltip.Content side=\"top\">{error || t('connection_issue')}</Tooltip.Content>"
       ],
-      "hash": "1308c9d209f8f0ba8e260f6f1b9d7b3ba26dc406",
+      "hash": "241a9f8e7ff8560833c62b5e3b727d04f66b784c",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1856,56 +2056,74 @@
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/components/KeyboardSettingsCard.tsx": {
-      "markers": 1,
+      "markers": 5,
       "lines": [
-        1
+        1,
+        152,
+        162,
+        193,
+        219
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "{t('press_keys')} ⏎ </Button>",
+        "{t('cancel')} ⏎ </Button>",
+        "<Tooltip.Content side=\"top\">{t('reset_to_default')}</Tooltip.Content>",
+        "<Tooltip.Content side=\"top\">{t('remove_shortcut')}</Tooltip.Content>"
       ],
-      "hash": "5b8fba6b059aee36470e8899b104209220106b67",
+      "hash": "83cbfe7925217158061ff835fa3aa05575ea7598",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/components/NotificationSettingsCard.tsx": {
-      "markers": 1,
+      "markers": 3,
       "lines": [
-        1
+        1,
+        48,
+        176
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<Tooltip.Content side=\"top\">{t('preview')}</Tooltip.Content>",
+        "</span>"
       ],
-      "hash": "b635265f17a65b80bbfab52e0368373e304e2121",
+      "hash": "21a8aeb3f32bbe2b6f257e165ffeea9168d1d029",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/components/RepositorySettingsCard.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        53
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "{t('branch_prefix_empty')} ⏎ </div>"
       ],
-      "hash": "e8c2f9d5c57f7171fdbc73672863be3ad08b6120",
+      "hash": "e7d0b82a2f57efdc33723a5fbf5a620d61cd23a3",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/components/SettingsPage.tsx": {
-      "markers": 1,
+      "markers": 3,
       "lines": [
-        1
+        1,
+        28,
+        185
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "const LOCAL_SECTION: PageNavSection = { kind: 'section', id: 'local', label: t('local') };",
+        "<span>{t('view_docs')}</span>"
       ],
-      "hash": "d8d69dfb1b080b42959cd13872e747d1de0feaee",
+      "hash": "44ea3ccc2b77e7a4a2868c27934374e590e207b7",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1926,56 +2144,78 @@
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/components/TaskSettingsRows.tsx": {
-      "markers": 1,
+      "markers": 4,
       "lines": [
-        1
+        1,
+        7,
+        66,
+        208
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "import { useTaskSettings } from '@core/features/tasks/api/browser/hooks/useTaskSettings';",
+        "<InfoTooltip",
+        "const tmuxByDefault = projects?.tmuxByDefault ?? false;"
       ],
-      "hash": "ed63a2ca1e334278e484786dd6532513896edec2",
+      "hash": "4f3dfbdc39083be9b8592b80cac8da3ef31d9a5b",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/components/TelemetryCard.tsx": {
-      "markers": 1,
+      "markers": 5,
       "lines": [
-        1
+        1,
+        21,
+        33,
+        38,
+        56
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<p>{t('telemetry_desc')}</p>",
+        "{t('telemetry_info')} ⏎ </span>",
+        "<span>{t('for_details')}</span>",
+        "{t('telemetry_inactive')} ⏎ </span>"
       ],
-      "hash": "246f55c31c5dd612570b4d3a9de96dd7558db773",
+      "hash": "5c6c2cca3935ff13aa423df403cb5402205b76ed",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/components/TerminalSettingsCard.tsx": {
-      "markers": 1,
+      "markers": 4,
       "lines": [
-        1
+        1,
+        244,
+        285,
+        289
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<Combobox.Value placeholder={t('default_font', { font: DEFAULT_FONT_FAMILY })} />",
+        "<div className=\"px-2 py-1.5 text-xs text-foreground-muted\">{t('installed')}</div>",
+        "<span className=\"truncate\">{t('loading_fonts')}</span>"
       ],
-      "hash": "9b7e9ab919982f1f9cd55e7601d134a56ac2a6b8",
+      "hash": "3d1e4195b55b935d51675479e3554df662847eb9",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/components/ThemeCard.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        13
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "const themeOptions: Array<{"
       ],
-      "hash": "36d04feba193f4bbbd37b8e75785ed3a11816502",
+      "hash": "d22f39d5baf525cbe0aa4da1e4e9e880bbae9028",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1996,14 +2236,20 @@
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/pages/general-settings-page.tsx": {
-      "markers": 1,
+      "markers": 4,
       "lines": [
-        1
+        1,
+        30,
+        35,
+        39
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<SettingsSection title={t('app')}>",
+        "<SettingsSection title={t('notifications')} bare>",
+        "<SettingsSection title={t('preferences')}>"
       ],
-      "hash": "14ef25a6d73936a8b05b7a98812b106b09abe1b7",
+      "hash": "315fd4b6f60a19c194e84465c6b323f54f003241",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -2024,56 +2270,88 @@
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/pages/interface-settings-page.tsx": {
-      "markers": 1,
+      "markers": 8,
       "lines": [
-        1
+        1,
+        10,
+        21,
+        25,
+        29,
+        33,
+        40,
+        44
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "import ThemeCard from '../components/ThemeCard';",
+        "<SettingsSection title={t('color_mode')} bare>",
+        "<SettingsSection title={t('terminal')} bare>",
+        "<SettingsSection title={t('files')} bare>",
+        "<SettingsSection title={t('sidebar')} bare>",
+        "<SettingsSection title={t('keyboard_shortcuts')} bare>",
+        "<SettingsSection title={t('tools')} bare>"
       ],
-      "hash": "48a715302f3b4d945ae2e7a5dceb0edaa992f4cd",
+      "hash": "6a83ed49272eea2aef59839798776af1430eac6f",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/pages/repository-settings-page.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        14
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<SettingsSection title={t('branches')} bare>"
       ],
-      "hash": "18660705b4c87d8176a193edd326914a83c50895",
+      "hash": "03e692650fb13bcf781b9af6e9086f57d3994e8c",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/settings-view.tsx": {
-      "markers": 1,
+      "markers": 3,
       "lines": [
-        1
+        1,
+        7,
+        87
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "import { Titlebar } from '@core/features/workbench/contributions/browser/Titlebar';",
+        "export function SettingsTitlebar() {"
       ],
-      "hash": "f50d23ac91cc0b3523eed9cdd68288fac4ae758e",
+      "hash": "0ed82399748caa0a2abef543ad80578a03609bf6",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/contributions/settings-pages.ts": {
-      "markers": 1,
+      "markers": 7,
       "lines": [
-        1
+        1,
+        17,
+        25,
+        33,
+        41,
+        49,
+        57
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "label: t('general'),",
+        "label: t('integrations'),",
+        "label: t('interface'),",
+        "label: t('browser'),",
+        "label: t('repository'),",
+        "label: t('agents'),"
       ],
-      "hash": "83bed0f58ad1e7ff289d0e3fd4f39265048fa35a",
+      "hash": "70c63807ff1d3dea3d2e4104d565f6c4a2ef5d47",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -2112,18 +2390,20 @@
       "note": "技能库定制（多来源/分类）"
     },
     "apps/emdash-desktop/src/core/features/skills/browser/components/SkillsList.tsx": {
-      "markers": 3,
+      "markers": 4,
       "lines": [
         7,
         54,
-        133
+        70,
+        134
       ],
       "anchors": [
         "import { SKILL_CATEGORY } from './skill-categories';",
         "const groupedExternal = groupByCategory(",
+        "{groupedExternal.map(([title, list]) => ( ⏎ <CardGridSection key={title} title={title}>",
         "function groupByCategory("
       ],
-      "hash": "6f4d551767163719a6ba16fd183b07c7ab874a4d",
+      "hash": "917317775cee92beed89c43fc3da8c7627a75fa2",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -2144,14 +2424,16 @@
       "note": "技能库定制（多来源/分类）"
     },
     "apps/emdash-desktop/src/core/features/skills/contributions/settings-page.ts": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        12
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "label: t('skills'),"
       ],
-      "hash": "d36b2741050c71510f91a377d90d4e899cf86920",
+      "hash": "9455d85c0f844d49b4b1f923e90679bf710ee0d2",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -2186,154 +2468,225 @@
       "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
     },
     "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/checks-list.tsx": {
-      "markers": 1,
+      "markers": 3,
       "lines": [
-        21
+        21,
+        88,
+        121
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "return <div className=\"px-3 py-2 text-xs text-foreground-passive\">{t('no_checks_available')}</div>;",
+        "return <EmptyState label={t('no_checks_or_comments')} description={t('nothing_available_yet')} />;"
       ],
-      "hash": "2ba81eeb8e6671c9092af9aeb477f2df23528d5a",
+      "hash": "568345410a6801acdff06d5aba09dcee995c5ddf",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
     },
     "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/comments-list.tsx": {
-      "markers": 1,
+      "markers": 5,
       "lines": [
-        8
+        8,
+        59,
+        100,
+        105,
+        110
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<span className=\"shrink-0 text-foreground-passive\">{t('resolved')}</span>",
+        "return <div className=\"px-3 py-2 text-xs text-foreground-passive\">{t('loading_comments')}</div>;",
+        "return <div className=\"px-3 py-2 text-xs text-foreground-passive\">{t('unable_load_comments')}</div>;",
+        "return <div className=\"px-3 py-2 text-xs text-foreground-passive\">{t('no_comments_available')}</div>;"
       ],
-      "hash": "0580590e67895967562ba2290c4b3e8de09799a9",
+      "hash": "1cff8b0bc83bd219b75ded3020d3e66d49d7566c",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
     },
     "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/commits-list.tsx": {
-      "markers": 1,
+      "markers": 6,
       "lines": [
-        22
+        22,
+        28,
+        140,
+        286,
+        291,
+        297
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "label: t('no_commits'),",
+        "{isFetchingNextPage ? t('loading_ellipsis') : t('load_more')} ⏎ </button>",
+        "return <div className=\"px-6 py-2 text-xs text-foreground-passive\">{t('loading_files')}</div>;",
+        "return <div className=\"px-6 py-2 text-xs text-foreground-passive\">{t('unable_load_files')}</div>;",
+        "return <div className=\"px-6 py-2 text-xs text-foreground-passive\">{t('no_file_changes')}</div>;"
       ],
-      "hash": "b358da34b290dc28578c73d7d4dc84d84d012af5",
+      "hash": "b2d4d1fe6e622734de6e162b41fbcbdb93c1dbd4",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
     },
     "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/create-pr-modal.tsx": {
-      "markers": 1,
+      "markers": 9,
       "lines": [
-        39
+        39,
+        231,
+        257,
+        265,
+        277,
+        288,
+        320,
+        340,
+        363
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<span className=\"text-xs text-foreground-passive\">{t('target')}</span>",
+        "<span className=\"text-xs text-foreground-passive\">{t('base_branch')}</span>",
+        "<Combobox.Value placeholder={t('select_base_branch')} />",
+        "<Field.Label>{t('title_label')}</Field.Label>",
+        "<Field.Label>{t('description_placeholder')}</Field.Label>",
+        "<Alert.Title>{t('failed_create_pr')}</Alert.Title>",
+        "label: draft ? t('create_draft') : t('create_pr'),",
+        "</ConfirmButton>"
       ],
-      "hash": "4e4a028b73a919644ba845540efd0e56bed9b735",
+      "hash": "46441476468da44e8e9c8de1653acdf9b96df095",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
     },
     "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/merge-footer.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        14
+        14,
+        106
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<span>{t('merge_bypass_rules')}</span>"
       ],
-      "hash": "cbd137c987a7c57607b192fd9b987a0e31aa8fbf",
+      "hash": "5002934f5415253c507bbd1f5e1d4da1a31063c4",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
     },
     "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/git-status-section.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        17
+        17,
+        99
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "{hostActionReason ?? (isFetching ? t('fetching') : t('fetch_changes'))} ⏎ </Tooltip.Content>"
       ],
-      "hash": "14b9ffa6ead988a39e69450e28239d1620503fcd",
+      "hash": "456e34209122589bfe1298c6394b04b8d1fd5ae2",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
     },
     "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/pr-section.tsx": {
-      "markers": 1,
+      "markers": 4,
       "lines": [
-        30
+        30,
+        33,
+        89,
+        253
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "label: t('no_commits'),",
+        "sectionLabel: showBranchCommits ? t('branch_commits') : t('pull_requests'),",
+        "<Tooltip.Content>{hostActionReason ?? t('refresh_pull_requests')}</Tooltip.Content>"
       ],
-      "hash": "ab8f8d754928a7d067ef77fe7686121c0af5d778",
+      "hash": "ef3be1e375b9b7c43fec5c5d1375824ad06cf8df",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
     },
     "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/staged-section.tsx": {
-      "markers": 1,
+      "markers": 3,
       "lines": [
-        22
+        22,
+        138,
+        151
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "{t('unstage')} ⏎ </Button>",
+        "{t('unstage_all')} ⏎ </Button>"
       ],
-      "hash": "d24759dfc00ad2ae7f5f80be43572f60525cff91",
+      "hash": "b1e145d915ce29eeea04c52153fedefea60df007",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
     },
     "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/unstaged-section.tsx": {
-      "markers": 1,
+      "markers": 7,
       "lines": [
-        23
+        23,
+        107,
+        127,
+        178,
+        188,
+        204,
+        215
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "title: t('discard_files_changes'),",
+        "title: t('discard_all_changes'),",
+        "{t('discard')} ⏎ </Button>",
+        "{t('stage')} ⏎ </Button>",
+        "{t('discard_all')} ⏎ </Button>",
+        "{t('stage_all')} ⏎ </Button>"
       ],
-      "hash": "8c7615cca6eeec309ebdc97f524a71cee8aa155c",
+      "hash": "6c50beb9cec0943ca900225031d37dce7db5e356",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
     },
     "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/diff-tab-item.tsx": {
-      "markers": 1,
+      "markers": 3,
       "lines": [
-        14
+        14,
+        35,
+        70
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json ⏎ const fileName = resource.path.split('/').pop() ?? t('untitled');"
       ],
-      "hash": "1fd84e2c021a688fc94d696b5a84a9607d2770a1",
+      "hash": "6845749dc880048873e10b3fcecc470b574ebfcb",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
     },
     "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/diff-tab-provider.tsx": {
-      "markers": 1,
+      "markers": 3,
       "lines": [
-        18
+        18,
+        103,
+        106
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "return t('diff_group_worktree');",
+        "return t('diff_group_index');"
       ],
-      "hash": "b6e4026d95258eb6dd81afeb6707fd376e01b4a3",
+      "hash": "d778b6e010e7b5f02cdd91d862648cda91e4fedd",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
@@ -2354,28 +2707,36 @@
       "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
     },
     "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/main-panel/diff-toolbar.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        6
+        6,
+        18
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "if (tab.diffGroup === 'staged') return t('staged');"
       ],
-      "hash": "092cf7ff7a573cff053f87281cd2b88e17e82553",
+      "hash": "448c6cb11ba878fb8a6dc944f6f68eebca36345e",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
     },
     "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/main-panel/image-diff-view.tsx": {
-      "markers": 1,
+      "markers": 4,
       "lines": [
-        19
+        19,
+        206,
+        292,
+        295
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "return <div className=\"text-xs text-foreground-passive\">{t('loading')}</div>;",
+        "<ImageSidePanel label={t('original')} state={original} side=\"original\" />",
+        "<ImageSidePanel label={t('modified')} state={modified} side=\"modified\" />"
       ],
-      "hash": "726bbbbdd0225b75777a83872bfda66264dffb28",
+      "hash": "4ba209cf0c35be81e104551a3c241745458f7541",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
@@ -2456,42 +2817,58 @@
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/browser/create-task-modal/create-task-modal.tsx": {
-      "markers": 1,
+      "markers": 5,
       "lines": [
-        1
+        1,
+        119,
+        149,
+        155,
+        175
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<Dialog.Title>{t('create_task')}</Dialog.Title>",
+        "label: t('initial_conversation'),",
+        "label: t('workspace_settings'),",
+        "</ConfirmButton>"
       ],
-      "hash": "5fc2b5cdb1e0c5e1cbd32ec7dfbdc33d80bdcd81",
+      "hash": "e79fc1dae0f9462647978cc86bbe12557d7fe9ae",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/browser/create-task-modal/linked-entity-section.tsx": {
-      "markers": 1,
+      "markers": 4,
       "lines": [
-        1
+        1,
+        30,
+        40,
+        44
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<span className=\"shrink-0 text-sm text-foreground-muted\">{t('based_on')}</span>",
+        "{t('issue')} ⏎ </ToggleGroup.Item>",
+        "{t('pull_request')} ⏎ </ToggleGroup.Item>"
       ],
-      "hash": "4f3c183ee03ed7fc6668b9e670b58bd01a142b18",
+      "hash": "29e2dd92ec5fbcf8d9816805f9fa2c1c88901afd",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/browser/create-task-modal/task-name-field.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        25
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "t('task_name_rules')"
       ],
-      "hash": "d1aa30e0eaefca4cf55d4060f3f9ffec5017b94b",
+      "hash": "7c6f0ec30b488a78b13aa699805060c1af74f79d",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -2526,28 +2903,32 @@
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/browser/rename-task-modal.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        95
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<Field.Label>{t('task_name_label')}</Field.Label>"
       ],
-      "hash": "fabeed0c7c0ce550e6cfdd325c0b435269f35f43",
+      "hash": "725a0a1050a129db4e770951a073a60f3e86029d",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/browser/task-config/new-worktree-panel.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        42
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "{createBranchAndWorktree ? t('from_branch') : t('branch')} ⏎ </span>"
       ],
-      "hash": "c1d38a2c6f87c932b3f6eb0c8196b67623e5e332",
+      "hash": "73f01c27e98cd76cf6ea715f52d5144326a56833",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -2576,44 +2957,60 @@
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/browser/task-titlebar.tsx": {
-      "markers": 1,
+      "markers": 5,
       "lines": [
-        58
+        58,
+        169,
+        195,
+        200,
+        272
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<Tooltip.Content>{t('link_to_issue')}</Tooltip.Content>",
+        "{isFetching ? t('fetching') : 'Fetch'} ⏎ </Button>",
+        "{isFetching ? t('fetching') : t('fetch_changes')} ⏎ </Tooltip.Content>",
+        "{isPublishing ? 'Publishing...' : t('publish_branch')} ⏎ </Button>"
       ],
-      "hash": "81e3d999c8977bf64b15797c6517190e721f70bf",
+      "hash": "715ba06d30b4e1367ce0b9fe28c41a3ae47c9f64",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/contributions/browser/task-config/initial-conversation-section.tsx": {
-      "markers": 2,
+      "markers": 4,
       "lines": [
         1,
-        3
+        3,
+        387,
+        442
       ],
       "anchors": [
         "import { formatHostRef } from '@emdash/core/primitives/host/api';",
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "section: t('prompts'),",
+        "<Field.Label htmlFor={autoApproveSwitchId}>{t('auto_approve_permissions')}</Field.Label>"
       ],
-      "hash": "5cac350570017ab676fd5975e2d350c593ffd9be",
+      "hash": "1a38ca23429c81c86795b2b8cf65c4aa04b460df",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/contributions/browser/task-config/workspace-settings-section.tsx": {
-      "markers": 1,
+      "markers": 3,
       "lines": [
-        1
+        1,
+        73,
+        84
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<span className=\"text-foreground-muted\">{t('settings')}</span>",
+        "<Tabs.Tab value=\"checkout\">{t('checkout_branch')}</Tabs.Tab>"
       ],
-      "hash": "8c17f3b765b97ddfa18ae17bd597659f672cbd90",
+      "hash": "8fca486268a5049a02eeccce802a210524d6526b",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -2770,46 +3167,68 @@
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
     "apps/emdash-desktop/src/core/features/workbench/browser/external-link-choice-dialog.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        75
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<Tooltip.Content>{copied ? t('copied') : t('copy_link')}</Tooltip.Content>"
       ],
-      "hash": "77682c903610a9aacbc71f73e043aaa3709c331c",
+      "hash": "8278a5d3535982371eb6cf601788fd9cc190c243",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
     "apps/emdash-desktop/src/core/features/workbench/browser/home-view.tsx": {
-      "markers": 1,
+      "markers": 5,
       "lines": [
-        1
+        1,
+        17,
+        24,
+        31,
+        38
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "label: t('open_project'),",
+        "label: t('create_repository'),",
+        "label: t('clone_github'),",
+        "label: t('add_remote'),"
       ],
-      "hash": "dbf0ad0a53bdfbfb455a7d7f9326dc713c9aab92",
+      "hash": "b7486f13a4d4c3441e323920f99a6bf37ea7c37d",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
     "apps/emdash-desktop/src/core/features/workbench/browser/sidebar/left-sidebar.tsx": {
-      "markers": 3,
+      "markers": 9,
       "lines": [
         3,
-        40,
-        104
+        8,
+        41,
+        97,
+        106,
+        126,
+        157,
+        169,
+        186
       ],
       "anchors": [
         "import { t } from '@renderer/lib/i18n';",
+        "import { handoffViewDef } from '@core/features/handoff/contributions/views';",
         "const openXiangwoMain = async () => {",
-        "{/* [XG-CUSTOM] 项我：侧边栏入口按钮 */} ⏎ <button"
+        "<span className=\"text-xs font-medium text-foreground\">{t('drop_to_add_project')}</span>",
+        "{/* [XG-CUSTOM] 项我：侧边栏入口按钮 */} ⏎ <button",
+        "{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json ⏎ <SidebarMenuButton",
+        "<span className=\"truncate\">{t('automations')}</span>",
+        "{t('settings')} ⏎ </span>",
+        "<span className=\"truncate\">{t('give_feedback')}</span>"
       ],
-      "hash": "3fd9ab970e776ebd0ff7a2a4547ea55e035e8484",
+      "hash": "0d86736dff0e28e6008e99a70da4178354e36eb1",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -2830,42 +3249,50 @@
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
     "apps/emdash-desktop/src/core/features/workbench/browser/sidebar/projects-group-label.tsx": {
-      "markers": 1,
+      "markers": 3,
       "lines": [
-        1
+        1,
+        14,
+        68
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<MicroLabel className=\"font-medium text-foreground-tertiary-passive\">{t('projects')}</MicroLabel>",
+        "<BoundShortcut command=\"app.newProject\" variant=\"keycaps\" />"
       ],
-      "hash": "91039d9dfc6dc5c42f129a4ccac6afd7a4bed347",
+      "hash": "747602bf249e62cb64031ab4e7e38d46fe9d7a65",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
     "apps/emdash-desktop/src/core/features/workbench/browser/sidebar/sidebar-search-trigger.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        13
+        13,
+        49
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<span className=\"truncate\">{t('search_ellipsis')}</span>"
       ],
-      "hash": "cdac97bd5c9c15969c304fbbea33fde0e1dd6e53",
+      "hash": "6e5d1518515e3b182c1a6027bb261898b604266a",
       "origin": "modified",
       "firstCommit": "2719dab0d|2026-09-29|[XG-CUSTOM] 侧边栏 Search… 中文化 + 还原器加对照表结构自检",
       "lastCommit": "2719dab0d|2026-09-29|[XG-CUSTOM] 侧边栏 Search… 中文化 + 还原器加对照表结构自检",
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
     "apps/emdash-desktop/src/core/features/workbench/browser/sidebar/task-sidebar-agent-status.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        41
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<Tooltip.Content>t('creating_workspace')</Tooltip.Content>"
       ],
-      "hash": "e93237dcb2c9c098732e5a32eeed2c2a65265526",
+      "hash": "a856778a88eee7664940d46ab8d79587a309186c",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -3161,21 +3588,23 @@
       "note": "desktop-host 契约扩展（宿主新增 API）"
     },
     "apps/emdash-desktop/src/core/primitives/desktop-host/browser/host-client.ts": {
-      "markers": 11,
+      "markers": 12,
       "lines": [
-        24,
-        33,
-        38,
-        43,
-        49,
-        54,
-        67,
-        76,
-        81,
-        86,
-        95
+        3,
+        25,
+        34,
+        39,
+        44,
+        50,
+        55,
+        68,
+        77,
+        82,
+        87,
+        96
       ],
       "anchors": [
+        "import { desktopHostContract, desktopHostDomain, type KaneoActInput } from '../api/host-contract';",
         "export async function openOpenViking() {",
         "export async function openKaneo() {",
         "export async function openAffine() {",
@@ -3188,7 +3617,7 @@
         "export async function kaneoAct(payload: KaneoActInput) {",
         "export async function taskSpaceList() {"
       ],
-      "hash": "78eda7a368e7353dbbd4892e7b0ea6f41465b1ac",
+      "hash": "1a6cfc410b9fe83d086b1b8454b3f1e52144efe5",
       "origin": "modified",
       "firstCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -3211,14 +3640,16 @@
       "note": "遥测默认关闭"
     },
     "apps/emdash-desktop/src/entry/main.ts": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        15
+        3,
+        16
       ],
       "anchors": [
+        "import { log } from '@main/lib/logger';",
         "configureChromiumCommandLine({"
       ],
-      "hash": "85805b3125ecc548515b1db8526c9497d4cdfcc3",
+      "hash": "0887824f7f19dff74393c15815f6bb1a4c6258c5",
       "origin": "modified",
       "firstCommit": "7be484518|2026-10-06|[XG-CUSTOM 2026-10-06] DoH 诊断日志补齐入口那一跳（pino logger 传进 configureChromiumCommandLine，命令行开关轨迹也落 emdash.log）",
       "lastCommit": "7be484518|2026-10-06|[XG-CUSTOM 2026-10-06] DoH 诊断日志补齐入口那一跳（pino logger 传进 configureChromiumCommandLine，命令行开关轨迹也落 emdash.log）",
@@ -3282,41 +3713,51 @@
       "note": "启动装配（注入 xiangwo 依赖 / 后台服务）"
     },
     "apps/emdash-desktop/src/main/bootstrap/boot/phases/prepare-electron.ts": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
-        43,
-        47
+        3,
+        44,
+        48
       ],
       "anchors": [
+        "import { configureDohHostResolver } from '@main/host/chromium-doh';",
         "await configureDohHostResolver({ app, logger: (message, fields) => log.warn(message, fields) });"
       ],
-      "hash": "96f40c3664a43a7f70a82f4c2356caf333cac81f",
+      "hash": "92cb8ea95a5a6cc384f9a108574ebf9305da3e80",
       "origin": "modified",
       "firstCommit": "54f137328|2026-10-06|feat(dns): [XG-CUSTOM 2026-10-06] 内嵌浏览器 DNS 走我们自己的 DoH（治假 AAAA 沉洞 → ERR_TIMED_OUT）+ bump 1.2.27-xiangwo",
       "lastCommit": "54f137328|2026-10-06|feat(dns): [XG-CUSTOM 2026-10-06] 内嵌浏览器 DNS 走我们自己的 DoH（治假 AAAA 沉洞 → ERR_TIMED_OUT）+ bump 1.2.27-xiangwo",
       "note": "启动装配（注入 xiangwo 依赖 / 后台服务）"
     },
     "apps/emdash-desktop/src/main/bootstrap/boot/phases/services.ts": {
-      "markers": 7,
+      "markers": 11,
       "lines": [
-        155,
-        157,
-        184,
-        362,
-        380,
-        394,
-        398
+        11,
+        65,
+        107,
+        158,
+        160,
+        187,
+        365,
+        383,
+        397,
+        401,
+        950
       ],
       "anchors": [
+        "import { desc } from 'drizzle-orm';",
+        "import { previewServerUrl } from '@core/primitives/preview-servers/api';",
+        "import { sshConnections } from '@core/services/app-db/node/schema';",
         "import { applyNativeTheme, isAppFocused, registerXiangwoChatTarget } from '@main/host/window';",
         "import { computeToolWindowTarget } from '@main/host/xiangwo-tool-target';",
         "readonly resolveToolWindowUrl: (remotePort: number, path?: string) => Promise<string>;",
         "const forwardManualPreview = async (remotePort: number): Promise<string | null> => {",
         "const firstRemoteHost = (): { connectionId: string; host: string } | undefined => {",
         "log.warn('",
-        "const resolveToolWindowUrl = async (remotePort: number, path = '/'): Promise<string> => {"
+        "const resolveToolWindowUrl = async (remotePort: number, path = '/'): Promise<string> => {",
+        "resolveToolWindowUrl, ⏎ promptLibrary: promptLibraryService,"
       ],
-      "hash": "1e4b2d46f1b0c39a5aa89bae524d48b3fa311a0b",
+      "hash": "6d20a8b407ce276ed3eb494c3d64f44b9696391c",
       "origin": "modified",
       "firstCommit": "d7996e9ec|2026-09-19|fix(integrations): WeKnora/T8 窗口走 SSH 端口转发，修 Windows 远程项目打不开",
       "lastCommit": "d7996e9ec|2026-09-19|fix(integrations): WeKnora/T8 窗口走 SSH 端口转发，修 Windows 远程项目打不开",
@@ -3442,24 +3883,26 @@
       "note": "gateway 定制（runtime broker / acp 入口）"
     },
     "apps/emdash-desktop/src/main/host/browser/browser-profile-session.ts": {
-      "markers": 7,
+      "markers": 8,
       "lines": [
-        16,
-        18,
-        35,
-        50,
-        52,
-        62,
-        66
+        1,
+        17,
+        19,
+        36,
+        51,
+        53,
+        63,
+        67
       ],
       "anchors": [
+        "import { readFileSync } from 'node:fs';",
         "import { setXiangwoBrowserProfileBindings } from './xiangwo-bot-browser-profile';",
         "import { resolveXiangwoBrowserProxy, systemProxyIsConfigured } from './xiangwo-browser-proxy';",
         "setXiangwoBrowserProfileBindings(browser);",
         "const browserProxy = resolveXiangwoBrowserProxy({",
         "if (browserProxy !== undefined) {"
       ],
-      "hash": "377561dbf71f2a1b589f157d686f41f91bfb6f1e",
+      "hash": "a7a715fe963b8eab438325a07c45bd79e2205838",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -3496,16 +3939,18 @@
       "note": "浏览器窗生命周期定制（注册/回收/配置文件）"
     },
     "apps/emdash-desktop/src/main/host/browser/controller.ts": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
         12,
-        74
+        15,
+        75
       ],
       "anchors": [
         "import { settleEmbeddedBrowserOpenResult } from '@main/host/browser/embedded-browser-open-ack';",
+        "import { revealMainWindowIfHidden } from '@main/host/window';",
         "reportEmbeddedBrowserOpenResult: (args: { requestId: string; ok: boolean; reason?: string }) => {"
       ],
-      "hash": "8d50b36c22e04d48a268057d0779624219d2a045",
+      "hash": "dc836b3fe1af910243ab94e0b6a1b7cb61c7ee0c",
       "origin": "modified",
       "firstCommit": "612cb7b01|2026-10-12|fix(orb): 球点链接/图片卡开内嵌浏览器 —— 失败不再静默（真实回执 + 日志 + 开成后揭示主窗）",
       "lastCommit": "612cb7b01|2026-10-12|fix(orb): 球点链接/图片卡开内嵌浏览器 —— 失败不再静默（真实回执 + 日志 + 开成后揭示主窗）",
@@ -4069,16 +4514,18 @@
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/main/host/chromium-command-line.ts": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
-        13,
-        24
+        1,
+        14,
+        25
       ],
       "anchors": [
+        "import { configureDohCommandLine } from './chromium-doh';",
         "logger?: (message: string, fields?: Record<string, unknown>) => void;",
         "configureDohCommandLine({ commandLine, env, logger });"
       ],
-      "hash": "e6b3adf2e758bc9eb7cb26077c7215e9a8e8129f",
+      "hash": "0c7f80fa82a4e6e61ada11dcc2b5a3adbf797b32",
       "origin": "modified",
       "firstCommit": "54f137328|2026-10-06|feat(dns): [XG-CUSTOM 2026-10-06] 内嵌浏览器 DNS 走我们自己的 DoH（治假 AAAA 沉洞 → ERR_TIMED_OUT）+ bump 1.2.27-xiangwo",
       "lastCommit": "54f137328|2026-10-06|feat(dns): [XG-CUSTOM 2026-10-06] 内嵌浏览器 DNS 走我们自己的 DoH（治假 AAAA 沉洞 → ERR_TIMED_OUT）+ bump 1.2.27-xiangwo",
@@ -4213,38 +4660,40 @@
       "note": "禁用自动更新（fork 不许被上游覆盖）"
     },
     "apps/emdash-desktop/src/main/host/window.ts": {
-      "markers": 28,
+      "markers": 29,
       "lines": [
-        16,
-        18,
-        168,
-        172,
-        223,
-        293,
-        325,
-        327,
-        333,
-        365,
-        371,
-        386,
-        405,
-        427,
-        448,
-        473,
-        481,
-        487,
-        524,
-        531,
-        541,
-        579,
-        618,
-        659,
-        697,
-        737,
-        776,
-        832
+        2,
+        17,
+        19,
+        169,
+        173,
+        224,
+        294,
+        326,
+        328,
+        334,
+        366,
+        372,
+        387,
+        406,
+        428,
+        449,
+        474,
+        482,
+        488,
+        525,
+        532,
+        542,
+        580,
+        619,
+        660,
+        698,
+        738,
+        777,
+        833
       ],
       "anchors": [
+        "import { spawn } from 'node:child_process';",
         "import { createXiangwoOrbWindow } from './xiangwo-orb';",
         "// [XG-CUSTOM] 项我球/浮窗的聊天地址解析（渲染进程不猜主机；规则见该文件头） ⏎ import {",
         "let xiangwoFloatingWindow: BrowserWindow | null = null;",
@@ -4273,7 +4722,7 @@
         "let t8Window: BrowserWindow | null = null;",
         "2026-10-12] 把主窗**只在用户看不见它时**提上来，且**绝不抢焦点**。"
       ],
-      "hash": "1530388654ee5f7b5ed3e6854378e159c992f4b4",
+      "hash": "7d0bef81c2fe3904817b44dab23112ae70fbe373",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -5823,19 +6272,23 @@
       "note": "TS 工程配置（别名/类型）"
     },
     "apps/workspace-server/scripts/package.ts": {
-      "markers": 4,
+      "markers": 6,
       "lines": [
         56,
         152,
         476,
-        479
+        479,
+        484,
+        511
       ],
       "anchors": [
         "const artifactsDirectory = join(appDirectory, 'dist-artifacts');",
         "await buildLinuxRuntimeDependencies(nodeDistributionDirectory, temporaryDirectory);",
-        "async function buildLinuxRuntimeDependencies("
+        "async function buildLinuxRuntimeDependencies(",
+        "const stagingDirectory = join(temporaryDirectory, 'linux-runtime-deps');",
+        "const nodeModules = join(stagingDirectory, 'node_modules');"
       ],
-      "hash": "3310b51d65ed2e65682968a4ca9f161f839e254c",
+      "hash": "1b3704036dc587d4ac8eeac0be4d998051324765",
       "origin": "modified",
       "firstCommit": "501f2b81c|2026-09-28|fix(workspace-server): 恢复无 Docker 本地编译 native 依赖的 [XG-CUSTOM] 补丁",
       "lastCommit": "501f2b81c|2026-09-28|fix(workspace-server): 恢复无 Docker 本地编译 native 依赖的 [XG-CUSTOM] 补丁",
@@ -5905,37 +6358,53 @@
       "note": "packages 定制"
     },
     "packages/chat-ui/src/components/rows/message/message.def.tsx": {
-      "markers": 6,
+      "markers": 12,
       "lines": [
-        43,
-        91,
-        103,
-        105,
-        248,
-        304
+        1,
+        15,
+        27,
+        46,
+        61,
+        95,
+        100,
+        108,
+        110,
+        253,
+        307,
+        310
       ],
       "anchors": [
+        "import { useCommands } from '@components/contexts/CommandsContext';",
+        "import { Show, For, createMemo } from 'solid-js';",
+        "// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json ⏎ import {",
         "const isAssistant = item.role === 'assistant';",
+        "text: parsed.text,",
         "// with images must NOT reserve a stray text line. ⏎ const imagesH =",
+        "if (imagesH > 0) return imagesH + footer;",
         "function AssistantImageContent(props: { image: ChatMessageImage }) {",
         "<Show when={props.data.images?.length}>",
+        "} ⏎ const footer = item.role === 'assistant' ? vars.footerH : 0;",
         "// image-only message must not reserve a text line. ⏎ const imagesH ="
       ],
-      "hash": "1cf2c44cf114ac3e4baf2203612c9068be2d67eb",
+      "hash": "1b9defe49f66da298f6047eba207ab6c1bea5bce",
       "origin": "modified",
       "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "note": "packages 定制"
     },
     "packages/chat-ui/src/components/rows/resource-link/ResourceLink.tsx": {
-      "markers": 1,
+      "markers": 3,
       "lines": [
-        67
+        67,
+        78,
+        83
       ],
       "anchors": [
-        "const resolvedTarget = () => props.item.target ?? ({ kind: 'opaque' } as const);"
+        "const resolvedTarget = () => props.item.target ?? ({ kind: 'opaque' } as const);",
+        "const secondary = () => secondaryLabel(props.item.uri, resolvedTarget());",
+        "const target = resolvedTarget();"
       ],
-      "hash": "9df65caa71f5055b2a93ae8370e4136f8e14604f",
+      "hash": "698cb99509280b5200227b8b83eed45212eda733",
       "origin": "modified",
       "firstCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
       "lastCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
@@ -6103,14 +6572,16 @@
       "note": "packages 定制"
     },
     "packages/core/src/runtimes/acp/api/models/turns/turn.ts": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        8
+        4,
+        9
       ],
       "anchors": [
+        "import { transcriptResourceLinkSchema } from './resource-links';",
         "export const transcriptItemSchema = z.union(["
       ],
-      "hash": "f71d7a046646419ff213439cad8de485748bc0f5",
+      "hash": "f84541ae2977185f0732274c93df1fc970b5b3d2",
       "origin": "modified",
       "firstCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
       "lastCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
@@ -6187,74 +6658,90 @@
       "note": "packages 定制"
     },
     "packages/core/src/runtimes/acp/api/reducer/item-fold.ts": {
-      "markers": 5,
+      "markers": 6,
       "lines": [
-        42,
-        630,
-        638,
-        679,
-        866
+        29,
+        43,
+        631,
+        639,
+        680,
+        867
       ],
       "anchors": [
+        "import { makeDiffId, makePlanId, makeResourceLinkId, makeToolId } from './ids';",
         "const XG_IMAGE_MAX_PER_MESSAGE = 60;",
         "...(event.images?.length ? { images: appendImages(msg.images, event.images) } : {}),",
         "if (event.role === 'assistant' && event.images?.length && event.text === '') {",
         "case 'resource_link': {",
         "case 'resource-link': ⏎ return item;"
       ],
-      "hash": "17a39bea985683bd52f6e3c0f38a25b1c307842b",
+      "hash": "2438a0844b6138666c865afa49e257fa697d87fb",
       "origin": "modified",
       "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "note": "packages 定制"
     },
     "packages/core/src/runtimes/agent-config/node/runtime/skills.ts": {
-      "markers": 10,
+      "markers": 16,
       "lines": [
-        21,
-        33,
-        119,
-        184,
-        202,
-        230,
-        242,
-        244,
-        265,
-        279
+        1,
+        5,
+        17,
+        24,
+        36,
+        79,
+        123,
+        188,
+        206,
+        234,
+        246,
+        248,
+        256,
+        264,
+        271,
+        285
       ],
       "anchors": [
+        "import { readFile } from 'node:fs/promises';",
+        "import type { Logger } from '@emdash/shared/logger';",
+        "import { createLocalPluginFs } from '#services/agent-plugins/api/plugins/helpers';",
         "const SKILLS_CONFIG_PATH = `${EMDASH_META}/skills-config.json`;",
         "const USER_SKILLS_ROOT = process.env.EMDASH_USER_SKILLS_ROOT ?? `${homedir()}/.agents`;",
+        "const installed = await getInstalledSkills(",
         "if (await isExternalSkill(this.deps.agentHost.fs, name)) {",
         "// Paths（中央库 + 额外 paths，最低）→ User（~/.agents/skills）→ Local（.agentskills，最高） ⏎ for (const source of externalSkillRoots(config)) {",
         "function externalSkillRoots(config: SkillsConfig): SkillSourceRoot[] {",
         "logger?.warn('[skills] 跳过读不出来的技能', {",
         "const record = provenance?.[entry];",
         "const external = originRef !== undefined;",
+        "source: external ? 'central' : record ? 'skillssh' : 'local',",
+        "readOnly: external || undefined,",
         "async function isExternalSkill(fs: PluginFs, name: string): Promise<boolean> {",
         "async function readSkillsConfig(fs: PluginFs): Promise<SkillsConfig> {"
       ],
-      "hash": "fab1c7c283a37196087b11594326fcdc0512c271",
+      "hash": "84764e3b808a2de4f35f18200c1846c0f6efc39b",
       "origin": "modified",
       "firstCommit": "6f24dc51a|2026-09-21|feat: 中央技能库多来源接入（Local > User > Paths 同名覆盖，Grok Build 原方式）",
       "lastCommit": "6f24dc51a|2026-09-21|feat: 中央技能库多来源接入（Local > User > Paths 同名覆盖，Grok Build 原方式）",
       "note": "中央技能库多来源接入"
     },
     "packages/core/src/runtimes/automations/api/deployment.ts": {
-      "markers": 4,
+      "markers": 5,
       "lines": [
         92,
         98,
         110,
-        116
+        116,
+        137
       ],
       "anchors": [
         "export const automationWebhookTriggerSchema = z.object({",
         "promptTemplate: z.string().optional(),",
         "schedule: automationScheduleSchema.nullable(),",
-        "webhook: automationWebhookTriggerSchema.optional(),"
+        "webhook: automationWebhookTriggerSchema.optional(),",
+        "export type AutomationWebhookTrigger = z.infer<typeof automationWebhookTriggerSchema>;"
       ],
-      "hash": "743179f00cbcf5f92cc9cbc1f151623a99b724a9",
+      "hash": "842ecb6c304e759797ad7d48c7623cc7860c3c60",
       "origin": "modified",
       "firstCommit": "3cdea3da2|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 事件触发接进运行时（第 3 项第三片，端到端可用）",
       "lastCommit": "3cdea3da2|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 事件触发接进运行时（第 3 项第三片，端到端可用）",
@@ -6275,22 +6762,24 @@
       "note": "packages 定制"
     },
     "packages/core/src/runtimes/automations/node/runtime.ts": {
-      "markers": 5,
+      "markers": 6,
       "lines": [
-        55,
-        68,
-        100,
-        107,
-        172
+        42,
+        56,
+        69,
+        101,
+        108,
+        173
       ],
       "anchors": [
+        "import { parseWebhookFilter } from './scheduling/webhook-filter';",
         "webhookPort?: number;",
         "private readonly webhookServer: AutomationWebhookServer;",
         "this.webhookServer = new AutomationWebhookServer({",
         "this.scheduler.runNow(withWebhookPrompt(deployment, payloadText), 'webhook');",
         "if (input.webhook === undefined) {"
       ],
-      "hash": "f79840302a46bd3e726a6c95df8eb301a5ab9e1b",
+      "hash": "9f82703154d3f08e038a7693da92e522a5f4631c",
       "origin": "modified",
       "firstCommit": "3cdea3da2|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 事件触发接进运行时（第 3 项第三片，端到端可用）",
       "lastCommit": "3cdea3da2|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 事件触发接进运行时（第 3 项第三片，端到端可用）",

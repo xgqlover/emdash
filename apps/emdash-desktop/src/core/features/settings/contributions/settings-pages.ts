@@ -14,6 +14,7 @@ import type { SettingsPageTab } from './views';
 
 export const generalSettingsPage = defineSettingsPageContribution({
   id: 'general',
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   label: t('general'),
   icon: 'settings',
   component: GeneralSettingsPage,
@@ -21,6 +22,7 @@ export const generalSettingsPage = defineSettingsPageContribution({
 
 export const integrationsSettingsPage = defineSettingsPageContribution({
   id: 'integrations',
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   label: t('integrations'),
   icon: 'plug',
   component: IntegrationsSettingsPage,
@@ -28,6 +30,7 @@ export const integrationsSettingsPage = defineSettingsPageContribution({
 
 export const interfaceSettingsPage = defineSettingsPageContribution({
   id: 'interface',
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   label: t('interface'),
   icon: 'panel-left',
   component: InterfaceSettingsPage,
@@ -35,6 +38,7 @@ export const interfaceSettingsPage = defineSettingsPageContribution({
 
 export const browserSettingsPage = defineSettingsPageContribution({
   id: 'browser',
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   label: t('browser'),
   icon: 'globe',
   component: BrowserSettingsPage,
@@ -42,6 +46,7 @@ export const browserSettingsPage = defineSettingsPageContribution({
 
 export const repositorySettingsPage = defineSettingsPageContribution({
   id: 'repository',
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   label: t('repository'),
   icon: 'git-branch',
   component: RepositorySettingsPage,
@@ -49,6 +54,7 @@ export const repositorySettingsPage = defineSettingsPageContribution({
 
 export const agentsSettingsPage = defineSettingsPageContribution({
   id: 'clis-models',
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   label: t('agents'),
   icon: 'bot',
   component: AgentsSettingsPage,

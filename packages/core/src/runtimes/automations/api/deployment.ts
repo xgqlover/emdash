@@ -134,6 +134,7 @@ export type AutomationSchedule = z.infer<typeof automationScheduleSchema>;
 export type AutomationAcpAgentConfig = z.infer<typeof automationAcpAgentConfigSchema>;
 export type AutomationTuiAgentConfig = z.infer<typeof automationTuiAgentConfigSchema>;
 export type AutomationAgentConfig = z.infer<typeof automationAgentConfigSchema>;
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 export type AutomationWebhookTrigger = z.infer<typeof automationWebhookTriggerSchema>;
 export type AutomationDeployment = z.infer<typeof automationDeploymentSchema>;
 export type AutomationRunConfigSnapshot = z.infer<typeof automationRunConfigSnapshotSchema>;

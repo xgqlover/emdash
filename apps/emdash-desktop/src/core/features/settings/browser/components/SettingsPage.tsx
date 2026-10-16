@@ -25,6 +25,7 @@ import {
 } from '@core/primitives/keybindings/browser';
 import { resolveDetailLevels, type ResolvedDetailLevel } from './settings-detail-path';
 
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 const LOCAL_SECTION: PageNavSection = { kind: 'section', id: 'local', label: t('local') };
 const REMOTE_SECTION: PageNavSection = { kind: 'section', id: 'remote', label: t('remote') };
 const SETTINGS_SEARCH_HOTKEY = chord('Mod+F');
@@ -181,6 +182,7 @@ export const SettingsPage = observer(function SettingsPage({
                 onClick={() => void openExternal('https://docs.emdash.sh')}
               >
                 <Icon name="external-link" size="sm" />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                 <span>{t('view_docs')}</span>
               </button>
             }

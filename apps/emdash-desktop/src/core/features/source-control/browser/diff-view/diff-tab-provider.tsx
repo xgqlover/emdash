@@ -100,8 +100,10 @@ export const diffTabProvider: TabProvider<'diff', DiffPayload, DiffTabResource, 
 export function diffGroupSuffix(diffGroup: DiffPayload['diffGroup']): string {
   switch (diffGroup) {
     case 'disk':
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
       return t('diff_group_worktree');
     case 'staged':
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
       return t('diff_group_index');
     case 'pr':
       return '(PR)';

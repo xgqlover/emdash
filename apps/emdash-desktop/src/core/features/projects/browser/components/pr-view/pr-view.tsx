@@ -410,6 +410,7 @@ const PrToolbar = observer(function PrToolbar({
             onStatusChange(next as StatusFilter);
           }}
         >
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
           <ToggleGroup.Item value="open">{t('open')}</ToggleGroup.Item>
           <ToggleGroup.Item value="not-open">{t('closed')}</ToggleGroup.Item>
         </ToggleGroup.Root>

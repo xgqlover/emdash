@@ -12,6 +12,7 @@ import { browserWebContentsRegistry } from '@main/host/browser/browser-webconten
 // [XG-CUSTOM 2026-10-12] 「从零开页」回执的落地点 + 开成之后把主窗提上来（只在用户看不见时）
 import { settleEmbeddedBrowserOpenResult } from '@main/host/browser/embedded-browser-open-ack';
 import { isBrowserPartition } from '@main/host/browser/webview-security';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { revealMainWindowIfHidden } from '@main/host/window';
 
 export const browserOperations = {

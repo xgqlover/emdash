@@ -56,6 +56,7 @@ export function DirectorySelectorModal({
     <ModalLayout
       header={
         <Dialog.Header>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
           <Dialog.Title>{t('select_remote_directory')}</Dialog.Title>
         </Dialog.Header>
       }

@@ -10,6 +10,7 @@ import { useTheme } from '@core/primitives/theme/browser';
 const ThemeCard: React.FC = () => {
   const { theme, setTheme } = useTheme();
 
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   const themeOptions: Array<{
     value: Theme;
     label: string;

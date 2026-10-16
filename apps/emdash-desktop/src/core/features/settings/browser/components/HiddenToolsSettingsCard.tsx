@@ -50,6 +50,7 @@ export default function HiddenToolsSettingsCard() {
           const icon = icons[app.id];
           const indicatorClass = isDetected ? 'bg-foreground-success' : 'bg-foreground-passive/50';
           const statusLabel = {
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
             detected: t('detected'),
             'not-detected': t('not_detected'),
             checking: null,

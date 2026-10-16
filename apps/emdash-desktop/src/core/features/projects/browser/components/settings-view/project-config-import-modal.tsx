@@ -96,6 +96,7 @@ export function ProjectConfigImportModal({
   return (
     <>
       <Dialog.Header showCloseButton={false}>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
         <Dialog.Title>{t('import_project_config')}</Dialog.Title>
       </Dialog.Header>
       <Dialog.Body className="pt-0">
@@ -111,6 +112,7 @@ export function ProjectConfigImportModal({
               >
                 <Select.Trigger className="w-full min-w-0">
                   <span className="min-w-0 truncate">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                     {selectedMigration?.label ?? t('select_config')}
                   </span>
                 </Select.Trigger>
@@ -127,6 +129,7 @@ export function ProjectConfigImportModal({
 
           {selectedMigration ? (
             <div className="space-y-2 text-sm">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
               <p>{t('settings_to_import')}</p>
               <ul className="list-disc space-y-1 pl-5 text-foreground-muted">
                 {selectedMigration.fields.map((field) => (
@@ -137,6 +140,7 @@ export function ProjectConfigImportModal({
           ) : null}
 
           <div className="space-y-2 text-sm">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
             <p>{t('save_to')}</p>
             <RadioGroup.Root
               value={destination}
@@ -146,6 +150,7 @@ export function ProjectConfigImportModal({
               <label className="flex items-center gap-3 rounded-md text-sm">
                 <RadioGroup.Item value="local" className="translate-y-px" />
                 <span className="flex min-w-0 flex-row gap-1.5">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                   <p>{t('personal_settings')}</p>
                   <p className="text-foreground-muted">– stored only on this machine</p>
                 </span>

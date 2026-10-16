@@ -92,6 +92,7 @@ export const RenameTaskModal = observer(function RenameTaskModal({
       <Dialog.Body className="pt-0">
         <Field.Group>
           <Field.Root>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
             <Field.Label>{t('task_name_label')}</Field.Label>
             <Input
               value={name}

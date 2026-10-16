@@ -228,6 +228,7 @@ export function ShareableSettingsSection({
 
       <div className="flex flex-col gap-4">
         <Field.Root className="gap-1">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
           <Field.Label>{t('lifecycle_scripts')}</Field.Label>
           <Field.Description className="text-foreground-muted">
             Shell commands run at each stage of the worktree lifecycle. Prepare blocks task startup;

@@ -1,5 +1,6 @@
 import type { ContractClient } from '@emdash/wire/rpc';
 import { domainClient } from '@core/primitives/wire/browser/connection';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { desktopHostContract, desktopHostDomain, type KaneoActInput } from '../api/host-contract';
 
 export type HostClient = ContractClient<typeof desktopHostContract>;

@@ -4,6 +4,7 @@ import { Switch, Tooltip } from '@emdash/ui/react/primitives';
 import { Info } from 'lucide-react';
 import React from 'react';
 import { useAppSettingsKey } from '@core/features/settings/api/browser/use-app-settings-key';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { useTaskSettings } from '@core/features/tasks/api/browser/hooks/useTaskSettings';
 import { ResetToDefaultButton } from './ResetToDefaultButton';
 import { SettingRow } from './SettingRow';
@@ -62,6 +63,7 @@ export const AutoTrustWorktreesRow: React.FC = () => {
     <SettingRow
       title={
         <div className="flex items-center gap-1.5">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
           {t('auto_trust_worktrees')}
           <InfoTooltip
             label={t('auto_trust_tooltip')}
@@ -203,6 +205,7 @@ export const EnableTmuxRow: React.FC = () => {
     resetField,
   } = useAppSettingsKey('project');
 
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   const tmuxByDefault = projects?.tmuxByDefault ?? false;
 
   return (

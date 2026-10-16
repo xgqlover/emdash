@@ -85,6 +85,7 @@ export function ChecksList({ checks }: { checks: CheckRun[] }) {
   const sorted = useMemo(() => sortCheckRunsByLatest(checks), [checks]);
 
   if (sorted.length === 0) {
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
     return <div className="px-3 py-2 text-xs text-foreground-passive">{t('no_checks_available')}</div>;
   }
 
@@ -117,6 +118,7 @@ export const PrChecksList = observer(function PrChecksList({
   );
 
   if (checks.length === 0 && conversationItems.length === 0 && !isLoading && !error) {
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
     return <EmptyState label={t('no_checks_or_comments')} description={t('nothing_available_yet')} />;
   }
 

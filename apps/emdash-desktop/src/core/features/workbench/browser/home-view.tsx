@@ -14,24 +14,28 @@ import { defineViewRuntime } from '@core/primitives/views/react';
 
 const PROJECT_ACTIONS = [
   {
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
     label: t('open_project'),
     description: t('open_project_desc'),
     icon: FolderOpen,
     modalArgs: { strategy: 'local', mode: 'pick' },
   },
   {
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
     label: t('create_repository'),
     description: t('create_repository_desc'),
     icon: Plus,
     modalArgs: { strategy: 'local', mode: 'create' },
   },
   {
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
     label: t('clone_github'),
     description: t('clone_github_desc'),
     icon: Github,
     modalArgs: { strategy: 'local', mode: 'clone' },
   },
   {
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
     label: t('add_remote'),
     description: t('add_remote_desc'),
     icon: Server,

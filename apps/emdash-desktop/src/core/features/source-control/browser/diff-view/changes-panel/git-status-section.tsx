@@ -96,6 +96,7 @@ export const GitStatusSection = observer(function GitStatusSection() {
                     }
                   />
                   <Tooltip.Content>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                     {hostActionReason ?? (isFetching ? t('fetching') : t('fetch_changes'))}
                   </Tooltip.Content>
                 </Tooltip.Root>

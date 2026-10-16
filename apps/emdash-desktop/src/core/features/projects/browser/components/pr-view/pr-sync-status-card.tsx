@@ -10,6 +10,7 @@ import { pullRequestErrorMessage } from '@root/src/core/services/pull-requests/a
 import { usePullRequestsStore } from '@root/src/core/services/pull-requests/browser';
 
 const KIND_LABELS: Record<string, string> = {
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   repository: t('pull_requests'),
   history: 'PR history',
 };
@@ -50,6 +51,7 @@ function SyncErrorStatusCard({
       label={<span className="font-medium text-foreground-destructive">Sync failed</span>}
       content={
         <span className="block truncate text-foreground-destructive/80" title={error ?? undefined}>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
           {error ?? t('unknown_error')}
         </span>
       }
@@ -131,6 +133,7 @@ export const PrSyncStatusCard = observer(function PrSyncStatusCard({
     );
   }
 
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   const error = state?.error ? pullRequestErrorMessage(state.error) : t('unknown_error');
   if (dismissedError === error) return null;
   return (

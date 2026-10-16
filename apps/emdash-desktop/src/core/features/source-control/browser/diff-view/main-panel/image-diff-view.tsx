@@ -203,6 +203,7 @@ function ImageSidePanel({ label, state, side }: { label: string; state: SideStat
 function ImageSideContent({ state, side }: { state: SideState; side: Side }) {
   switch (state.status) {
     case 'loading':
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
       return <div className="text-xs text-foreground-passive">{t('loading')}</div>;
     case 'missing':
       return (
@@ -288,8 +289,10 @@ export const ImageDiffView = observer(function ImageDiffView({
 
   return (
     <div className="flex h-full min-h-0 w-full">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
       <ImageSidePanel label={t('original')} state={original} side="original" />
       <div className="w-px shrink-0 bg-border" />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
       <ImageSidePanel label={t('modified')} state={modified} side="modified" />
     </div>
   );

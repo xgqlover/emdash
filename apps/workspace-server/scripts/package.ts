@@ -481,6 +481,7 @@ async function buildLinuxRuntimeDependencies(
   nodeDistributionDirectory: string,
   temporaryDirectory: string
 ): Promise<string> {
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   const stagingDirectory = join(temporaryDirectory, 'linux-runtime-deps');
   const nodeBinDirectory = join(nodeDistributionDirectory, 'bin');
   const nodePath = join(nodeBinDirectory, 'node');
@@ -507,6 +508,7 @@ async function buildLinuxRuntimeDependencies(
     }
   );
 
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   const nodeModules = join(stagingDirectory, 'node_modules');
   if (!(await pathExists(nodeModules))) {
     throw new Error('Local npm install did not produce node_modules for linux');

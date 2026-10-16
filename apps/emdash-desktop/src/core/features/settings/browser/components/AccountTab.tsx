@@ -59,6 +59,7 @@ export function AccountTab() {
 
   const handleSignOut = () => {
     void openConfirmSignOut({
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
       title: t('sign_out_confirm'),
       description: t('sign_out_desc'),
       confirmLabel: 'Sign Out',
@@ -72,6 +73,7 @@ export function AccountTab() {
     return (
       <div className="text-muted-foreground flex items-center gap-2 text-sm">
         <Loader2 className="h-4 w-4 animate-spin" />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
         {t('loading_account')}
       </div>
     );
@@ -102,6 +104,7 @@ export function AccountTab() {
           disabled={signOutMutation.isPending}
         >
           <LogOut className="h-3.5 w-3.5" />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
           {t('sign_out')}
         </Button>
       </div>
@@ -112,8 +115,10 @@ export function AccountTab() {
     return (
       <div className="flex flex-col gap-3">
         <div>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
           <p className="text-sm font-medium text-foreground">{t('session_expired')}</p>
           <p className="text-muted-foreground text-xs">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
             {t('session_expired_desc')}
           </p>
         </div>
@@ -128,6 +133,7 @@ export function AccountTab() {
             disabled={signInMutation.isPending}
           >
             <LogIn className="h-3.5 w-3.5" />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
             {signInMutation.isPending ? t('signing_in') : t('sign_in')}
           </Button>
         )}
@@ -138,8 +144,10 @@ export function AccountTab() {
   return (
     <div className="flex flex-col gap-3">
       <div>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
         <p className="text-sm font-medium text-foreground">{t('emdash_account')}</p>
         <p className="text-muted-foreground text-xs">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
           {t('emdash_account_desc')}
         </p>
       </div>
@@ -154,6 +162,7 @@ export function AccountTab() {
           disabled={signInMutation.isPending}
         >
           <LogIn className="h-3.5 w-3.5" />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
           {signInMutation.isPending ? t('creating_account') : t('create_account')}
         </Button>
       )}

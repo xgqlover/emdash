@@ -67,6 +67,7 @@ export function ConnectionIssueIndicator({
           </span>
         }
       />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
       <Tooltip.Content side="top">{error || t('connection_issue')}</Tooltip.Content>
     </Tooltip.Root>
   );

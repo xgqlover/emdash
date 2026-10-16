@@ -11,6 +11,7 @@ export const ProjectsGroupLabel = observer(function ProjectsGroupLabel() {
 
   return (
     <div className="flex h-[40px] items-center justify-between pr-2.5 pl-5">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
       <MicroLabel className="font-medium text-foreground-tertiary-passive">{t('projects')}</MicroLabel>
       <div className="flex items-center gap-1">
         <DropdownMenu.Root>
@@ -64,6 +65,7 @@ export const ProjectsGroupLabel = observer(function ProjectsGroupLabel() {
             }
           />
           <Tooltip.Content>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
             {t('add_project')}
             <BoundShortcut command="app.newProject" variant="keycaps" />
           </Tooltip.Content>

@@ -22,6 +22,7 @@ export function TaskNameField({ state }: TaskNameFieldProps) {
       />
       {showSlugHint && (
         <p className="text-muted-foreground mt-1 text-xs">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
           t('task_name_rules')
         </p>
       )}

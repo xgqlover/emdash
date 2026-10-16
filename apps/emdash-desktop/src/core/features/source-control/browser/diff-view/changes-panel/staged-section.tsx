@@ -135,6 +135,7 @@ export const StagedSectionBody = observer(function StagedSectionBody() {
                 title={t('unstage_selected_files')}
               >
                 <Minus className="size-3" />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                 {t('unstage')}
               </Button>
             }
@@ -147,6 +148,7 @@ export const StagedSectionBody = observer(function StagedSectionBody() {
                 title={t('unstage_all_files')}
               >
                 <Minus className="size-3" />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                 {t('unstage_all')}
               </Button>
             }

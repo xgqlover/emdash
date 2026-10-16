@@ -18,6 +18,7 @@ const TelemetryCard: React.FC = () => {
       title={t('privacy_telemetry')}
       description={
         <div>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
           <p>{t('telemetry_desc')}</p>
           <p>
             <span>See </span>
@@ -29,10 +30,12 @@ const TelemetryCard: React.FC = () => {
               onClick={() => openExternal('https://docs.emdash.sh/telemetry')}
             >
               <span className="transition-colors group-hover:text-foreground">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                 {t('telemetry_info')}
               </span>
               <ArrowUpRight className="text-muted-foreground size-3.5 transition-colors transition-transform duration-200 group-hover:translate-x-px group-hover:-translate-y-px group-hover:text-foreground" />
             </Button>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
             <span>{t('for_details')}</span>
           </p>
         </div>
@@ -50,6 +53,7 @@ const TelemetryCard: React.FC = () => {
           />
           {!hasKeyAndHost && (
             <span className="text-muted-foreground text-[10px]">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
               {t('telemetry_inactive')}
             </span>
           )}
