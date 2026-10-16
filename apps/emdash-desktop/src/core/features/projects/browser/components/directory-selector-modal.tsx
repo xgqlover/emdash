@@ -1,3 +1,4 @@
+// [XG-CUSTOM 2026-10-16] 历史欠账补标：本文件含 fork 定制（中文化/界面适配） —— 台账见 scripts/xg-custom/manifest.json
 import { Button, Dialog, Field, Input, ModalLayout } from '@emdash/ui/react/primitives';
 import { t } from '@renderer/lib/i18n';
 import { useQuery } from '@tanstack/react-query';

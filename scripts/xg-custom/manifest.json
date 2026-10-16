@@ -7,10 +7,10 @@
     "base": "760b60caade30f4f1dc870d26af4a612dd426cd7"
   },
   "stats": {
-    "files": 259,
-    "markers": 1529,
+    "files": 322,
+    "markers": 1592,
     "newFiles": 130,
-    "modifiedFiles": 129
+    "modifiedFiles": 192
   },
   "files": {
     ".github/workflows/release-prod.yml": {
@@ -356,6 +356,34 @@
       "lastCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
       "note": "core feature 定制"
     },
+    "apps/emdash-desktop/src/core/features/automations/browser/components/AutomationDetailView.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { Button, DropdownMenu, Input, Switch, Tabs, Tooltip } from '@emdash/ui/react/primitives';"
+      ],
+      "hash": "2f71946b3a1f1e8382726c90845b3807b6798d7d",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/automations/browser/components/AutomationRow.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { AgentStatus } from '@emdash/ui/react/components';"
+      ],
+      "hash": "7b6d27c9179bead04375298c7b521f7c8d9ac103",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "core feature 定制"
+    },
     "apps/emdash-desktop/src/core/features/automations/browser/components/AutomationSettingsFields.tsx": {
       "markers": 2,
       "lines": [
@@ -369,6 +397,34 @@
       "hash": "2ea2eedecb839279e1087e5fa51534d466374d87",
       "origin": "modified",
       "firstCommit": "f4503b5b2|2026-10-05|chore(xg-custom): [XG-CUSTOM 2026-10-05] 补 AutomationSettingsFields 的定制标记（模块级）",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/automations/browser/components/AutomationTemplatesEmptyState.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { Label } from '@emdash/ui/react/primitives';"
+      ],
+      "hash": "a98d940b0592b650fb999e25b1e23c47bc09c4a9",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/automations/browser/components/AutomationsBreadcrumb.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "70ff3ce963d65fe805b7c62cae69354cc34ba1c2",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "core feature 定制"
     },
@@ -397,6 +453,20 @@
       "hash": "b43f433a87d03bdcc8cc2b06941f29adf0c4056f",
       "origin": "modified",
       "firstCommit": "c7b4f3958|2026-10-08|[XG-CUSTOM 2026-10-08] 「自动化」加 Kaneo 看板 Tab + 修台账漏搜带日期标记",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/automations/browser/components/CreateAutomationView.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "9f5c78bcc63b0b0b2b8ab194039c6c21a43ff678",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "core feature 定制"
     },
@@ -429,6 +499,20 @@
       "lastCommit": "c7b4f3958|2026-10-08|[XG-CUSTOM 2026-10-08] 「自动化」加 Kaneo 看板 Tab + 修台账漏搜带日期标记",
       "note": "core feature 定制"
     },
+    "apps/emdash-desktop/src/core/features/automations/browser/components/RunHistory.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { EmptyState } from '@emdash/ui/react/components';"
+      ],
+      "hash": "8f2d061509cb57405e1f638a130daf2f95e9bc52",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "core feature 定制"
+    },
     "apps/emdash-desktop/src/core/features/automations/browser/components/WorkRallyPanel.tsx": {
       "markers": 1,
       "lines": [
@@ -441,6 +525,20 @@
       "origin": "new",
       "firstCommit": "b0825bb3a|2026-10-10|[XG-CUSTOM 2026-10-10] WorkRally 并入「自动化」第三 Tab + 集成↔自动化 互指（用户要「结合」，不要两个孤立入口）",
       "lastCommit": "b0825bb3a|2026-10-10|[XG-CUSTOM 2026-10-10] WorkRally 并入「自动化」第三 Tab + 集成↔自动化 互指（用户要「结合」，不要两个孤立入口）",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/automations/browser/components/pickers/UseTemplateButton.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { DropdownMenu } from '@emdash/ui/react/primitives';"
+      ],
+      "hash": "ca78204e37c660b86cc9ae4c62df65bd5cfd15c4",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/automations/browser/components/xg-tab.test.ts": {
@@ -1074,6 +1172,20 @@
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "会话/ACP 定制（专家交接横条、专家表）"
     },
+    "apps/emdash-desktop/src/core/features/conversations/browser/create-conversation-modal.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { formatHostRef } from '@emdash/core/primitives/host/api';"
+      ],
+      "hash": "14e2eaa2971982fcb8020ee3d6baaa968060b25c",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "会话/ACP 定制（专家交接横条、专家表）"
+    },
     "apps/emdash-desktop/src/core/features/conversations/browser/expert-handoff-modal.tsx": {
       "markers": 1,
       "lines": [
@@ -1218,6 +1330,76 @@
       "lastCommit": "bd2b9657e|2026-09-22|feat: 专家交接台侧边栏导航（handoff view + list 桥接，list 空待后续定位）",
       "note": "专家交接台 feature"
     },
+    "apps/emdash-desktop/src/core/features/library/browser/prompts/prompt-library-view.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "8cf4c08825bf6ca3fe0105b89ad2ea4ff9e80ffd",
+      "origin": "modified",
+      "firstCommit": "3ccb54206|2026-09-18|中文化提示词库 + 项我 MCP 能力声明 + T8 入口 + electron-builder cache",
+      "lastCommit": "3ccb54206|2026-09-18|中文化提示词库 + 项我 MCP 能力声明 + T8 入口 + electron-builder cache",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/library/browser/prompts/prompt-modal.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "2f4906f54079658be3d43bc94b74132c16c51722",
+      "origin": "modified",
+      "firstCommit": "3ccb54206|2026-09-18|中文化提示词库 + 项我 MCP 能力声明 + T8 入口 + electron-builder cache",
+      "lastCommit": "3ccb54206|2026-09-18|中文化提示词库 + 项我 MCP 能力声明 + T8 入口 + electron-builder cache",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/library/contributions/settings-page.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "2816edc194807767176c638ce3859237a64bf670",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/machines/contributions/settings-page.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "49880c50ecd177a50552e4dab6f3795b23ce6985",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/mcp/contributions/settings-page.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "bf68c93b724eb4979339bc3bd8d43f72fbd34a4a",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "core feature 定制"
+    },
     "apps/emdash-desktop/src/core/features/preview-servers/node/port-forward-tunnel.ts": {
       "markers": 3,
       "lines": [
@@ -1232,9 +1414,275 @@
       ],
       "hash": "bcf5195524d74be3bc70006f25deb77fe601e779",
       "origin": "modified",
-      "firstCommit": "6ff9f9d72|2026-09-05|fix(preview-servers): cancel forwarding with tunnel and socket lifetimes",
-      "lastCommit": "6ff9f9d72|2026-09-05|fix(preview-servers): cancel forwarding with tunnel and socket lifetimes",
+      "firstCommit": "22f7e53c1|2026-10-16|修复：点蓝字 → logo 浮窗/空窗（① 回补 classifyLink ② externalLinks 非 http(s) 改 deny ③ 隧道绑定失败回退 port:0）+ [XG-CUSTOM]",
+      "lastCommit": "22f7e53c1|2026-10-16|修复：点蓝字 → logo 浮窗/空窗（① 回补 classifyLink ② externalLinks 非 http(s) 改 deny ③ 隧道绑定失败回退 port:0）+ [XG-CUSTOM]",
       "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/projects/browser/components/add-project-modal/add-project-modal.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { Dialog, Input, ModalLayout, SelectableCard, toast } from '@emdash/ui/react/primitives';"
+      ],
+      "hash": "30df59334f0515ffba864605cb34076c7321e3d3",
+      "origin": "modified",
+      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "note": "中文化 / 项目界面定制"
+    },
+    "apps/emdash-desktop/src/core/features/projects/browser/components/add-project-modal/content.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { SettingsRow } from '@emdash/ui/react/patterns';"
+      ],
+      "hash": "4e71fda822ffd48b80d47177a0ddf42511202197",
+      "origin": "modified",
+      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "note": "中文化 / 项目界面定制"
+    },
+    "apps/emdash-desktop/src/core/features/projects/browser/components/directory-selector-modal.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { Button, Dialog, Field, Input, ModalLayout } from '@emdash/ui/react/primitives';"
+      ],
+      "hash": "e364b6797604b810501d9faef5484f33d0813d64",
+      "origin": "modified",
+      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "note": "中文化 / 项目界面定制"
+    },
+    "apps/emdash-desktop/src/core/features/projects/browser/components/main-panel/active-project.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { getPillTabId, PillTabs, type PillTab } from '@emdash/ui/react/patterns';"
+      ],
+      "hash": "486662b4796c1fb00496d0639e38ca309b177b54",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 / 项目界面定制"
+    },
+    "apps/emdash-desktop/src/core/features/projects/browser/components/main-panel/project-header.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { StatusIcon } from '@emdash/ui/react/components';"
+      ],
+      "hash": "b80c60e170a815b01e1ec7e4507596b30ab4ce16",
+      "origin": "modified",
+      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "note": "中文化 / 项目界面定制"
+    },
+    "apps/emdash-desktop/src/core/features/projects/browser/components/pr-view/pr-row.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { Button, RelativeTime, Tooltip } from '@emdash/ui/react/primitives';"
+      ],
+      "hash": "1badf9f4c936eb2676dc0a437b70290d61ab772f",
+      "origin": "modified",
+      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "note": "中文化 / 项目界面定制"
+    },
+    "apps/emdash-desktop/src/core/features/projects/browser/components/pr-view/pr-sync-status-card.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { ListPopoverCard, type ListPopoverCardStatus } from '@emdash/ui/react/components';"
+      ],
+      "hash": "eacd570d0f407e52a75047b058c94e9920701894",
+      "origin": "modified",
+      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "note": "中文化 / 项目界面定制"
+    },
+    "apps/emdash-desktop/src/core/features/projects/browser/components/pr-view/pr-view.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { CollectionToolbar, CollectionView, SortSelect } from '@emdash/ui/react/patterns';"
+      ],
+      "hash": "0c13641ae23b187a7ecc5d62bbd312804033e5d4",
+      "origin": "modified",
+      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "note": "中文化 / 项目界面定制"
+    },
+    "apps/emdash-desktop/src/core/features/projects/browser/components/rename-project-modal.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { Button, Dialog, Field, Input } from '@emdash/ui/react/primitives';"
+      ],
+      "hash": "9c0eedf57d64ff8b71c45e8183b8bd8f4015923d",
+      "origin": "modified",
+      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "note": "中文化 / 项目界面定制"
+    },
+    "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/project-config-import-modal.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { err, type Result } from '@emdash/shared';"
+      ],
+      "hash": "55231b30cf55b1fc79e9798b92fb2e6fe2c7cea7",
+      "origin": "modified",
+      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "note": "中文化 / 项目界面定制"
+    },
+    "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/project-settings-footer.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { Button, Tooltip } from '@emdash/ui/react/primitives';"
+      ],
+      "hash": "a06acd51eee26eb2e64db2d163834b897ce317e4",
+      "origin": "modified",
+      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "note": "中文化 / 项目界面定制"
+    },
+    "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/sections/shareable-project-settings-section.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { Button, Field, Input, Separator, Switch, Textarea } from '@emdash/ui/react/primitives';"
+      ],
+      "hash": "43b75a35bdc26f0df270d8feb0ff269e78b8b06e",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 / 项目界面定制"
+    },
+    "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/settings-panel.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { Button, Spinner } from '@emdash/ui/react/primitives';"
+      ],
+      "hash": "af8125a9d16188d53d8e9f8b7686c34678f898e4",
+      "origin": "modified",
+      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "note": "中文化 / 项目界面定制"
+    },
+    "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/share-project-config-modal.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { err, type Result } from '@emdash/shared';"
+      ],
+      "hash": "52b03588ceb9565e358010a98e7bb1faee661f69",
+      "origin": "modified",
+      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "note": "中文化 / 项目界面定制"
+    },
+    "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/shareable-setting-title.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { Badge, Button, Field, Tooltip } from '@emdash/ui/react/primitives';"
+      ],
+      "hash": "0e34bcffdc20255f1d5730f96b393f5b98b1ff4c",
+      "origin": "modified",
+      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "note": "中文化 / 项目界面定制"
+    },
+    "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/use-project-settings-form.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import type { GitRemote } from '@emdash/core/runtimes/git/api';"
+      ],
+      "hash": "4ea95e1f4d1390150cd2f0f76376cde747bd72af",
+      "origin": "modified",
+      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "note": "中文化 / 项目界面定制"
+    },
+    "apps/emdash-desktop/src/core/features/projects/browser/components/task-view/task-list-empty-state.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { menuItemBase } from '@emdash/ui/styles/recipes/menu-item';"
+      ],
+      "hash": "bf7d66d4a6892e9fc5deb2e03c18a4aa5ad32390",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 / 项目界面定制"
+    },
+    "apps/emdash-desktop/src/core/features/projects/browser/components/task-view/task-list.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { ListPopoverCard } from '@emdash/ui/react/components';"
+      ],
+      "hash": "649e0f90799a309e3443ffc3e1f4f925461d9f8c",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 / 项目界面定制"
+    },
+    "apps/emdash-desktop/src/core/features/settings/browser/components/AccountTab.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "88c9376f67c5ee7af99eed654e4e9d8fabbd770f",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/components/BrowserSettingsCard.tsx": {
       "markers": 11,
@@ -1270,6 +1718,48 @@
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
+    "apps/emdash-desktop/src/core/features/settings/browser/components/FilesSettingsCard.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "e091a68e495c687dd27c87a6c6a645e69e90c9d6",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
+    },
+    "apps/emdash-desktop/src/core/features/settings/browser/components/HiddenToolsSettingsCard.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "32be0eb73d4edeb7e5a2724353e9e405a98149a6",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
+    },
+    "apps/emdash-desktop/src/core/features/settings/browser/components/IntegrationGridCard.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "1308c9d209f8f0ba8e260f6f1b9d7b3ba26dc406",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
+    },
     "apps/emdash-desktop/src/core/features/settings/browser/components/IntegrationsCard.tsx": {
       "markers": 11,
       "lines": [
@@ -1298,6 +1788,244 @@
         "`id` = 供「自动化」里那个按钮跳过来时**滚到这里并高亮**（见下方 useEffect）。 */} ⏎ <div"
       ],
       "hash": "1becc75e232275c22e634e23077c1965d623b5f0",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
+    },
+    "apps/emdash-desktop/src/core/features/settings/browser/components/InterfaceSettingsCard.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "61305e047092cb1128135351c464efc58e4f7240",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
+    },
+    "apps/emdash-desktop/src/core/features/settings/browser/components/KeyboardSettingsCard.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "5b8fba6b059aee36470e8899b104209220106b67",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
+    },
+    "apps/emdash-desktop/src/core/features/settings/browser/components/NotificationSettingsCard.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "b635265f17a65b80bbfab52e0368373e304e2121",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
+    },
+    "apps/emdash-desktop/src/core/features/settings/browser/components/RepositorySettingsCard.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "e8c2f9d5c57f7171fdbc73672863be3ad08b6120",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
+    },
+    "apps/emdash-desktop/src/core/features/settings/browser/components/SettingsPage.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "d8d69dfb1b080b42959cd13872e747d1de0feaee",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
+    },
+    "apps/emdash-desktop/src/core/features/settings/browser/components/SidebarMetadataSettingsCard.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "73579aefbfeb715ac6251578820a23e4c749fddb",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
+    },
+    "apps/emdash-desktop/src/core/features/settings/browser/components/TaskSettingsRows.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "ed63a2ca1e334278e484786dd6532513896edec2",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
+    },
+    "apps/emdash-desktop/src/core/features/settings/browser/components/TelemetryCard.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "246f55c31c5dd612570b4d3a9de96dd7558db773",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
+    },
+    "apps/emdash-desktop/src/core/features/settings/browser/components/TerminalSettingsCard.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "9b7e9ab919982f1f9cd55e7601d134a56ac2a6b8",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
+    },
+    "apps/emdash-desktop/src/core/features/settings/browser/components/ThemeCard.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "36d04feba193f4bbbd37b8e75785ed3a11816502",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
+    },
+    "apps/emdash-desktop/src/core/features/settings/browser/pages/browser-settings-page.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "4f504a5b779eb19848dd3bca117bc49e96b3cb06",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
+    },
+    "apps/emdash-desktop/src/core/features/settings/browser/pages/general-settings-page.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "14ef25a6d73936a8b05b7a98812b106b09abe1b7",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
+    },
+    "apps/emdash-desktop/src/core/features/settings/browser/pages/integrations-settings-page.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "27f7624607cfda0caaf370bbcf07b08bf4aa9b0c",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
+    },
+    "apps/emdash-desktop/src/core/features/settings/browser/pages/interface-settings-page.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "48a715302f3b4d945ae2e7a5dceb0edaa992f4cd",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
+    },
+    "apps/emdash-desktop/src/core/features/settings/browser/pages/repository-settings-page.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "18660705b4c87d8176a193edd326914a83c50895",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
+    },
+    "apps/emdash-desktop/src/core/features/settings/browser/settings-view.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "f50d23ac91cc0b3523eed9cdd68288fac4ae758e",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
+    },
+    "apps/emdash-desktop/src/core/features/settings/contributions/settings-pages.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "83bed0f58ad1e7ff289d0e3fd4f39265048fa35a",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1363,6 +2091,20 @@
       ],
       "hash": "d06d218ab2d3aa7d297dde03f93470d5aa121727",
       "origin": "new",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "技能库定制（多来源/分类）"
+    },
+    "apps/emdash-desktop/src/core/features/skills/contributions/settings-page.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "d36b2741050c71510f91a377d90d4e899cf86920",
+      "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "技能库定制（多来源/分类）"
@@ -1679,6 +2421,20 @@
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化（任务界面）"
     },
+    "apps/emdash-desktop/src/core/features/tasks/browser/create-task-modal/linked-entity-section.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "4f3c183ee03ed7fc6668b9e670b58bd01a142b18",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化（任务界面）"
+    },
     "apps/emdash-desktop/src/core/features/tasks/browser/create-task-modal/task-name-field.tsx": {
       "markers": 1,
       "lines": [
@@ -1707,6 +2463,20 @@
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化（任务界面）"
     },
+    "apps/emdash-desktop/src/core/features/tasks/browser/pane-empty-state.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "0b5faa71ac95ac5f07863bb352eaeb48e8e3a95c",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化（任务界面）"
+    },
     "apps/emdash-desktop/src/core/features/tasks/browser/rename-task-modal.tsx": {
       "markers": 1,
       "lines": [
@@ -1716,6 +2486,20 @@
         "import { t } from '@renderer/lib/i18n';"
       ],
       "hash": "fabeed0c7c0ce550e6cfdd325c0b435269f35f43",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化（任务界面）"
+    },
+    "apps/emdash-desktop/src/core/features/tasks/browser/task-config/new-worktree-panel.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "c1d38a2c6f87c932b3f6eb0c8196b67623e5e332",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1754,6 +2538,34 @@
       "hash": "81e3d999c8977bf64b15797c6517190e721f70bf",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化（任务界面）"
+    },
+    "apps/emdash-desktop/src/core/features/tasks/contributions/browser/task-config/initial-conversation-section.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { formatHostRef } from '@emdash/core/primitives/host/api';"
+      ],
+      "hash": "d7a175d2545b6a6271b2a95dd6c94ada6dc78d9e",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化（任务界面）"
+    },
+    "apps/emdash-desktop/src/core/features/tasks/contributions/browser/task-config/workspace-settings-section.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "8c17f3b765b97ddfa18ae17bd597659f672cbd90",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化（任务界面）"
     },
@@ -1879,6 +2691,20 @@
       "lastCommit": "903d9865d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 开页复用同 task 同 profile 的已有标签（治「球一喊就叠 N 个同样的页」）+ bump 1.2.25-xiangwo",
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
+    "apps/emdash-desktop/src/core/features/workbench/browser/command-palette/command-palette-modal.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "43f65830e4d371e2308379a20e350a533cf14801",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 项我入口（侧边栏/home）"
+    },
     "apps/emdash-desktop/src/core/features/workbench/browser/external-link-choice-dialog.test.ts": {
       "markers": 1,
       "lines": [
@@ -1891,6 +2717,20 @@
       "origin": "modified",
       "firstCommit": "903d9865d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 开页复用同 task 同 profile 的已有标签（治「球一喊就叠 N 个同样的页」）+ bump 1.2.25-xiangwo",
       "lastCommit": "903d9865d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 开页复用同 task 同 profile 的已有标签（治「球一喊就叠 N 个同样的页」）+ bump 1.2.25-xiangwo",
+      "note": "中文化 + 项我入口（侧边栏/home）"
+    },
+    "apps/emdash-desktop/src/core/features/workbench/browser/external-link-choice-dialog.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "77682c903610a9aacbc71f73e043aaa3709c331c",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
     "apps/emdash-desktop/src/core/features/workbench/browser/home-view.tsx": {
@@ -1925,6 +2765,20 @@
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
+    "apps/emdash-desktop/src/core/features/workbench/browser/sidebar/project-item.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "b613c65c9b8f75cffd33a4691d7ae013eaea74aa",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "中文化 + 项我入口（侧边栏/home）"
+    },
     "apps/emdash-desktop/src/core/features/workbench/browser/sidebar/projects-group-label.tsx": {
       "markers": 1,
       "lines": [
@@ -1951,6 +2805,20 @@
       "origin": "modified",
       "firstCommit": "2719dab0d|2026-09-29|[XG-CUSTOM] 侧边栏 Search… 中文化 + 还原器加对照表结构自检",
       "lastCommit": "2719dab0d|2026-09-29|[XG-CUSTOM] 侧边栏 Search… 中文化 + 还原器加对照表结构自检",
+      "note": "中文化 + 项我入口（侧边栏/home）"
+    },
+    "apps/emdash-desktop/src/core/features/workbench/browser/sidebar/task-sidebar-agent-status.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { t } from '@renderer/lib/i18n';"
+      ],
+      "hash": "e93237dcb2c9c098732e5a32eeed2c2a65265526",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
     "apps/emdash-desktop/src/core/features/workspaces/contributions/browser/workspace-detail-page.tsx": {
@@ -3259,8 +4127,8 @@
       ],
       "hash": "6eda87d5984c072aeaefabcec9719f64e703e6fe",
       "origin": "modified",
-      "firstCommit": "988a2baa4|2026-09-08|fix(browser): route localhost links through the external-link flow",
-      "lastCommit": "988a2baa4|2026-09-08|fix(browser): route localhost links through the external-link flow",
+      "firstCommit": "22f7e53c1|2026-10-16|修复：点蓝字 → logo 浮窗/空窗（① 回补 classifyLink ② externalLinks 非 http(s) 改 deny ③ 隧道绑定失败回退 port:0）+ [XG-CUSTOM]",
+      "lastCommit": "22f7e53c1|2026-10-16|修复：点蓝字 → logo 浮窗/空窗（① 回补 classifyLink ② externalLinks 非 http(s) 改 deny ③ 隧道绑定失败回退 port:0）+ [XG-CUSTOM]",
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/main/host/updates/update-service.test.ts": {
@@ -5749,6 +6617,20 @@
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "项我 agent plugin（CLI 桥 8900）"
+    },
+    "packages/plugins/src/agents/registry.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import type { CLIAgentPluginProvider } from '@emdash/core/services/agent-plugins/api/plugins';"
+      ],
+      "hash": "21526c36174640e527d12f7a0610e64d68f27401",
+      "origin": "modified",
+      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "note": "插件注册表（挂 xiangwo 系 agent）"
     },
     "packages/shared/src/index.ts": {
       "markers": 1,
