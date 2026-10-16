@@ -1,5 +1,7 @@
 import net from 'node:net';
 import { createScope, type Scope } from '@emdash/shared/concurrency';
+// [XG-CUSTOM 2026-10-16] 端口回退要留痕（否则"空窗"只有失败日志、看不出真端口用了哪个）。
+import { log } from '@emdash/shared/logger';
 import { abortableWait } from '@emdash/shared/scheduling';
 import type { SshClientProxy } from '@core/primitives/ssh/api/node/ssh-client-proxy';
 
@@ -70,12 +72,29 @@ export async function openPortForwardTunnel(
     try {
       return await bindTunnel(ownedOptions, options.preferredLocalPort ?? 0, dialOrder, scope);
     } catch (error) {
+      // [XG-CUSTOM 2026-10-16] 回退条件从「只有 EADDRINUSE」放宽到「本地端口绑不上」
+      //   （EADDRINUSE / EACCES）。Windows 上 `preferredLocalPort` 取的是 remotePort
+      //   （实测 8900，见 preview-server-service.ts `request.preferredLocalPort ?? request.remotePort`），
+      //   而那个端口可能落进系统保留段（或已被占）⇒ listen 直接 `EACCES`
+      //   ⇒ 原来这里只认 EADDRINUSE、不认 EACCES ⇒ **不回退** ⇒ 报
+      //   `failed to open manual SSH preview tunnel … error: listen EACCES`
+      //   ⇒ 内嵌标签指向的本地端口没起来 ⇒ 用户看到的就是**空窗**。
+      //   现在改为 `port: 0` 重试一次（系统分配空闲端口），实际端口由下面 resolve 的
+      //   `address.port` 回传（消费者 preview-server-service 落进 `server.localPort`），
+      //   并记一条日志，让内嵌标签能指向真端口。
       if (
         !scope.signal.aborted &&
         options.preferredLocalPort !== undefined &&
-        isAddressInUse(error)
+        isLocalBindUnavailable(error)
       ) {
-        return await bindTunnel(ownedOptions, 0, dialOrder, scope);
+        const fallback = await bindTunnel(ownedOptions, 0, dialOrder, scope);
+        log.warn('PortForwardTunnel: preferred local port unavailable; using an OS-selected port', {
+          remotePort: options.remotePort,
+          preferredLocalPort: options.preferredLocalPort,
+          localPort: fallback.localPort,
+          code: (error as { code?: string }).code,
+        });
+        return fallback;
       }
       throw error;
     }
@@ -219,11 +238,9 @@ function closeServer(server: net.Server): Promise<void> {
   });
 }
 
-function isAddressInUse(error: unknown): boolean {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'code' in error &&
-    (error as { code?: string }).code === 'EADDRINUSE'
-  );
+/** [XG-CUSTOM 2026-10-16] 本地端口绑不上：占用（EADDRINUSE）或无权绑（EACCES，Windows 保留段）。 */
+function isLocalBindUnavailable(error: unknown): boolean {
+  if (typeof error !== 'object' || error === null || !('code' in error)) return false;
+  const code = (error as { code?: string }).code;
+  return code === 'EADDRINUSE' || code === 'EACCES';
 }

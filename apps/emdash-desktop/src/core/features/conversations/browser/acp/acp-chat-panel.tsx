@@ -81,6 +81,13 @@ import { chatViewCommandForShortcut, executeChatViewCommand } from './acp-chat-v
 import { shouldUseAcpImageAttachment, uploadDroppedFile } from './acp-dropped-file';
 import { appendDraftCommentsContext } from './draft-comments-context';
 import { buildIssueMentionHiddenContext } from './issue-mention-context';
+// [XG-CUSTOM 2026-10-16] 恢复被 `7fbf04b50`（中文化定制提交）误删的上游原生行为：
+//   `a0e76fcbb fix(conversations): unify chat file affordance routing` 引入的
+//   transcript 文件意图路由。删掉 classifyLink 后，markdown 里的**本地路径链接**
+//   不再被判成 workspace-file ⇒ chat-ui 退回 `<a target="_blank">` ⇒ 被主进程
+//   externalLinks 兜底放行 ⇒ 开出一个 URL 带前缀的 `app://` 子窗 ⇒ 相对脚本解析错、
+//   JS 一行没跑 ⇒ 永远停在 renderer/index.html 的静态 splash（用户看到的"logo 浮窗"）。
+import { createTranscriptFileCommands } from './transcript-file-commands';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -981,8 +988,14 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
     setViewer({ src, alt });
   }, []);
 
-  const transcriptCommands = useMemo<ChatCommands>(
-    () => ({
+  const transcriptCommands = useMemo<ChatCommands>(() => {
+    // [XG-CUSTOM 2026-10-16] 只用 `classifyLink`（见上方 import 注释）。**刻意不动**
+    //   `onOpenFile` / `onClickMention`：它们各有本 fork 的既有实现，一起换成
+    //   `fileCommands.*` 会把本次修复从"2 行"扩成"改行为"（后者有回归风险）。
+    const fileCommands = store
+      ? createTranscriptFileCommands({ projectId: store.projectId, taskId: store.taskId })
+      : null;
+    return {
       onViewImage: (arg) => {
         if (arg.attachment.dataUrl || !store) {
           handleViewerOpen(arg.attachment.dataUrl, arg.attachment.name);
@@ -1004,6 +1017,9 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
         const open = arg.source === 'diff' ? openFileInAdjacentPane : openFileInTaskEditor;
         void open(store.projectId, store.taskId, arg.path);
       },
+      // [XG-CUSTOM 2026-10-16] 把「链接是不是本地文件路径」的判定交回 chat-ui：
+      //   判成 workspace-file 就由 chat-ui 拦下、交给编辑器，**不再走 `<a target="_blank">`**。
+      classifyLink: fileCommands?.classifyLink,
       onClickMention: (arg: Parameters<NonNullable<ChatCommands['onClickMention']>>[0]) => {
         if (!store) return;
         if (arg.kind === 'file') {
@@ -1037,9 +1053,8 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
             });
         }
       },
-    }),
-    [store, handleViewerOpen]
-  );
+    };
+  }, [store, handleViewerOpen]);
 
   if (!store) return null;
 

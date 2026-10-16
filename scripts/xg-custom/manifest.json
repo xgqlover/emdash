@@ -7,10 +7,10 @@
     "base": "760b60caade30f4f1dc870d26af4a612dd426cd7"
   },
   "stats": {
-    "files": 257,
-    "markers": 1522,
+    "files": 259,
+    "markers": 1529,
     "newFiles": 130,
-    "modifiedFiles": 127
+    "modifiedFiles": 129
   },
   "files": {
     ".github/workflows/release-prod.yml": {
@@ -927,28 +927,32 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/conversations/browser/acp/acp-chat-panel.tsx": {
-      "markers": 14,
+      "markers": 17,
       "lines": [
         17,
         19,
         68,
         72,
-        93,
-        271,
-        325,
-        330,
-        505,
-        515,
-        692,
-        808,
-        918,
-        1058
+        84,
+        100,
+        278,
+        332,
+        337,
+        512,
+        522,
+        699,
+        815,
+        925,
+        992,
+        1020,
+        1073
       ],
       "anchors": [
         "import { XIANGWO_BOTS, XIANGWO_ROLES, XIANGWO_SUBAGENTS } from './xiangwo-experts';",
         "import { projectViewDef } from '@core/features/projects/contributions/views';",
         "import type { ExpertHandoffTopic } from '@core/primitives/desktop-host/api/host-contract';",
         "import { openExternal } from '@core/primitives/desktop-host/browser/host-client';",
+        "import { createTranscriptFileCommands } from './transcript-file-commands';",
         "const XIANGWO_PROJECT_BY_KEY: Record<string, string> = {};",
         "const { navigate } = useNavigate();",
         "const mentionMatch = value.match(/@([a-zA-Z0-9_-]+|[\\u4e00-\\u9fff]+)/);",
@@ -958,9 +962,11 @@
         "const curProviderId =",
         "{/* <ExpertHandoffBar bot=\"\" session=\"\" /> */} ⏎ </div>",
         "const handoffHandledRef = useRef<string | null>(null);",
+        "const fileCommands = store",
+        "classifyLink: fileCommands?.classifyLink,",
         "<ChatTranscript"
       ],
-      "hash": "7a6513f2f81b6cc0b6477f018629cb4c5df04510",
+      "hash": "15b8a730d67e935b545281bf575494420c416d98",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1211,6 +1217,24 @@
       "firstCommit": "bd2b9657e|2026-09-22|feat: 专家交接台侧边栏导航（handoff view + list 桥接，list 空待后续定位）",
       "lastCommit": "bd2b9657e|2026-09-22|feat: 专家交接台侧边栏导航（handoff view + list 桥接，list 空待后续定位）",
       "note": "专家交接台 feature"
+    },
+    "apps/emdash-desktop/src/core/features/preview-servers/node/port-forward-tunnel.ts": {
+      "markers": 3,
+      "lines": [
+        3,
+        75,
+        241
+      ],
+      "anchors": [
+        "import { log } from '@emdash/shared/logger';",
+        "if (",
+        "function isLocalBindUnavailable(error: unknown): boolean {"
+      ],
+      "hash": "bcf5195524d74be3bc70006f25deb77fe601e779",
+      "origin": "modified",
+      "firstCommit": "6ff9f9d72|2026-09-05|fix(preview-servers): cancel forwarding with tunnel and socket lifetimes",
+      "lastCommit": "6ff9f9d72|2026-09-05|fix(preview-servers): cancel forwarding with tunnel and socket lifetimes",
+      "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/components/BrowserSettingsCard.tsx": {
       "markers": 11,
@@ -3223,6 +3247,20 @@
       "origin": "new",
       "firstCommit": "54f137328|2026-10-06|feat(dns): [XG-CUSTOM 2026-10-06] 内嵌浏览器 DNS 走我们自己的 DoH（治假 AAAA 沉洞 → ERR_TIMED_OUT）+ bump 1.2.27-xiangwo",
       "lastCommit": "54f137328|2026-10-06|feat(dns): [XG-CUSTOM 2026-10-06] 内嵌浏览器 DNS 走我们自己的 DoH（治假 AAAA 沉洞 → ERR_TIMED_OUT）+ bump 1.2.27-xiangwo",
+      "note": "renderer/main 侧定制"
+    },
+    "apps/emdash-desktop/src/main/host/externalLinks.ts": {
+      "markers": 1,
+      "lines": [
+        38
+      ],
+      "anchors": [
+        "// （用户看到的\"logo 浮窗\"）。上游的 `will-navigate` 分支同样只放行 http(s)。 ⏎ return { action: 'deny' };"
+      ],
+      "hash": "6eda87d5984c072aeaefabcec9719f64e703e6fe",
+      "origin": "modified",
+      "firstCommit": "988a2baa4|2026-09-08|fix(browser): route localhost links through the external-link flow",
+      "lastCommit": "988a2baa4|2026-09-08|fix(browser): route localhost links through the external-link flow",
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/main/host/updates/update-service.test.ts": {
