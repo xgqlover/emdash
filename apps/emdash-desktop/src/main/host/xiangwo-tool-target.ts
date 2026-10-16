@@ -6,13 +6,19 @@
 // Windows 客户端上 127.0.0.1 是**客户端自己**（不是主机）→ SSH 隧道一失败窗口就白屏，
 // 看着像"这个功能根本没打包进 exe"（实际：代码在、网络也通，只是加载了一个死地址）。
 //
-// 解析顺序（照 host/xiangwo-chat-target.ts 已验证的范式）：
-//   1. 有远程主机（且不是 loopback）→ 先复用 emdash 的 SSH 端口转发
-//      （preview-servers/port-forward-service，即 `services.forwardManualPreview`）；
-//   2. 隧道不可用 / 超时 → **直连主机地址** `http://<host>:<port><path>`
-//      （这些服务在主机上都监听 0.0.0.0；实测 Windows 经 ZeroTier 直连 3010/9037/5180/18766 全部 200）；
+// 解析顺序（**2026-10-16 改成「直连主机优先」**）：
+//   1. 有远程主机（且不是 loopback）且**主机地址可用** → **直连主机** `http://<host>:<port><path>`；
+//   2. 主机地址不可用（`0.0.0.0`/空/`::`）→ 才用 SSH 端口转发（`services.forwardManualPreview`）；
 //   3. 没有远程主机（或主机就是 loopback）→ 本机 `http://127.0.0.1:<port><path>`（旧行为）；
 //   4. **任何异常**都回落本机 —— 绝不让"客户端 == 主机"这条路变坏。
+//
+// ★ 为什么把顺序倒过来（2026-10-16，用户报「每次打开都要登一次」）：
+//   隧道给的是 `http://127.0.0.1:<**随机本地端口**>`，而 **origin 含端口**
+//   ⇒ 每次打开都可能是**另一个 origin**。偏偏这些前端（尤其 WeKnora）把登录态放在 **localStorage**
+//   （WeKnora `stores/auth.ts:211 weknora_token`，全仓无 cookie 形式的 token）⇒ **换了 origin 就要重登**。
+//   直连主机地址恒定 ⇒ 一次登录长期有效；且省掉最多 5s 的隧道等待。
+//   ⚠️ 旧顺序（隧道优先）是 2026-10-03 为「Windows 客户端白屏」加的 —— 新顺序**不改变**那个意图：
+//   主机地址不可用/读主机异常时仍然逐级兜底（隧道 → 本机），**永不白屏**。
 //
 // 本模块**不 import electron**（纯逻辑，单测零依赖）；真实依赖在
 // bootstrap/boot/phases/services.ts 里注入（`firstRemoteHost` + `forwardManualPreview`）。
@@ -95,29 +101,37 @@ export async function computeToolWindowTarget(
   }
   if (host === undefined || host === null || isLoopbackHost(host.host)) return local();
 
+  // [XG-CUSTOM 2026-10-16] **直连主机优先**：origin 恒定 ⇒ 前端的 localStorage 登录态留得住
+  // （原来的「隧道优先」会给随机本地端口，等于每次换一个 origin ⇒ 每次都要重登）。
+  if (isUsableHostAddress(host.host)) {
+    deps.log?.('工具窗口直连主机（origin 恒定）', { remotePort, host: host.host });
+    return {
+      url: `http://${toolAuthority(host.host)}:${String(remotePort)}${normalizeToolPath(path)}`,
+      source: 'host',
+    };
+  }
+
+  // 主机地址不可用（`0.0.0.0`/空/`::`）才退回 SSH 转发 —— 旧意图（外地客户端不白屏）原样保留。
   const forward = deps.forwardRemotePort;
   if (forward !== undefined) {
     try {
       const forwarded = await raceTimeout(forward(remotePort), deps.tunnelTimeoutMs ?? 5000);
       const base = typeof forwarded === 'string' ? stripTrailingSlash(forwarded) : '';
       if (base !== '') {
-        deps.log?.('工具窗口走 SSH 转发', { remotePort, host: host.host, baseUrl: base });
+        deps.log?.('主机地址不可用，工具窗口回退 SSH 转发', {
+          remotePort,
+          host: host.host,
+          baseUrl: base,
+        });
         return { url: `${base}${normalizeToolPath(path)}`, source: 'tunnel' };
       }
     } catch (error) {
-      deps.log?.('SSH 转发失败，改用主机地址直连', {
+      deps.log?.('SSH 转发失败且主机地址不可用，回落本机', {
         remotePort,
         host: host.host,
         error: String(error),
       });
     }
-  }
-  if (isUsableHostAddress(host.host)) {
-    deps.log?.('工具窗口直连主机', { remotePort, host: host.host });
-    return {
-      url: `http://${toolAuthority(host.host)}:${String(remotePort)}${normalizeToolPath(path)}`,
-      source: 'host',
-    };
   }
   deps.log?.('远程主机地址不可用（隧道也不可用），工具窗口回落本机', {
     remotePort,

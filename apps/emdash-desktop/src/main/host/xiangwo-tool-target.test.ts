@@ -1,5 +1,9 @@
-// [XG-CUSTOM] 2026-10-03 工具窗口地址解析（隧道 → 主机直连 → 本机）单测：
-// 守护「外地客户端不再白屏」这条行为——隧道 null/抛错/超时都必须回落到主机地址。
+// [XG-CUSTOM] 2026-10-16 工具窗口地址解析（**主机直连 → 隧道 → 本机**）单测。
+// 守护两条行为：
+//   ① 「外地客户端不再白屏」——主机地址不可用时，隧道 null/抛错/超时都必须有可用回落；
+//   ② ★ **origin 恒定**——主机地址可用时一律直连主机（隧道给的是**随机本地端口**，
+//      而前端（WeKnora）把登录态放 localStorage、**origin 含端口** ⇒ 换端口 = 每次重登。
+//      用户原话：「这个页面每次打开都要登一次…今天都登了好几次了」。
 import { describe, expect, it } from 'vitest';
 import {
   computeToolWindowTarget,
@@ -52,20 +56,41 @@ describe('[XG-CUSTOM] 2026-10-03 computeToolWindowTarget', () => {
     expect(t.url).toBe('http://127.0.0.1:3010');
   });
 
-  it('隧道可用 → 用隧道地址（AFFiNE 无 path）', async () => {
+  it('★★ 主机地址可用 → 一律直连主机（隧道可用也不用）', async () => {
     const t = await computeToolWindowTarget(3010, '/', {
       activeRemoteHost: () => REMOTE,
       forwardRemotePort: async () => 'http://127.0.0.1:41234',
     });
-    expect(t).toEqual({ url: 'http://127.0.0.1:41234', source: 'tunnel' });
+    expect(t).toEqual({ url: 'http://10.239.5.174:3010', source: 'host' });
   });
 
-  it('隧道可用 + path（OpenViking /studio）', async () => {
+  it('★★ origin 恒定：隧道端口每次都不同，URL 必须逐字相同', async () => {
+    const call = (localPort: string) =>
+      computeToolWindowTarget(9037, '/', {
+        activeRemoteHost: () => REMOTE,
+        forwardRemotePort: async () => `http://127.0.0.1:${localPort}`,
+      });
+    const a = await call('41234');
+    const b = await call('59999');
+    expect(a.url).toBe('http://10.239.5.174:9037');
+    expect(b.url).toBe(a.url);
+    expect([a.source, b.source]).toEqual(['host', 'host']);
+  });
+
+  it('直连主机 + path（OpenViking /studio）', async () => {
     const t = await computeToolWindowTarget(1933, '/studio', {
       activeRemoteHost: () => REMOTE,
       forwardRemotePort: async () => 'http://127.0.0.1:41235/',
     });
-    expect(t).toEqual({ url: 'http://127.0.0.1:41235/studio', source: 'tunnel' });
+    expect(t).toEqual({ url: 'http://10.239.5.174:1933/studio', source: 'host' });
+  });
+
+  it('主机地址不可用时才退隧道（旧意图「不白屏」不许退化）', async () => {
+    const t = await computeToolWindowTarget(3010, '/', {
+      activeRemoteHost: () => ({ connectionId: 'c', host: '0.0.0.0' }),
+      forwardRemotePort: async () => 'http://127.0.0.1:41234',
+    });
+    expect(t).toEqual({ url: 'http://127.0.0.1:41234', source: 'tunnel' });
   });
 
   it('★ 隧道返回 null → 直连主机（Windows 客户端不再白屏）', async () => {
