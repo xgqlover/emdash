@@ -121,6 +121,7 @@ export const CreateConversationModal = observer(function CreateConversationModal
   return (
     <>
       <Dialog.Header>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
         <Dialog.Title>创建对话</Dialog.Title>
       </Dialog.Header>
       <Dialog.Body>
@@ -150,6 +151,7 @@ export const CreateConversationModal = observer(function CreateConversationModal
                   disabled={!providerId || !launchSettings.ready || isSubmitting}
                   onCheckedChange={launchSettings.setAutoApprove}
                 />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                 <Field.Label>{t('auto_approve_permissions')}</Field.Label>
               </div>
             </Field.Root>

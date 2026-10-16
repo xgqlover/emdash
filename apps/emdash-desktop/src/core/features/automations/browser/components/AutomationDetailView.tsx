@@ -62,6 +62,7 @@ export const AutomationDetailView = observer(function AutomationDetailView({
 
   return (
     <div className="flex h-full flex-col">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
       <SheetHeader title={t('automation_details')} onClose={onClose} />
       <div className="flex flex-col gap-2 px-4">
         <div className="flex w-full items-center justify-between gap-2">

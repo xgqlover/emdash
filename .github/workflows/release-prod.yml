@@ -120,6 +120,7 @@ jobs:
           if [ -n "$AZ_TENANT" ] && [ -n "$AZ_CLIENT" ] && [ -n "$AZ_SECRET" ]; then
             echo "Azure Trusted Signing is configured."
           else
+# [XG-CUSTOM 2026-10-16] fork 定制（构建/签名/镜像）；台账见 scripts/xg-custom/manifest.json
             echo "::warning::Azure Trusted Signing secrets missing, building unsigned (fork)."
           fi
 
@@ -127,6 +128,7 @@ jobs:
         shell: bash
         working-directory: apps/emdash-desktop
         env:
+# [XG-CUSTOM 2026-10-16] fork 定制（构建/签名/镜像）；台账见 scripts/xg-custom/manifest.json
           ELECTRON_MIRROR: https://npmmirror.com/mirrors/electron/
           ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.github/electron-builder-cache
           ELECTRON_BUILDER_ICONS_TOOLSET_DIR: ${{ github.workspace }}/.github/electron-builder-bin/icons/icons-bundle
@@ -142,6 +144,7 @@ jobs:
       - name: Verify Windows code signature
         shell: bash
         working-directory: apps/emdash-desktop
+# [XG-CUSTOM 2026-10-16] fork 定制（构建/签名/镜像）；台账见 scripts/xg-custom/manifest.json
         run: echo "Skipping code signature verification (unsigned fork build)."
 
       - name: Upload verified Windows assets to owned draft

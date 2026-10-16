@@ -27,6 +27,7 @@ export function UseTemplateButton({ open, onOpenChange, onSelect }: UseTemplateB
           />
         }
       >
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
         <span>{t('use_template')}</span>
         <ChevronDown className="size-3 shrink-0 text-foreground-passive" />
       </DropdownMenu.Trigger>

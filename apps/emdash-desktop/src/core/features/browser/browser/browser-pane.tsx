@@ -21,6 +21,7 @@ import { decideBrowserReload } from './browser-navigation-controls';
 import { BrowserStartPage } from './browser-start-page';
 import { BrowserToolbar } from './browser-toolbar';
 import { canOpenBrowserUrlExternally, openBrowserUrlExternally } from './browser-toolbar-actions';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { createWebviewWebContentsBinder } from './browser-webview-bind';
 import { bindBrowserWebviewEvents } from './browser-webview-events';
 import {
@@ -277,6 +278,7 @@ export const BrowserPane = observer(function BrowserPane({
         setAdapter(createBrowserWebviewAdapter(webviewElement));
       },
     });
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
     return () => {
       dispose();
       binder.dispose();

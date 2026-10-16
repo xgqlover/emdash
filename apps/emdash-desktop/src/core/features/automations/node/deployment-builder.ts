@@ -7,6 +7,7 @@ import { eq } from 'drizzle-orm';
 import { storedGitSettingsFromRow } from '@core/features/projects/api/node/settings/effective-settings';
 import type { WorkspaceIdentity } from '@core/features/workspaces/api/node/workspace-identity-service';
 import type { Automation, AutomationDefinitionError } from '@core/primitives/automations/api';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import {
   getLocalTimeZone,
   isWebhookTrigger,

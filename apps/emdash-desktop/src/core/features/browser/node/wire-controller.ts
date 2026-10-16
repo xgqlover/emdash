@@ -36,6 +36,7 @@ export function createBrowserWireController(browserOperations: BrowserOperations
     clearData: ({ browserId, kind }) => browserOperations.clearData(browserId, kind),
     clearProfileStorage: ({ profileId }) => browserOperations.clearProfileStorage(profileId),
     clearBrowsingData: ({ kind }) => browserOperations.clearBrowsingData(kind),
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
     reportEmbeddedBrowserOpenResult: (input) =>
       browserOperations.reportEmbeddedBrowserOpenResult(input),
     events: browserEvents,

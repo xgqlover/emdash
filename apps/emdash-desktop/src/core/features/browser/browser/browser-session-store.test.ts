@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BrowserSessionStore } from '@core/features/browser/api/browser/browser-session-store';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { resolveBotBrowserProfileId } from '@core/primitives/browser/api';
 
 describe('BrowserSessionStore', () => {

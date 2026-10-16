@@ -23,6 +23,7 @@ import { useInitialConversationState } from '@core/features/tasks/contributions/
 import { agentSupportsAcp, agentSupportsInitialPromptDelivery } from '@core/primitives/agents/api';
 import type { Automation, ConversationConfig } from '@core/primitives/automations/api';
 import type { StoredAutomationTaskConfig, TriggerConfig } from '@core/primitives/automations/api';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { getLocalTimeZone, validateTriggerConfig } from '@core/primitives/automations/api';
 import type { BuiltinAutomationTemplate } from './automation-template';
 

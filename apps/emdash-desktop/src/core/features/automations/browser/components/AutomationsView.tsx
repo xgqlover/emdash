@@ -6,9 +6,11 @@ import {
   PageLayout,
   useQueryListSource,
 } from '@emdash/ui/react/patterns';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { Button, Sheet, Tabs, toast } from '@emdash/ui/react/primitives';
 import { Plus } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { useEffect, useState } from 'react';
 import { automationsViewDef } from '@core/features/automations/contributions/views';
 import { useOpenModal } from '@core/manifests/browser/modal-api';

@@ -4,11 +4,13 @@ import { browserSessionStore } from '@core/features/browser/api/browser/browser-
 import { BrowserTabResource } from '@core/features/browser/api/browser/browser-tab-resource';
 import { getBrowserClient } from '@core/features/browser/api/browser/client';
 import { BrowserPane } from '@core/features/browser/browser/browser-pane';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import {
   getAppSettingValueSnapshot,
   setAppSettingsValueInCache,
   updateAppSettingsRequest,
 } from '@core/features/settings/api/browser/app-settings-client';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import type { TaskTabContext } from '@core/features/workbench/api/browser/tabs/task-tab-context';
 import type { BrowserSessionSnapshot } from '@core/primitives/browser/api';
 import type {
@@ -21,6 +23,7 @@ import type {
 } from '@core/primitives/workbench-shell/browser/tabs/core/tab-provider';
 import { createTabProvider } from '@core/primitives/workbench-shell/browser/tabs/core/tab-provider-registry';
 import { BrowserTabBarItem, BrowserTabBarItemDragPreview } from './browser-tab-item';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { resolveOpenProfile } from './ensure-bot-browser-profile';
 
 export interface BrowserState {
@@ -126,6 +129,7 @@ export const browserTabProvider: TabProvider<
       projectId: taskCtx.projectId,
       workspaceId: taskCtx.workspaceId,
       taskId: taskCtx.taskId,
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
       profileId: resolution.profileId,
       initialUrl: args.initialUrl,
     });

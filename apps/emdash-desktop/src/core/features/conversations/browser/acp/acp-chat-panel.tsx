@@ -78,6 +78,7 @@ import { usePaneContext } from '@core/primitives/workbench-shell/browser/tabs/pa
 import type { AcpChatStore, AcpPromptAttachment } from './acp-chat-store';
 import type { AcpChatTabResource } from './acp-chat-tab-resource';
 import { chatViewCommandForShortcut, executeChatViewCommand } from './acp-chat-view-commands';
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { shouldUseAcpImageAttachment, uploadDroppedFile } from './acp-dropped-file';
 import { appendDraftCommentsContext } from './draft-comments-context';
 import { buildIssueMentionHiddenContext } from './issue-mention-context';
@@ -91,6 +92,7 @@ import { createTranscriptFileCommands } from './transcript-file-commands';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 const attachmentDataUrlCache = new Map<string, Promise<string | null>>();
 const ISSUE_SEARCH_MIN_LENGTH = 2;
 const ISSUE_SEARCH_LIMIT = 20;
@@ -198,6 +200,7 @@ async function uploadImageFile(
   store: AcpChatStore,
   file: File
 ): Promise<AcpPromptAttachment | null> {
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   const mimeType = toAttachmentMimeType(file);
   if (!mimeType) {
     log.warn('Dropped image type is not supported for ACP attachments', {
@@ -233,9 +236,11 @@ function toComposerAttachment(attachment: AcpPromptAttachment): ComposerAttachme
   };
 }
 
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 function resolveAttachmentDataUrl(store: AcpChatStore, id: string): Promise<string | null> {
   const cached = attachmentDataUrlCache.get(id);
   if (cached) return cached;
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   const promise = store
     .downloadAttachment(id)
     .then((result) => {
@@ -382,6 +387,7 @@ const ComposerForStore = observer(function ComposerForStore({
         return;
       }
       void openModal('confirmActionModal', {
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
         title: '进行中',
         description: 'Send this queued prompt now and cancel the active turn?',
         confirmLabel: 'Cancel & Send',
@@ -435,6 +441,7 @@ const ComposerForStore = observer(function ComposerForStore({
 
   const addImageFiles = useCallback(
     async (files: File[]) => {
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
       const supportedFiles = files.filter((file) => toAttachmentMimeType(file) !== null);
       if (supportedFiles.length < files.length) {
         const unsupportedNames = files
@@ -473,6 +480,7 @@ const ComposerForStore = observer(function ComposerForStore({
       e.target.value = '';
       if (files.length === 0) return;
 
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
       const images = files.filter((f) => f.type.startsWith('image/'));
       if (images.length > 0) {
         await addImageFiles(images);
@@ -592,6 +600,7 @@ const ComposerForStore = observer(function ComposerForStore({
           });
         }
 
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
         const fileItems = files.map((f) => ({
           id: f.relativePath,
           label: f.relativePath,
@@ -616,6 +625,7 @@ const ComposerForStore = observer(function ComposerForStore({
               ]
             : [];
 
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
         return [
           ...expertItems,
           ...commentItems,
@@ -731,6 +741,7 @@ const ComposerForStore = observer(function ComposerForStore({
   return createPortal(
     <>
       <input ref={fileInputRef} type="file" multiple hidden onChange={handleFileInputChange} />
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
       {disabledReason && (
         <div
           className="mx-3 mb-1 rounded-md border bg-background/95 px-2 py-1 text-center text-xs text-foreground-muted"
@@ -1100,6 +1111,7 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
           >
             {store.loadError?.kind === 'unavailable' ? (
               <div className="flex max-w-md flex-col items-center gap-2 px-6 text-center">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                 <span className="text-foreground">聊天不可用</span>
                 <span className="text-xs text-foreground-muted">{store.loadError.message}</span>
               </div>
@@ -1107,6 +1119,7 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
               store.loadError.kind === 'auth_required' ? (
                 <div className="flex max-w-md flex-col items-center gap-2 px-6 text-center">
                   <span className="text-foreground">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
                     {agent?.name ?? '此 agent'} 需要你登录。
                   </span>
                   <span className="text-xs text-foreground-muted">

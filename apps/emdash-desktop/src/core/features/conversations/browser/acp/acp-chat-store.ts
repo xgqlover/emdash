@@ -662,6 +662,7 @@ export class AcpChatStore {
       if (this._disposed || this._historyEpoch !== epoch || this.session !== attachedSession)
         return;
       runInAction(() => {
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
         const applied = this.chatState.transcript.applyPage(enrichResourceLinks(history.data));
         if (applied) this.historyKnown = true;
         this.historyLoading = false;

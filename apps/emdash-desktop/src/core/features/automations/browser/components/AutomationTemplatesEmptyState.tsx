@@ -17,8 +17,10 @@ export function AutomationTemplatesEmptyState({
   return (
     <section className="flex flex-col gap-4 py-2">
       <div className="flex flex-col gap-1">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
         <Label>{t('start_with_template')}</Label>
         <p className="max-w-xl text-sm text-foreground-muted">
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
           {t('choose_template_desc')}
         </p>
       </div>

@@ -1,3 +1,4 @@
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { Field, Input, Label } from '@emdash/ui/react/primitives';
 import { CronPicker } from '@core/features/automations/browser/CronPicker';
 import { ProjectSelector } from '@core/features/tasks/contributions/browser/project-selector';
@@ -52,6 +53,7 @@ export function AutomationSettingsFields({
           />
         </Field.Root>
         <Field.Root>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
           <Label>Trigger</Label>
           <div className="flex gap-2">
             <button
@@ -72,6 +74,7 @@ export function AutomationSettingsFields({
             </button>
           </div>
         </Field.Root>
+{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
         {state.triggerKind === 'cron' ? (
           <Field.Root>
             <Label>Schedule</Label>

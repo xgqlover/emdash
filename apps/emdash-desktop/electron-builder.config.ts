@@ -46,6 +46,7 @@ const config: Configuration = {
   executableName: PRODUCT_NAME,
   extraMetadata: { desktopName: `${LINUX_DESKTOP_ID}.desktop` },
   directories: { output: 'release' },
+// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   artifactName: `${_SAFE_PREFIX}-\${arch}.\${ext}`,
   publish: [
     {
