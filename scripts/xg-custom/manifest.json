@@ -8,7 +8,7 @@
   },
   "stats": {
     "files": 322,
-    "markers": 1592,
+    "markers": 1619,
     "newFiles": 130,
     "modifiedFiles": 192
   },
@@ -357,30 +357,34 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/automations/browser/components/AutomationDetailView.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        3
       ],
       "anchors": [
-        "import { Button, DropdownMenu, Input, Switch, Tabs, Tooltip } from '@emdash/ui/react/primitives';"
+        "import { Button, DropdownMenu, Input, Switch, Tabs, Tooltip } from '@emdash/ui/react/primitives';",
+        "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "2f71946b3a1f1e8382726c90845b3807b6798d7d",
+      "hash": "a7d40130911a8f7c24cf61961a33c8ba6bc3ada0",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/automations/browser/components/AutomationRow.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        3
       ],
       "anchors": [
-        "import { AgentStatus } from '@emdash/ui/react/components';"
+        "import { AgentStatus } from '@emdash/ui/react/components';",
+        "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "7b6d27c9179bead04375298c7b521f7c8d9ac103",
+      "hash": "8a563ae6b95e755ba564311ded41a1cdae7ceb3e",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "core feature 定制"
     },
@@ -401,16 +405,18 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/automations/browser/components/AutomationTemplatesEmptyState.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        3
       ],
       "anchors": [
-        "import { Label } from '@emdash/ui/react/primitives';"
+        "import { Label } from '@emdash/ui/react/primitives';",
+        "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "a98d940b0592b650fb999e25b1e23c47bc09c4a9",
+      "hash": "1e23b207919425d86695da9263df57032ab0cda9",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "core feature 定制"
     },
@@ -424,7 +430,7 @@
       ],
       "hash": "70ff3ce963d65fe805b7c62cae69354cc34ba1c2",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "core feature 定制"
     },
@@ -466,7 +472,7 @@
       ],
       "hash": "9f5c78bcc63b0b0b2b8ab194039c6c21a43ff678",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "core feature 定制"
     },
@@ -500,16 +506,18 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/automations/browser/components/RunHistory.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        3
       ],
       "anchors": [
-        "import { EmptyState } from '@emdash/ui/react/components';"
+        "import { EmptyState } from '@emdash/ui/react/components';",
+        "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "8f2d061509cb57405e1f638a130daf2f95e9bc52",
+      "hash": "ba83f1c59c62c6cb6ad43bf38fa0e72395edb541",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "core feature 定制"
     },
@@ -528,16 +536,18 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/automations/browser/components/pickers/UseTemplateButton.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        3
       ],
       "anchors": [
-        "import { DropdownMenu } from '@emdash/ui/react/primitives';"
+        "import { DropdownMenu } from '@emdash/ui/react/primitives';",
+        "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "ca78204e37c660b86cc9ae4c62df65bd5cfd15c4",
+      "hash": "4f2323200843877aa665a7dbeef44cd6877285f9",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "core feature 定制"
     },
@@ -1173,16 +1183,18 @@
       "note": "会话/ACP 定制（专家交接横条、专家表）"
     },
     "apps/emdash-desktop/src/core/features/conversations/browser/create-conversation-modal.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        3
       ],
       "anchors": [
-        "import { formatHostRef } from '@emdash/core/primitives/host/api';"
+        "import { formatHostRef } from '@emdash/core/primitives/host/api';",
+        "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "14e2eaa2971982fcb8020ee3d6baaa968060b25c",
+      "hash": "eb49d38b2de09bc71ef271baffa6ce980b1c9762",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "会话/ACP 定制（专家交接横条、专家表）"
     },
@@ -1340,7 +1352,7 @@
       ],
       "hash": "8cf4c08825bf6ca3fe0105b89ad2ea4ff9e80ffd",
       "origin": "modified",
-      "firstCommit": "3ccb54206|2026-09-18|中文化提示词库 + 项我 MCP 能力声明 + T8 入口 + electron-builder cache",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "3ccb54206|2026-09-18|中文化提示词库 + 项我 MCP 能力声明 + T8 入口 + electron-builder cache",
       "note": "core feature 定制"
     },
@@ -1354,7 +1366,7 @@
       ],
       "hash": "2f4906f54079658be3d43bc94b74132c16c51722",
       "origin": "modified",
-      "firstCommit": "3ccb54206|2026-09-18|中文化提示词库 + 项我 MCP 能力声明 + T8 入口 + electron-builder cache",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "3ccb54206|2026-09-18|中文化提示词库 + 项我 MCP 能力声明 + T8 入口 + electron-builder cache",
       "note": "core feature 定制"
     },
@@ -1368,7 +1380,7 @@
       ],
       "hash": "2816edc194807767176c638ce3859237a64bf670",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "core feature 定制"
     },
@@ -1382,7 +1394,7 @@
       ],
       "hash": "49880c50ecd177a50552e4dab6f3795b23ce6985",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "core feature 定制"
     },
@@ -1396,7 +1408,7 @@
       ],
       "hash": "bf68c93b724eb4979339bc3bd8d43f72fbd34a4a",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "core feature 定制"
     },
@@ -1419,254 +1431,290 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/add-project-modal/add-project-modal.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        3
       ],
       "anchors": [
-        "import { Dialog, Input, ModalLayout, SelectableCard, toast } from '@emdash/ui/react/primitives';"
+        "import { Dialog, Input, ModalLayout, SelectableCard, toast } from '@emdash/ui/react/primitives';",
+        "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "30df59334f0515ffba864605cb34076c7321e3d3",
+      "hash": "2ac116b18b8fa6e11061c57f98c68fa89e216329",
       "origin": "modified",
-      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/add-project-modal/content.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        3
       ],
       "anchors": [
-        "import { SettingsRow } from '@emdash/ui/react/patterns';"
+        "import { SettingsRow } from '@emdash/ui/react/patterns';",
+        "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "4e71fda822ffd48b80d47177a0ddf42511202197",
+      "hash": "e0477ebe412fbe52ac1e971f3ab1e8a5d187cb3d",
       "origin": "modified",
-      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/directory-selector-modal.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        3
       ],
       "anchors": [
-        "import { Button, Dialog, Field, Input, ModalLayout } from '@emdash/ui/react/primitives';"
+        "import { Button, Dialog, Field, Input, ModalLayout } from '@emdash/ui/react/primitives';",
+        "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "e364b6797604b810501d9faef5484f33d0813d64",
+      "hash": "504944a7f8971c051cab0186782ba2234ed4536e",
       "origin": "modified",
-      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/main-panel/active-project.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        3
       ],
       "anchors": [
-        "import { getPillTabId, PillTabs, type PillTab } from '@emdash/ui/react/patterns';"
+        "import { getPillTabId, PillTabs, type PillTab } from '@emdash/ui/react/patterns';",
+        "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "486662b4796c1fb00496d0639e38ca309b177b54",
+      "hash": "1daa6d6c5effb31164c7412fbadd8ef08400b53b",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/main-panel/project-header.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        3
       ],
       "anchors": [
-        "import { StatusIcon } from '@emdash/ui/react/components';"
+        "import { StatusIcon } from '@emdash/ui/react/components';",
+        "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "b80c60e170a815b01e1ec7e4507596b30ab4ce16",
+      "hash": "94135c3c5c1563c04aa88a7a10419587f22ef851",
       "origin": "modified",
-      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/pr-view/pr-row.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        3
       ],
       "anchors": [
-        "import { Button, RelativeTime, Tooltip } from '@emdash/ui/react/primitives';"
+        "import { Button, RelativeTime, Tooltip } from '@emdash/ui/react/primitives';",
+        "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "1badf9f4c936eb2676dc0a437b70290d61ab772f",
+      "hash": "3d252788baaaaa32e225431b5b54fcd1f3a68c9d",
       "origin": "modified",
-      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/pr-view/pr-sync-status-card.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        3
       ],
       "anchors": [
-        "import { ListPopoverCard, type ListPopoverCardStatus } from '@emdash/ui/react/components';"
+        "import { ListPopoverCard, type ListPopoverCardStatus } from '@emdash/ui/react/components';",
+        "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "eacd570d0f407e52a75047b058c94e9920701894",
+      "hash": "1a51ed8d872c50efe2ef65c787270c60a872d5ac",
       "origin": "modified",
-      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/pr-view/pr-view.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        3
       ],
       "anchors": [
-        "import { CollectionToolbar, CollectionView, SortSelect } from '@emdash/ui/react/patterns';"
+        "import { CollectionToolbar, CollectionView, SortSelect } from '@emdash/ui/react/patterns';",
+        "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "0c13641ae23b187a7ecc5d62bbd312804033e5d4",
+      "hash": "f45c38e286a4135d34166536ef85ba62c42241cd",
       "origin": "modified",
-      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/rename-project-modal.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        3
       ],
       "anchors": [
-        "import { Button, Dialog, Field, Input } from '@emdash/ui/react/primitives';"
+        "import { Button, Dialog, Field, Input } from '@emdash/ui/react/primitives';",
+        "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "9c0eedf57d64ff8b71c45e8183b8bd8f4015923d",
+      "hash": "7026e919087a73de232217fbc5ecf773b98dc058",
       "origin": "modified",
-      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/project-config-import-modal.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        3
       ],
       "anchors": [
-        "import { err, type Result } from '@emdash/shared';"
+        "import { err, type Result } from '@emdash/shared';",
+        "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "55231b30cf55b1fc79e9798b92fb2e6fe2c7cea7",
+      "hash": "7dd47508a8997f55971416f74ffc42982924f122",
       "origin": "modified",
-      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/project-settings-footer.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        3
       ],
       "anchors": [
-        "import { Button, Tooltip } from '@emdash/ui/react/primitives';"
+        "import { Button, Tooltip } from '@emdash/ui/react/primitives';",
+        "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "a06acd51eee26eb2e64db2d163834b897ce317e4",
+      "hash": "59fc37e205d3330f3b1a2624ab3508f0f58b78e6",
       "origin": "modified",
-      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/sections/shareable-project-settings-section.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        4
       ],
       "anchors": [
-        "import { Button, Field, Input, Separator, Switch, Textarea } from '@emdash/ui/react/primitives';"
+        "import { Button, Field, Input, Separator, Switch, Textarea } from '@emdash/ui/react/primitives';",
+        "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "43b75a35bdc26f0df270d8feb0ff269e78b8b06e",
+      "hash": "664207fca3fdca7802b00c348567f4dfdf169924",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/settings-panel.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        3
       ],
       "anchors": [
-        "import { Button, Spinner } from '@emdash/ui/react/primitives';"
+        "import { Button, Spinner } from '@emdash/ui/react/primitives';",
+        "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "af8125a9d16188d53d8e9f8b7686c34678f898e4",
+      "hash": "c9ea7aca65e6ad09434ab44fb76384c35e4d0cc1",
       "origin": "modified",
-      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/share-project-config-modal.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        3
       ],
       "anchors": [
-        "import { err, type Result } from '@emdash/shared';"
+        "import { err, type Result } from '@emdash/shared';",
+        "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "52b03588ceb9565e358010a98e7bb1faee661f69",
+      "hash": "e2a92287774d949a0b7a064cce20750ac858f5e8",
       "origin": "modified",
-      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/shareable-setting-title.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        3
       ],
       "anchors": [
-        "import { Badge, Button, Field, Tooltip } from '@emdash/ui/react/primitives';"
+        "import { Badge, Button, Field, Tooltip } from '@emdash/ui/react/primitives';",
+        "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "0e34bcffdc20255f1d5730f96b393f5b98b1ff4c",
+      "hash": "1adb0de5d34e9555726364c70f2152a78c4223e0",
       "origin": "modified",
-      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/use-project-settings-form.ts": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        3
       ],
       "anchors": [
-        "import type { GitRemote } from '@emdash/core/runtimes/git/api';"
+        "import type { GitRemote } from '@emdash/core/runtimes/git/api';",
+        "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "4ea95e1f4d1390150cd2f0f76376cde747bd72af",
+      "hash": "1fc3bdbc1bf44470822532813dd1eeea62eb39f5",
       "origin": "modified",
-      "firstCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/task-view/task-list-empty-state.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        3
       ],
       "anchors": [
-        "import { menuItemBase } from '@emdash/ui/styles/recipes/menu-item';"
+        "import { menuItemBase } from '@emdash/ui/styles/recipes/menu-item';",
+        "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "bf7d66d4a6892e9fc5deb2e03c18a4aa5ad32390",
+      "hash": "f1493eacd385660b7539a6e61404ed6a85e22138",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/task-view/task-list.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        3
       ],
       "anchors": [
-        "import { ListPopoverCard } from '@emdash/ui/react/components';"
+        "import { ListPopoverCard } from '@emdash/ui/react/components';",
+        "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "649e0f90799a309e3443ffc3e1f4f925461d9f8c",
+      "hash": "af3ec0415a6b6c05cfb4b0ce1680c464ec8b2ad0",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 / 项目界面定制"
     },
@@ -1680,7 +1728,7 @@
       ],
       "hash": "88c9376f67c5ee7af99eed654e4e9d8fabbd770f",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
@@ -1728,7 +1776,7 @@
       ],
       "hash": "e091a68e495c687dd27c87a6c6a645e69e90c9d6",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
@@ -1742,7 +1790,7 @@
       ],
       "hash": "32be0eb73d4edeb7e5a2724353e9e405a98149a6",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
@@ -1756,7 +1804,7 @@
       ],
       "hash": "1308c9d209f8f0ba8e260f6f1b9d7b3ba26dc406",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
@@ -1803,7 +1851,7 @@
       ],
       "hash": "61305e047092cb1128135351c464efc58e4f7240",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
@@ -1817,7 +1865,7 @@
       ],
       "hash": "5b8fba6b059aee36470e8899b104209220106b67",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
@@ -1831,7 +1879,7 @@
       ],
       "hash": "b635265f17a65b80bbfab52e0368373e304e2121",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
@@ -1845,7 +1893,7 @@
       ],
       "hash": "e8c2f9d5c57f7171fdbc73672863be3ad08b6120",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
@@ -1859,7 +1907,7 @@
       ],
       "hash": "d8d69dfb1b080b42959cd13872e747d1de0feaee",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
@@ -1873,7 +1921,7 @@
       ],
       "hash": "73579aefbfeb715ac6251578820a23e4c749fddb",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
@@ -1887,7 +1935,7 @@
       ],
       "hash": "ed63a2ca1e334278e484786dd6532513896edec2",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
@@ -1901,7 +1949,7 @@
       ],
       "hash": "246f55c31c5dd612570b4d3a9de96dd7558db773",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
@@ -1915,7 +1963,7 @@
       ],
       "hash": "9b7e9ab919982f1f9cd55e7601d134a56ac2a6b8",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
@@ -1929,7 +1977,7 @@
       ],
       "hash": "36d04feba193f4bbbd37b8e75785ed3a11816502",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
@@ -1943,7 +1991,7 @@
       ],
       "hash": "4f504a5b779eb19848dd3bca117bc49e96b3cb06",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
@@ -1957,7 +2005,7 @@
       ],
       "hash": "14ef25a6d73936a8b05b7a98812b106b09abe1b7",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
@@ -1971,7 +2019,7 @@
       ],
       "hash": "27f7624607cfda0caaf370bbcf07b08bf4aa9b0c",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
@@ -1985,7 +2033,7 @@
       ],
       "hash": "48a715302f3b4d945ae2e7a5dceb0edaa992f4cd",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
@@ -1999,7 +2047,7 @@
       ],
       "hash": "18660705b4c87d8176a193edd326914a83c50895",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
@@ -2013,7 +2061,7 @@
       ],
       "hash": "f50d23ac91cc0b3523eed9cdd68288fac4ae758e",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
@@ -2027,7 +2075,7 @@
       ],
       "hash": "83bed0f58ad1e7ff289d0e3fd4f39265048fa35a",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
@@ -2105,7 +2153,7 @@
       ],
       "hash": "d36b2741050c71510f91a377d90d4e899cf86920",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "技能库定制（多来源/分类）"
     },
@@ -2431,7 +2479,7 @@
       ],
       "hash": "4f3c183ee03ed7fc6668b9e670b58bd01a142b18",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化（任务界面）"
     },
@@ -2473,7 +2521,7 @@
       ],
       "hash": "0b5faa71ac95ac5f07863bb352eaeb48e8e3a95c",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化（任务界面）"
     },
@@ -2501,7 +2549,7 @@
       ],
       "hash": "c1d38a2c6f87c932b3f6eb0c8196b67623e5e332",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化（任务界面）"
     },
@@ -2542,16 +2590,18 @@
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/contributions/browser/task-config/initial-conversation-section.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        3
       ],
       "anchors": [
-        "import { formatHostRef } from '@emdash/core/primitives/host/api';"
+        "import { formatHostRef } from '@emdash/core/primitives/host/api';",
+        "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "d7a175d2545b6a6271b2a95dd6c94ada6dc78d9e",
+      "hash": "5cac350570017ab676fd5975e2d350c593ffd9be",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化（任务界面）"
     },
@@ -2565,7 +2615,7 @@
       ],
       "hash": "8c17f3b765b97ddfa18ae17bd597659f672cbd90",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化（任务界面）"
     },
@@ -2701,7 +2751,7 @@
       ],
       "hash": "43f65830e4d371e2308379a20e350a533cf14801",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
@@ -2729,7 +2779,7 @@
       ],
       "hash": "77682c903610a9aacbc71f73e043aaa3709c331c",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
@@ -2775,7 +2825,7 @@
       ],
       "hash": "b613c65c9b8f75cffd33a4691d7ae013eaea74aa",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
@@ -2817,7 +2867,7 @@
       ],
       "hash": "e93237dcb2c9c098732e5a32eeed2c2a65265526",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
@@ -6619,16 +6669,20 @@
       "note": "项我 agent plugin（CLI 桥 8900）"
     },
     "packages/plugins/src/agents/registry.ts": {
-      "markers": 1,
+      "markers": 3,
       "lines": [
-        1
+        1,
+        40,
+        65
       ],
       "anchors": [
-        "import type { CLIAgentPluginProvider } from '@emdash/core/services/agent-plugins/api/plugins';"
+        "import type { CLIAgentPluginProvider } from '@emdash/core/services/agent-plugins/api/plugins';",
+        "import { provider as xiangwo } from './impl/xiangwo';",
+        "2026-10-16] 项我 10 个 bot provider 注册（fork 定制；台账见 scripts/xg-custom/manifest.json）"
       ],
-      "hash": "21526c36174640e527d12f7a0610e64d68f27401",
+      "hash": "5b9fbbeddabb77bb0c788b6b20cf4968e51477c0",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "插件注册表（挂 xiangwo 系 agent）"
     },

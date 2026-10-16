@@ -1,5 +1,6 @@
 // [XG-CUSTOM 2026-10-16] 历史欠账补标：本文件含 fork 定制（中文化/界面适配） —— 台账见 scripts/xg-custom/manifest.json
 import type { GitRemote } from '@emdash/core/runtimes/git/api';
+// [XG-CUSTOM 2026-10-16] 中文化取词入口（本文件含中文文案定制；同 scripts/xg-i18n/manifest.json）
 import { t } from '@renderer/lib/i18n';
 import { err, type Result } from '@emdash/shared';
 import { useToast } from '@emdash/ui/react/primitives';

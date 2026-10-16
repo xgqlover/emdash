@@ -37,6 +37,7 @@ import { provider as pi } from './impl/pi';
 import { provider as primeAgent } from './impl/prime-agent';
 import { provider as qoder } from './impl/qoder';
 import { provider as qwen } from './impl/qwen';
+// [XG-CUSTOM 2026-10-16] 项我 10 个 bot provider 注册（fork 定制；台账见 scripts/xg-custom/manifest.json）
 import { provider as xiangwo } from './impl/xiangwo';
 import { provider as xiangwo_sxsj } from './impl/xiangwo-sxsj';
 import { provider as xiangwo_babado } from './impl/xiangwo-babado';
@@ -61,6 +62,7 @@ for (const p of [
   grok,
   devin,
   qwen,
+// [XG-CUSTOM 2026-10-16] 项我 10 个 bot provider 注册（fork 定制；台账见 scripts/xg-custom/manifest.json）
   xiangwo,
   xiangwo_sxsj,
   xiangwo_babado,
