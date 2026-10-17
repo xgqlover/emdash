@@ -479,7 +479,48 @@ function normalizeQuestion(raw, index) {
  * @param {string} text 助手回复原文
  * @returns {{ text: string, question?: { questions: Array<object>, allowCustom: boolean } }}
  */
-function parseQuestionBlock(text) {
+/**
+ * [XG-CUSTOM 2026-10-17] 把**服务端发来的结构化卡片载荷**（SSE 顶层 `xg_card`）归一化成渲染用的 question 对象。
+ * 复用 `normalizeQuestion`（与正文解析**同一套**归一化 ⇒ 两条路渲染出来一模一样），不另写一份。
+ * @param {unknown} payload `{questions:[...], allowCustom?}`（或 v1 老格式 `{title, options}`）
+ * @returns {{ questions: Array<object>, allowCustom: boolean } | undefined}
+ */
+function questionFromStructuredCard(payload) {
+  if (payload === null || typeof payload !== 'object') return undefined;
+  const raw = payload;
+  const questions = [];
+  if (Array.isArray(raw.questions)) {
+    for (const item of raw.questions) {
+      const question = normalizeQuestion(item, questions.length);
+      if (question === undefined) continue;
+      questions.push(question);
+      if (questions.length >= QUESTION_MAX_QUESTIONS) break;
+    }
+  }
+  if (questions.length === 0) {
+    const legacy = normalizeQuestion({ question: raw.title, options: raw.options }, 0);
+    if (legacy === undefined) return undefined;
+    questions.push(legacy);
+  }
+  return { questions, allowCustom: raw.allowCustom !== false };
+}
+
+/** [XG-CUSTOM 2026-10-17] 剔掉正文里的**全部**卡块（结构化通道接管后，正文那一段不再显示） */
+function stripQuestionBlocks(text) {
+  return String(text ?? '')
+    .replace(/```xiangwo-question\s*[\s\S]*?```/g, '')
+    .trim();
+}
+
+function parseQuestionBlock(text, structured) {
+  // [XG-CUSTOM 2026-10-17] ★ **结构化优先**：服务端发了 `xg_card` ⇒ 用载荷渲染、把正文里的卡块整段剔掉。
+  //   为什么（见 `提问卡-OPS.md` §21/§23）：① 卡不走正文 ⇒ 形状不用正则抠（多块/坏块/半截都消失）；
+  //   ② 正文那份列表与卡**不再各一份**（§20 的重复）；③ 多块时第二块**不会再当代码块漏成裸 JSON**。
+  //   ⚠️ 老服务端/非 SSE 路径没有该字段 ⇒ 自动退回下面的正则解析（**零回归**）。
+  const structuredQuestion = questionFromStructuredCard(structured);
+  if (structuredQuestion !== undefined) {
+    return { text: stripQuestionBlocks(text), question: structuredQuestion };
+  }
   const match = /```xiangwo-question\s*([\s\S]*?)```/.exec(text);
   if (match === null) return { text };
   try {
@@ -1004,7 +1045,9 @@ async function main() {
           ? { text: stripXiangwoOpenUrlBlocks(withAction.text) }
           : { text: withAction.text };
       const parsed =
-        message.role === 'assistant' ? parseQuestionBlock(withOpen.text) : { text: withOpen.text };
+        message.role === 'assistant'
+          ? parseQuestionBlock(withOpen.text, message.card)
+          : { text: withOpen.text };
       if (parsed.text !== '' || message.streaming === true) {
         const bubble = document.createElement('div');
         bubble.className = 'transcript-bubble';
@@ -1564,7 +1607,7 @@ async function main() {
     if (last === undefined || last.role !== 'assistant') return false;
     // 已答/已取消/已跳过：整张卡都作废了（`answer` 是唯一的落盘标记）
     if (typeof last.answer === 'string' && last.answer !== '') return false;
-    const parsed = parseQuestionBlock(parseXiangwoImagesBlock(last.text ?? '').text);
+    const parsed = parseQuestionBlock(parseXiangwoImagesBlock(last.text ?? '').text, last.card);
     if (parsed.question === undefined) return false;
     const drafts = draftState(last, parsed.question.questions);
     return parsed.question.questions.some((_, index) => !draftAnswered(drafts[index]));
@@ -2009,6 +2052,11 @@ async function main() {
       return;
     }
     message.text = note === '' ? text : `${text}\n${note}`;
+    // [XG-CUSTOM 2026-10-17] 结构化卡（SSE 顶层 `xg_card`）⇒ 挂到消息上，渲染时**优先**用它。
+    //   服务端已做单槽（一回合只发一张），这里再取第一张兜一层。
+    if (Array.isArray(result.cards) && result.cards.length > 0) {
+      message.card = result.cards[0];
+    }
   }
 
   async function send(text, image) {

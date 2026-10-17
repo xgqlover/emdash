@@ -296,6 +296,12 @@ export type XiangwoSseFrame = {
   status: string;
   /** 服务端明确推了一帧空 content（心跳）→ 状态区显示"还在干活"，但不往气泡里塞东西 */
   heartbeat: boolean;
+  /**
+   * [XG-CUSTOM 2026-10-17] **结构化卡片载荷**（服务端 SSE 的顶层 `xg_card` 字段，见 `提问卡-OPS.md` §21）。
+   * 有它就不必再从正文里正则抠 ```xiangwo-question``` 块 —— 卡**不走正文**，正文那一段由渲染层剔掉。
+   * ⚠️ 老服务端不发这个字段 ⇒ `undefined` ⇒ 渲染层自动退回老的正则解析（零回归）。
+   */
+  card?: unknown;
 };
 
 export type XiangwoSseDecoder = {
@@ -338,7 +344,14 @@ function framesOfSseEvent(block: string, markDone: () => void): XiangwoSseFrame[
     const delta = asRecord(asRecord(choice).delta);
     const text = typeof delta.content === 'string' ? delta.content : '';
     const status = typeof delta.status === 'string' ? delta.status : '';
-    frames.push({ text, status, heartbeat: text === '' && status === '' });
+    // [XG-CUSTOM 2026-10-17] 顶层 `xg_card`（同一 chunk 里与正文并存）⇒ 挂到这一帧上
+    const card = record.xg_card;
+    frames.push({
+      text,
+      status,
+      heartbeat: text === '' && status === '',
+      ...(card !== undefined && card !== null ? { card } : {}),
+    });
   }
   return frames;
 }
@@ -500,6 +513,11 @@ export type StreamXiangwoChatOptions = {
 export type XiangwoStreamResult = {
   /** 已收到的完整文本（中途断流时=部分内容，务必保留） */
   text: string;
+  /**
+   * [XG-CUSTOM 2026-10-17] 本回合收到的**结构化卡片载荷**（SSE 顶层 `xg_card`；0~1 张）。
+   * 渲染层有它就**不再从正文里抠卡**（正文那一段会被剔掉）⇒ 卡不走正文、也不会正文/卡各一份。
+   */
+  cards?: unknown[];
   /** 是否收到过**任意字节**（false 才是失败；true 时永远不抛错） */
   received: boolean;
   /** 正常结束（`[DONE]` / 连接正常关闭 / 非 SSE 整段） */
@@ -598,8 +616,11 @@ export async function streamXiangwoChat(
     let fullText = '';
     let received = false;
     let nonSse = false;
+    // [XG-CUSTOM 2026-10-17] 本回合收到的**结构化卡片**（通常 0~1 张；多张由服务端单槽收敛）
+    const cards: unknown[] = [];
     const finish = (extra: Partial<XiangwoStreamResult>): XiangwoStreamResult => ({
       text: fullText,
+      cards: cards.slice(),
       received,
       completed: false,
       interrupted: false,
@@ -672,6 +693,8 @@ export async function streamXiangwoChat(
           }
           if (frame.status !== '') options.onStatus?.(frame.status);
           else if (frame.heartbeat) options.onHeartbeat?.();
+          // [XG-CUSTOM 2026-10-17] 结构化卡片：收进本回合结果（渲染层优先用它，不再解析正文）
+          if (frame.card !== undefined) cards.push(frame.card);
         }
       };
 
