@@ -1148,6 +1148,12 @@ body:not(.expanded) {
   overflow-wrap: anywhere;
 }
 
+/* [XG-CUSTOM 2026-10-17] 让选项按钮能**缩到列宽以内**（不放这条，`.question-option-label`
+ * 的 nowrap + ellipsis 不会被触发：flex 项的 min-width:auto 会被 nowrap 的最小内容宽度撑住）。 */
+.question-option {
+  min-width: 0;
+}
+
 .question-option:hover:not(:disabled) {
   border-color: var(--pin);
 }
@@ -1180,7 +1186,17 @@ body:not(.expanded) {
 }
 
 .question-option-label {
-  overflow-wrap: anywhere;
+  /* [XG-CUSTOM 2026-10-17] 选项 label 按**列宽**省略（不是按字数）：
+   *   服务端只在 `context_ir/card.py` 按字数收短（_CHOICE_LABEL_SOFT_MAX=24）⇒ 宽屏浪费、窄屏溢出换行。
+   *   这里做 CSS 级省略：单行 + ellipsis；可省略的宽度由**这一列**决定
+   *   （`.question-card` 的 max-width:92% → `.question-options` 的行宽 → 本行下面的
+   *   `.question-option` / 本元素的 `min-width:0` 一起把 nowrap 的最小内容宽度放开）。
+   *   全文走按钮的 `title=`（orb.js renderQuestionCard 里设的）。**不动 description 的样式**。 */
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* [XG-CUSTOM] 选项 description（小字说明） */

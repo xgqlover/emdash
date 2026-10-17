@@ -727,6 +727,11 @@ async function main() {
   // [XG-CUSTOM 2026-10-12] 待发图片缩略图条（发图后停在这里，等用户打字再发）
   const attachments = document.querySelector('#attachments');
   const composer = document.querySelector('#composer');
+  // [XG-CUSTOM 2026-10-17] 提问卡开着时的 **composer 草稿单槽**（draft stash，处理见 arm/restoreComposerDraft）。
+  //   为什么状态建在这里：`renderQuestionCard` 在 renderTranscript 里、初始化后续也会渲染，
+  //   必须早于**任何一次渲染**就把槽建好（const 有 TDZ，晚声明要在首帧抛 ReferenceError）。
+  //   单槽 = 新的覆盖旧的；用户期间自己又打的字**优先**（旧文本丢弃、不拼接）。
+  const draftStash = { text: '', armed: false };
   const stop = document.querySelector('#stop');
   const pagesButton = document.querySelector('#pages');
   const pagesCount = document.querySelector('#pages-count');
@@ -1262,6 +1267,10 @@ async function main() {
     const questions = question.questions;
     const answered = typeof message.answer === 'string' && message.answer !== '';
     const answeredText = answered ? message.answer : '';
+    // [XG-CUSTOM 2026-10-17] **卡出现**就把 composer 里没发的草稿收进单槽并让输入框空着
+    // （处理见 armComposerStash：为什么收 / 为什么只收一次都写在那边）。
+    // 已答态的卡（历史里的）不再收 —— 那不是"卡刚弹出"。
+    if (!answered) armComposerStash();
     const drafts = answered
       ? questions.map(() => ({ selected: [], custom: '', skipped: true }))
       : draftState(message, questions);
@@ -1271,10 +1280,16 @@ async function main() {
     /** 收尾：写答案文本（**只落文本**）→ 重渲染成已答态；skipSend=true 用于「取消」 */
     const commit = (value, skipSend) => {
       if (answered) return;
+      // [XG-CUSTOM 2026-10-17] 先抓「卡开着时用户自己又打的字」：`send()` 会 `clearPrompt()`，
+      //   抓晚了这段就被连坐清掉；回填时它**优先于** stash 的旧草稿（用户的为准，不拼接）。
+      const live = promptText(prompt);
       message.answer = value;
       persistConversations();
       renderTranscript();
       if (skipSend !== true) void send(value);
+      // [XG-CUSTOM 2026-10-17] 卡作答/取消后把草稿填回（光标在末尾、不自动发送）。放在 `send()` **之后**：
+      //   `send()` 的同步段（含 `clearPrompt()`）在它第一个 `await` 之前就跑完了 ⇒ 先填会被再清一次。
+      restoreComposerDraft(live);
     };
 
     /** 提交：先校验"每一问都答了或跳过了"，缺就跳过去 + 出提示（绝不静默） */
@@ -1327,6 +1342,9 @@ async function main() {
           button.setAttribute('role', item.multiSelect ? 'checkbox' : 'radio');
           button.setAttribute('aria-checked', String(chosen));
           button.setAttribute('aria-label', option.label);
+          // [XG-CUSTOM 2026-10-17] label 在**渲染层**按列宽省略（CSS 见 orb.css 的 .question-option-label），
+          //   被省略时要能看全文 ⇒ 悬停 title 给完整 label（不用 JS 量字，服务端仍只按字数收短）。
+          button.title = option.label;
           button.disabled = !interactive;
           const copy = document.createElement('span');
           copy.className = 'question-option-copy';
@@ -1903,6 +1921,54 @@ async function main() {
     prompt.classList.add('prompt-empty');
     document.body.classList.remove('composer-capped');
     document.body.style.setProperty('--composer-height', 'var(--ball)');
+  }
+
+  /**
+   * [XG-CUSTOM 2026-10-17] **卡一出现**：把 composer 里没发送的文本收进单槽，并把输入框留空
+   * （空着的输入框不会挡卡的按钮操作）。照 Grok Build 的 draft stash 处置 ——
+   * **不做阻塞式弹窗**，卡照旧可以点、可以跳过、可以取消。
+   *
+   * 为什么必须收：答卡走 `commit → send()`，而 `send()` 会 `clearPrompt()`
+   * ⇒ 不收起来，用户这段"打了但没发"的草稿会被答卡的动作连坐清掉（这就是丢字的事故路径）。
+   *
+   * 为什么只收一次：卡开着时 `renderTranscript()` 会反复整表重绘（流式收尾、主进程推消息、
+   * 切 bot…）。每次都收就会把"卡开着时用户新打的字"再清一次 ⇒ 用 `armed` 做幂等。
+   */
+  function armComposerStash() {
+    if (draftStash.armed) return;
+    const text = promptText(prompt);
+    draftStash.armed = true;
+    draftStash.text = text;
+    if (text !== '') clearPrompt();
+  }
+
+  /**
+   * [XG-CUSTOM 2026-10-17] **卡被作答/取消后**：把草稿原样填回输入框、光标放到末尾，
+   * **不自动发送**（用户可能只是想改一改再发）。
+   * @param {string} live 答卡那一刻用户**自己又打的字**（composer 当时的内容）。
+   *   非空就**以用户的为准**：stash 里的旧文本直接丢弃（不拼接）。
+   */
+  function restoreComposerDraft(live) {
+    if (!draftStash.armed) return;
+    draftStash.armed = false;
+    const stashed = draftStash.text;
+    draftStash.text = '';
+    const text = live.trim() !== '' ? live : stashed;
+    if (text === '') return;
+    if (text !== promptText(prompt)) {
+      // `#prompt` 是 `white-space: pre-wrap` 的 contenteditable ⇒ 赋纯文本换行也原样保留
+      prompt.textContent = text;
+      prompt.classList.remove('prompt-empty');
+      syncComposerHeight();
+    }
+    prompt.focus();
+    const range = document.createRange();
+    range.selectNodeContents(prompt);
+    range.collapse(false); // false = 收成"末尾"的光标（不是选中整段）
+    const selection = window.getSelection();
+    if (selection === null) return;
+    selection.removeAllRanges();
+    selection.addRange(range);
   }
 
   prompt.addEventListener('input', () => {
