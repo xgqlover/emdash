@@ -8,7 +8,7 @@
   },
   "stats": {
     "files": 323,
-    "markers": 1893,
+    "markers": 1894,
     "newFiles": 130,
     "modifiedFiles": 193
   },
@@ -1095,7 +1095,7 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/conversations/browser/acp/acp-chat-panel.tsx": {
-      "markers": 30,
+      "markers": 31,
       "lines": [
         17,
         19,
@@ -1119,17 +1119,18 @@
         603,
         628,
         709,
-        744,
-        826,
-        936,
-        1003,
-        1031,
-        1084,
-        1114,
-        1122
+        717,
+        746,
+        828,
+        938,
+        1005,
+        1033,
+        1086,
+        1116,
+        1124
       ],
       "anchors": [
-        "import { XIANGWO_BOTS, XIANGWO_ROLES, XIANGWO_SUBAGENTS } from './xiangwo-experts';",
+        "import { XIANGWO_BOTS, XIANGWO_EXPERTS, XIANGWO_ROLES, XIANGWO_SUBAGENTS } from './xiangwo-experts';",
         "import { projectViewDef } from '@core/features/projects/contributions/views';",
         "import type { ExpertHandoffTopic } from '@core/primitives/desktop-host/api/host-contract';",
         "import { openExternal } from '@core/primitives/desktop-host/browser/host-client';",
@@ -1151,6 +1152,7 @@
         "const fileItems = files.map((f) => ({",
         "return [",
         "const curProviderId =",
+        "const expertPool = curBot",
         "{disabledReason && ( ⏎ <div",
         "{/* <ExpertHandoffBar bot=\"\" session=\"\" /> */} ⏎ </div>",
         "const handoffHandledRef = useRef<string | null>(null);",
@@ -1160,7 +1162,7 @@
         "<span className=\"text-foreground\">聊天不可用</span>",
         "{agent?.name ?? '此 agent'} 需要你登录。 ⏎ </span>"
       ],
-      "hash": "3356e6407ec85bf6aca5e5faaa0c7bf09675e74e",
+      "hash": "297c87ac8a570b2b055037cc10f40591a206145f",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1264,7 +1266,7 @@
       "anchors": [
         "export type XiangwoMentionItem = { id: string; name: string; bot: string };"
       ],
-      "hash": "2293ff2f252f5a152564beca6c2c83099fac81b5",
+      "hash": "eceb665badb265cc896ea320488910c6e96800aa",
       "origin": "new",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",

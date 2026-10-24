@@ -15,7 +15,7 @@ import { ArrowDown, MessageSquare } from 'lucide-react';
 import { observer, useObserver } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 // [XG-CUSTOM] 项我 @ 专家补全清单（从 suagent_registry.py 生成）
-import { XIANGWO_BOTS, XIANGWO_ROLES, XIANGWO_SUBAGENTS } from './xiangwo-experts';
+import { XIANGWO_BOTS, XIANGWO_EXPERTS, XIANGWO_ROLES, XIANGWO_SUBAGENTS } from './xiangwo-experts';
 // [XG-CUSTOM] 方案 B：@bot 后左侧切到对应 bot 大仓
 import { projectViewDef } from '@core/features/projects/contributions/views';
 import { useNavigate } from '@core/primitives/navigation/browser/navigation-hooks';
@@ -714,9 +714,11 @@ const ComposerForStore = observer(function ComposerForStore({
       const curBot = curProviderId.startsWith('xiangwo-')
         ? curProviderId.slice('xiangwo-'.length)
         : '';
+      // [XG-CUSTOM 2026-10-24] 主窗再加「通用专家」（EXPERTS）——原来生成器没发这一段，
+      // 导致 registry 里 19 个跨 bot 专家从来没进过 @ 清单。
       const expertPool = curBot
-        ? XIANGWO_SUBAGENTS.filter((e) => e.bot === curBot)
-        : [...XIANGWO_BOTS, ...XIANGWO_ROLES];
+        ? [...XIANGWO_SUBAGENTS.filter((e) => e.bot === curBot), ...XIANGWO_EXPERTS]
+        : [...XIANGWO_BOTS, ...XIANGWO_ROLES, ...XIANGWO_EXPERTS];
       const experts = expertPool
         .filter(
           (e) => !normalized || e.name.toLowerCase().includes(normalized) || e.id.includes(normalized)
