@@ -46,6 +46,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react
 import type {
   KaneoActInput,
   KaneoActResult,
+  KaneoBoardProject,
   KaneoBoardResult,
   KaneoPipeline,
 } from '@core/primitives/desktop-host/api/host-contract';
@@ -53,6 +54,9 @@ import { kaneoAct, kaneoBoard } from '@core/primitives/desktop-host/browser/host
 import { cn } from '@core/primitives/styling/browser/cn';
 
 /** Kaneo 的列 slug → 人话（未知 slug 原样显示，别瞎猜） */
+// [XG-CUSTOM 2026-10-20] 看板列序（**固定四格**，缺的补 0 显示）
+const COLUMN_ORDER = ['to-do', 'in-progress', 'in-review', 'done'] as const;
+
 const COLUMN_LABEL: Record<string, string> = {
   'to-do': '待办',
   'in-progress': '进行中',
@@ -129,6 +133,61 @@ const DISPATCH_ACTION: Record<string, string> = {
   skipped: '跳过',
   error: '失败',
 };
+
+// ── [XG-CUSTOM 2026-10-20] 项目网格（**数据早就有，前端从来没画**）──────────────
+// 真机 10-20 截图：面板只显示一行「245 张卡 · 8 个项目 · 4 个工作区」，**8 个项目一个都不露面**。
+// 而 `kaneoBoard(false)` 返回的 `projects[].cards` 是全的（8 项目 / 245 张，含列与标题）
+// ⇒ 这里按卡数降序铺成网格，每个项目列出前几张卡（列徽章 + 标题），其余折叠成「另外 N 张」。
+const CARD_PREVIEW = 5;
+
+function ProjectGrid({ projects }: { projects: KaneoBoardProject[] }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="text-foreground-muted flex items-center gap-2 text-sm font-medium">
+        <LayoutGrid className="h-4 w-4" />
+        项目
+        <span className="text-foreground-passive font-normal">
+          （{projects.length} 个，按卡数降序）
+        </span>
+      </div>
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {projects.map((p) => {
+          const shown = p.cards.slice(0, CARD_PREVIEW);
+          const rest = p.cards.length - shown.length;
+          return (
+            <div
+              key={p.projectId}
+              className="border-border-subtle flex flex-col gap-2 rounded-md border p-3"
+            >
+              <div className="flex items-baseline justify-between gap-2">
+                <span className="truncate text-sm font-medium" title={p.name}>
+                  {p.name || '(未命名)'}
+                </span>
+                <Badge variant="soft">{p.count}</Badge>
+              </div>
+              <div className="text-foreground-passive truncate text-xs">{p.workspace}</div>
+              <div className="flex flex-col gap-1">
+                {shown.map((c) => (
+                  <div key={c.id} className="flex items-baseline gap-2 text-xs">
+                    <span className="text-foreground-passive w-[54px] shrink-0 truncate">
+                      {COLUMN_LABEL[c.column] ?? c.column}
+                    </span>
+                    <span className="truncate" title={c.title}>
+                      {c.title}
+                    </span>
+                  </div>
+                ))}
+                {rest > 0 ? (
+                  <div className="text-foreground-passive text-xs">… 另外 {rest} 张</div>
+                ) : null}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 function PipelineStrip({ p }: { p: KaneoPipeline }) {
   const { engine: e, shell: s, worker: w, dispatch: d } = p;
@@ -533,10 +592,14 @@ export function KaneoBoardPanel() {
         title="Kaneo 看板"
         description="全流程状态 + Kaneo 概览 + Archify 系统图（一屏看住：出图引擎 / 图片线 / 排活 / 最近产物）"
         actions={
-          <Button variant="secondary" size="sm" onClick={() => void load()} disabled={loading}>
-            <RefreshCw className={cn('mr-1 h-4 w-4', loading && 'animate-spin')} />
-            刷新
-          </Button>
+          // [XG-CUSTOM 2026-10-20] 包一层 `shrink-0`：PageLayout.Header 的 actions 槽会把
+          // 单个按钮拉成横贯整行（真机 10-20 截图：一个"刷新"占满一整条）。
+          <div className="flex shrink-0 items-center gap-2">
+            <Button variant="secondary" size="sm" onClick={() => void load()} disabled={loading}>
+              <RefreshCw className={cn('mr-1 h-4 w-4', loading && 'animate-spin')} />
+              刷新
+            </Button>
+          </div>
         }
       />
 
@@ -585,15 +648,28 @@ export function KaneoBoardPanel() {
         )}
       </div>
 
-      {data?.columns?.length ? (
+      {/* [XG-CUSTOM 2026-10-20] 列徽章**按看板列序固定四格**（缺的补 0）——
+          原来只显示"真有卡的列"，于是永远只有「待办 / 进行中」，看着像没有闭环。
+          0 是真话：Kaneo 默认就有 to-do/in-progress/in-review/done 四列（`_order()` 同序）。 */}
+      {data ? (
         <div className="flex flex-wrap gap-2">
-          {data.columns.map((c) => (
-            <Badge key={c.slug} variant="soft">
-              {COLUMN_LABEL[c.slug] ?? c.slug} {c.count}
+          {COLUMN_ORDER.map((slug) => (
+            <Badge key={slug} variant="soft">
+              {COLUMN_LABEL[slug] ?? slug} {data.columns?.find((c) => c.slug === slug)?.count ?? 0}
             </Badge>
           ))}
+          {(data.columns ?? [])
+            .filter((c) => !(COLUMN_ORDER as readonly string[]).includes(c.slug))
+            .map((c) => (
+              <Badge key={c.slug} variant="soft">
+                {COLUMN_LABEL[c.slug] ?? c.slug} {c.count}
+              </Badge>
+            ))}
         </div>
       ) : null}
+
+      {/* [XG-CUSTOM 2026-10-20] 项目 + 卡片列表（原来一个都不画） */}
+      {data?.projects?.length ? <ProjectGrid projects={data.projects} /> : null}
 
       {/* 图选择器（现在 2 张，用按钮组） */}
       {diagrams.length > 0 ? (

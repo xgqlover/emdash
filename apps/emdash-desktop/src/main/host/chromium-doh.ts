@@ -269,43 +269,60 @@ function buildProbeQuery(): Uint8Array<ArrayBuffer> {
  */
 export async function probeDohReachability(
   template: string,
-  options: { timeoutMs?: number; fetchImpl?: typeof fetch } = {}
+  options: { timeoutMs?: number; fetchImpl?: typeof fetch; attempts?: number; retryDelayMs?: number } = {}
 ): Promise<DohProbeResult> {
   const timeoutMs = options.timeoutMs ?? DOH_PROBE_TIMEOUT_MS;
   const fetchImpl = options.fetchImpl ?? fetch;
+  // [XG-CUSTOM 2026-10-20] **启动竞态要重试** —— 真机（Win 客户端 12:13:46）日志：
+  //   `[XG-CUSTOM] DoH: 探测不通（TypeError: fetch failed）`。那一步在 app ready 后 **1 秒**就跑，
+  //   此刻网卡/DNS 常常还没就绪 ⇒ 一次失败就把 secure 关掉 = 「开机先输一局」。
+  //   ⇒ 只对**抛错**重试（`HTTP 5xx` / `content-type` 不对 = 服务器真这么答，重试没意义，也不该改判据）。
+  const attempts = Math.max(1, Number(options.attempts ?? 2));
+  const retryDelayMs = Math.max(0, Number(options.retryDelayMs ?? 250));
   const startedAt = Date.now();
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  try {
-    const timeout = new Promise<never>((_, reject) => {
-      timer = setTimeout(() => reject(new Error(`探测超时（${timeoutMs}ms）`)), timeoutMs);
-    });
-    const response = await Promise.race([
-      fetchImpl(template, {
-        method: 'POST',
-        headers: { 'content-type': 'application/dns-message', accept: 'application/dns-message' },
-        body: buildProbeQuery(),
-      }),
-      timeout,
-    ]);
-    const ms = Date.now() - startedAt;
-    const contentType = (response.headers.get('content-type') ?? '').toLowerCase();
-    if (!response.ok) {
-      return { ran: true, ok: false, ms, reason: `HTTP ${response.status}` };
+  let lastReason = '';
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      const timeout = new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`探测超时（${timeoutMs}ms）`)), timeoutMs);
+      });
+      const response = await Promise.race([
+        fetchImpl(template, {
+          method: 'POST',
+          headers: { 'content-type': 'application/dns-message', accept: 'application/dns-message' },
+          body: buildProbeQuery(),
+        }),
+        timeout,
+      ]);
+      const ms = Date.now() - startedAt;
+      const contentType = (response.headers.get('content-type') ?? '').toLowerCase();
+      if (!response.ok) {
+        return { ran: true, ok: false, ms, reason: `HTTP ${response.status}` };
+      }
+      if (!contentType.includes('application/dns-message')) {
+        return {
+          ran: true,
+          ok: false,
+          ms,
+          reason: `content-type 不是 application/dns-message（${contentType || '空'}）`,
+        };
+      }
+      return { ran: true, ok: true, ms, reason: 'ok' };
+    } catch (error) {
+      // [XG-CUSTOM 2026-10-20] **真因别丢**：`String(e)` 只有 `TypeError: fetch failed`，
+      //   undici 把根因放在 `cause` 里；不报出来等于下次还是只能看到"失败"两个字。
+      const cause = (error as { cause?: unknown })?.cause;
+      lastReason = String(error) + (cause ? `｜cause: ${String(cause)}` : '');
+      if (attempt >= attempts) {
+        return { ran: true, ok: false, ms: Date.now() - startedAt, reason: lastReason };
+      }
+      if (retryDelayMs > 0) await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+    } finally {
+      if (timer !== undefined) clearTimeout(timer);
     }
-    if (!contentType.includes('application/dns-message')) {
-      return {
-        ran: true,
-        ok: false,
-        ms,
-        reason: `content-type 不是 application/dns-message（${contentType || '空'}）`,
-      };
-    }
-    return { ran: true, ok: true, ms, reason: 'ok' };
-  } catch (error) {
-    return { ran: true, ok: false, ms: Date.now() - startedAt, reason: String(error) };
-  } finally {
-    if (timer !== undefined) clearTimeout(timer);
   }
+  return { ran: true, ok: false, ms: Date.now() - startedAt, reason: lastReason || '未知失败' };
 }
 
 // ───────────────────────── [XG-CUSTOM] 2026-10-06 落地（异步：先探测再决策）─────────────────────────

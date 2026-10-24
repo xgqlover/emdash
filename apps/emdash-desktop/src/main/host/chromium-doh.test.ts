@@ -286,6 +286,32 @@ describe('probeDohReachability', () => {
     expect(Date.now() - startedAt).toBeLessThan(500);
   });
 
+  it('[XG-CUSTOM] 抛错后重试一次（启动竞态）：第 1 次抛、第 2 次通 ⇒ ok，且只重试"抛错"', async () => {
+    let calls = 0;
+    const fetchImpl = (async () => {
+      calls += 1;
+      if (calls === 1) throw new Error('fetch failed');
+      return okResponse();
+    }) as never;
+    const result = await probeDohReachability(DEFAULT_DOH_TEMPLATE, {
+      fetchImpl,
+      retryDelayMs: 1,
+    });
+    expect(calls).toBe(2);
+    expect(result.ok).toBe(true);
+  });
+
+  it('HTTP 非 2xx **不重试**（重试也只会再拿一次同样的应答）', async () => {
+    let calls = 0;
+    const fetchImpl = (async () => {
+      calls += 1;
+      return new Response('nope', { status: 503 });
+    }) as never;
+    const result = await probeDohReachability(DEFAULT_DOH_TEMPLATE, { fetchImpl, retryDelayMs: 1 });
+    expect(calls).toBe(1);
+    expect(result).toMatchObject({ ok: false, reason: 'HTTP 503' });
+  });
+
   it('fetch 抛错 ⇒ 不通（原因原文）', async () => {
     const result = await probeDohReachability(DEFAULT_DOH_TEMPLATE, {
       fetchImpl: (async () => {

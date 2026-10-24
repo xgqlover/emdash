@@ -55,7 +55,18 @@ export function configureBrowserProfileSession(partition: string): Session {
   // host/browser/xiangwo-browser-proxy.ts 的文件头)。任何异常/缺值都只是"不用代理"，
   // **绝不因为变量缺失而崩**。只影响浏览器 partition session，不影响 emdash 主连接。
   const browserProxy = resolveXiangwoBrowserProxy({
-    readConfigFile: (fileName) => readFileSync(join(app.getPath('userData'), fileName), 'utf8'),
+    // [XG-CUSTOM 2026-10-20] **没有配置文件 ≠ 读取失败**：`xiangwo-browser-proxy.json` 是**可选手写件**，
+    //   原来 ENOENT 直接抛进 `resolveXiangwoBrowserProxy` 的 catch ⇒ 每次启动两条
+    //   `[xiangwo-browser-proxy] … ENOENT … 读取失败，忽略`（真机 10-20 每启动 2 条），
+    //   把真正的读失败（EACCES/EISDIR）一起淹掉。⇒ 只吞 ENOENT，其它照抛。
+    readConfigFile: (fileName) => {
+      try {
+        return readFileSync(join(app.getPath('userData'), fileName), 'utf8');
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException)?.code === 'ENOENT') return undefined;
+        throw error;
+      }
+    },
     log: (message, metadata) => {
       log.warn(`[xiangwo-browser-proxy] ${message}`, metadata);
     },

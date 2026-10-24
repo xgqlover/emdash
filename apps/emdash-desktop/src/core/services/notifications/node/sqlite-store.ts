@@ -1,5 +1,5 @@
 import { err, ok, type Result } from '@emdash/shared';
-import { desc, gte, inArray, lt } from 'drizzle-orm';
+import { desc, gte, inArray, lt, notInArray } from 'drizzle-orm';
 import type { AppDb } from '@core/services/app-db/node/db';
 import { notifications } from '@core/services/app-db/node/schema';
 import type { AppNotification } from '../api';
@@ -115,11 +115,23 @@ export class SqliteNotificationStore implements NotificationStore {
     try {
       await this.db.delete(notifications).where(lt(notifications.createdAt, options.olderThan));
 
-      const overflow = await this.db
+      // [XG-CUSTOM 2026-10-20] **`offset` 前面必须有 `limit`**（SQLite 语法）——原写法只给 `.offset()`
+      //   ⇒ 生成 `… order by "created_at" desc offset ?` ⇒ 每次启动
+      //   `notifications: prune failed — near "offset": syntax error`（真机 10-20 实测，全仓唯一一处）。
+      //   ⛔ **别用 `.limit(-1)` 想绕过**：drizzle 0.32.2 **直接忽略负数 limit**（用 node:sqlite 实测，
+      //   生成的 SQL 与旧写法一模一样，照样报错）。⇒ 改成「先取最新 maxRows 的 id，再删不在其中的」。
+      const keep = await this.db
         .select({ id: notifications.id })
         .from(notifications)
         .orderBy(desc(notifications.createdAt))
-        .offset(options.maxRows);
+        .limit(Math.max(0, options.maxRows));
+      const keepIds = keep.map((row) => row.id);
+      const overflow = keepIds.length
+        ? await this.db
+            .select({ id: notifications.id })
+            .from(notifications)
+            .where(notInArray(notifications.id, keepIds))
+        : await this.db.select({ id: notifications.id }).from(notifications);
       await this.remove(overflow.map((row) => row.id));
       return ok<void>();
     } catch (error) {
