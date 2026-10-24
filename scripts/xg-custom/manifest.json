@@ -7,10 +7,10 @@
     "base": "760b60caade30f4f1dc870d26af4a612dd426cd7"
   },
   "stats": {
-    "files": 322,
-    "markers": 1882,
+    "files": 323,
+    "markers": 1893,
     "newFiles": 130,
-    "modifiedFiles": 192
+    "modifiedFiles": 193
   },
   "files": {
     ".github/workflows/release-prod.yml": {
@@ -213,7 +213,7 @@
       "anchors": [
         "2026-10-14] 版本 1.2.43-xiangwo：取图网格点击目标 page→orig 兜底（真机反馈「点了没图的框没反应」）；另 1.2.41 未设工作区回退、1.2.42 planOutbound(MCP Apps)。⚠️ J"
       ],
-      "hash": "ea2647d6b2241200feb0787f06842f510f29b7db",
+      "hash": "f397ef7d23f058a9687a97f34579d6f07426a444",
       "origin": "modified",
       "firstCommit": "1dce8b4ad|2026-10-14|[XG-CUSTOM 2026-10-14] 取图网格：点击目标 page→orig 兜底 + 版本 1.2.43-xiangwo + 台账标记",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -505,29 +505,39 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/automations/browser/components/KaneoBoardPanel.tsx": {
-      "markers": 9,
+      "markers": 14,
       "lines": [
         1,
         10,
         22,
-        79,
-        196,
-        328,
-        362,
-        553,
-        556
+        57,
+        83,
+        137,
+        255,
+        387,
+        421,
+        595,
+        616,
+        619,
+        651,
+        671
       ],
       "anchors": [
         "2026-10-08] 「自动化」视图的 **Kaneo 看板** 面板 —— 现在是**系统图浏览**。",
         "2026-10-09] 再进一步：加「**全流程一屏**」（`PipelineStrip`）",
         "2026-10-09] 再加「**动作面**」（`ImageQueue`）：建卡 + 一键开工",
+        "const COLUMN_ORDER = ['to-do', 'in-progress', 'in-review', 'done'] as const;",
         "type LinkState = 'ok' | 'down' | 'unknown';",
+        "const CARD_PREVIEW = 5;",
         "type Outcome = { ok: boolean; tone: LinkState; text: string };",
         "<div className=\"flex flex-wrap items-center gap-1.5 text-xs text-foreground-info\">",
         "<ul className=\"flex flex-col gap-1\">",
-        "<ImageQueue"
+        "<div className=\"flex shrink-0 items-center gap-2\">",
+        "<ImageQueue",
+        "<div className=\"flex flex-wrap gap-2\">",
+        "{diagrams.length > 0 ? ( ⏎ <div className=\"flex flex-wrap items-center gap-2\">"
       ],
-      "hash": "8eace62dd619b08a56c87ac0f412acec325fbbb8",
+      "hash": "f3e032beaba9a4f2afcacadb85d345c9ae5593ea",
       "origin": "new",
       "firstCommit": "c7b4f3958|2026-10-08|[XG-CUSTOM 2026-10-08] 「自动化」加 Kaneo 看板 Tab + 修台账漏搜带日期标记",
       "lastCommit": "c7b4f3958|2026-10-08|[XG-CUSTOM 2026-10-08] 「自动化」加 Kaneo 看板 Tab + 修台账漏搜带日期标记",
@@ -1254,7 +1264,7 @@
       "anchors": [
         "export type XiangwoMentionItem = { id: string; name: string; bot: string };"
       ],
-      "hash": "0d93e03f6f5b79c91e726dbf29f79ca1ed79e353",
+      "hash": "2293ff2f252f5a152564beca6c2c83099fac81b5",
       "origin": "new",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -3639,6 +3649,20 @@
       "lastCommit": "9df75ff09|2026-09-26|merge: 官方升级 1.2.6 + 适配 xiangwo 定制（acp重构/附件API/i18n去重/插件websiteUrl/tsconfig别名）",
       "note": "遥测默认关闭"
     },
+    "apps/emdash-desktop/src/core/services/notifications/node/sqlite-store.ts": {
+      "markers": 1,
+      "lines": [
+        118
+      ],
+      "anchors": [
+        "const keep = await this.db"
+      ],
+      "hash": "2f440408ad35b3e7dbc155352747994e9526dfd4",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "note": "renderer/main 侧定制"
+    },
     "apps/emdash-desktop/src/entry/main.ts": {
       "markers": 2,
       "lines": [
@@ -3883,7 +3907,7 @@
       "note": "gateway 定制（runtime broker / acp 入口）"
     },
     "apps/emdash-desktop/src/main/host/browser/browser-profile-session.ts": {
-      "markers": 8,
+      "markers": 9,
       "lines": [
         1,
         17,
@@ -3891,8 +3915,9 @@
         36,
         51,
         53,
-        63,
-        67
+        58,
+        74,
+        78
       ],
       "anchors": [
         "import { readFileSync } from 'node:fs';",
@@ -3900,9 +3925,10 @@
         "import { resolveXiangwoBrowserProxy, systemProxyIsConfigured } from './xiangwo-browser-proxy';",
         "setXiangwoBrowserProfileBindings(browser);",
         "const browserProxy = resolveXiangwoBrowserProxy({",
+        "readConfigFile: (fileName) => {",
         "if (browserProxy !== undefined) {"
       ],
-      "hash": "a7a715fe963b8eab438325a07c45bd79e2205838",
+      "hash": "ce3c130da3fd2d7f0a82f699982e8bbe58a56322",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -4532,7 +4558,7 @@
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/main/host/chromium-doh.test.ts": {
-      "markers": 17,
+      "markers": 18,
       "lines": [
         2,
         7,
@@ -4543,14 +4569,15 @@
         153,
         158,
         170,
-        301,
-        317,
-        318,
-        319,
-        337,
-        355,
-        402,
-        412
+        289,
+        327,
+        343,
+        344,
+        345,
+        363,
+        381,
+        428,
+        438
       ],
       "anchors": [
         "import { describe, expect, it, vi } from 'vitest';",
@@ -4560,19 +4587,20 @@
         "it('给了 logger ⇒ 打一句",
         "expect(withLogger.mock.calls[0]?.[0]).toMatch(/^\\",
         "describe('decideDohHostResolverConfig', () => {",
+        "it('",
         "describe('configureDohHostResolver', () => {",
         "expect(lines.every((line) => line.startsWith('",
         "expect(lines).toContain('",
         "it('XIANGWO_DOH=off ⇒ 一次都不调用（零回归回退），不探测', async () => {"
       ],
-      "hash": "6358f733e343a919175cc6e1e726f7d6c213cc6f",
+      "hash": "d277c80149b3301d7773984b0be7cbd689356d3b",
       "origin": "new",
       "firstCommit": "54f137328|2026-10-06|feat(dns): [XG-CUSTOM 2026-10-06] 内嵌浏览器 DNS 走我们自己的 DoH（治假 AAAA 沉洞 → ERR_TIMED_OUT）+ bump 1.2.27-xiangwo",
       "lastCommit": "54f137328|2026-10-06|feat(dns): [XG-CUSTOM 2026-10-06] 内嵌浏览器 DNS 走我们自己的 DoH（治假 AAAA 沉洞 → ERR_TIMED_OUT）+ bump 1.2.27-xiangwo",
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/main/host/chromium-doh.ts": {
-      "markers": 16,
+      "markers": 19,
       "lines": [
         2,
         27,
@@ -4585,11 +4613,14 @@
         139,
         171,
         266,
-        311,
-        332,
-        344,
-        400,
-        420
+        276,
+        277,
+        313,
+        328,
+        349,
+        361,
+        417,
+        437
       ],
       "anchors": [
         "] 2026-10-06 —— 内嵌浏览器改用**我们自己的 DoH**（治假 AAAA `2001::1` 沉洞）。",
@@ -4603,12 +4634,14 @@
         "export type DohProbeResult = {",
         "export function decideDohHostResolverConfig(options: {",
         "export async function probeDohReachability(",
+        "const attempts = Math.max(1, Number(options.attempts ?? 2));",
+        "const cause = (error as { cause?: unknown })?.cause;",
         "type HostResolverApp = {",
         "export async function configureDohHostResolver({",
         "warn('",
         "warn(`"
       ],
-      "hash": "00d9467cb1c0bc3f1cf101e173bc099533848a7b",
+      "hash": "cec5fe7c82c06d60509d9f8403847a0bc5db7cb5",
       "origin": "new",
       "firstCommit": "54f137328|2026-10-06|feat(dns): [XG-CUSTOM 2026-10-06] 内嵌浏览器 DNS 走我们自己的 DoH（治假 AAAA 沉洞 → ERR_TIMED_OUT）+ bump 1.2.27-xiangwo",
       "lastCommit": "54f137328|2026-10-06|feat(dns): [XG-CUSTOM 2026-10-06] 内嵌浏览器 DNS 走我们自己的 DoH（治假 AAAA 沉洞 → ERR_TIMED_OUT）+ bump 1.2.27-xiangwo",

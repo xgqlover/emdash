@@ -27,6 +27,7 @@ export const XIANGWO_SUBAGENTS: XiangwoMentionItem[] = [
   { id: 'design-image-prompt-engineer', name: '生图提示工程', bot: 'sxsj' },
   { id: 'sxsj_review', name: '审核师', bot: 'sxsj' },
   { id: 'design-whimsy-injector', name: '趣味注入师', bot: 'sxsj' },
+  { id: 'babado-legal', name: 'BABADO法务', bot: 'babado' },
   { id: 'marketing-ecommerce-operator', name: '跨境电商运营专家', bot: 'babado' },
   { id: 'babado-brand-strategist', name: 'BABADO品牌战略师', bot: 'babado' },
   { id: 'marketing-social-media-manager', name: '社交媒体运营专家', bot: 'babado' },
@@ -64,6 +65,19 @@ export const XIANGWO_SUBAGENTS: XiangwoMentionItem[] = [
   { id: 'yunyou-student-experience', name: '学员体验设计师', bot: 'yunyou' },
   { id: 'yunyou-new-media-operator', name: '云游新媒体运营', bot: 'yunyou' },
   { id: 'yunyou-space-designer', name: '云游空间设计师', bot: 'yunyou' },
+  { id: 'finance-bookkeeper-controller', name: '簿记与财务总监', bot: 'caiwuzongguan' },
+  { id: 'finance-invoice-manager', name: '发票管理专家', bot: 'caiwuzongguan' },
+  { id: 'finance-tax-strategist', name: '税务策略师', bot: 'caiwuzongguan' },
+  { id: 'finance-fraud-detector', name: '金融风控分析师', bot: 'caiwuzongguan' },
+  { id: 'finance-fpa-analyst', name: 'FP&A 分析师', bot: 'caiwuzongguan' },
+  { id: 'specialized-risk-assessor', name: '企业风险评估师', bot: 'caiwuzongguan' },
+  { id: 'legal-contract-reviewer', name: '合同审查专家', bot: 'caiwuzongguan' },
+  { id: 'accounts-payable-agent', name: '应付账款', bot: 'caiwuzongguan' },
+  { id: 'finance-financial-analyst', name: '财务分析师', bot: 'caiwuzongguan' },
+  { id: 'finance-financial-forecaster', name: '财务预测分析师', bot: 'caiwuzongguan' },
+  { id: 'finance-investment-researcher', name: '投资研究员', bot: 'caiwuzongguan' },
+  { id: 'support-finance-tracker', name: '财务追踪员', bot: 'caiwuzongguan' },
+  { id: 'specialized-pricing-analyst', name: '定价分析师', bot: 'caiwuzongguan' },
 ];
 
 // 6 个通用角色（项我小仓）
