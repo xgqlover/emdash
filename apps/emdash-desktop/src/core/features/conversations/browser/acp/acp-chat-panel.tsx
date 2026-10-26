@@ -370,19 +370,6 @@ const ComposerForStore = observer(function ComposerForStore({
     [store, buildHiddenIssueContext, draftComments, navigate]
   );
 
-  // [XG-CUSTOM 2026-10-26] 卡片蓝字入口：拦「知识交换中心/**/*.md」链接，不跳转、改开弹窗。
-  //   刻意不依赖 chat-ui 的 workspace-file 分类器（那要改渲染引擎），捕获期拦在面板根节点上。
-  const handleCardLinkClick = useCallback((e: React.MouseEvent) => {
-    const el = (e.target as HTMLElement | null)?.closest?.('a');
-    if (!el) return;
-    const raw = el.getAttribute('href') ?? '';
-    const path = decodeURI(raw).replace(/^[a-z]+:\/\//i, '');
-    if (!/知识交换中心\/.*\.md$/i.test(path)) return;
-    e.preventDefault();
-    e.stopPropagation();
-    setXgCard({ path });
-  }, []);
-
   const handleStop = useCallback(() => {
     store.stop();
   }, [store]);
@@ -873,6 +860,20 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
   const [mermaidViewer, setMermaidViewer] = useState<{ svg: string | null } | null>(null);
   // [XG-CUSTOM 2026-10-26] 被点开的卡（知识交换中心/📡 inbox/…md）
   const [xgCard, setXgCard] = useState<XgCardTarget | null>(null);
+
+  // [XG-CUSTOM 2026-10-26] 卡片蓝字入口：拦「知识交换中心/**/*.md」链接，不跳转、改开弹窗。
+  //   刻意不依赖 chat-ui 的 workspace-file 分类器（那要改渲染引擎），捕获期拦在面板根节点上。
+  const handleCardLinkClick = useCallback((e: React.MouseEvent) => {
+    const el = (e.target as HTMLElement | null)?.closest?.('a');
+    if (!el) return;
+    const raw = el.getAttribute('href') ?? '';
+    const path = decodeURI(raw).replace(/^[a-z]+:\/\//i, '');
+    if (!/知识交换中心\/.*\.md$/i.test(path)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setXgCard({ path });
+  }, []);
+
   const placementConversationRef = useRef<string | null>(null);
   const placementWasEmptyRef = useRef<boolean | null>(null);
   // True while the scroll viewport is at the tail. Defaults to true so the

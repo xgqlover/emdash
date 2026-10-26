@@ -418,21 +418,38 @@ export async function bootServices(
       log.info(`[xiangwo-chat] ${message}`, metadata);
     },
   });
+  // [XG-CUSTOM 2026-10-26] 交接台 / 专家总览 / Kaneo 面板都是**全局页**：用户刚开客户端、还没进任何远端
+  // 工作区时，SSH 物理连接尚未建立 ⇒ getProxy() 拿到 undefined ⇒ 桥接直接抛「未就绪」，
+  // 界面只剩一句「读取交接台失败（检查 expert_handoff.py 桥接）」，而后端其实是好的。
+  // 与同文件 previewServerService.attachSshRuntime 的 getSshProxy 对齐：**先 ensureConnected，再取 proxy**。
+  // ensureConnected 是幂等的，且会尊重用户「该主机应连接」的意图（不连接已 disconnect 的主机）。
+  const liveRemoteProxy = async (connectionId: string) => {
+    let proxy = infrastructure.ssh.manager.getProxy(connectionId);
+    if (!proxy?.isConnected) {
+      try {
+        await infrastructure.ssh.ssh.ensureConnected(connectionId);
+      } catch (error) {
+        log.warn('[XG-CUSTOM] 交接台：SSH 懒连接失败', { connectionId, error: String(error) });
+      }
+      proxy = infrastructure.ssh.manager.getProxy(connectionId);
+    }
+    if (!proxy || !proxy.isConnected) {
+      throw new Error(
+        `SSH 连接 ${connectionId} 未就绪：交接台要在主机连通时才能读（请稍后重试，或先打开一个远端工作区）`
+      );
+    }
+    return proxy;
+  };
+
   configureXiangwoScriptRunner({
     activeRemoteHost: firstRemoteHost,
     execRemote: async (connectionId, command, args) => {
-      const proxy = infrastructure.ssh.manager.getProxy(connectionId);
-      if (!proxy || !proxy.isConnected) {
-        throw new Error(`SSH 连接 ${connectionId} 未就绪`);
-      }
+      const proxy = await liveRemoteProxy(connectionId);
       return await proxy.exec({ command, args });
     },
     // 解释器不在主机 PATH 里时（例如 nvm 装的 node）走 shell：PATH → 兜底绝对路径 → exit 127
     execRemoteScript: async (connectionId, script) => {
-      const proxy = infrastructure.ssh.manager.getProxy(connectionId);
-      if (!proxy || !proxy.isConnected) {
-        throw new Error(`SSH 连接 ${connectionId} 未就绪`);
-      }
+      const proxy = await liveRemoteProxy(connectionId);
       return await proxy.execScript(script);
     },
     log: (message, metadata) => {
