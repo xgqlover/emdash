@@ -133,6 +133,7 @@ export class AutomationsRuntime {
 
   start(): void {
     this.scheduler.start();
+    // [XG-CUSTOM 2026-10-05] 事件触发接进运行时（第 3 项第三片）：只有 webhook 部署才真正起监听
     // 有 webhook 部署才真正起监听（ensureStarted 内部判空）
     void this.webhookServer.ensureStarted();
   }
@@ -143,6 +144,7 @@ export class AutomationsRuntime {
     this.runEventsHost.dispose();
   }
 
+  // [XG-CUSTOM 2026-10-05] webhook 摄取目标 = 已启用且带 webhook 配置的部署（没有目标就自动停监听）
   /** 当前可被事件触发的目标（由已启用、且带 webhook 配置的部署生成） */
   private webhookTargets(): WebhookTarget[] {
     return this.deploymentStore
@@ -221,6 +223,7 @@ export class AutomationsRuntime {
     }
     this.runStore.deleteRunsForAutomation(automationId);
     this.deploymentStore.removeDeployment(automationId);
+    // [XG-CUSTOM 2026-10-05] 移除 automation 后重新算 webhook 摄取目标
     // 移除后重新算摄取目标（没有目标会自动停监听）
     await this.refreshWebhookIntake();
     return ok(undefined);

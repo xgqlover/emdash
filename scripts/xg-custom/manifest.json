@@ -8,7 +8,7 @@
   },
   "stats": {
     "files": 323,
-    "markers": 1895,
+    "markers": 1902,
     "newFiles": 130,
     "modifiedFiles": 193
   },
@@ -1097,7 +1097,7 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/conversations/browser/acp/acp-chat-panel.tsx": {
-      "markers": 31,
+      "markers": 32,
       "lines": [
         17,
         19,
@@ -1129,7 +1129,8 @@
         1033,
         1086,
         1116,
-        1124
+        1124,
+        1197
       ],
       "anchors": [
         "import { XIANGWO_BOTS, XIANGWO_EXPERTS, XIANGWO_ROLES, XIANGWO_SUBAGENTS } from './xiangwo-experts';",
@@ -1162,9 +1163,10 @@
         "classifyLink: fileCommands?.classifyLink,",
         "<ChatTranscript",
         "<span className=\"text-foreground\">聊天不可用</span>",
-        "{agent?.name ?? '此 agent'} 需要你登录。 ⏎ </span>"
+        "{agent?.name ?? '此 agent'} 需要你登录。 ⏎ </span>",
+        "onClick={() => viewRef.current?.scrollToBottom({ behavior: 'smooth' })}"
       ],
-      "hash": "297c87ac8a570b2b055037cc10f40591a206145f",
+      "hash": "0104d502f61be729ef417b80843e86aad11e1030",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -3476,14 +3478,20 @@
       "note": "core 基元定制"
     },
     "apps/emdash-desktop/src/core/primitives/automations/api/config.ts": {
-      "markers": 1,
+      "markers": 4,
       "lines": [
-        6
+        6,
+        15,
+        22,
+        36
       ],
       "anchors": [
-        "export const triggerConfigSchema = z.object({"
+        "export const triggerConfigSchema = z.object({",
+        "kind: z.enum(['cron', 'webhook']).optional(),",
+        "token: z.string().optional(),",
+        "export function validateTriggerConfig(config: TriggerConfig): string | null {"
       ],
-      "hash": "8edc7a073f0a07117369848c69e3b00b236e8529",
+      "hash": "7e1cec9f2975abe0e3616ca09a287be4004c9b25",
       "origin": "modified",
       "firstCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
       "lastCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
@@ -6834,14 +6842,17 @@
       "note": "packages 定制"
     },
     "packages/core/src/runtimes/automations/node/runtime.ts": {
-      "markers": 6,
+      "markers": 9,
       "lines": [
         42,
         56,
         69,
         101,
         108,
-        173
+        136,
+        147,
+        175,
+        226
       ],
       "anchors": [
         "import { parseWebhookFilter } from './scheduling/webhook-filter';",
@@ -6849,9 +6860,12 @@
         "private readonly webhookServer: AutomationWebhookServer;",
         "this.webhookServer = new AutomationWebhookServer({",
         "this.scheduler.runNow(withWebhookPrompt(deployment, payloadText), 'webhook');",
-        "if (input.webhook === undefined) {"
+        "void this.webhookServer.ensureStarted();",
+        "private webhookTargets(): WebhookTarget[] {",
+        "if (input.webhook === undefined) {",
+        "// 移除后重新算摄取目标（没有目标会自动停监听） ⏎ await this.refreshWebhookIntake();"
       ],
-      "hash": "9f82703154d3f08e038a7693da92e522a5f4631c",
+      "hash": "dea162f47e08af6303272465fcb2e7990419b980",
       "origin": "modified",
       "firstCommit": "3cdea3da2|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 事件触发接进运行时（第 3 项第三片，端到端可用）",
       "lastCommit": "3cdea3da2|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 事件触发接进运行时（第 3 项第三片，端到端可用）",

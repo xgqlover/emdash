@@ -12,12 +12,14 @@ import { workspaceConfig } from '@core/primitives/workspaces/api';
 // 现在的形状：`kind` 有默认值 ⇒ **旧数据 `{expr,tz}` 与旧写入方原样可用**（读出来 kind='cron'），
 // 而 `.expr`/`.tz` 仍在类型里 ⇒ 既有调用点零改动。语义约束交给 `validateTriggerConfig()`。
 export const triggerConfigSchema = z.object({
+  // [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）：kind 缺省 = cron，判定统一走 isWebhookTrigger()
   /** 触发源：缺省 = cron（**兼容旧数据与旧写入方**：它们只写 {expr,tz}）/ webhook（事件）。
    *  判定统一走 `isWebhookTrigger()`，别自己判 `kind === 'cron'`（要处理 undefined）。 */
   kind: z.enum(['cron', 'webhook']).optional(),
   /** cron 触发：表达式（webhook 触发时忽略） */
   expr: z.string().optional(),
   tz: z.string().optional(),
+  // [XG-CUSTOM 2026-10-05] webhook 触发要给每个 automation 一个 token（否则本机任意进程都能触发一次 agent 运行）
   /**
    * webhook 触发：**每个 automation 一个随机 token**（照仓库 `TuiHookServer` 的姿态：
    * 只有带对 token 的请求才受理 —— 否则本机任意进程都能触发一次 agent 运行）。
@@ -31,6 +33,7 @@ export const triggerConfigSchema = z.object({
 
 export type TriggerConfig = z.infer<typeof triggerConfigSchema>;
 
+// [XG-CUSTOM 2026-10-05] 语义校验 validateTriggerConfig()：cron 必须有 expr；webhook 必须有足够长的 token
 /**
  * 语义校验（形状之外的那部分）：cron 必须有 `expr`；webhook 必须有足够长的 `token`。
  * 返回 null = 合法；返回字符串 = 人话原因（给表单/服务端复用）。

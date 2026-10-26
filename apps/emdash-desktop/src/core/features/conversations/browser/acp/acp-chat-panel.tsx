@@ -1194,7 +1194,7 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
             <Button
               variant="secondary"
               icon
-              aria-label="滚动到底部"
+              aria-label={'滚动到底部' /* [XG-CUSTOM 2026-10-05] 中文化：滚动到底部 */}
               onClick={() => viewRef.current?.scrollToBottom({ behavior: 'smooth' })}
               className="pointer-events-auto rounded-full shadow-md"
             >
