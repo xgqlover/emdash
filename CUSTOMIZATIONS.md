@@ -1185,4 +1185,4 @@ SSE 唯一出口加**空行收口**（`\n{3,}` ⇒ `\n\n`，流式安全）—�
    —— 摘掉 deepseek 那两个文件同样崩。仓里的 typecheck 是 **`tsgo --noEmit`**，判类型别用 tsc。
 2. `hostDependency` **别加** `installCommands(method:'other')`：会被判「不可安装」→ 整个 provider 灰掉（xiangwo 那节已记过）。
 
-**注意**：这是 **client 插件** ⇒ 必须重新出包才到 Win 客户端（⛔ 不在 Win 上改）。
+**注意（2026-10-26 更正）**：插件包 `@emdash/plugins` 被**两个 app** 依赖。我们的工作区是**远端** ⇒ agent 列表由**Linux 的 workspace-server** 提供 ⇒ 改插件后只需**重建 Linux server**（`packages/plugins` → `apps/workspace-server` 两层都要 build），Win 客户端不必重新打包。**只有本地工作区**才需要重出客户端包。⛔ Win 上依然不改任何东西。
