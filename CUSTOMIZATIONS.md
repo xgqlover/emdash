@@ -1150,3 +1150,39 @@ SSE 唯一出口加**空行收口**（`\n{3,}` ⇒ `\n\n`，流式安全）—�
 
 **流程**：改完跑 `node scripts/xg-custom/check.mjs --gen`（台账 256 文件 / 1516 处），再 `--check` ⇒ **丢失 0 / 漂移 0 / 漏标 0**。
 **注意**：这是 **renderer** 侧改动 ⇒ **要重新打包才到 Win 客户端**（⛔ 不在 Win 上改，见本文件顶部「方向更正」）。
+
+---
+
+## 🗓️ 2026-10-26 · 接第一个「自带 CLI agent」：DeepSeek（dsh）走官方 ACP 插件位
+
+**背景**：官方 5 卖点里 ③「自带 CLI agent（Claude Code / Codex / OpenCode / Amp）」我们一个都没接上 —— agent 表 9 条全是自研 `xiangwo-*`。用户定：「③ 以后再接，**先让 DeepSeek 进来**」。于是先在 47 个插件位里补一个 DeepSeek。
+
+**取证（先读代码，不猜）**：
+
+- `packages/plugins/src/agents/impl/` 下已有 **47 个** provider，每个 = `definePlugin(元数据, 能力)` + `registerPluginBehavior(plugin, 行为)`；
+- 我们自己的 `impl/xiangwo` 就是标准样本：`acp:{kind:'supported'}` + `createNativeAcpBehavior(...)`；`AcpSpawnContext.cli` = **主机上解析出的可执行绝对路径**；
+- dsh 侧：`dsh --profile <name>` 是它唯一的启动开关；`dsh --profile acp --dump-config` 里出现 `patched by @deepseek-ai/dsh-acp-app`
+  ⇒ **ACP 是 dsh 自带的 surface**，不需要另写适配器；
+- **10-26 实测握手**（干净 env，只有 HOME/PATH）：`initialize`（protocolVersion=1）→ `newSession` → `prompt("只回答两个字：收到")`
+  → 回 `收到`，`stopReason=end_turn`，**2.8s**；`sessionCapabilities = close/list/resume`。
+
+**改**：
+
+- 新增 `packages/plugins/src/agents/impl/deepseek/{index.ts,icon.ts}`：
+  `prompt:{kind:'none'}`（提示词走 ACP 协议，不拼 argv）/ `sessions:{kind:'resumable'}` /
+  `hostDependency = npmDependency({package:'@deepseek-ai/dsh', binaryNames:['dsh']})` /
+  行为 `createNativeAcpBehavior(() => ({ args:['--profile','acp'] }))`；
+- `registry.ts` 注册（数组与 import 各一行，带 `[XG-CUSTOM` 标记）；`native-acp.test.ts` 加一行 `{ id:'deepseek', args:['--profile','acp'] }`；
+- **Linux 主机侧**：`npm i -g @deepseek-ai/dsh@0.2.1-rc.2`；`/usr/local/bin/dsh` 建成**包装脚本**（nvm 的 `node` 不在系统 PATH 里，
+  纯软链会 `env: 'node': No such file or directory`）。
+
+**验**：`npx vitest run src/agents/impl/native-acp.test.ts` → **44 passed**；`npx tsgo --noEmit` → **rc=0**；
+`check.mjs --gen` → 328 文件 / 2390 处标记，`--check` → **丢失 0 / 漂移 0 / 漏标 0**。
+
+**两个坑（记下来，别再踩）**：
+
+1. **`npx tsc --noEmit` 在这个仓会崩**（`Debug Failure. No error for last overload signature`），而且**与我改动无关**
+   —— 摘掉 deepseek 那两个文件同样崩。仓里的 typecheck 是 **`tsgo --noEmit`**，判类型别用 tsc。
+2. `hostDependency` **别加** `installCommands(method:'other')`：会被判「不可安装」→ 整个 provider 灰掉（xiangwo 那节已记过）。
+
+**注意**：这是 **client 插件** ⇒ 必须重新出包才到 Win 客户端（⛔ 不在 Win 上改）。

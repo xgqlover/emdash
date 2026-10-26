@@ -17,6 +17,7 @@ import { provider as continueCli } from './impl/continue';
 import { provider as copilot } from './impl/copilot';
 import { provider as cursor } from './impl/cursor';
 import { provider as devin } from './impl/devin';
+import { provider as deepseek } from './impl/deepseek';
 import { provider as droid } from './impl/droid';
 import { provider as freebuff } from './impl/freebuff';
 import { provider as goose } from './impl/goose';
@@ -61,7 +62,9 @@ for (const p of [
   claude,
   grok,
   devin,
-  qwen,
+  // [XG-CUSTOM 2026-10-26] DeepSeek（dsh）作为「自带 CLI agent」接入 —— 官方卖点③的第一个样本
+  deepseek,
+    qwen,
 // [XG-CUSTOM 2026-10-16] 项我 10 个 bot provider 注册（fork 定制；台账见 scripts/xg-custom/manifest.json）
   xiangwo,
   xiangwo_sxsj,

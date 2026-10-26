@@ -55,6 +55,8 @@ const nativeAcpProviders: Array<{
     args: [],
   },
   { id: 'qoder', args: ['--acp'] },
+  // [XG-CUSTOM 2026-10-26] DeepSeek（dsh）—— `dsh --profile acp` 是标准 ACP agent（10-26 实测握手通过）
+  { id: 'deepseek', args: ['--profile', 'acp'] },
   { id: 'qwen', args: ['--acp', '--experimental-skills'] },
 ];
 
