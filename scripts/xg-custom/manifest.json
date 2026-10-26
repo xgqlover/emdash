@@ -8,7 +8,7 @@
   },
   "stats": {
     "files": 323,
-    "markers": 1894,
+    "markers": 1895,
     "newFiles": 130,
     "modifiedFiles": 193
   },
@@ -34,14 +34,16 @@
       "note": "[XG-CUSTOM 2026-10-09] CI：建草稿前先清旧草稿（占用永久有界，别再攒到把 Actions 顶停）"
     },
     ".gitignore": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        113
+        113,
+        117
       ],
       "anchors": [
-        "] 定制台账生成器的备份文件（check.mjs --gen 每次生成新的，不该进仓）"
+        "] 定制台账生成器的备份文件（check.mjs --gen 每次生成新的，不该进仓）",
+        "2026-10-24] 打包/改动的备份文件不进仓（含 100MB+ AppImage 备份）"
       ],
-      "hash": "6173f3069370edb19ed03c941a74d5b6835c151f",
+      "hash": "4f1f3024482d888cba971d474d4d5418ad376c54",
       "origin": "modified",
       "firstCommit": "353d9c429|2026-10-03|chore(gitignore): 忽略 xg-custom 台账备份文件 [XG-CUSTOM]",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -3661,8 +3663,8 @@
       ],
       "hash": "2f440408ad35b3e7dbc155352747994e9526dfd4",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "3254972e6|2026-10-24|fix(xg-custom): 4 处真机故障修复 + 版本 1.2.46-xiangwo",
+      "lastCommit": "3254972e6|2026-10-24|fix(xg-custom): 4 处真机故障修复 + 版本 1.2.46-xiangwo",
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/entry/main.ts": {
