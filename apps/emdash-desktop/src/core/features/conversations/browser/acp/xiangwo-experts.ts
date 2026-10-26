@@ -18,6 +18,11 @@ export const XIANGWO_BOTS: XiangwoMentionItem[] = [
 
 // 46 个子代理（bot 窗 @ 只列本 bot 的，parent 归属）
 export const XIANGWO_SUBAGENTS: XiangwoMentionItem[] = [
+  // [XG-CUSTOM 2026-10-26] Dot —— **进程型专家**（不是 w1x 管道里的专家）：
+  //   服务端 `_ask_question_inner` 识别到 @Dot 就起一个 pi 子进程（cwd=知识交换中心，
+  //   注入 bots/shared/Dot/AGENT.md，先过 xg_playbook_route --quiet-check 闭嘴判据）。
+  //   放进这张表**只是为了输入框能补全**；路由不靠它。
+  { id: 'dot', name: 'Dot', bot: 'shared' },
   { id: 'sxsj_planning', name: '品牌策略规划师', bot: 'sxsj' },
   { id: 'design-brand-guardian', name: '品牌视觉守卫', bot: 'sxsj' },
   { id: 'sxsj-brand-strategist', name: '品牌战略师', bot: 'sxsj' },
