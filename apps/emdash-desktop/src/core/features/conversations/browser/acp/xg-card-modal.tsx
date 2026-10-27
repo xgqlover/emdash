@@ -7,7 +7,9 @@
 //
 // 现在：与 `expertHandoffModal` **同一条路**（这是本仓既有的原生写法）
 //   ① 组件里 `useModalController('xgCardModal')` 拿 dismiss
-//   ② 文件底部 `defineModal<Props>()({ id, component, size })` 定义
+//   ② 文件底部 `defineModal<void>()({ id, component, size })` 定义
+//      ⚠️ 泛型是**返回值**（不是 props；props 由 `component` 签名推出）—— 写成 `defineModal<Props>()`
+//         会让 `openModal()` 返回 `Result<Props,…>`，typecheck 立刻红（本仓已踩过一次）。
 //   ③ 注册进 `contributions/browser.ts` 的 `modalDefs` ⇒ `featureModalDefs` ⇒ `modalCatalog`
 //   ④ 打开用 `openModal('xgCardModal', props)`（模块级函数，见 `@core/manifests/browser/modal-api`）
 //   ⛔ **别再在面板里自造 Dialog**：要弹窗就往 `modalDefs` 里加一条。
