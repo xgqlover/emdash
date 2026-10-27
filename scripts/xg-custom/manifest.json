@@ -8,7 +8,7 @@
   },
   "stats": {
     "files": 328,
-    "markers": 2390,
+    "markers": 2394,
     "newFiles": 134,
     "modifiedFiles": 194
   },
@@ -215,7 +215,7 @@
       "anchors": [
         "2026-10-14] 版本 1.2.43-xiangwo：取图网格点击目标 page→orig 兜底（真机反馈「点了没图的框没反应」）；另 1.2.41 未设工作区回退、1.2.42 planOutbound(MCP Apps)。⚠️ J"
       ],
-      "hash": "f397ef7d23f058a9687a97f34579d6f07426a444",
+      "hash": "ad56f87706f5f9eb3bb995e305d0a9041709bb60",
       "origin": "modified",
       "firstCommit": "1dce8b4ad|2026-10-14|[XG-CUSTOM 2026-10-14] 取图网格：点击目标 page→orig 兜底 + 版本 1.2.43-xiangwo + 台账标记",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1097,7 +1097,7 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/conversations/browser/acp/acp-chat-panel.tsx": {
-      "markers": 35,
+      "markers": 37,
       "lines": [
         14,
         19,
@@ -1114,26 +1114,28 @@
         285,
         339,
         344,
-        373,
-        405,
-        459,
-        498,
-        535,
-        545,
-        618,
-        643,
+        392,
+        446,
+        485,
+        522,
+        532,
+        533,
+        608,
+        633,
+        714,
+        722,
         724,
-        732,
-        761,
-        843,
+        758,
+        840,
+        871,
         874,
-        955,
-        1022,
-        1050,
-        1107,
-        1137,
-        1145,
-        1218
+        966,
+        1033,
+        1061,
+        1118,
+        1148,
+        1156,
+        1229
       ],
       "anchors": [
         "import { XgCardDialog, type XgCardTarget } from './xg-card-dialog';",
@@ -1151,7 +1153,6 @@
         "const { navigate } = useNavigate();",
         "const mentionMatch = value.match(/@([a-zA-Z0-9_-]+|[\\u4e00-\\u9fff]+)/);",
         "const isBigBot = XIANGWO_BOTS.some((b) => b.id === token || b.name === token);",
-        "const handleCardLinkClick = useCallback((e: React.MouseEvent) => {",
         "title: '进行中',",
         "const supportedFiles = files.filter((file) => toAttachmentMimeType(file) !== null);",
         "const images = files.filter((f) => f.type.startsWith('image/'));",
@@ -1160,10 +1161,11 @@
         "const fileItems = files.map((f) => ({",
         "return [",
         "const curProviderId =",
-        "const expertPool = curBot",
+        "const sharedSubs = XIANGWO_SUBAGENTS.filter((e) => e.bot === 'shared');",
         "{disabledReason && ( ⏎ <div",
         "{/* <ExpertHandoffBar bot=\"\" session=\"\" /> */} ⏎ </div>",
         "const [xgCard, setXgCard] = useState<XgCardTarget | null>(null);",
+        "const handleCardLinkClick = useCallback((e: React.MouseEvent) => {",
         "const handoffHandledRef = useRef<string | null>(null);",
         "const fileCommands = store",
         "classifyLink: fileCommands?.classifyLink,",
@@ -1172,7 +1174,7 @@
         "{agent?.name ?? '此 agent'} 需要你登录。 ⏎ </span>",
         "onClick={() => viewRef.current?.scrollToBottom({ behavior: 'smooth' })}"
       ],
-      "hash": "1a2a4ddd2a1ff88f63ee3cc26943cbb3d20e4b5f",
+      "hash": "124cd9eae2f29f50362767bd5cc65db17e82a99b",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -3788,7 +3790,7 @@
       "note": "启动装配（注入 xiangwo 依赖 / 后台服务）"
     },
     "apps/emdash-desktop/src/main/bootstrap/boot/phases/services.ts": {
-      "markers": 11,
+      "markers": 13,
       "lines": [
         11,
         65,
@@ -3800,7 +3802,9 @@
         383,
         397,
         401,
-        950
+        421,
+        432,
+        967
       ],
       "anchors": [
         "import { desc } from 'drizzle-orm';",
@@ -3813,9 +3817,10 @@
         "const firstRemoteHost = (): { connectionId: string; host: string } | undefined => {",
         "log.warn('",
         "const resolveToolWindowUrl = async (remotePort: number, path = '/'): Promise<string> => {",
+        "const liveRemoteProxy = async (connectionId: string) => {",
         "resolveToolWindowUrl, ⏎ promptLibrary: promptLibraryService,"
       ],
-      "hash": "6d20a8b407ce276ed3eb494c3d64f44b9696391c",
+      "hash": "0046f748d8d3ffc051ddf2afdeb2e0fe360f4ee2",
       "origin": "modified",
       "firstCommit": "d7996e9ec|2026-09-19|fix(integrations): WeKnora/T8 窗口走 SSH 端口转发，修 Windows 远程项目打不开",
       "lastCommit": "d7996e9ec|2026-09-19|fix(integrations): WeKnora/T8 窗口走 SSH 端口转发，修 Windows 远程项目打不开",
@@ -7823,8 +7828,8 @@
       ],
       "hash": "5faade8601199ff62a56b1e8d672d9ea6b05e65d",
       "origin": "new",
-      "firstCommit": "",
-      "lastCommit": "",
+      "firstCommit": "cf35873ec|2026-10-26|feat(agents): 接入 DeepSeek（dsh）作为第一个「自带 CLI agent」",
+      "lastCommit": "cf35873ec|2026-10-26|feat(agents): 接入 DeepSeek（dsh）作为第一个「自带 CLI agent」",
       "note": "packages 定制"
     },
     "packages/plugins/src/agents/impl/deepseek/index.ts": {
@@ -7837,8 +7842,8 @@
       ],
       "hash": "5bcf365caba78adbf4cda94dd7b8e79ff056a94b",
       "origin": "new",
-      "firstCommit": "",
-      "lastCommit": "",
+      "firstCommit": "cf35873ec|2026-10-26|feat(agents): 接入 DeepSeek（dsh）作为第一个「自带 CLI agent」",
+      "lastCommit": "cf35873ec|2026-10-26|feat(agents): 接入 DeepSeek（dsh）作为第一个「自带 CLI agent」",
       "note": "packages 定制"
     },
     "packages/plugins/src/agents/impl/native-acp.test.ts": {
@@ -7851,8 +7856,8 @@
       ],
       "hash": "ccb7148389fc021edabbcdbe1cbd5594c75c354f",
       "origin": "modified",
-      "firstCommit": "087b7ba1a|2026-08-30|feat(agents): add Prime Agent provider",
-      "lastCommit": "087b7ba1a|2026-08-30|feat(agents): add Prime Agent provider",
+      "firstCommit": "cf35873ec|2026-10-26|feat(agents): 接入 DeepSeek（dsh）作为第一个「自带 CLI agent」",
+      "lastCommit": "cf35873ec|2026-10-26|feat(agents): 接入 DeepSeek（dsh）作为第一个「自带 CLI agent」",
       "note": "packages 定制"
     },
     "packages/plugins/src/agents/impl/xiangwo-babado/index.ts": {
@@ -8248,7 +8253,7 @@
         "ASAR=\"$OUT/win-unpacked/resources/app.asar\"",
         "ASAR_OUT=\"$OUT/win-unpacked/resources/app.asar\""
       ],
-      "hash": "3a0c7d23348dc803d4689ce434be34f2f298676c",
+      "hash": "bc8834d3a57363cf977644e02b544d1c8b4c86ff",
       "origin": "new",
       "firstCommit": "b3ee5bdc9|2026-10-09|[XG-CUSTOM 2026-10-09] 本机打 Windows exe 的入口 scripts/xg-package-win.sh（照 xg-package-linux.sh 的纪律）",
       "lastCommit": "b3ee5bdc9|2026-10-09|[XG-CUSTOM 2026-10-09] 本机打 Windows exe 的入口 scripts/xg-package-win.sh（照 xg-package-linux.sh 的纪律）",
@@ -8274,9 +8279,9 @@
       "lines": [
         2,
         8,
-        129,
-        142,
-        170
+        130,
+        143,
+        171
       ],
       "anchors": [
         "2026-10-12] **交付 exe 的验收闸门** —— 唯一目标：让「包打出来了」和「能装能用」不再是同一句话。",
@@ -8285,7 +8290,7 @@
         "n=\"$(grep -a -F -c -- \"$EXPECT_VER\" \"$ASAR\" 2>/dev/null)\"",
         "while IFS= read -r s || [ -n \"$s\" ]; do"
       ],
-      "hash": "e6aaf257b183e8d17061a214dfaa33ac428bb9a3",
+      "hash": "065b566ee53fddec5cb6e776a12132258fece580",
       "origin": "new",
       "firstCommit": "1d58ff4d6|2026-10-12|feat(packaging): 交付 exe 的验收闸门 xg-verify-win-exe.sh —— 让「包打出来了」和「能装能用」不再是一句话",
       "lastCommit": "1d58ff4d6|2026-10-12|feat(packaging): 交付 exe 的验收闸门 xg-verify-win-exe.sh —— 让「包打出来了」和「能装能用」不再是一句话",
