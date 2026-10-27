@@ -854,6 +854,13 @@ const ComposerForStore = observer(function ComposerForStore({
 // The composer subtree is keyed by conversationId; each store retains its own
 // editor model while only the active conversation has a mounted editor view.
 
+// [XG-CUSTOM 2026-10-27] Dot 卡的**两个入口**：
+//   ① 点蓝字（📇 已落卡链接）⇒ 弹原生 modal
+//   ② 说「退出 / 结束」把 Dot 交回去时 ⇒ **自动**弹最近那张卡的同一个原生 modal（用户口径）
+//   弹窗外壳走 emdash 原生弹窗机制（modalCatalog + ModalRenderer），「看全文」走原生 openFileInTaskEditor。
+const XG_CARD_PATH_RE = /知识交换中心\/[^\s"'`)\]>]+\.md/;
+const XG_DOT_EXIT_ACK_RE = /Dot 先退开/;
+
 export const AcpChatPanel = observer(function AcpChatPanel() {
   const { pane } = usePaneContext();
 
@@ -867,6 +874,73 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
   const [overlaySlot, setOverlaySlot] = useState<HTMLElement | null>(null);
   const [viewer, setViewer] = useState<{ src?: string; alt?: string } | null>(null);
   const [mermaidViewer, setMermaidViewer] = useState<{ svg: string | null } | null>(null);
+
+  // [XG-CUSTOM 2026-10-27] 卡片蓝字入口：拦「知识交换中心/**/*.md」⇒ 开**原生弹窗**（catalog + ModalRenderer）。
+  //   ⚠️ 弹窗里的「看全文」走 emdash **原生** `openFileInTaskEditor`（右侧编辑器渲染 Markdown），
+  //   所以"看文件"这件事仍然是原生的；这里只**多给一层动作选择**（并入本轮 / 关闭）。
+  const handleCardLinkClick = useCallback((e: React.MouseEvent) => {
+    const el = (e.target as HTMLElement | null)?.closest?.('a');
+    if (!el) return;
+    const raw = el.getAttribute('href') ?? '';
+    const path = decodeURI(raw).replace(/^[a-z]+:\/\//i, '');
+    if (!/知识交换中心\/.*\.md$/i.test(path)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    lastCardPathRef.current = path;   // 供「说退出时自动弹」复用
+    void openModal('xgCardModal', {
+      path,
+      onOpenFile: (p: string) => {
+        if (store) void openFileInTaskEditor(store.projectId, store.taskId, p);
+      },
+      onMerge: (p: string) => store?.submitPrompt(`并入 ${p}`, []),
+    });
+  }, [store]);
+
+  // [XG-CUSTOM 2026-10-27] 记住「最近一张 Dot 卡」的路径；说退出/结束时把它弹出来（原生 modal）。
+  const lastCardPathRef = useRef<string | null>(null);
+  const exitCardHandledRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!store) return;
+    const openCardModal = (path: string) => {
+      void openModal('xgCardModal', {
+        path,
+        onOpenFile: (q: string) => {
+          if (store) void openFileInTaskEditor(store.projectId, store.taskId, q);
+        },
+        onMerge: (q: string) => store?.submitPrompt(`并入 ${q}`, []),
+      });
+    };
+    const dispose = reaction(
+      () => store.messageCount,
+      () => {
+        const transcript = store.chatState.transcript;
+        const turns = [...transcript.state.displayTurns].reverse();
+        const active = transcript.state.activeTurnSnapshot;
+        if (active) turns.unshift(active);
+        let text: string | null = null;
+        for (const turn of turns) {
+          for (const item of [...turn.items].reverse()) {
+            if (item.kind === 'message' && item.role === 'assistant') {
+              text = item.text;
+              break;
+            }
+          }
+          if (text !== null) break;
+        }
+        if (!text) return;
+        const hit = text.match(XG_CARD_PATH_RE);
+        if (hit) lastCardPathRef.current = hit[0];
+        // 退出确认（agent 侧固定回这句）⇒ 自动弹最近那张卡；同一张只弹一次
+        if (XG_DOT_EXIT_ACK_RE.test(text)) {
+          const path = lastCardPathRef.current;
+          if (!path || exitCardHandledRef.current === path) return;
+          exitCardHandledRef.current = path;
+          openCardModal(path);
+        }
+      }
+    );
+    return () => dispose();
+  }, [store]);
 
   const placementConversationRef = useRef<string | null>(null);
   const placementWasEmptyRef = useRef<boolean | null>(null);
@@ -1096,6 +1170,7 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
   return (
     <div
       ref={rootRef}
+      onClickCapture={handleCardLinkClick}
       className="surface-paper relative h-full overflow-hidden bg-(--em-surface)"
     >
       {/* [XG-CUSTOM] 💬 侧边聊天浮窗按钮已删除：已改为启动常驻的项我球，见 main/host/xiangwo-orb.ts */}

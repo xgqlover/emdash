@@ -8,7 +8,7 @@
   },
   "stats": {
     "files": 327,
-    "markers": 2390,
+    "markers": 2396,
     "newFiles": 133,
     "modifiedFiles": 194
   },
@@ -1097,7 +1097,7 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/conversations/browser/acp/acp-chat-panel.tsx": {
-      "markers": 34,
+      "markers": 37,
       "lines": [
         18,
         20,
@@ -1126,13 +1126,16 @@
         723,
         757,
         839,
-        950,
-        1017,
-        1045,
-        1101,
-        1131,
-        1139,
-        1212
+        857,
+        878,
+        899,
+        1024,
+        1091,
+        1119,
+        1176,
+        1206,
+        1214,
+        1287
       ],
       "anchors": [
         "import { XIANGWO_BOTS, XIANGWO_EXPERTS, XIANGWO_ROLES, XIANGWO_SUBAGENTS } from './xiangwo-experts';",
@@ -1160,6 +1163,9 @@
         "const sharedSubs = XIANGWO_SUBAGENTS.filter((e) => e.bot === 'shared');",
         "{disabledReason && ( ⏎ <div",
         "{/* <ExpertHandoffBar bot=\"\" session=\"\" /> */} ⏎ </div>",
+        "const XG_CARD_PATH_RE = /知识交换中心\\/[^\\s\"'`)\\]>]+\\.md/;",
+        "const handleCardLinkClick = useCallback((e: React.MouseEvent) => {",
+        "const lastCardPathRef = useRef<string | null>(null);",
         "const handoffHandledRef = useRef<string | null>(null);",
         "const fileCommands = store",
         "classifyLink: fileCommands?.classifyLink,",
@@ -1168,7 +1174,7 @@
         "{agent?.name ?? '此 agent'} 需要你登录。 ⏎ </span>",
         "onClick={() => viewRef.current?.scrollToBottom({ behavior: 'smooth' })}"
       ],
-      "hash": "0b1a76c425331e80ed1fa2e8efb03328481ebc49",
+      "hash": "88048dfed929a874c6c47598666902684ff85e5e",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1315,16 +1321,18 @@
       "note": "会话/ACP 定制（专家交接横条、专家表）"
     },
     "apps/emdash-desktop/src/core/features/conversations/contributions/browser.ts": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
         2,
-        6
+        4,
+        8
       ],
       "anchors": [
         "import { expertHandoffModal } from '../browser/expert-handoff-modal';",
-        "modalDefs: [createConversationModal, expertHandoffModal],"
+        "import { xgCardModal } from '../browser/acp/xg-card-modal';",
+        "modalDefs: [createConversationModal, expertHandoffModal, xgCardModal],"
       ],
-      "hash": "dbf202b3a06576f00fcd88557bfbd480ebf5c67b",
+      "hash": "5a14de4f960f946bad4d4595487f16487472304f",
       "origin": "modified",
       "firstCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",
       "lastCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",
@@ -6331,14 +6339,17 @@
       "note": "项我球 orb（球壳 + 聊天/图片网格渲染）"
     },
     "apps/emdash-desktop/src/renderer/tests/browser/modal-catalog.test.ts": {
-      "markers": 1,
+      "markers": 3,
       "lines": [
-        28
+        28,
+        40,
+        54
       ],
       "anchors": [
-        "] as const;"
+        "] as const;",
+        "function openXgCardForTypeTest() {"
       ],
-      "hash": "21a379ea122f62e977a40453881fb9819b62570d",
+      "hash": "fac7909fd4585739fe548adb5cc78639f614805c",
       "origin": "modified",
       "firstCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
       "lastCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",

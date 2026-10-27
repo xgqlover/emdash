@@ -37,6 +37,8 @@ const expectedModalIds = [
   'skillDetailModal',
   'taskModal',
   'unsavedChangesModal',
+  // [XG-CUSTOM 2026-10-27] Dot 落卡详情（原生弹窗机制）
+  'xgCardModal',
 ] as const;
 
 function openUnsavedChangesForTypeTest() {
@@ -47,6 +49,15 @@ function openUnsavedChangesForTypeTest() {
 
 function openRemoteCreateSkillForTypeTest(host: HostRef) {
   return openModal('createSkillModal', { host });
+}
+
+// [XG-CUSTOM 2026-10-27] 类型钉子：props 漂了 typecheck 就红
+function openXgCardForTypeTest() {
+  return openModal('xgCardModal', {
+    path: '知识交换中心/📡 inbox/xiangwo/dot-x.md',
+    onOpenFile: () => {},
+    onMerge: () => {},
+  });
 }
 
 function openSkillDetailForTypeTest(skill: CatalogSkill) {
@@ -65,6 +76,9 @@ describe('modalCatalog', () => {
   });
 
   it('infers caller props and outcomes from modal ids', () => {
+    expectTypeOf<ReturnType<typeof openXgCardForTypeTest>>().toEqualTypeOf<
+      Promise<Result<void, ModalDismissed>>
+    >();
     expectTypeOf<ReturnType<typeof openUnsavedChangesForTypeTest>>().toEqualTypeOf<
       Promise<Result<'save' | 'discard', ModalDismissed>>
     >();
