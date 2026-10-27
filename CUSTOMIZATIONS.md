@@ -1216,3 +1216,13 @@ SSE 唯一出口加**空行收口**（`\n{3,}` ⇒ `\n\n`，流式安全）—�
 验收串 `xgCardModal|共享子代理|openEmbeddedBrowser`（三个串都要在 asar 里）。
 
 ⛔ **这只在客户端包里生效** ⇒ 改完必须装新 exe；Linux 侧源码改了不等于界面变了（铁律 6 的老坑）。
+⚠️ **[2026-10-27 撤销]** 上一节（Dot 落卡弹窗改走原生 modal）**整段已撤销**。原因：用户指出「emdash 原本碰到蓝字会弹那个 MD 文件」。
+查完代码，emdash 对聊天里 `.md` 蓝字的**原生行为**是：
+`Prose.tsx:110-119` classifyLink ⇒ `workspace-file` ⇒ `commands.onOpenFile({source:'prose-link'})`
+⇒ `acp-chat-panel.tsx` 的 `onOpenFile` ⇒ `openFileInTaskEditor(projectId, taskId, path)`
+⇒ editor 打开 file tab ⇒ `file-content-types.tsx` 按 `.md` 走 `MarkdownEditorRenderer`（渲染正文，可切源码/预览）。
+**不是弹窗**。而 2026-10-26 加的 `handleCardLinkClick` 用 `preventDefault + stopPropagation` 把这条原生路**整段挡掉**了
+⇒ 用户点蓝字看不到文件，只看到「关闭/看全文/并入本轮」的三键弹窗。
+**处置**：删拦截器 + 删 `xg-card-modal.tsx` + 撤 catalog 注册与测试钉子，**恢复原生**。
+`看卡 <路径>` / `并入 <路径>` 两个**服务端命令**保留（要并入时打字即可）。
+`xgCardModal` 这个 id 不再存在 —— 以后别再往 `modalDefs` 里加它。

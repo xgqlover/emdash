@@ -215,7 +215,7 @@
       "anchors": [
         "2026-10-14] 版本 1.2.43-xiangwo：取图网格点击目标 page→orig 兜底（真机反馈「点了没图的框没反应」）；另 1.2.41 未设工作区回退、1.2.42 planOutbound(MCP Apps)。⚠️ J"
       ],
-      "hash": "7d98a61862969e056be72485a18d734952e33849",
+      "hash": "420a2cd1be4458b5b32ea2838da7f5580d6df7f3",
       "origin": "modified",
       "firstCommit": "1dce8b4ad|2026-10-14|[XG-CUSTOM 2026-10-14] 取图网格：点击目标 page→orig 兜底 + 版本 1.2.43-xiangwo + 台账标记",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
