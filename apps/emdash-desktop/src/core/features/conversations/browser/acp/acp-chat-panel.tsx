@@ -529,9 +529,12 @@ const ComposerForStore = observer(function ComposerForStore({
     const wsId = workspaceId;
     return {
       async search(query: string): Promise<MentionItem[]> {
-        // [XG-CUSTOM] @ 补全只保留主 bot（项我窗 @ 切仓用）；专家改用 / 候选，@ 不再列专家
+        // [XG-CUSTOM] @ 补全保留主 bot（项我窗 @ 切仓用）；专家改用 / 候选，@ 不再列专家
+        // [XG-CUSTOM 2026-10-26] **但共享子代理必须列**：Dot 的 bot 是 `shared`，
+        //   原代码只取 XIANGWO_BOTS ⇒ Dot 在任何窗都搜不到（用户实测「@ 里看不到 Dot」）。
         const q = query.trim();
-        const expertPool = XIANGWO_BOTS;
+        const sharedSubsAt = XIANGWO_SUBAGENTS.filter((e) => e.bot === 'shared');
+        const expertPool = [...XIANGWO_BOTS, ...sharedSubsAt];
         const expertItems: MentionItem[] = expertPool
           .filter(
             (e) =>
@@ -544,7 +547,7 @@ const ComposerForStore = observer(function ComposerForStore({
             label: e.name,
             name: e.name,
             kind: 'custom' as const,
-            description: '主 bot',
+            description: e.bot === 'shared' ? '共享子代理' : '主 bot',
           }));
 
         const pinnedIssue =
@@ -718,9 +721,16 @@ const ComposerForStore = observer(function ComposerForStore({
         : '';
       // [XG-CUSTOM 2026-10-24] 主窗再加「通用专家」（EXPERTS）——原来生成器没发这一段，
       // 导致 registry 里 19 个跨 bot 专家从来没进过 @ 清单。
+      // [XG-CUSTOM 2026-10-26] bot='shared' 的共享子代理（Dot）在**两个分支都要有**：
+      //   原来 bot 窗只取 bot===curBot、项我窗只取 BOTS+ROLES ⇒ Dot 两个分支都不在。
+      const sharedSubs = XIANGWO_SUBAGENTS.filter((e) => e.bot === 'shared');
       const expertPool = curBot
-        ? [...XIANGWO_SUBAGENTS.filter((e) => e.bot === curBot), ...XIANGWO_EXPERTS]
-        : [...XIANGWO_BOTS, ...XIANGWO_ROLES, ...XIANGWO_EXPERTS];
+        ? [
+            ...XIANGWO_SUBAGENTS.filter((e) => e.bot === curBot),
+            ...sharedSubs,
+            ...XIANGWO_EXPERTS,
+          ]
+        : [...XIANGWO_BOTS, ...XIANGWO_ROLES, ...sharedSubs, ...XIANGWO_EXPERTS];
       const experts = expertPool
         .filter(
           (e) => !normalized || e.name.toLowerCase().includes(normalized) || e.id.includes(normalized)
