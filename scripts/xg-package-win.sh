@@ -269,7 +269,7 @@ else
 fi
 
 echo "=== ③ 建构建克隆（mktemp -d + git archive HEAD；共用工作区零改动）==="
-BUILD_ROOT="${XG_WIN_BUILD_ROOT:-${TMPDIR:-/tmp}}"
+BUILD_ROOT="${XG_WIN_BUILD_ROOT:-${TMPDIR:-/var/tmp/xg-tmp}}"
 mkdir -p "$BUILD_ROOT" || { echo "❌ 建不了 $BUILD_ROOT"; exit 1; }
 CLONE="$(mktemp -d "$BUILD_ROOT/xg-pack-win-XXXXXX")" || { echo "❌ mktemp 失败（$BUILD_ROOT）"; exit 1; }
 cleanup() {

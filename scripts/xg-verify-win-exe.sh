@@ -33,7 +33,8 @@ command -v 7z >/dev/null || { echo "❌ PATH 里没有 7z（解 NSIS 要用）" 
 VER="$(node -p "require('$PKG_JSON').version" 2>/dev/null)"
 [ -n "$VER" ] && [ "$VER" != "undefined" ] || { echo "❌ 读不到 $PKG_JSON 的 version" >&2; exit 2; }
 
-WORK="$(mktemp -d /tmp/xg-verify-win-XXXXXX)"
+mkdir -p "${XG_WIN_BUILD_ROOT:-/var/tmp/xg-tmp}"
+WORK="$(mktemp -d "${XG_WIN_BUILD_ROOT:-/var/tmp/xg-tmp}/xg-verify-win-XXXXXX")"
 FAIL=0
 fail() { echo "   ❌ $*"; FAIL=1; }
 
