@@ -1186,3 +1186,33 @@ SSE 唯一出口加**空行收口**（`\n{3,}` ⇒ `\n\n`，流式安全）—�
 2. `hostDependency` **别加** `installCommands(method:'other')`：会被判「不可安装」→ 整个 provider 灰掉（xiangwo 那节已记过）。
 
 **注意（2026-10-26 更正）**：插件包 `@emdash/plugins` 被**两个 app** 依赖。我们的工作区是**远端** ⇒ agent 列表由**Linux 的 workspace-server** 提供 ⇒ 改插件后只需**重建 Linux server**（`packages/plugins` → `apps/workspace-server` 两层都要 build），Win 客户端不必重新打包。**只有本地工作区**才需要重出客户端包。⛔ Win 上依然不改任何东西。
+## 🗓️ 2026-10-27 · Dot 落卡弹窗改走**原生弹窗机制**（catalog + ModalRenderer）
+
+**背景**：用户指着聊天窗里 Dot 的「已落卡」蓝字：「弹窗怎么没用上原生的……我是说用原生 emdash 的弹窗方式」。
+旧实现 `acp/xg-card-dialog.tsx` 是在面板里**裸挂一个 `Dialog.Root`** —— 它不进 emdash 的弹窗栈，
+所以没有原生弹窗的尺寸档/遮罩/z 序，也没有 `Header`/`Body`/`Footer` 骨架（正文和按钮塞在同一个 div 里）。
+
+**原生写法（抄本仓已有的 `expertHandoffModal`）**：
+
+1. 组件里 `useModalController('xgCardModal')` 取 `dismiss`；
+2. 文件底部 `defineModal<void>()({ id, component, size })`；
+3. 注册进 `features/conversations/contributions/browser.ts` 的 `modalDefs` ⇒ `featureModalDefs` ⇒ `modalCatalog`；
+4. 打开用**模块级** `openModal('xgCardModal', props)`（`@core/manifests/browser/modal-api`）；
+5. 组件**只渲染** `Dialog.Header/Body/Footer` —— `Dialog.Root`/Portal/遮罩由 `renderer/App.tsx:121` 的
+   `<ModalRenderer />` 统一给（与 `skillDetailModal`/`openUrlModal` 同一条路）。
+
+**改**：新增 `acp/xg-card-modal.tsx`（头部带图标位，同原生 agent 弹窗那一族）· 删 `acp/xg-card-dialog.tsx`
+（只落一处，不留两套弹窗）· `acp-chat-panel.tsx` 去掉本地 `xgCard` state 与自造 Dialog，改调
+`openModal('xgCardModal', { path, onOpenFull, onMerge })`（动作仍交回项我：发「看卡 …」/「并入 …」，
+渲染层不做 IO）· `renderer/tests/browser/modal-catalog.test.ts` 的 `expectedModalIds` 加 `'xgCardModal'`，
+并加 `openXgCardForTypeTest` 类型钉子（props 漂了就 typecheck 红）。
+
+**唯一值得记的坑**：`defineModal<T>` 的泛型是**返回值**、不是 props（props 由 `component` 签名推出）。
+写成 `defineModal<XgCardModalProps>()` ⇒ `openModal()` 返回 `Result<Props, ModalDismissed>` ⇒ 类型钉子立刻红。
+本弹窗只「看/选」没有返回值 ⇒ `defineModal<void>()`。
+
+**验**：`tsgo --noEmit -p tsconfig.browser.json` 只剩 3 个**既有**报错（`orb-to-bottom.test.ts` 缺 node 类型，
+本次未动那个文件）· `check.mjs --gen` → `--check` 丢失 0 / 漂移 0 / 漏标 0 · 出包 **1.2.50-xiangwo**，
+验收串 `xgCardModal|共享子代理|openEmbeddedBrowser`（三个串都要在 asar 里）。
+
+⛔ **这只在客户端包里生效** ⇒ 改完必须装新 exe；Linux 侧源码改了不等于界面变了（铁律 6 的老坑）。
