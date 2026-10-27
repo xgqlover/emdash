@@ -7,9 +7,9 @@
     "base": "760b60caade30f4f1dc870d26af4a612dd426cd7"
   },
   "stats": {
-    "files": 328,
-    "markers": 2394,
-    "newFiles": 134,
+    "files": 327,
+    "markers": 2395,
+    "newFiles": 133,
     "modifiedFiles": 194
   },
   "files": {
@@ -1097,48 +1097,49 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/conversations/browser/acp/acp-chat-panel.tsx": {
-      "markers": 37,
+      "markers": 38,
       "lines": [
         14,
-        19,
+        15,
         21,
-        70,
-        74,
-        83,
-        87,
-        97,
-        104,
-        205,
-        241,
-        245,
-        285,
-        339,
-        344,
-        392,
-        446,
-        485,
-        522,
-        532,
-        533,
-        608,
-        633,
-        714,
-        722,
+        23,
+        72,
+        76,
+        85,
+        89,
+        99,
+        106,
+        207,
+        243,
+        247,
+        287,
+        341,
+        346,
+        394,
+        448,
+        487,
+        524,
+        534,
+        535,
+        610,
+        635,
+        716,
         724,
-        758,
-        840,
-        871,
+        726,
+        760,
+        842,
         874,
-        966,
-        1033,
-        1061,
-        1118,
-        1148,
-        1156,
-        1229
+        884,
+        972,
+        1039,
+        1067,
+        1124,
+        1154,
+        1162,
+        1235
       ],
       "anchors": [
-        "import { XgCardDialog, type XgCardTarget } from './xg-card-dialog';",
+        "import { ArrowDown, MessageSquare } from 'lucide-react';",
         "import { XIANGWO_BOTS, XIANGWO_EXPERTS, XIANGWO_ROLES, XIANGWO_SUBAGENTS } from './xiangwo-experts';",
         "import { projectViewDef } from '@core/features/projects/contributions/views';",
         "import type { ExpertHandoffTopic } from '@core/primitives/desktop-host/api/host-contract';",
@@ -1164,8 +1165,8 @@
         "const sharedSubs = XIANGWO_SUBAGENTS.filter((e) => e.bot === 'shared');",
         "{disabledReason && ( ⏎ <div",
         "{/* <ExpertHandoffBar bot=\"\" session=\"\" /> */} ⏎ </div>",
-        "const [xgCard, setXgCard] = useState<XgCardTarget | null>(null);",
         "const handleCardLinkClick = useCallback((e: React.MouseEvent) => {",
+        "void openModal('xgCardModal', {",
         "const handoffHandledRef = useRef<string | null>(null);",
         "const fileCommands = store",
         "classifyLink: fileCommands?.classifyLink,",
@@ -1174,7 +1175,7 @@
         "{agent?.name ?? '此 agent'} 需要你登录。 ⏎ </span>",
         "onClick={() => viewRef.current?.scrollToBottom({ behavior: 'smooth' })}"
       ],
-      "hash": "124cd9eae2f29f50362767bd5cc65db17e82a99b",
+      "hash": "9a2de83850a693815ba2355454955479dabc6617",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1270,20 +1271,6 @@
       "lastCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
       "note": "会话/ACP 定制（专家交接横条、专家表）"
     },
-    "apps/emdash-desktop/src/core/features/conversations/browser/acp/xg-card-dialog.tsx": {
-      "markers": 1,
-      "lines": [
-        1
-      ],
-      "anchors": [
-        "import { Button, Dialog } from '@emdash/ui/react/primitives';"
-      ],
-      "hash": "f319c7a1a10ea34ab197f3beacd922bac5c4446f",
-      "origin": "new",
-      "firstCommit": "45e1ef82b|2026-10-26|feat(xg-custom): B. 客户端 Dot 落卡入口 —— 蓝字链接 → 弹窗 → 「并入本轮」",
-      "lastCommit": "45e1ef82b|2026-10-26|feat(xg-custom): B. 客户端 Dot 落卡入口 —— 蓝字链接 → 弹窗 → 「并入本轮」",
-      "note": "会话/ACP 定制（专家交接横条、专家表）"
-    },
     "apps/emdash-desktop/src/core/features/conversations/browser/acp/xiangwo-experts.ts": {
       "markers": 2,
       "lines": [
@@ -1335,16 +1322,18 @@
       "note": "会话/ACP 定制（专家交接横条、专家表）"
     },
     "apps/emdash-desktop/src/core/features/conversations/contributions/browser.ts": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
         2,
-        6
+        4,
+        8
       ],
       "anchors": [
         "import { expertHandoffModal } from '../browser/expert-handoff-modal';",
-        "modalDefs: [createConversationModal, expertHandoffModal],"
+        "import { xgCardModal } from '../browser/acp/xg-card-modal';",
+        "modalDefs: [createConversationModal, expertHandoffModal, xgCardModal],"
       ],
-      "hash": "dbf202b3a06576f00fcd88557bfbd480ebf5c67b",
+      "hash": "b7eaca01a709a5ad5f74d8d3dfd9cea5ad0687e5",
       "origin": "modified",
       "firstCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",
       "lastCommit": "a5e942b0a|2026-09-21|feat: 专家交接平台前端 UI（/use 切专家弹交接弹窗，host 桥接 + 原生 modal）",

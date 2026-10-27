@@ -12,7 +12,9 @@ import type {
 } from '@emdash/ui/react/components';
 import { Button, toast } from '@emdash/ui/react/primitives';
 // [XG-CUSTOM 2026-10-26] Dot 落卡：蓝字入口 → 弹窗 → 并入本轮
-import { XgCardDialog, type XgCardTarget } from './xg-card-dialog';
+// [XG-CUSTOM 2026-10-27] 弹窗**改走原生机制**（`modalDefs` + `ModalRenderer`）：见 `xg-card-modal.tsx`，
+//   本文件只负责「点到了就 openModal」，不再自己渲染 Dialog。
+
 import { ArrowDown, MessageSquare } from 'lucide-react';
 import { observer, useObserver } from 'mobx-react-lite';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -868,8 +870,6 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
   const [overlaySlot, setOverlaySlot] = useState<HTMLElement | null>(null);
   const [viewer, setViewer] = useState<{ src?: string; alt?: string } | null>(null);
   const [mermaidViewer, setMermaidViewer] = useState<{ svg: string | null } | null>(null);
-  // [XG-CUSTOM 2026-10-26] 被点开的卡（知识交换中心/📡 inbox/…md）
-  const [xgCard, setXgCard] = useState<XgCardTarget | null>(null);
 
   // [XG-CUSTOM 2026-10-26] 卡片蓝字入口：拦「知识交换中心/**/*.md」链接，不跳转、改开弹窗。
   //   刻意不依赖 chat-ui 的 workspace-file 分类器（那要改渲染引擎），捕获期拦在面板根节点上。
@@ -881,8 +881,14 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
     if (!/知识交换中心\/.*\.md$/i.test(path)) return;
     e.preventDefault();
     e.stopPropagation();
-    setXgCard({ path });
-  }, []);
+    // [XG-CUSTOM 2026-10-27] 原生弹窗机制：与 `expertHandoffModal` 同一条路（catalog + ModalRenderer）。
+    //   动作仍然交回项我（发 `看卡` / `并入`），弹窗只负责「看」与「选择」。
+    void openModal('xgCardModal', {
+      path,
+      onOpenFull: (p: string) => store?.submitPrompt(`看卡 ${p}`, []),
+      onMerge: (p: string) => store?.submitPrompt(`并入 ${p}`, []),
+    });
+  }, [store]);
 
   const placementConversationRef = useRef<string | null>(null);
   const placementWasEmptyRef = useRef<boolean | null>(null);
@@ -1243,18 +1249,6 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
         }}
         src={viewer?.src}
         alt={viewer?.alt}
-      />
-      <XgCardDialog
-        card={xgCard}
-        onClose={() => setXgCard(null)}
-        onOpenFull={(p) => {
-          setXgCard(null);
-          store.submitPrompt(`看卡 ${p}`, []);
-        }}
-        onMerge={(p) => {
-          setXgCard(null);
-          store.submitPrompt(`并入 ${p}`, []);
-        }}
       />
       <MermaidViewerDialog
         open={!!mermaidViewer}
