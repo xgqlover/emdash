@@ -671,6 +671,7 @@ export function foldItem(
         role: event.role,
         text: event.text,
         ...(event.promptId ? { promptId: event.promptId } : {}),
+        ...(event.at ? { at: event.at } : {}),
         ...(event.attachments?.length ? { attachments: event.attachments } : {}),
         ...(event.images?.length ? { images: event.images } : {}),
       };

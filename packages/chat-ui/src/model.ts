@@ -77,6 +77,8 @@ export type ChatMessage = {
   kind: 'message';
   id: string;
   seq?: number;
+  /** [XG-CUSTOM 2026-10-28] 这条消息的时间（epoch 毫秒），来自 ACP `_meta.xg.ts`；缺则不显示。 */
+  at?: number;
   role: ChatRole;
   /** Markdown source text. */
   text: string;

@@ -76,6 +76,11 @@ export type NormalizedEvent =
       role: 'user' | 'assistant';
       messageId: string | null;
       text: string;
+      /**
+       * [XG-CUSTOM 2026-10-28] 这条消息的时间（epoch 毫秒），来自 ACP `update._meta.xg.ts`。
+       * 项我 的桥在每条 message chunk 上带它；别的 agent 不带就是 undefined（**不要瞎补当前时间**）。
+       */
+      at?: number;
       attachments?: AttachmentRef[];
       /** [XG-CUSTOM 2026-10-09] Agent-sent inline images (base64 payloads). */
       images?: NormalizedImageBlock[];

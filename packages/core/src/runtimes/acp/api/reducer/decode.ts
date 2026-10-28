@@ -23,6 +23,13 @@ import type {
   NormalizedToolStatus,
 } from './normalized-event';
 
+/** [XG-CUSTOM 2026-10-28] 从 ACP `_meta.xg.ts` 取消息时间；**只认有限数字**，其它一律 undefined。 */
+function messageAt(update: { _meta?: unknown }): number | undefined {
+  const meta = update._meta as { xg?: { ts?: unknown } } | undefined;
+  const ts = meta?.xg?.ts;
+  return typeof ts === 'number' && Number.isFinite(ts) && ts > 0 ? ts : undefined;
+}
+
 function extractDiffs(
   content: ReadonlyArray<ToolCallContent> | null | undefined
 ): NormalizedDiff[] {
@@ -146,6 +153,7 @@ export function decodeSessionUpdate(update: SessionUpdate): NormalizedEvent {
         role: 'user',
         messageId: update.messageId ?? null,
         text: update.content.text,
+        ...(messageAt(update) !== undefined ? { at: messageAt(update) } : {}),
       };
     }
 
@@ -171,6 +179,7 @@ export function decodeSessionUpdate(update: SessionUpdate): NormalizedEvent {
           role: 'assistant',
           messageId: update.messageId ?? null,
           text: '',
+          ...(messageAt(update) !== undefined ? { at: messageAt(update) } : {}),
           images: [
             {
               mimeType: update.content.mimeType,
@@ -210,6 +219,7 @@ export function decodeSessionUpdate(update: SessionUpdate): NormalizedEvent {
         role: 'assistant',
         messageId: update.messageId ?? null,
         text: update.content.text,
+        ...(messageAt(update) !== undefined ? { at: messageAt(update) } : {}),
       };
     }
 

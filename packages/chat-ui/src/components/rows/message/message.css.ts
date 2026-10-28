@@ -43,3 +43,12 @@ export const footerRow = style({
   left: 0,
   right: 0,
 });
+
+/** [XG-CUSTOM 2026-10-28] 消息时间（页脚弱化、等宽数字）。 */
+export const footerTime = style({
+  marginRight: '8px',
+  fontSize: '11px',
+  opacity: 0.6,
+  fontVariantNumeric: 'tabular-nums',
+  whiteSpace: 'nowrap',
+});

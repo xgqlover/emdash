@@ -10,6 +10,11 @@ export const transcriptMessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
   /** Correlates an accepted prompt without matching message text. */
   promptId: z.string().optional(),
+  /**
+   * [XG-CUSTOM 2026-10-28] 这条消息的时间（epoch 毫秒），来自 ACP `update._meta.xg.ts`。
+   * 必须声明：**未声明的字段会被 zod 在 wire 边界静默剥掉**（本仓已踩过两次）。
+   */
+  at: z.number().optional(),
   text: z.string(),
   /** Attachment metadata only; bytes are served separately by the runtime. */
   attachments: z.array(attachmentMetadataSchema).optional(),
@@ -37,7 +42,10 @@ export const transcriptMessageSchema = z.object({
     )
     .optional(),
 });
-export type TranscriptMessage = z.infer<typeof transcriptMessageSchema>;
+/** [XG-CUSTOM 2026-10-28] 消息时间（epoch ms，来自 ACP `_meta.xg.ts`；缺就不显示）。 */
+export type TranscriptMessageAt = { at?: number };
+
+export type TranscriptMessage = z.infer<typeof transcriptMessageSchema> & TranscriptMessageAt;
 
 /** Durable provider notices do not carry a conversational role or tool status. */
 export const transcriptNotificationSchema = z.object({

@@ -38,6 +38,7 @@ import {
   assistantRoot,
   assistantVars,
   footerRow,
+  footerTime,
   messageText,
   srOnly,
 } from './message.css';
@@ -262,6 +263,24 @@ function AssistantRender(props: { data: ChatMessage; ctx: RenderCtx; vars: Messa
           style={{ height: `${props.vars.footerH}px` }}
           aria-hidden={props.data.streaming ? 'true' : undefined}
         >
+          <Show when={!props.data.streaming && props.data.at}>
+            {/*
+              [XG-CUSTOM 2026-10-28] 每条消息的时间（本地 HH:MM）。
+              来源 ACP `_meta.xg.ts`（项我 桥每条 chunk 都带）→ decode → item-fold → ChatMessage.at；
+              没有 `at` 的 agent 不显示，**不拿"收到时间"冒充"发出时间"**。
+            */}
+            <time
+              class={footerTime}
+              dateTime={new Date(props.data.at as number).toISOString()}
+              title={new Date(props.data.at as number).toLocaleString()}
+            >
+              {new Date(props.data.at as number).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+              })}
+            </time>
+          </Show>
           <Show when={!props.data.streaming}>
             <CopyButton text={props.data.text} variant="inline" label="Copy message" />
           </Show>
