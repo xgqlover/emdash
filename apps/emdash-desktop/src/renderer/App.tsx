@@ -32,7 +32,6 @@ type OnboardingStep = 'sign-in' | 'import';
 
 function AppContent() {
   useIntegrationAccountEvents();
-  useGitHubAuthEvents();
   // [XG-CUSTOM] 项我 agent 请求「从零开内嵌浏览器页」时，在本窗口开一个 Browser 标签页
   useEmbeddedBrowserOpenRequests();
   const [view, setView] = useState<AppView>(() =>
