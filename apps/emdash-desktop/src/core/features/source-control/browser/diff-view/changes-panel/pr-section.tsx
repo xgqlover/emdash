@@ -89,7 +89,11 @@ function usePullRequestsSectionModel() {
     branchCommitRange,
     showBranchCommits,
     // [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
-        sectionLabel: showBranchCommits ? t('branch_commits') : t('pull_requests'),
+        sectionLabel: showBranchCommits
+          ? t('branch_commits')
+          : provider === 'gitlab'
+            ? t('merge_requests')
+            : t('pull_requests'),
     sectionCount: showBranchCommits ? (branchCommitCount ?? 0) : pullRequests.length,
   };
 }
@@ -159,8 +163,8 @@ export const PullRequestsSectionHeader = observer(function PullRequestsSectionHe
       : undefined;
 
   const prActions = [
-    { id: 'create-pr', label: t('create_pr'), action: () => onCreatePr?.() },
-    { id: 'create-draft-pr', label: t('create_draft_pr'), action: () => onCreateDraftPr?.() },
+    { id: 'create-pr', label: t(provider === 'gitlab' ? 'create_mr' : 'create_pr'), action: () => onCreatePr?.() },
+    { id: 'create-draft-pr', label: t(provider === 'gitlab' ? 'create_draft_mr' : 'create_draft_pr'), action: () => onCreateDraftPr?.() },
   ];
   const [selectedPrActionId, setSelectedPrActionId] = useState<string | undefined>(undefined);
 
@@ -174,10 +178,13 @@ export const PullRequestsSectionHeader = observer(function PullRequestsSectionHe
       if (!result.success) {
         const message = pullRequestErrorMessage(result.error);
         onSyncError(message);
-        toast.error(t('failed_refresh_pull_requests'), { description: message });
+        toast.error(
+          t(provider === 'gitlab' ? 'failed_refresh_merge_requests' : 'failed_refresh_pull_requests'),
+          { description: message }
+        );
       }
     } catch (error) {
-      toast.error(t('failed_refresh_pull_requests'), {
+      toast.error(t(provider === 'gitlab' ? 'failed_refresh_merge_requests' : 'failed_refresh_pull_requests'), {
         description: error instanceof Error ? error.message : String(error),
       });
     } finally {
@@ -186,12 +193,12 @@ export const PullRequestsSectionHeader = observer(function PullRequestsSectionHe
   };
 
   const createPrTooltip = !repositoryUrl
-    ? t('pull_requests_unavailable')
+    ? t(provider === 'gitlab' ? 'merge_requests_unavailable' : 'pull_requests_unavailable')
     : hostActionReason
       ? hostActionReason
       : hasOpenPr
-        ? t('pull_request_already_open')
-        : t('create_a_pull_request');
+        ? t(provider === 'gitlab' ? 'merge_request_already_open' : 'pull_request_already_open')
+        : t(provider === 'gitlab' ? 'create_a_merge_request' : 'create_a_pull_request');
 
   if (!changesView) return null;
 
@@ -207,7 +214,7 @@ export const PullRequestsSectionHeader = observer(function PullRequestsSectionHe
             <ChangesViewModeToggle
               value={viewMode}
               onChange={setViewMode}
-                  label={provider === 'gitlab' ? '合并请求文件' : t('pull_request_files')}
+                  label={t(provider === 'gitlab' ? 'merge_request_files' : 'pull_request_files')}
             />
           )}
           {showBranchCommits && (
@@ -290,7 +297,7 @@ export const PullRequestsSectionBody = observer(function PullRequestsSectionBody
           role="status"
           className="border-t border-border px-2.5 py-2 text-xs text-foreground-muted"
         >
-          Showing previously observed {provider === 'gitlab' ? 'merge requests' : 'pull requests'}
+          {provider === 'gitlab' ? '已展示此前观察到的合并请求' : '已展示此前观察到的拉取请求'}
         </p>
       ) : null}
       {currentPr ? (
@@ -304,17 +311,27 @@ export const PullRequestsSectionBody = observer(function PullRequestsSectionBody
         />
       ) : !repositoryUrl ? (
         <EmptyState
-          label={t('pull_requests_unavailable')}
-          description={t('pr_only_github_remotes')}
+          label={t(provider === 'gitlab' ? 'merge_requests_unavailable' : 'pull_requests_unavailable')}
+          description={
+            provider === 'gitlab' ? t('merge_requests_unavailable_desc') : t('pr_only_github_remotes')
+          }
         />
       ) : pullRequestsObservation.kind === 'unavailable' ? (
         <EmptyState
-          label={t('pull_requests_unavailable')}
+          label={t(provider === 'gitlab' ? 'merge_requests_unavailable' : 'pull_requests_unavailable')}
           description={t('pr_data_not_observed')}
         />
       ) : pullRequests.length === 0 ? (
         <EmptyState
-          label={syncError ? t('could_not_load_pull_requests') : t('no_pull_requests')}
+          label={
+            provider === 'gitlab'
+              ? syncError
+                ? t('could_not_load_merge_requests')
+                : t('no_merge_requests')
+              : syncError
+                ? t('could_not_load_pull_requests')
+                : t('no_pull_requests')
+          }
           description={syncError ?? 'Push your branch and create a PR to start a review.'}
         />
       ) : null}

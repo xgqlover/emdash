@@ -208,7 +208,9 @@ export const CommitCard = observer(function CommitCard({ autoStage = false }: Co
             <StatusRow
               icon={<Loader2 className="size-4 animate-spin" />}
               label={
-                repository?.providerRepository?.provider === 'gitlab' ? '正在开 MR…' : t('opening_pr')
+                repository?.providerRepository?.provider === 'gitlab'
+                  ? t('creating_mr')
+                  : t('opening_pr')
               }
             />
       )}

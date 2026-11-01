@@ -79,7 +79,7 @@ function PrDiffStat({ pr }: { pr: PullRequest }) {
   return (
     <span
       className="shrink-0 text-xs tabular-nums"
-      aria-label={pr.provider === 'gitlab' ? 'Merge request diff lines' : 'Pull request diff lines'}
+      aria-label={t(pr.provider === 'gitlab' ? 'merge_request_diff_lines' : 'pull_request_diff_lines')}
     >
       <span className="text-foreground-success">+{formatDiffLineCount(pr.additions ?? 0)}</span>{' '}
       <span className="text-foreground-error">-{formatDiffLineCount(pr.deletions ?? 0)}</span>

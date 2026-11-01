@@ -206,16 +206,15 @@ export const CreatePrModal = observer(function CreatePrModal({
       <Dialog.Header>
         <Dialog.Title>
           {draft
-            ? `Create Draft ${short}`
-            : provider === 'gitlab'
-              ? 'Create Merge Request'
-              : 'Create Pull Request'}
+            ? t(provider === 'gitlab' ? 'create_draft_mr_title' : 'create_draft')
+            : t(provider === 'gitlab' ? 'create_mr_title' : 'create_pr_title')}
         </Dialog.Title>
       </Dialog.Header>
       <Dialog.Body className="space-y-4">
         {!hasProviderRemote && (
           <p className="text-muted-foreground text-sm">
-            No {providerName} remote detected. Configure a {providerName} remote to create {noun}s.
+            没有检测到 {providerName} 远端。先配一个 {providerName} 远端，再来创建
+            {provider === 'gitlab' ? '合并请求' : '拉取请求'}。
           </p>
         )}
         {baseRemoteResolution?.provenance.kind === 'broken-setting' ? (
@@ -287,7 +286,7 @@ export const CreatePrModal = observer(function CreatePrModal({
 {/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
             <Field.Label>{t('title_label')}</Field.Label>
             <Input
-                  placeholder={`${short} 标题`}
+                  placeholder={t(provider === 'gitlab' ? 'mr_title_placeholder' : 'pr_title_placeholder')}
               autoFocus
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -330,7 +329,9 @@ export const CreatePrModal = observer(function CreatePrModal({
         {error && (
           <Alert.Root status="destructive">
     {/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
-                <Alert.Title>{t('failed_create_pr')}</Alert.Title>
+                <Alert.Title>
+                  {t(provider === 'gitlab' ? 'failed_create_mr' : 'failed_create_pr')}
+                </Alert.Title>
             <Alert.Description>{error}</Alert.Description>
           </Alert.Root>
         )}
@@ -347,7 +348,9 @@ export const CreatePrModal = observer(function CreatePrModal({
             options={[
               {
                 id: 'push-and-create',
-                label: draft ? 'Push & Create Draft' : `Push & Create ${short}`,
+                label: draft
+                  ? t('push_and_create_draft')
+                  : `${t('push_and_create_mr').replace(' MR', '')} ${short}`,
               },
               {
                 id: 'create-only',

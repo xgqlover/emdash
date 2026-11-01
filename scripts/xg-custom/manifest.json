@@ -215,7 +215,7 @@
       "anchors": [
         "2026-10-14] 版本 1.2.43-xiangwo：取图网格点击目标 page→orig 兜底（真机反馈「点了没图的框没反应」）；另 1.2.41 未设工作区回退、1.2.42 planOutbound(MCP Apps)。⚠️ J"
       ],
-      "hash": "d8d3dcbd752587fe1f1bf58cd5724e98ef918ed3",
+      "hash": "424539ef0391114c9ffe2cf082358071c8718a38",
       "origin": "modified",
       "firstCommit": "1dce8b4ad|2026-10-14|[XG-CUSTOM 2026-10-14] 取图网格：点击目标 page→orig 兜底 + 版本 1.2.43-xiangwo + 台账标记",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1694,7 +1694,7 @@
         "import { t } from '@renderer/lib/i18n';",
         "<Tooltip.Content>{t('open_pr_on_github')}</Tooltip.Content>"
       ],
-      "hash": "b02c2fd6960e841eb486eb5ca510b692414c48d0",
+      "hash": "86e4311a0729accf11d4e46734348b2f76680740",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
@@ -1900,17 +1900,17 @@
         71,
         80,
         94,
-        99
+        101
       ],
       "anchors": [
         "import { isGitHubDotComHost } from '@emdash/core/primitives/repository/api';",
         "import { t } from '@renderer/lib/i18n';",
         "label: t('create_from_branch'),",
         "label: t('create_from_issue'),",
-        "label: t('create_from_pr'),",
+        "label:",
         "disabledReason: createDisabledReason ?? t('no_remote_repository'),"
       ],
-      "hash": "b2ef4cac062dcf2d3403ac39069b35a8699eea62",
+      "hash": "4b9529bc7ab80c9a810ac49617b1ea0cfeb18f1f",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -2507,7 +2507,7 @@
       "anchors": [
         "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "7df106ee87c31322e7aa702213b00e744514d278",
+      "hash": "f9fc0b14c95c3f6ff0e3925b481838f02305e604",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
@@ -2581,14 +2581,14 @@
       "markers": 9,
       "lines": [
         40,
-        241,
-        267,
-        275,
-        287,
-        298,
-        332,
-        354,
-        377
+        240,
+        266,
+        274,
+        286,
+        297,
+        331,
+        357,
+        380
       ],
       "anchors": [
         "import { t } from '@renderer/lib/i18n';",
@@ -2597,11 +2597,11 @@
         "<Combobox.Value placeholder={t('select_base_branch')} />",
         "<Field.Label>{t('title_label')}</Field.Label>",
         "<Field.Label>{t('description_placeholder')}</Field.Label>",
-        "<Alert.Title>{t('failed_create_pr')}</Alert.Title>",
+        "<Alert.Title>",
         "label: draft ? t('create_draft') : t('create_pr'),",
         "</ConfirmButton>"
       ],
-      "hash": "4d33a0c238c6602c86be92f672a8ccf2959f174b",
+      "hash": "320debf72c9ed35246967ea2a0b23a3c506c132e",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
@@ -2645,15 +2645,15 @@
         30,
         33,
         91,
-        260
+        267
       ],
       "anchors": [
         "import { t } from '@renderer/lib/i18n';",
         "label: t('no_commits'),",
-        "sectionLabel: showBranchCommits ? t('branch_commits') : t('pull_requests'),",
+        "sectionLabel: showBranchCommits",
         "<Tooltip.Content>{hostActionReason ?? t('refresh_pull_requests')}</Tooltip.Content>"
       ],
-      "hash": "89ec6a6ce4d94cbc2f08598444381fba33cb91de",
+      "hash": "4c2400ffa3824e9a1b2a28ae94584f9066a65ebe",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
@@ -2896,9 +2896,9 @@
         "import { t } from '@renderer/lib/i18n';",
         "<span className=\"shrink-0 text-sm text-foreground-muted\">{t('based_on')}</span>",
         "{t('issue')} ⏎ </ToggleGroup.Item>",
-        "{t('pull_request')} ⏎ </ToggleGroup.Item>"
+        "{t(requestProvider === 'gitlab' ? 'merge_request' : 'pull_request')} ⏎ </ToggleGroup.Item>"
       ],
-      "hash": "11fc40648291609c57a2e488d92dd140cb9be52f",
+      "hash": "3fb8e7cc4839169d0aeee0dd27fec66c46b41fce",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -5344,7 +5344,7 @@
       "anchors": [
         "export const zh = {"
       ],
-      "hash": "0c7880073eeb1ca3ce4365eb0a74bcec504666dc",
+      "hash": "f2c24985afd7d1ab2b5921ff34d8eead05e3dba6",
       "origin": "new",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -8215,7 +8215,7 @@
       "anchors": [
         "\"files\": {"
       ],
-      "hash": "994ee392f1d01e93081a2b530a97873c899ef5b7",
+      "hash": "2c0fdda46e4177375a62548fbf3bd9683db905d1",
       "origin": "new",
       "firstCommit": "411c4b07e|2026-09-29|[XG-CUSTOM] 中文化标记 + 体检/还原器（上游更新后可一键找回）",
       "lastCommit": "411c4b07e|2026-09-29|[XG-CUSTOM] 中文化标记 + 体检/还原器（上游更新后可一键找回）",

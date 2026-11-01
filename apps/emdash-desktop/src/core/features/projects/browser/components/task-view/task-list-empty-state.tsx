@@ -92,8 +92,10 @@ export const TaskListEmptyState = observer(function TaskListEmptyState({
     },
     {
     // [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
-          label: t('create_from_pr'),
-          description: t('create_from_pr_desc'),
+          label:
+            repositoryProvider === 'gitlab' ? t('create_from_mr') : t('create_from_pr'),
+          description:
+            repositoryProvider === 'gitlab' ? t('create_from_mr_desc') : t('create_from_pr_desc'),
           icon: GitPullRequest,
           disabled: !!createDisabledReason || !supportsPullRequests,
     // [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
