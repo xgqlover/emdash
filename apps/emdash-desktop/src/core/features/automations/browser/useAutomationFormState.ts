@@ -16,6 +16,7 @@ import {
 import { useProjectGitContext } from '@core/features/tasks/api/browser/create-task-modal/use-project-git-context';
 import { useTaskName } from '@core/features/tasks/api/browser/create-task-modal/use-task-name';
 import {
+  MISSING_BRANCH_REASON,
   useWorkspaceConfig,
   type WorkspaceConfigInitial,
 } from '@core/features/tasks/api/browser/create-task-modal/use-workspace-config';
@@ -209,9 +210,12 @@ export function useAutomationFormState(
     !!provider &&
     providerSupportsAutomationPrompt &&
     !!effectiveProjectId &&
-    workspaceConfig.isValid &&
-    // [XG-CUSTOM 2026-10-05] 触发源也要配好：webhook 缺 token 时**不许保存**（否则等于开了个裸接口）
-    validateTriggerConfig(triggerConfig) === null;
+        workspaceConfig.isValid &&
+        // [XG-CUSTOM 2026-10-05] 触发源也要配好：webhook 缺 token 时**不许保存**（否则等于开了个裸接口）
+        validateTriggerConfig(triggerConfig) === null;
+      // The base branch is the one required input the form fills in by itself, out
+      // of sight in Workspace Settings, so it is the blocker worth explaining.
+      const saveBlockedReason = workspaceConfig.missingBranch ? MISSING_BRANCH_REASON : undefined;
 
   function buildTaskConfig(targetProjectId: string): StoredAutomationTaskConfig | null {
     const effectiveRepoWsId =
@@ -296,6 +300,7 @@ export function useAutomationFormState(
     provider,
     model,
     canSave,
+    saveBlockedReason,
     triggerConfig,
     applyTemplate,
     buildTaskConfig,

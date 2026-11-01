@@ -9,6 +9,8 @@ interface LinkedEntitySectionProps {
   state: CreateTaskState;
   hasAnyIssueIntegration: boolean;
   hasPrSupport: boolean;
+  requestProvider?: string;
+  issueLabel: string;
   projectId?: string;
   repositoryUrl?: string;
   projectPath?: string;
@@ -18,6 +20,8 @@ export function LinkedEntitySection({
   state,
   hasAnyIssueIntegration,
   hasPrSupport,
+  requestProvider,
+  issueLabel,
   projectId,
   repositoryUrl,
   projectPath,
@@ -37,12 +41,10 @@ export function LinkedEntitySection({
           }}
         >
           <ToggleGroup.Item className="text-xs" value="issue" disabled={!hasAnyIssueIntegration}>
-{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
-            {t('issue')}
-          </ToggleGroup.Item>
-          <ToggleGroup.Item className="text-xs" value="pr" disabled={!hasPrSupport}>
-{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
-            {t('pull_request')}
+                {issueLabel}
+              </ToggleGroup.Item>
+              <ToggleGroup.Item className="text-xs" value="pr" disabled={!hasPrSupport}>
+                {requestProvider === 'gitlab' ? '合并请求' : t('pull_request')}
           </ToggleGroup.Item>
         </ToggleGroup.Root>
       </div>
@@ -72,6 +74,7 @@ export function LinkedEntitySection({
       )}
       {state.linkedType === 'pr' && (
         <PrComboboxField
+          provider={requestProvider}
           value={state.linkedPR}
           onValueChange={state.setLinkedPR}
           projectId={projectId}

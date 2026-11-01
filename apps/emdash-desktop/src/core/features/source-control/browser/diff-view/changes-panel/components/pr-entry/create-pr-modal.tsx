@@ -1,3 +1,4 @@
+import { parseRepositoryRef } from '@emdash/core/primitives/repository/api';
 import type { GitBranchRef } from '@emdash/core/runtimes/git/api';
 import {
   Alert,
@@ -9,12 +10,14 @@ import {
   SplitButton,
   Textarea,
 } from '@emdash/ui/react/primitives';
-import { ChevronDown, GitBranch, Github, GitPullRequest } from 'lucide-react';
+import { ChevronDown, GitBranch, GitPullRequest } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useMemo, useRef, useState } from 'react';
 import { useProjectAccount } from '@core/features/integrations/api/browser/use-project-account';
 import { useAccounts } from '@core/features/integrations/api/browser/use-provider-accounts';
 import { identityStripView } from '@core/features/integrations/api/identity-strip-state';
+import { IntegrationIcon } from '@core/features/integrations/contributions/browser/integration-icon';
+import { useIntegrationsContext } from '@core/features/integrations/contributions/browser/integrations-provider';
 import { ProviderIdentityStrip } from '@core/features/integrations/contributions/browser/provider-identity-strip';
 import { getProjectSettingsStore } from '@core/features/projects/api/browser/stores/project-selectors';
 import { BrokenSettingNotice } from '@core/features/projects/contributions/browser/settings-provenance';
@@ -26,12 +29,10 @@ import { RemoteSelector } from '@core/features/source-control/contributions/brow
 import { gitCheckoutStoreToken } from '@core/features/source-control/contributions/browser/workspace-store-tokens';
 import { workspaceRegistry } from '@core/features/workspaces/api/browser/stores/workspace-registry';
 import { useModalController, useOpenModal } from '@core/manifests/browser/modal-api';
-import { isGitHubAccountSummary } from '@core/primitives/github/api';
-import type { GitHubAccountSummary } from '@core/primitives/github/api';
 import { ConfirmButton } from '@core/primitives/keybindings/browser/confirm-button';
 import { log } from '@core/primitives/logging/browser/logger';
 import { defineModal } from '@core/primitives/modals/react';
-import { parseRepositoryRef } from '@core/primitives/repository/api';
+import type { ProviderAccountSummary } from '@core/primitives/provider-accounts/api';
 import { pullRequestErrorMessage } from '@core/services/pull-requests/api';
 import { getPullRequestsRuntimeClient } from '@core/services/pull-requests/api/client';
 import { resolveInitialBaseBranch } from './base-branch';
@@ -64,28 +65,30 @@ export const CreatePrModal = observer(function CreatePrModal({
   const [isCreating, setIsCreating] = useState(false);
   const [createActionId, setCreateActionId] = useState('push-and-create');
   const [error, setError] = useState<string | null>(null);
-  const [accountOverride, setAccountOverride] = useState<GitHubAccountSummary | null>(null);
+  const [accountOverride, setAccountOverride] = useState<ProviderAccountSummary | null>(null);
   const [accountSaveState, setAccountSaveState] = useState<'idle' | 'saving' | 'failed'>('idle');
   const accountSaveInFlight = useRef(false);
   const repo = getGitRepositoryStore(projectId);
+  const provider = repo?.providerRepository?.provider ?? 'github';
+  const { integrationById } = useIntegrationsContext();
+  const providerName =
+    integrationById[provider]?.name ?? (provider === 'gitlab' ? 'GitLab' : 'GitHub');
+  const short = provider === 'gitlab' ? 'MR' : 'PR';
+  const noun = provider === 'gitlab' ? 'merge request' : 'pull request';
   const checkout = workspaceRegistry.get(workspaceId)?.get(gitCheckoutStoreToken);
-  // Identity strip inputs (spec §9): the resolver's effective account plus the
-  // per-action override. Create-PR is fail-closed (spec §5/§7): while the
-  // inputs load or when no account resolves, the primary action stays blocked.
-  const resolvedAccount = useProjectAccount(projectId, 'github', {
-    repository: { kind: 'project' },
-    accepts: isGitHubAccountSummary,
+  // Creation requires a resolved account and a persisted account selection.
+  const resolvedAccount = useProjectAccount(projectId, provider, {
+    repository: { kind: 'url', url: repositoryUrl },
   });
-  const { data: accounts } = useAccounts('github', isGitHubAccountSummary);
+  const { data: accounts } = useAccounts(provider);
   const identityBlocked =
+    !repo?.providerRepository?.capabilities.pullRequests ||
     accountSaveState !== 'idle' ||
     !resolvedAccount ||
     !accounts ||
-    identityStripView('GitHub', resolvedAccount, accountOverride, accounts).kind !== 'account';
-  // The PR execution path resolves *as whom* node-side from the stored
-  // per-project setting, so a popover selection persists immediately (the
-  // popover says so) instead of riding a per-action parameter.
-  const handleSelectAccount = async (account: GitHubAccountSummary) => {
+    identityStripView(providerName, resolvedAccount, accountOverride, accounts).kind !== 'account';
+  // The worker resolves credentials from the saved project account.
+  const handleSelectAccount = async (account: ProviderAccountSummary) => {
     if (accountSaveInFlight.current || isCreating) return;
     accountSaveInFlight.current = true;
     setAccountSaveState('saving');
@@ -96,7 +99,7 @@ export const CreatePrModal = observer(function CreatePrModal({
       if (!settings) throw new Error('Project settings are unavailable.');
       const result = await settings.save({
         integrationAccounts: {
-          stored: { github: { kind: 'account', accountId: account.accountId } },
+          stored: { [provider]: { kind: 'account', accountId: account.accountId } },
         },
       });
       if (!result.success) throw new Error('Could not save the selected account.');
@@ -104,7 +107,7 @@ export const CreatePrModal = observer(function CreatePrModal({
     } catch {
       setAccountSaveState('failed');
       setError(
-        'Could not save the selected account. Select it again to retry before creating the PR.'
+        `Could not save the selected account. Select it again to retry before creating the ${short}.`
       );
     } finally {
       accountSaveInFlight.current = false;
@@ -131,7 +134,7 @@ export const CreatePrModal = observer(function CreatePrModal({
   const targetRepositoryUrl =
     targetRemote?.repository.repositoryUrl ?? fallbackRepository?.repositoryUrl ?? null;
 
-  const hasGitHubRemote = Boolean(targetRepositoryUrl);
+  const hasProviderRemote = Boolean(targetRepositoryUrl);
   const selectedBase =
     selectedBaseOverride ??
     resolveInitialBaseBranch(
@@ -149,7 +152,7 @@ export const CreatePrModal = observer(function CreatePrModal({
   const doCreate = async (push: boolean) => {
     if (identityBlocked || accountSaveInFlight.current || isCreating) return;
     if (!selectedBase?.branch) {
-      setError('Select a base branch before creating the pull request.');
+      setError(`Select a base branch before creating the ${noun}.`);
       return;
     }
     if (!title.trim() || !targetRepositoryUrl) return;
@@ -170,6 +173,7 @@ export const CreatePrModal = observer(function CreatePrModal({
       const baseRepository = parseRepositoryRef(targetRepositoryUrl);
       const headRepository = repo?.pushRemote?.url ? parseRepositoryRef(repo.pushRemote.url) : null;
       const head =
+        provider === 'github' &&
         baseRepository &&
         headRepository &&
         headRepository.repositoryUrl !== baseRepository.repositoryUrl
@@ -200,12 +204,18 @@ export const CreatePrModal = observer(function CreatePrModal({
   return (
     <div className="flex max-h-[70vh] flex-col overflow-hidden">
       <Dialog.Header>
-        <Dialog.Title>{draft ? 'Create Draft PR' : 'Create Pull Request'}</Dialog.Title>
+        <Dialog.Title>
+          {draft
+            ? `Create Draft ${short}`
+            : provider === 'gitlab'
+              ? 'Create Merge Request'
+              : 'Create Pull Request'}
+        </Dialog.Title>
       </Dialog.Header>
       <Dialog.Body className="space-y-4">
-        {!hasGitHubRemote && (
+        {!hasProviderRemote && (
           <p className="text-muted-foreground text-sm">
-            No GitHub remote detected. Configure a GitHub remote to create pull requests.
+            No {providerName} remote detected. Configure a {providerName} remote to create {noun}s.
           </p>
         )}
         {baseRemoteResolution?.provenance.kind === 'broken-setting' ? (
@@ -277,11 +287,11 @@ export const CreatePrModal = observer(function CreatePrModal({
 {/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
             <Field.Label>{t('title_label')}</Field.Label>
             <Input
-              placeholder={t('pr_title_placeholder')}
+                  placeholder={`${short} 标题`}
               autoFocus
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              disabled={!hasGitHubRemote}
+              disabled={!hasProviderRemote}
             />
           </Field.Root>
           <Field.Root>
@@ -291,18 +301,20 @@ export const CreatePrModal = observer(function CreatePrModal({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={1}
-              disabled={!hasGitHubRemote}
+              disabled={!hasProviderRemote}
             />
           </Field.Root>
         </Field.Group>
         {resolvedAccount && accounts ? (
           <ProviderIdentityStrip
-            providerName="GitHub"
-            providerIcon={<Github className="size-4 text-foreground-muted" />}
-            actionLabel={t('creating_as')}
+                providerName={providerName}
+                providerIcon={
+                  <IntegrationIcon provider={provider} className="size-4 text-foreground-muted" />
+                }
+                actionLabel={t('creating_as')}
             emptyState={{
-              connect: 'Connect a GitHub account to continue.',
-              unavailable: 'Choose a GitHub account to continue.',
+              connect: `Connect a ${providerName} account to continue.`,
+              unavailable: `Choose a ${providerName} account to continue.`,
               noMatch: 'No connected account matches this repository.',
             }}
             resolved={resolvedAccount}
@@ -312,13 +324,13 @@ export const CreatePrModal = observer(function CreatePrModal({
             accountRequired
             disabled={accountSaveState === 'saving' || isCreating}
             onSelect={(account) => void handleSelectAccount(account)}
-            onConnect={() => void openIntegrationSetup({ integration: 'github' })}
+            onConnect={() => void openIntegrationSetup({ integration: provider })}
           />
         ) : null}
         {error && (
           <Alert.Root status="destructive">
-{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
-            <Alert.Title>{t('failed_create_pr')}</Alert.Title>
+    {/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
+                <Alert.Title>{t('failed_create_pr')}</Alert.Title>
             <Alert.Description>{error}</Alert.Description>
           </Alert.Root>
         )}
@@ -328,18 +340,20 @@ export const CreatePrModal = observer(function CreatePrModal({
           <SplitButton
             size="sm"
             loading={isCreating}
-            loadingLabel={t('creating')}
-            disabled={!hasGitHubRemote || !selectedBase?.branch || !title.trim() || identityBlocked}
+                loadingLabel={t('creating')}
+                disabled={
+                  !hasProviderRemote || !selectedBase?.branch || !title.trim() || identityBlocked
+                }
             options={[
               {
                 id: 'push-and-create',
-                label: draft ? 'Push & Create Draft' : 'Push & Create PR',
+                label: draft ? 'Push & Create Draft' : `Push & Create ${short}`,
               },
               {
                 id: 'create-only',
-// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
-                label: draft ? t('create_draft') : t('create_pr'),
-                description: 'Skip push and open a PR from the current remote state',
+    // [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
+                    label: draft ? t('create_draft') : t('create_pr'),
+                    description: `跳过推送，直接用当前远端状态开一个 ${short}`,
               },
             ]}
             selectedId={createActionId}
@@ -353,15 +367,15 @@ export const CreatePrModal = observer(function CreatePrModal({
             size="sm"
             onClick={() => void doCreate(false)}
             disabled={
-              !hasGitHubRemote ||
+              !hasProviderRemote ||
               !selectedBase?.branch ||
               !title.trim() ||
               isCreating ||
               identityBlocked
             }
           >
-{/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
-            {isCreating ? t('creating') : draft ? t('create_draft') : t('create_pr')}
+    {/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
+                {isCreating ? t('creating') : draft ? t('create_draft') : t('create_pr')}
           </ConfirmButton>
         )}
       </Dialog.Footer>

@@ -110,6 +110,38 @@ describe('TerminalsRuntime', () => {
     }
   });
 
+  it('defaults FORCE_HYPERLINK under host env and spec overrides', async () => {
+    let userEnv: Record<string, string> = { PATH: '/usr/bin' };
+    const spawner = new FakePtySpawner();
+    const scope = createScope({ label: 'test-terminals-hyperlink-default' });
+    const runtime = new TerminalsRuntime({
+      spawner,
+      scope,
+      userEnv: async () => userEnv,
+    });
+
+    try {
+      await runtime.start({
+        key: { workspace: testWorkspace(), id: 'terminal-default' },
+        spec: { cwd: '/repo', env: {} },
+      });
+      userEnv = { PATH: '/usr/bin', FORCE_HYPERLINK: '0' };
+      await runtime.start({
+        key: { workspace: testWorkspace(), id: 'terminal-host-opt-out' },
+        spec: { cwd: '/repo', env: {} },
+      });
+      await runtime.start({
+        key: { workspace: testWorkspace(), id: 'terminal-spec-override' },
+        spec: { cwd: '/repo', env: { FORCE_HYPERLINK: '1' } },
+      });
+
+      expect(spawner.specs.map((spec) => spec.env?.FORCE_HYPERLINK)).toEqual(['1', '0', '1']);
+    } finally {
+      runtime.dispose();
+      await scope.dispose();
+    }
+  });
+
   it('does not duplicate a terminal scope for Windows casing variants', async () => {
     const spawner = new FakePtySpawner();
     const scope = createScope({ label: 'test-terminals-windows-identity' });
@@ -304,6 +336,191 @@ describe('TerminalsRuntime', () => {
     const secondLog = await runtime.outputLog(key).snapshot();
     expect(JSON.stringify(secondLog)).not.toContain('first run');
     await scope.dispose();
+  });
+
+  describe('git credential channels', () => {
+    function credentialHarness(
+      spawner = new FakePtySpawner(),
+      options: { tmux?: boolean; userEnv?: () => Promise<Record<string, string>> } = {}
+    ) {
+      const scope = createScope({ label: 'test-terminals-credentials' });
+      const released: string[] = [];
+      const runtime = new TerminalsRuntime({
+        spawner,
+        scope,
+        userEnv: options.userEnv ?? (async () => testUserEnv()),
+        ...(options.tmux ? { exec: fakeExec() } : {}),
+        releaseGitCredentialChannel: async (nonce) => {
+          released.push(nonce);
+        },
+      });
+      const key = { workspace: testWorkspace(), id: 'terminal-1' };
+      const start = (nonce: string) =>
+        runtime.start({
+          key,
+          spec: {
+            cwd: '/repo',
+            env: {},
+            tmux: options.tmux,
+            gitCredentials: {
+              mode: 'effective-account',
+              channel: { port: 4000, nonce },
+              hosts: ['github.com'],
+            },
+          },
+        });
+      return { spawner, scope, runtime, released, key, start };
+    }
+
+    it('keeps a live shell on its channel when a hydrate hands it in again', async () => {
+      const { spawner, scope, released, start } = credentialHarness();
+      await start('channel-1');
+
+      await start('channel-1');
+
+      expect(spawner.processes).toHaveLength(1);
+      expect(spawner.specs[0]!.env?.EMDASH_GIT_CREDENTIAL_NONCE).toBe('channel-1');
+      expect(released).toEqual([]);
+      await scope.dispose();
+    });
+
+    it('releases a channel handed to a live shell that started with another', async () => {
+      const { spawner, scope, released, start } = credentialHarness();
+      await start('channel-1');
+
+      await start('channel-2');
+
+      expect(spawner.processes).toHaveLength(1);
+      expect(released).toEqual(['channel-2']);
+      await scope.dispose();
+    });
+
+    it('releases the channel when the shell exits, and holds the new one on restart', async () => {
+      const { spawner, scope, released, start } = credentialHarness();
+      await start('channel-1');
+
+      spawner.processes[0]!.emitExit({ exitCode: 0, signal: null });
+      await waitFor(() => released.length === 1);
+      await start('channel-2');
+
+      expect(released).toEqual(['channel-1']);
+      expect(spawner.specs[1]!.env?.EMDASH_GIT_CREDENTIAL_NONCE).toBe('channel-2');
+      await scope.dispose();
+    });
+
+    it('releases the channel when the terminal is killed', async () => {
+      const { scope, runtime, released, key, start } = credentialHarness();
+      await start('channel-1');
+
+      await runtime.kill(key);
+
+      expect(released).toEqual(['channel-1']);
+      expectNoSessionResidue(`${workspaceKey(key.workspace)}:${key.id}`, leakContainers(runtime));
+      await scope.dispose();
+    });
+
+    it("does not release a restarted shell's channel when the killed shell exits late", async () => {
+      const { spawner, scope, runtime, released, key, start } = credentialHarness(
+        new FakePtySpawner({ exitOnKill: false })
+      );
+      await start('channel-1');
+      await runtime.kill(key);
+      await start('channel-2');
+
+      spawner.processes[0]!.emitExit({ exitCode: null, signal: 'SIGTERM' });
+      await runtime.kill(key);
+
+      expect(released).toEqual(['channel-1', 'channel-2']);
+      await scope.dispose();
+    });
+
+    it('starts overlapping hydrates of one terminal once and keeps its channel', async () => {
+      let resolveEnv!: () => void;
+      const envReady = new Promise<void>((resolve) => {
+        resolveEnv = resolve;
+      });
+      const { spawner, scope, released, start } = credentialHarness(new FakePtySpawner(), {
+        userEnv: async () => {
+          await envReady;
+          return testUserEnv();
+        },
+      });
+
+      const first = start('channel-1');
+      const second = start('channel-1');
+      resolveEnv();
+      await Promise.all([first, second]);
+
+      expect(spawner.processes).toHaveLength(1);
+      expect(spawner.processes[0]!.isExited).toBe(false);
+      expect(released).toEqual([]);
+      await scope.dispose();
+    });
+
+    it('keeps the channel for a queued start when the start ahead of it fails', async () => {
+      let resolveEnv!: () => void;
+      const envReady = new Promise<void>((resolve) => {
+        resolveEnv = resolve;
+      });
+      const spawner = new FakePtySpawner();
+      const spawn = spawner.spawn.bind(spawner);
+      let spawns = 0;
+      spawner.spawn = (spec) => {
+        spawns += 1;
+        if (spawns === 1) throw new Error('spawn failed');
+        return spawn(spec);
+      };
+      const { scope, runtime, released, key, start } = credentialHarness(spawner, {
+        userEnv: async () => {
+          await envReady;
+          return testUserEnv();
+        },
+      });
+
+      const first = start('channel-1');
+      const second = start('channel-1');
+      resolveEnv();
+      const results = await Promise.all([first, second]);
+
+      expect(results.map((result) => result.success)).toEqual([false, true]);
+      expect(released).toEqual([]);
+      await runtime.kill(key);
+      expect(released).toEqual(['channel-1']);
+      await scope.dispose();
+    });
+
+    it.skipIf(process.platform === 'win32')(
+      'keeps a tmux session on its channel when the client exits and reattaches',
+      async () => {
+        const { spawner, scope, runtime, released, key, start } = credentialHarness(
+          new FakePtySpawner(),
+          { tmux: true }
+        );
+        await start('channel-1');
+
+        // A detach ends the client, not the shell running inside tmux.
+        spawner.processes[0]!.emitExit({ exitCode: 0, signal: null });
+        await start('channel-1');
+        expect(spawner.processes).toHaveLength(2);
+        expect(released).toEqual([]);
+
+        await runtime.kill(key);
+        expect(released).toEqual(['channel-1']);
+        await scope.dispose();
+      }
+    );
+
+    it('releases the channel of a shell that fails to start', async () => {
+      const spawner = new FakePtySpawner();
+      spawner.failWith = new Error('spawn failed');
+      const { scope, released, start } = credentialHarness(spawner);
+
+      const result = await start('channel-1');
+
+      expect(result.success).toBe(false);
+      expect(released).toEqual(['channel-1']);
+      await scope.dispose();
+    });
   });
 
   it('workspace deactivation (kill per session) evicts every terminal under the workspace', async () => {
@@ -726,6 +943,7 @@ function fakeExec(): IExecutionContext & { exec: ReturnType<typeof vi.fn> } {
 }
 
 type RuntimeInternals = {
+  gitCredentialChannels: { held: Map<string, unknown> };
   logs: Map<string, unknown>;
   sessionKeys: Map<string, unknown>;
   interactiveConfigs: Map<string, unknown>;
@@ -738,6 +956,7 @@ type RuntimeInternals = {
 function leakContainers(runtime: TerminalsRuntime): LeakCheckContainer[] {
   const internals = runtime as unknown as RuntimeInternals;
   return [
+    mapContainer('gitCredentialChannels', internals.gitCredentialChannels.held),
     mapContainer('logs', internals.logs),
     mapContainer('sessionKeys', internals.sessionKeys),
     mapContainer('interactiveConfigs', internals.interactiveConfigs),

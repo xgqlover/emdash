@@ -3,6 +3,7 @@ import type { Logger } from '@emdash/shared/logger';
 import { describe, expect, it, vi } from 'vitest';
 import type { GitHubAccountSummary } from '@core/primitives/github/api';
 import type { AgentGitCredentialsSetting, Resolved } from '@core/primitives/project-settings/api';
+import type { ProviderAccountSummary } from '@core/primitives/provider-accounts/api';
 import { createGitCredentialsService } from './git-credentials-service';
 
 const account: GitHubAccountSummary = {
@@ -22,10 +23,11 @@ function makeService(
   options: {
     setting?: AgentGitCredentialsSetting;
     resolution?: Resolved<GitHubAccountSummary | null>;
-    accounts?: GitHubAccountSummary[];
+    accounts?: ProviderAccountSummary[];
   } = {}
 ) {
   const mintSession = vi.fn(async () => ({ port: 45678, nonce: 'nonce-1' }));
+  const channelForSession = vi.fn(async () => ({ port: 45678, nonce: 'session-nonce-1' }));
   const revokeSession = vi.fn();
   const logger = { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() };
   const service = createGitCredentialsService({
@@ -36,54 +38,101 @@ function makeService(
       contextKey: '',
     }),
     listAccounts: async () => options.accounts ?? [account],
-    channels: { mintSession, revokeSession },
+    channels: { mintSession, channelForSession, revokeSession },
     logger: logger as unknown as Logger,
   });
-  return { service, mintSession, revokeSession, logger };
+  return { service, mintSession, channelForSession, revokeSession, logger };
 }
 
 describe('resolveSessionSpec', () => {
-  it('maps the effective-account setting to a channel-backed spec with the account host', async () => {
-    const { service, mintSession } = makeService();
-    const spec = await service.resolveSessionSpec({ projectId: 'p1', host: LOCAL_HOST_REF });
+  it('uses the GitLab account for a GitLab project', async () => {
+    const gitlab = {
+      providerId: 'gitlab',
+      accountId: 'gl-1',
+      host: 'gitlab.com',
+      displayName: '@user',
+      isDefault: true,
+    };
+    const channelForSession = vi.fn(async () => ({ port: 45678, nonce: 'gitlab-nonce' }));
+    const service = createGitCredentialsService({
+      getAgentGitCredentialsSetting: async () => 'effective-account',
+      resolveProjectIntegrationAccount: async (_projectId, providerId) => ({
+        value: providerId === 'gitlab' ? gitlab : null,
+        provenance: { kind: 'inferred', from: 'repository host' },
+        accounts: providerId === 'gitlab' ? [gitlab] : [],
+        contextKey: '',
+      }),
+      listAccounts: async () => [gitlab],
+      channels: { mintSession: vi.fn(), channelForSession, revokeSession: vi.fn() },
+      logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() } as unknown as Logger,
+    });
+    expect(
+      await service.resolveSessionSpec({
+        sessionId: 'p1:t1:c1',
+        projectId: 'p1',
+        host: LOCAL_HOST_REF,
+      })
+    ).toEqual({
+      mode: 'effective-account',
+      channel: { port: 45678, nonce: 'gitlab-nonce' },
+      hosts: ['gitlab.com'],
+    });
+    expect(channelForSession).toHaveBeenCalledWith('p1:t1:c1', {
+      kind: 'project',
+      projectId: 'p1',
+      providerId: 'gitlab',
+    });
+  });
+  it('maps the effective-account setting to the session channel and the account host', async () => {
+    const { service, mintSession, channelForSession } = makeService();
+    const spec = await service.resolveSessionSpec({
+      sessionId: 'p1:t1:terminal-1',
+      projectId: 'p1',
+      host: LOCAL_HOST_REF,
+    });
     expect(spec).toEqual({
       mode: 'effective-account',
-      channel: { port: 45678, nonce: 'nonce-1' },
+      channel: { port: 45678, nonce: 'session-nonce-1' },
       hosts: ['github.com'],
     });
-    expect(mintSession).toHaveBeenCalledWith({ kind: 'project', projectId: 'p1' });
+    expect(channelForSession).toHaveBeenCalledWith('p1:t1:terminal-1', {
+      kind: 'project',
+      projectId: 'p1',
+      providerId: 'github',
+    });
+    expect(mintSession).not.toHaveBeenCalled();
   });
 
   it('maps system and none settings without minting a channel', async () => {
     const system = makeService({ setting: 'system' });
     await expect(
-      system.service.resolveSessionSpec({ projectId: 'p1', host: LOCAL_HOST_REF })
+      system.service.resolveSessionSpec({ sessionId: 's1', projectId: 'p1', host: LOCAL_HOST_REF })
     ).resolves.toEqual({ mode: 'system' });
-    expect(system.mintSession).not.toHaveBeenCalled();
+    expect(system.channelForSession).not.toHaveBeenCalled();
 
     const none = makeService({ setting: 'none' });
     await expect(
-      none.service.resolveSessionSpec({ projectId: 'p1', host: REMOTE_HOST })
+      none.service.resolveSessionSpec({ sessionId: 's1', projectId: 'p1', host: REMOTE_HOST })
     ).resolves.toEqual({ mode: 'none' });
-    expect(none.mintSession).not.toHaveBeenCalled();
+    expect(none.channelForSession).not.toHaveBeenCalled();
   });
 
   it('skips the helper on remote hosts (loopback unreachable)', async () => {
-    const { service, mintSession } = makeService();
+    const { service, channelForSession } = makeService();
     await expect(
-      service.resolveSessionSpec({ projectId: 'p1', host: REMOTE_HOST })
+      service.resolveSessionSpec({ sessionId: 's1', projectId: 'p1', host: REMOTE_HOST })
     ).resolves.toBeUndefined();
-    expect(mintSession).not.toHaveBeenCalled();
+    expect(channelForSession).not.toHaveBeenCalled();
   });
 
   it('fails closed to native behavior on an unresolvable account pin', async () => {
-    const { service, mintSession, logger } = makeService({
+    const { service, channelForSession, logger } = makeService({
       resolution: { value: null, provenance: { kind: 'unresolvable' } },
     });
     await expect(
-      service.resolveSessionSpec({ projectId: 'p1', host: LOCAL_HOST_REF })
+      service.resolveSessionSpec({ sessionId: 's1', projectId: 'p1', host: LOCAL_HOST_REF })
     ).resolves.toBeUndefined();
-    expect(mintSession).not.toHaveBeenCalled();
+    expect(channelForSession).not.toHaveBeenCalled();
     expect(logger.warn).toHaveBeenCalled();
   });
 });
@@ -110,9 +159,113 @@ describe('mintOperationCredentials', () => {
       noAccount.service.mintOperationCredentials({ projectId: 'p1', host: LOCAL_HOST_REF })
     ).resolves.toBeUndefined();
   });
+
+  it('leases the selected account instead of the project account', async () => {
+    const selected = { ...account, accountId: 'selected-work', isDefault: false };
+    const { service, mintSession, revokeSession } = makeService({ accounts: [account, selected] });
+    const lease = await service.mintOperationCredentials({
+      projectId: 'p1',
+      host: LOCAL_HOST_REF,
+      account: { providerId: 'github', accountId: 'selected-work' },
+    });
+    expect(mintSession).toHaveBeenCalledWith({
+      kind: 'account',
+      providerId: 'github',
+      accountId: 'selected-work',
+      host: 'github.com',
+    });
+    lease?.release();
+    expect(revokeSession).toHaveBeenCalledWith('nonce-1');
+  });
+
+  it('rejects a removed selected account without minting credentials', async () => {
+    const { service, mintSession } = makeService();
+    await expect(
+      service.mintOperationCredentials({
+        projectId: 'p1',
+        host: LOCAL_HOST_REF,
+        account: { providerId: 'github', accountId: 'removed' },
+      })
+    ).rejects.toThrow('selected Git account is unavailable');
+    expect(mintSession).not.toHaveBeenCalled();
+  });
 });
 
 describe('mintCloneCredentials', () => {
+  it.each([
+    ['https://gitlab.com/parent/nested/repo.git', 'gitlab.com'],
+    ['https://gitlab.example.com/gitlab/parent/nested/repo.git', 'gitlab.example.com'],
+  ])('infers a GitLab account for %s', async (repositoryUrl, host) => {
+    const gitlab = {
+      providerId: 'gitlab',
+      accountId: 'gl-1',
+      host,
+      displayName: '@user',
+      isDefault: true,
+    };
+    const { service, mintSession } = makeService({ accounts: [gitlab] });
+    await service.mintCloneCredentials({ repositoryUrl, host: LOCAL_HOST_REF });
+    expect(mintSession).toHaveBeenCalledWith({
+      kind: 'account',
+      providerId: 'gitlab',
+      accountId: 'gl-1',
+      host,
+    });
+  });
+
+  it('refuses an ambiguous self-hosted clone account', async () => {
+    const accounts = [
+      { ...account, accountId: 'gh-enterprise', host: 'code.example.com' },
+      {
+        providerId: 'gitlab',
+        accountId: 'gl-1',
+        host: 'code.example.com',
+        displayName: '@user',
+        isDefault: true,
+      },
+    ];
+    const { service, mintSession } = makeService({ accounts });
+    await expect(
+      service.mintCloneCredentials({
+        repositoryUrl: 'https://code.example.com/group/repo.git',
+        host: LOCAL_HOST_REF,
+      })
+    ).rejects.toThrow('More than one');
+    expect(mintSession).not.toHaveBeenCalled();
+  });
+  it('leases the selected GitLab account for an HTTPS clone', async () => {
+    const gitlab = {
+      providerId: 'gitlab',
+      accountId: 'gl-1',
+      host: 'gitlab.com',
+      displayName: '@user',
+      isDefault: true,
+    };
+    const mintSession = vi.fn(async () => ({ port: 45678, nonce: 'gitlab-nonce' }));
+    const service = createGitCredentialsService({
+      getAgentGitCredentialsSetting: async () => 'effective-account',
+      resolveProjectIntegrationAccount: async () => ({
+        value: null,
+        provenance: { kind: 'inferred', from: 'default account' },
+        accounts: [],
+        contextKey: '',
+      }),
+      listAccounts: async (providerId) => (providerId === 'gitlab' ? [gitlab] : []),
+      channels: { mintSession, channelForSession: vi.fn(), revokeSession: vi.fn() },
+      logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() } as unknown as Logger,
+    });
+    await service.mintCloneCredentials({
+      repositoryUrl: 'https://gitlab.com/parent/nested/repo.git',
+      host: LOCAL_HOST_REF,
+      account: { providerId: 'gitlab', accountId: 'gl-1' },
+    });
+    expect(mintSession).toHaveBeenCalledWith({
+      kind: 'account',
+      providerId: 'gitlab',
+      accountId: 'gl-1',
+      host: 'gitlab.com',
+    });
+  });
   it('retains an explicit non-default account instead of choosing the host default', async () => {
     const selected = { ...account, accountId: 'selected-work', isDefault: false };
     const { service, mintSession } = makeService({ accounts: [account, selected] });
@@ -125,6 +278,7 @@ describe('mintCloneCredentials', () => {
       kind: 'account',
       accountId: 'selected-work',
       host: 'github.com',
+      providerId: 'github',
     });
   });
 
@@ -165,6 +319,7 @@ describe('mintCloneCredentials', () => {
       kind: 'account',
       accountId: 'account-1',
       host: 'github.com',
+      providerId: 'github',
     });
     lease?.release();
     expect(revokeSession).toHaveBeenCalledWith('nonce-1');

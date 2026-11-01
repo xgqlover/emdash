@@ -1,10 +1,10 @@
+import { normalizeRepositoryHost } from '@emdash/core/primitives/repository/api';
 import { err, ok, type Result } from '@emdash/shared';
 import { log } from '@emdash/shared/logger';
 import { Octokit } from '@octokit/rest';
 // [XG-CUSTOM] socks5 代理：GitHub API 走用户代理，解决国内直连 api.github.com 慢
 import { SocksProxyAgent } from 'socks-proxy-agent';
 import type { ReadGitHubCredentials } from '@core/features/github/api/node/services/github-credentials';
-import { normalizeRepositoryHost } from '@core/primitives/repository/api';
 import type { GitHubApiAuthError } from './github-api-auth-errors';
 import { getCachedOctokit, setCachedOctokit } from './octokit-cache';
 

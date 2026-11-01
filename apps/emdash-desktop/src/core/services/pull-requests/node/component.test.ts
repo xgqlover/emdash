@@ -10,6 +10,7 @@ import { pullRequestsComponent } from './component';
 import { PullRequestsRegistration } from './pull-requests-registration';
 
 const githubAuthController = createController(gitPlatformAuthContract, {
+  resolveIntegration: () => ok({ integrationId: 'github' }),
   resolveAuth: () =>
     err({
       type: 'auth_required',
@@ -29,7 +30,12 @@ describe('pullRequestsComponent', () => {
     );
     const worker = host.create(pullRequestsComponent, {
       executable: 'pull-requests-worker',
-      dependencies: { githubAuth: createController(gitPlatformAuthContract, { resolveAuth }) },
+      dependencies: {
+        githubAuth: createController(gitPlatformAuthContract, {
+          resolveIntegration: () => ok({ integrationId: 'github' }),
+          resolveAuth,
+        }),
+      },
       config: { databasePath: ':memory:', incrementalIntervalMs: 30 },
       shutdownGraceMs: 0,
       supervision: { restart: 'on-failure', schedule: retrySchedules.sequence([0]) },
@@ -53,7 +59,7 @@ describe('pullRequestsComponent', () => {
       onResume: () => () => {},
       subscribeToProjectRemotes: () => undefined,
       resolveProjectRepositoryUrls: async () => [repositoryUrl],
-      resolveProjectAuthContext: async () => ok({ accountId: 'test' }),
+      resolveProjectAuthContext: async () => ok({ integrationId: 'github', accountId: 'test' }),
     });
     registration.initialize();
     try {
@@ -85,6 +91,7 @@ describe('pullRequestsComponent', () => {
       scope,
       dependencies: {
         githubAuth: {
+          resolveIntegration: async () => ok({ integrationId: 'github' }),
           resolveAuth: async () =>
             err({
               type: 'auth_required',
@@ -131,7 +138,8 @@ describe('pullRequestsComponent', () => {
     await expect(client.registerRepository({ repositoryUrl })).resolves.toEqual(ok());
     await expect(client.refreshRepository({ repositoryUrl, policy: 'force' })).resolves.toEqual(
       err({
-        type: 'github_auth_required',
+        type: 'auth_required',
+        integrationId: 'github',
         host: 'github.com',
         hint: 'Connect GitHub',
       })

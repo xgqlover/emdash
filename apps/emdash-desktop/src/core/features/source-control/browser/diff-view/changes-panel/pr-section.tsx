@@ -48,6 +48,7 @@ function usePullRequestsSectionModel() {
   const prStore = taskView.prStore;
   const repository = getGitRepositoryStore(projectId);
   const repositoryUrl = repository?.pullRequestRepositoryUrl ?? null;
+  const provider = repository?.providerRepository?.provider ?? 'github';
   const providerRepositoryObservation = repository?.providerRepositoryObservation ?? {
     kind: 'unavailable' as const,
   };
@@ -79,6 +80,7 @@ function usePullRequestsSectionModel() {
     taskId,
     workspaceId,
     repositoryUrl,
+    provider,
     providerRepositoryObservation,
     taskBranch,
     pullRequests,
@@ -86,8 +88,12 @@ function usePullRequestsSectionModel() {
     currentPr,
     branchCommitRange,
     showBranchCommits,
-// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
-    sectionLabel: showBranchCommits ? t('branch_commits') : t('pull_requests'),
+    // [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
+        sectionLabel: showBranchCommits
+          ? t('branch_commits')
+          : provider === 'gitlab'
+            ? '合并请求'
+            : t('pull_requests'),
     sectionCount: showBranchCommits ? (branchCommitCount ?? 0) : pullRequests.length,
   };
 }
@@ -105,6 +111,7 @@ export const PullRequestsSectionHeader = observer(function PullRequestsSectionHe
     taskId,
     workspaceId,
     repositoryUrl,
+    provider,
     taskBranch,
     pullRequests,
     currentPr,
@@ -123,6 +130,8 @@ export const PullRequestsSectionHeader = observer(function PullRequestsSectionHe
     : 'Unavailable until access to this Project is restored.';
   const hostActionDisabled = hostActionReason !== null;
 
+  const short = provider === 'gitlab' ? 'MR' : 'PR';
+  const noun = provider === 'gitlab' ? 'merge request' : 'pull request';
   const hasOpenPr = pullRequests.some((p) => p.status === 'open');
 
   const onCreatePr =
@@ -202,7 +211,7 @@ export const PullRequestsSectionHeader = observer(function PullRequestsSectionHe
             <ChangesViewModeToggle
               value={viewMode}
               onChange={setViewMode}
-              label={t('pull_request_files')}
+                  label={provider === 'gitlab' ? '合并请求文件' : t('pull_request_files')}
             />
           )}
           {showBranchCommits && (
@@ -212,28 +221,30 @@ export const PullRequestsSectionHeader = observer(function PullRequestsSectionHe
               label="Branch commits"
             />
           )}
-          <Tooltip.Root>
-            <Tooltip.Trigger
-              render={
-                <SplitButton
-                  variant="secondary"
-                  size="xs"
-                  options={prActions.map(({ id, label }) => ({ id, label }))}
-                  selectedId={selectedPrActionId}
-                  onSelectedChange={setSelectedPrActionId}
-                  commitOnSelect={false}
-                  onAction={(id) => {
-                    if (!hostActionDisabled) prActions.find((a) => a.id === id)?.action();
-                  }}
-                  disabled={hasOpenPr || !onCreatePr || !onCreateDraftPr}
-                  aria-disabled={hostActionDisabled}
-                  aria-description={hostActionReason ?? undefined}
-                  icon={<Plus className="size-3" />}
-                />
-              }
-            />
-            <Tooltip.Content>{createPrTooltip}</Tooltip.Content>
-          </Tooltip.Root>
+          {
+            <Tooltip.Root>
+              <Tooltip.Trigger
+                render={
+                  <SplitButton
+                    variant="secondary"
+                    size="xs"
+                    options={prActions.map(({ id, label }) => ({ id, label }))}
+                    selectedId={selectedPrActionId}
+                    onSelectedChange={setSelectedPrActionId}
+                    commitOnSelect={false}
+                    onAction={(id) => {
+                      if (!hostActionDisabled) prActions.find((a) => a.id === id)?.action();
+                    }}
+                    disabled={hasOpenPr || !onCreatePr || !onCreateDraftPr}
+                    aria-disabled={hostActionDisabled}
+                    aria-description={hostActionReason ?? undefined}
+                    icon={<Plus className="size-3" />}
+                  />
+                }
+              />
+              <Tooltip.Content>{createPrTooltip}</Tooltip.Content>
+            </Tooltip.Root>
+          }
           <Tooltip.Root>
             <Tooltip.Trigger
               render={
@@ -267,6 +278,7 @@ export const PullRequestsSectionBody = observer(function PullRequestsSectionBody
 }) {
   const {
     repositoryUrl,
+    provider,
     providerRepositoryObservation,
     pullRequests,
     pullRequestsObservation,
@@ -282,7 +294,7 @@ export const PullRequestsSectionBody = observer(function PullRequestsSectionBody
           role="status"
           className="border-t border-border px-2.5 py-2 text-xs text-foreground-muted"
         >
-          Showing previously observed pull requests
+          Showing previously observed {provider === 'gitlab' ? 'merge requests' : 'pull requests'}
         </p>
       ) : null}
       {currentPr ? (

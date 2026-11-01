@@ -1,4 +1,5 @@
-// [XG-CUSTOM 2026-10-16] 历史欠账补标：本文件含 fork 定制（中文化/界面适配） —— 台账见 scripts/xg-custom/manifest.json
+    // [XG-CUSTOM 2026-10-16] 历史欠账补标：本文件含 fork 定制（中文化/界面适配） —— 台账见 scripts/xg-custom/manifest.json
+    import { isGitHubDotComHost, parseRepositoryRef } from '@emdash/core/primitives/repository/api';
 import { StatusIcon } from '@emdash/ui/react/components';
 // [XG-CUSTOM 2026-10-16] 中文化取词入口（本文件含中文文案定制；同 scripts/xg-i18n/manifest.json）
 import { t } from '@renderer/lib/i18n';
@@ -24,7 +25,6 @@ import { OpenInMenu } from '@core/features/settings/contributions/browser/open-i
 import { getGitRepositoryStore } from '@core/features/source-control/api/browser/stores/source-control-selectors';
 import { useOpenModal } from '@core/manifests/browser/modal-api';
 import { openExternal } from '@core/primitives/desktop-host/browser/host-client';
-import { isGitHubDotComHost, parseRepositoryRef } from '@core/primitives/repository/api';
 
 export const ProjectHeader = observer(function ProjectHeader({ projectId }: { projectId: string }) {
   const store = getProjectStore(projectId);

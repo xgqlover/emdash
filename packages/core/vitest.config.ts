@@ -12,6 +12,7 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
+    setupFiles: [resolve(__dirname, '../../tooling/vitest/setup-isolated-home.mjs')],
     include: ['**/*.test.ts', '**/*.test.tsx'],
     // [XG-CUSTOM 2026-10-09] 让技能测试**封闭**：skills.ts 会按 EMDASH_CENTRAL_SKILLS_ROOT /
     // EMDASH_USER_SKILLS_ROOT 去读真实技能库（本机 = 中央库 940 个），

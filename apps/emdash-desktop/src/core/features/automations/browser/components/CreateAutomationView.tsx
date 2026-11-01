@@ -45,6 +45,7 @@ export const CreateAutomationView = observer(function CreateAutomationView({
     effectiveProjectId,
     provider,
     canSave,
+    saveBlockedReason,
     triggerConfig,
     applyTemplate,
     buildTaskConfig,
@@ -167,6 +168,8 @@ export const CreateAutomationView = observer(function CreateAutomationView({
             void handleSave();
           }}
           disabled={!canCreate || isPending}
+          title={saveBlockedReason}
+          aria-label={saveBlockedReason ? `Create. ${saveBlockedReason}` : undefined}
         >
           {isPending ? 'Saving…' : 'Create'}
         </ConfirmButton>

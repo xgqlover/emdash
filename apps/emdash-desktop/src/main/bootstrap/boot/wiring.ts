@@ -1,4 +1,3 @@
-import { providerTokenRegistry } from '@core/features/account/api/node/provider-token-registry';
 import type { EmdashAccountService } from '@core/features/account/node/services/emdash-account-service';
 import { browserEvents } from '@core/features/browser/node'; // [XG-CUSTOM] 内嵌浏览器「从零开页」广播
 import { GitHubAuthServerAdapter } from '@core/features/github/node/accounts/github-auth-server-adapter';
@@ -74,13 +73,6 @@ export function wireAccountTelemetry(accountService: EmdashAccountService): void
   accountService.on('accountCleared', () => {
     telemetryService.clearIdentity();
   });
-}
-
-export function registerProviderTokenHandlers(): void {
-  const githubAuthServerAdapter = new GitHubAuthServerAdapter(getIntegrationConnectionService());
-  providerTokenRegistry.register('github', (payload) =>
-    githubAuthServerAdapter.storeOAuthToken(payload)
-  );
 }
 
 export type DesktopControllerOptions = Omit<
@@ -324,9 +316,9 @@ export function createDesktopWireOptions(
     editorBuffer: database.editorBuffer,
     github: {
       cliAccountImporter: github.cliImport,
-      deviceFlowService: github.deviceFlow,
       repositoryService: github.repositories,
     },
+    gitlabRepositories: services.gitlabRepositories,
     gitCredentials: services.gitCredentials,
     hostAvailability: runtimes.hostAvailability,
     hostOperations: {

@@ -55,6 +55,11 @@
       "types": "./dist/primitives-git-credentials-api.d.mts",
       "default": "./dist/primitives-git-credentials-api.mjs"
     },
+    "./primitives/repository/api": {
+      "development": "./src/primitives/repository/api/index.ts",
+      "types": "./dist/primitives-repository-api.d.mts",
+      "default": "./dist/primitives-repository-api.mjs"
+    },
     "./primitives/exclusion-policy/api": {
       "development": "./src/primitives/exclusion-policy/api/index.ts",
       "types": "./dist/primitives-exclusion-policy-api.d.mts",
@@ -129,6 +134,11 @@
       "development": "./src/services/exec/api/index.ts",
       "types": "./dist/services-exec-api.d.mts",
       "default": "./dist/services-exec-api.mjs"
+    },
+    "./services/git-credential-channels/api": {
+      "development": "./src/services/git-credential-channels/api/index.ts",
+      "types": "./dist/services-git-credential-channels-api.d.mts",
+      "default": "./dist/services-git-credential-channels-api.mjs"
     },
     "./services/shell-env/api": {
       "development": "./src/services/shell-env/api/index.ts",

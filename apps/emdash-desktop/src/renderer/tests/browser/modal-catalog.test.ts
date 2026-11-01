@@ -22,8 +22,8 @@ const expectedModalIds = [
   'devProcessPanelModal',
   'directorySelectorModal',
   'feedbackModal',
-  'githubDeviceFlowModal',
   'integrationSetupModal',
+  'languageServicesDialog',
   'linkConversationModal',
   // [XG-CUSTOM] 2026-10-06 —— 「打开网址」输入框（browser.openUrl 命令用）
   'openUrlModal',

@@ -1,10 +1,16 @@
-// [XG-CUSTOM 2026-10-16] 历史欠账补标：本文件含 fork 定制（中文化/界面适配） —— 台账见 scripts/xg-custom/manifest.json
+    // [XG-CUSTOM 2026-10-16] 历史欠账补标：本文件含 fork 定制（中文化/界面适配） —— 台账见 scripts/xg-custom/manifest.json
+    import { isGitHubDotComHost } from '@emdash/core/primitives/repository/api';
 import { menuItemBase } from '@emdash/ui/styles/recipes/menu-item';
 // [XG-CUSTOM 2026-10-16] 中文化取词入口（本文件含中文文案定制；同 scripts/xg-i18n/manifest.json）
 import { t } from '@renderer/lib/i18n';
 import { CircleDot, GitBranch, GitPullRequest, type LucideIcon } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
+import {
+  issueTerms,
+  preferredIssueProvider,
+} from '@core/features/integrations/api/browser/integration-display';
 import { useConnectedIssueProviders } from '@core/features/integrations/api/browser/use-connected-issue-providers';
+import { getProjectViewStore } from '@core/features/projects/api/browser/stores/project-selectors';
 import { projectAvailabilityUiContribution as projectAvailabilityUi } from '@core/features/projects/contributions/browser/project-availability-ui';
 import { settingsViewDef } from '@core/features/settings/contributions/views';
 import { getGitRepositoryStore } from '@core/features/source-control/api/browser/stores/source-control-selectors';
@@ -13,7 +19,6 @@ import { useOpenModal } from '@core/manifests/browser/modal-api';
 import { Shortcut } from '@core/primitives/keybindings/browser/shortcut';
 import { useNavigate } from '@core/primitives/navigation/browser/navigation-hooks';
 import { useArrowKeyNavigation } from '@core/primitives/react-hooks/browser/use-arrow-key-navigation';
-import { isGitHubDotComHost } from '@core/primitives/repository/api';
 import { cn } from '@core/primitives/styling/browser/cn';
 
 interface TaskAction {
@@ -32,11 +37,24 @@ export const TaskListEmptyState = observer(function TaskListEmptyState({
 }) {
   const openTaskModal = useOpenModal('taskModal');
   const { navigate } = useNavigate();
-  const { hasAnyIssueIntegration } = useConnectedIssueProviders();
   const repositoryStore = getGitRepositoryStore(projectId);
+  const repositoryProvider = repositoryStore?.providerRepository?.provider;
+  const { connectedProviders, hasAnyIssueIntegration } = useConnectedIssueProviders({
+    projectId,
+    repositoryUrl: repositoryStore?.canonicalRepositoryUrl ?? undefined,
+    repositoryProvider,
+  });
+  const issueProvider = preferredIssueProvider(
+    getProjectViewStore(projectId)?.selectedIssueProvider ?? null,
+    connectedProviders,
+    repositoryProvider
+  );
+  const issueName = issueTerms(issueProvider ?? repositoryProvider);
   const supportsPullRequests = Boolean(repositoryStore?.pullRequestRepositoryUrl);
+  const requestName = repositoryProvider === 'gitlab' ? 'Merge Request' : 'Pull Request';
   const supportsGhesIssues = Boolean(
     repositoryStore?.issueRepositoryUrl &&
+    repositoryStore.providerRepository?.provider === 'github' &&
     repositoryStore.providerRepository?.host &&
     !isGitHubDotComHost(repositoryStore.providerRepository.host)
   );
@@ -59,11 +77,11 @@ export const TaskListEmptyState = observer(function TaskListEmptyState({
       onActivate: () => void openTaskModal({ projectId, strategy: 'from-branch' }),
     },
     {
-// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
-      label: t('create_from_issue'),
-      description: hasAnyIntegration
-        ? t('link_from_issue')
-        : t('configure_issue_integrations'),
+    // [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
+          label: `创建自 ${issueName.title}`,
+          description: hasAnyIntegration
+            ? t('link_from_issue')
+            : t('configure_issue_integrations'),
       icon: CircleDot,
       disabled: !!createDisabledReason,
       disabledReason: createDisabledReason,
@@ -73,13 +91,15 @@ export const TaskListEmptyState = observer(function TaskListEmptyState({
           : navigate(settingsViewDef({ tab: 'integrations' })),
     },
     {
-// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
-      label: t('create_from_pr'),
-      description: t('create_from_pr_desc'),
-      icon: GitPullRequest,
-      disabled: !!createDisabledReason || !supportsPullRequests,
-// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
-      disabledReason: createDisabledReason ?? t('no_remote_repository'),
+    // [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
+          label: `创建自 ${requestName}`,
+          description: `从 ${requestName.toLowerCase()} 创建任务`,
+          icon: GitPullRequest,
+          disabled: !!createDisabledReason || !supportsPullRequests,
+    // [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
+          disabledReason:
+            createDisabledReason ??
+            (!supportsPullRequests ? t('no_remote_repository') : undefined),
       onActivate: () => void openTaskModal({ projectId, strategy: 'from-pull-request' }),
     },
   ];
