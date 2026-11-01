@@ -50,7 +50,7 @@ export function PromptModal({ initialPrompt }: Props) {
               data-autofocus
               value={form.title}
               onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
-              placeholder="Security review"
+              placeholder={t('security_review')}
             />
           </Field.Root>
           <Field.Root>

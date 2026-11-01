@@ -3,6 +3,7 @@ import { GithubIcon, GitlabIcon } from 'lucide-react';
 import { useState } from 'react';
 import type { ProviderAccountSummary } from '@core/primitives/provider-accounts/api/provider-account-summary';
 import { ProviderAccountSelect } from '@core/primitives/provider-accounts/browser/account-select';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export interface OwnerOption {
   value: string;
@@ -53,7 +54,7 @@ export function OwnerSelector({
             size="base"
             tone="neutral"
             className="w-full justify-between"
-            aria-label="Repository owner"
+            aria-label={t('repository_owner')}
           />
         }
       >
@@ -79,7 +80,7 @@ export function OwnerSelector({
           </div>
         </div>
         <Combobox.Separator />
-        <Combobox.Input showTrigger={false} placeholder="Search owners..." />
+        <Combobox.Input showTrigger={false} placeholder={t('search_owners')} />
         <Combobox.List>
           {owners.map((item) => (
             <Combobox.Item key={item.value} value={item}>
@@ -99,7 +100,7 @@ export function OwnerSelector({
               </span>
             </Combobox.Item>
           ))}
-          <Combobox.Empty>No owners found.</Combobox.Empty>
+          <Combobox.Empty>{t('no_owners_found')}</Combobox.Empty>
         </Combobox.List>
       </Combobox.Content>
     </Combobox.Root>

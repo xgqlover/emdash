@@ -3,6 +3,7 @@ import { PageLayout } from '@emdash/ui/react/patterns';
 import { Button, Icon } from '@emdash/ui/react/primitives';
 import type { UsageOverview } from '../api/schemas';
 import { UsageAccountSection, usageAccountTitle } from './usage-account-section';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export function UsageOverviewView({
   overview,
@@ -33,7 +34,7 @@ export function UsageOverviewView({
   const counts = new Map<string, number>();
   return (
     <div className="space-y-8 pb-4">
-      <PageLayout.Header sticky title="Usage" description="Your subscription limits." />
+      <PageLayout.Header sticky title="Usage" description={t('your_subscription_limits')} />
       {(error ?? overview?.error) && (
         <p role="alert" className="text-sm text-foreground-destructive">
           {error ?? overview?.error}
@@ -57,7 +58,7 @@ export function UsageOverviewView({
           label={
             discovering || refreshing ? 'Discovering accounts…' : 'No subscription accounts found'
           }
-          description="Sign in with Codex or Claude Code on a connected machine, then refresh."
+          description={t('sign_in_with_codex_or_claude_code_on_a_c')}
         />
       )}
       <div className="flex justify-start">
@@ -65,7 +66,7 @@ export function UsageOverviewView({
           variant="text"
           onClick={onRefresh}
           disabled={loading || refreshing}
-          aria-label="Refresh usage"
+          aria-label={t('refresh_usage')}
         >
           <Icon name="rotate-cw" size="sm" />
           {refreshing ? 'Refreshing…' : 'Refresh'}

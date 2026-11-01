@@ -26,6 +26,7 @@ import {
   GenericTabItem,
 } from '@core/primitives/workbench-shell/browser/tabs/tab-bar/generic-tab-item';
 import { TerminalPtyContent } from './terminal-pty-content';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export interface TerminalTabState {
   terminalId: string;
@@ -164,7 +165,7 @@ const TerminalTabContent = observer(function TerminalTabContent({ host, ctx }: T
       }
       unavailableState={
         <EmptyState
-          label="Terminal unavailable"
+          label={t('terminal_unavailable')}
           description={disabledReason ?? 'Live actions are unavailable.'}
         />
       }

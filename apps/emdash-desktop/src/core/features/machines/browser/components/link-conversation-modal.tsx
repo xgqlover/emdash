@@ -8,6 +8,7 @@ import { getProjectsWireClient } from '@core/features/projects/api/browser/clien
 import { getTasksWireClient } from '@core/features/tasks/api/browser/client';
 import { useModalController } from '@core/manifests/browser/modal-api';
 import { defineModal } from '@core/primitives/modals/react';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export interface LinkConversationModalProps {
   /** SSH connection id of the conversation's host; null for the local machine. */
@@ -107,7 +108,7 @@ function OptionCombobox({
             </Combobox.Item>
           ))}
           {filtered.length === 0 && (
-            <EmptyState label="No matches" className="border-none bg-transparent" />
+            <EmptyState label={t('no_matches')} className="border-none bg-transparent" />
           )}
         </Combobox.List>
       </Combobox.Content>
@@ -129,7 +130,7 @@ export function LinkConversationModal({
     <ModalLayout
       header={
         <Dialog.Header showCloseButton>
-          <Dialog.Title>Link conversation to a task</Dialog.Title>
+          <Dialog.Title>{t('link_conversation_to_a_task')}</Dialog.Title>
         </Dialog.Header>
       }
       footer={

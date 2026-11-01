@@ -90,7 +90,7 @@ export function AutomationSettingsFields({
         ) : (
           <>
             <Field.Root>
-              <Label>Callback token</Label>
+              <Label>{t('callback_token')}</Label>
               <div className="flex gap-2">
                 <Input
                   value={state.webhookToken}
@@ -111,7 +111,7 @@ export function AutomationSettingsFields({
               />
             </Field.Root>
             <Field.Root>
-              <Label>Callback URL</Label>
+              <Label>{t('callback_url')}</Label>
               <code className="text-xs">{'http://127.0.0.1:7823/automation/<automationId>'}</code>
               <p className="text-xs opacity-70">
                 POST 该地址，请求头 x-emdash-automation-token: &lt;token&gt;；保存后才会有
@@ -146,7 +146,7 @@ export function AutomationSettingsFields({
                 },
                 {
                   value: 'workspace',
-                  label: 'Workspace Settings',
+                  label: t('workspace_settings'),
                   content: <WorkspaceSettingsSection defaultOpen={true} />,
                 },
               ]}

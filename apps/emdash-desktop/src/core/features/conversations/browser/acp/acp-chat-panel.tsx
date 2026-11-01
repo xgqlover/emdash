@@ -90,6 +90,7 @@ import { buildIssueMentionHiddenContext } from './issue-mention-context';
 //   externalLinks 兜底放行 ⇒ 开出一个 URL 带前缀的 `app://` 子窗 ⇒ 相对脚本解析错、
 //   JS 一行没跑 ⇒ 永远停在 renderer/index.html 的静态 splash（用户看到的"logo 浮窗"）。
 import { createTranscriptFileCommands } from './transcript-file-commands';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -390,7 +391,7 @@ const ComposerForStore = observer(function ComposerForStore({
       void openModal('confirmActionModal', {
 // [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
         title: '进行中',
-        description: 'Send this queued prompt now and cancel the active turn?',
+        description: t('send_this_queued_prompt_now_and_cancel_t'),
         confirmLabel: 'Cancel & Send',
         variant: 'destructive',
       }).then((outcome) => {
@@ -1231,7 +1232,7 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
                 </div>
               ) : (
                 <div className="flex max-w-md flex-col items-center gap-2 px-6 text-center">
-                  <span className="text-foreground">Failed to load chat.</span>
+                  <span className="text-foreground">{t('failed_to_load_chat')}</span>
                   <span className="text-xs text-foreground-muted">{store.loadError.message}</span>
                   <Button
                     variant="secondary"
@@ -1263,7 +1264,7 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
         heroSlot &&
         createPortal(
           <div className="px-4 text-center">
-            <h1 className="text-2xl tracking-tight text-foreground">What are we building today?</h1>
+            <h1 className="text-2xl tracking-tight text-foreground">{t('what_are_we_building_today')}</h1>
           </div>,
           heroSlot
         )}

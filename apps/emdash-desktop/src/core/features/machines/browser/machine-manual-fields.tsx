@@ -2,6 +2,7 @@ import { Collapsible, Tooltip } from '@emdash/ui/react/primitives';
 import { InfoIcon } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import type { MachineEditorForm } from './use-machine-form';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 function FieldInfoTooltip({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -60,7 +61,7 @@ export function MachineManualRouting({ form }: { form: MachineEditorForm }) {
   return (
     <Collapsible.Root open={isAdvancedOpen} onOpenChange={setIsAdvancedOpen}>
       <div className="w-fit">
-        <Collapsible.Trigger type="button">Advanced settings</Collapsible.Trigger>
+        <Collapsible.Trigger type="button">{t('advanced_settings')}</Collapsible.Trigger>
       </div>
       <Collapsible.Panel className="grid gap-3 pt-2">
         <form.AppField name="manual.proxyJump">
@@ -68,7 +69,7 @@ export function MachineManualRouting({ form }: { form: MachineEditorForm }) {
             <field.TextField
               label={
                 <FieldLabelWithInfo
-                  label="Jump host"
+                  label={t('jump_host')}
                   info="Optional bastion host to connect through, for example user@bastion:2222."
                 />
               }
@@ -82,7 +83,7 @@ export function MachineManualRouting({ form }: { form: MachineEditorForm }) {
             <field.SwitchField
               label={
                 <FieldLabelWithInfo
-                  label="Forward SSH agent"
+                  label={t('forward_ssh_agent')}
                   info="Forward your local SSH agent to the remote server. Enable only for trusted hosts."
                 />
               }

@@ -62,7 +62,7 @@ const TasksTabs = observer(function TasksTabs({
     <ToggleGroup.Root
       multiple={false}
       value={[taskView.tab]}
-      aria-label="Task status"
+      aria-label={t('task_status')}
       onValueChange={([value]) => {
         if (!value) return;
         const tab = value as TaskListTab;
@@ -183,7 +183,7 @@ const TasksSelectionBar = observer(function TasksSelectionBar({
           size="xs"
           icon
           onClick={() => taskView.clear()}
-          aria-label="Clear selection"
+          aria-label={t('clear_selection')}
         >
           <X className="size-3.5" />
         </Button>

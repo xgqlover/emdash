@@ -1,5 +1,6 @@
 import type { PullRequest, PullRequestCheck } from '@emdash/plugins/pull-requests/schemas';
 import { computeCheckRunsSummary } from '@core/features/github/api/browser/checks';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export type MergeSeverity = 'success' | 'warning' | 'error' | 'neutral';
 export type MergeCheckState = 'pending' | 'failed' | 'passing' | 'unknown';
@@ -29,7 +30,7 @@ export function computeMergeUiState(pr: PullRequest): MergeUiState {
     return {
       kind: 'unknown',
       severity: 'neutral',
-      title: 'Merge status unknown',
+      title: t('merge_status_unknown'),
       detail: `Refresh ${short} status and try again.`,
       canMerge: false,
       canBypassRequirements: false,
@@ -50,7 +51,7 @@ export function computeMergeUiState(pr: PullRequest): MergeUiState {
       return {
         kind: 'ready',
         severity: 'success',
-        title: 'Ready to merge',
+        title: t('ready_to_merge'),
         detail: 'No conflicts or required reviews.',
         canMerge: true,
         canBypassRequirements: false,
@@ -59,7 +60,7 @@ export function computeMergeUiState(pr: PullRequest): MergeUiState {
       return {
         kind: 'conflicts',
         severity: 'error',
-        title: 'Merge conflicts',
+        title: t('merge_conflicts'),
         detail: 'Resolve conflicts before merging.',
         canMerge: false,
         canBypassRequirements: false,
@@ -68,7 +69,7 @@ export function computeMergeUiState(pr: PullRequest): MergeUiState {
       return {
         kind: 'behind',
         severity: 'warning',
-        title: 'Branch is out-of-date',
+        title: t('branch_is_out_of_date'),
         detail:
           pr.provider === 'gitlab'
             ? 'Rebase the source branch before merging.'
@@ -80,7 +81,7 @@ export function computeMergeUiState(pr: PullRequest): MergeUiState {
       return {
         kind: 'blocked',
         severity: 'error',
-        title: 'Merging is blocked',
+        title: t('merging_is_blocked'),
         detail: 'Required reviews, checks, or branch rules are not satisfied.',
         canMerge: false,
         canBypassRequirements: canBypass,
@@ -89,7 +90,7 @@ export function computeMergeUiState(pr: PullRequest): MergeUiState {
       return {
         kind: 'blocked',
         severity: 'error',
-        title: 'Merging is blocked',
+        title: t('merging_is_blocked'),
         detail: 'Required checks are not satisfied.',
         canMerge: false,
         canBypassRequirements: canBypass,
@@ -110,7 +111,7 @@ export function computeMergeUiState(pr: PullRequest): MergeUiState {
           return {
             kind: 'unstable',
             severity: 'warning',
-            title: 'Checks still running',
+            title: t('checks_still_running'),
             detail: `Waiting for ${providerName} checks to finish.`,
             canMerge: false,
             canBypassRequirements: canBypass,
@@ -119,7 +120,7 @@ export function computeMergeUiState(pr: PullRequest): MergeUiState {
           return {
             kind: 'unstable',
             severity: 'warning',
-            title: 'Checks not passing',
+            title: t('checks_not_passing'),
             detail: 'Review failing checks before merging.',
             canMerge: false,
             canBypassRequirements: canBypass,
@@ -137,7 +138,7 @@ export function computeMergeUiState(pr: PullRequest): MergeUiState {
           return {
             kind: 'unstable',
             severity: 'warning',
-            title: 'Checks pending or not passing',
+            title: t('checks_pending_or_not_passing'),
             detail: `Review ${providerName} checks before merging.`,
             canMerge: false,
             canBypassRequirements: canBypass,
@@ -147,7 +148,7 @@ export function computeMergeUiState(pr: PullRequest): MergeUiState {
       return {
         kind: 'unknown',
         severity: 'neutral',
-        title: 'Merge status unknown',
+        title: t('merge_status_unknown'),
         detail: 'Refresh to try again.',
         canMerge: false,
         canBypassRequirements: false,

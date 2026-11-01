@@ -5,6 +5,7 @@ import { captureDevPerfTrace } from '../api/browser/capture-trace';
 import { getDevPerfClient } from '../api/browser/client';
 import type { DevPerfProcess } from '../api/contract';
 import { createProcessPoller } from './process-poller';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 function formatMemory(bytes: number): string {
   const mb = bytes / (1024 * 1024);
@@ -64,7 +65,7 @@ export function DevProcessPanelModal() {
 
   return (
     <div className="flex min-h-0 flex-col gap-3 p-4">
-      <h2 className="text-sm font-semibold">Process Panel</h2>
+      <h2 className="text-sm font-semibold">{t('process_panel')}</h2>
 
       <div className="flex items-center gap-4">
         <Button
@@ -109,7 +110,7 @@ export function DevProcessPanelModal() {
               <tr>
                 <th className="px-2 py-1 font-medium">Process</th>
                 <th className="w-16 px-2 py-1 text-right font-medium">PID</th>
-                <th className="w-16 px-2 py-1 text-right font-medium">CPU %</th>
+                <th className="w-16 px-2 py-1 text-right font-medium">{t('cpu')}</th>
                 <th className="w-24 px-2 py-1 text-right font-medium">Memory</th>
               </tr>
             </thead>

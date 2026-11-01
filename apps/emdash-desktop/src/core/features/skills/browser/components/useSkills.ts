@@ -9,6 +9,7 @@ import { useDebounce } from '@core/primitives/react-hooks/browser/useDebounce';
 import { captureTelemetry } from '@core/primitives/telemetry/browser/telemetry-client';
 import { getSkillsClient } from '../client';
 import { useInstalledSkillsLiveModel } from '../live-model-hooks';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 const CATALOG_QUERY_KEY = ['skills', 'catalog'] as const;
 
@@ -107,7 +108,7 @@ export function useSkills({ host, searchQuery = '' }: { host: HostRef; searchQue
     onSuccess: () => {
       captureTelemetry('skill_uninstalled');
 
-      toast('Skill removed', { description: 'Skill has been uninstalled' });
+      toast('Skill removed', { description: t('skill_has_been_uninstalled') });
       void queryClient.invalidateQueries({ queryKey: ['skills', 'skillssh-search'] });
       queryClient.removeQueries({ queryKey: ['skills', 'detail'] });
     },

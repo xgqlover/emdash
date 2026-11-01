@@ -10,6 +10,7 @@ import type {
 } from '@core/primitives/workspaces/api';
 import { GitStatsCell } from './git-stats-cell';
 import { PathIssueSummaryPill, RemovalSummaryPill } from './workspace-pills';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export function RepositoryHeader({
   project,
@@ -69,7 +70,7 @@ export function RepositoryHeader({
         </div>
         <DropdownMenu.Root>
           <DropdownMenu.Trigger>
-            <Button type="button" variant="ghost" size="xs" icon aria-label="Workspace actions">
+            <Button type="button" variant="ghost" size="xs" icon aria-label={t('workspace_actions')}>
               <EllipsisIcon aria-hidden />
             </Button>
           </DropdownMenu.Trigger>
@@ -136,7 +137,7 @@ function WorkspaceScanWarnings({ warnings }: { warnings: readonly string[] }) {
     <div className="mt-3 flex items-start gap-2 rounded-md border border-border-warning bg-background-warning px-3 py-2 text-xs text-foreground-warning">
       <AlertTriangleIcon className="mt-0.5 size-3.5 shrink-0" />
       <div className="min-w-0 flex-1">
-        <div className="font-medium">Workspace scan completed with warnings</div>
+        <div className="font-medium">{t('workspace_scan_completed_with_warnings')}</div>
         <div className="truncate text-foreground-warning/80">{warnings.join(' ')}</div>
       </div>
     </div>

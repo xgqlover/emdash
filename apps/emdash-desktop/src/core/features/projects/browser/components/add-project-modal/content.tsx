@@ -127,7 +127,7 @@ export function CreateRepositoryPanel({
           value={provider}
           onValueChange={(value) => onProviderChange(value as 'github' | 'gitlab')}
         >
-          <Select.Trigger appearance="input" className="w-full" aria-label="Repository provider">
+          <Select.Trigger appearance="input" className="w-full" aria-label={t('repository_provider')}>
             {provider === 'github' ? 'GitHub' : 'GitLab'}
           </Select.Trigger>
           <Select.Content>
@@ -178,8 +178,8 @@ export function CreateRepositoryPanel({
       )}
       <Separator className="w-full" />
       <SettingsRow
-        label="Choose visibility"
-        description="Choose who can see and commit to this repository"
+        label={t('choose_visibility')}
+        description={t('choose_who_can_see_and_commit_to_this_re')}
         control={
           <Select.Root
             value={state.repositoryVisibility}
@@ -222,7 +222,7 @@ export function CreateRepositoryPanel({
             <Gitlab className="size-4 text-foreground-muted" />
           )
         }
-        actionLabel="Creating as"
+        actionLabel={t('creating_as_2')}
         emptyState={{
           connect: `Connect a ${provider === 'github' ? 'GitHub' : 'GitLab'} account to continue.`,
           unavailable: `Choose a ${provider === 'github' ? 'GitHub' : 'GitLab'} account to continue.`,
@@ -258,11 +258,11 @@ export function ClonePanel({
     <div className="flex flex-col gap-6">
       <Field.Group>
         <Field.Root>
-          <Field.Label htmlFor={repositoryUrlId}>Repository URL</Field.Label>
+          <Field.Label htmlFor={repositoryUrlId}>{t('repository_url')}</Field.Label>
           <Input
             id={repositoryUrlId}
             autoFocus
-            placeholder="Enter a repository URL"
+            placeholder={t('enter_a_repository_url')}
             value={state.repositoryUrl}
             onChange={(e) => state.handleRepositoryUrlChange(e.target.value)}
           />

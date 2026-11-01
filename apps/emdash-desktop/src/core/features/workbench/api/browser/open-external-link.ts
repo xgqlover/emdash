@@ -9,6 +9,7 @@ import {
 } from '@core/primitives/desktop-host/browser/host-client';
 import { getNavigation } from '@core/primitives/navigation/browser/navigation-selectors';
 import { normalizeExternalHttpUrl } from './external-url';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 const HTTP_URL_PATTERN = /^https?:\/\//i;
 
@@ -56,7 +57,7 @@ async function copyExternalLink(url: string): Promise<boolean> {
 }
 
 function showCopyFailure(): void {
-  toast.error('Copy failed', { description: 'The link could not be copied to the clipboard.' });
+  toast.error('Copy failed', { description: t('the_link_could_not_be_copied_to_the_clip') });
 }
 
 function getActiveTaskView() {

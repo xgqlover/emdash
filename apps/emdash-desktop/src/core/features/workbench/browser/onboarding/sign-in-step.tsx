@@ -2,6 +2,7 @@ import { Button } from '@emdash/ui/react/primitives';
 import { AlertCircle, CheckCircle, Github, LogIn, User } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useAccountSession, useAccountSignIn } from '@core/features/account/api/browser/useAccount';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export function SignInStep({ onComplete }: { onComplete: () => void }) {
   const { data: session, isLoading: sessionLoading } = useAccountSession();
@@ -80,7 +81,7 @@ export function SignInStep({ onComplete }: { onComplete: () => void }) {
       <div className="flex flex-col items-center justify-center gap-6">
         <Github className="h-10 w-10" absoluteStrokeWidth strokeWidth={1.5} />
         <div className="flex flex-col items-center justify-center gap-2">
-          <h1 className="text-center text-xl">Connect GitHub</h1>
+          <h1 className="text-center text-xl">{t('connect_github')}</h1>
           <p className="text-md text-center text-foreground-muted">
             Emdash uses GitHub for git operations, pull requests and issues.
           </p>

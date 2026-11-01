@@ -41,9 +41,10 @@ import {
   type PlacementFormState,
 } from '../project-settings-form-model';
 import { IntegrationAccountsSection } from './integration-accounts-section';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 const AGENT_GIT_CREDENTIALS_OPTIONS: { value: AgentGitCredentialsSetting; label: string }[] = [
-  { value: 'effective-account', label: 'Effective account' },
+  { value: 'effective-account', label: t('effective_account') },
   { value: 'system', label: 'System' },
   { value: 'none', label: 'None' },
 ];
@@ -169,7 +170,7 @@ export const BaseProjectSettingsSection = observer(function BaseProjectSettingsS
       const result = await (
         await getHostClient()
       ).openSelectDirectoryDialog({
-        title: 'Select worktree root',
+        title: t('select_worktree_root_2'),
         message: 'Choose the directory where worktrees should be created.',
         defaultPath:
           placementForm.worktreeDirectory || (effectiveWorktreeRoot ?? inheritedWorktreeRoot),
@@ -202,7 +203,7 @@ export const BaseProjectSettingsSection = observer(function BaseProjectSettingsS
 
       {hostObservationKind === 'unavailable' ? (
         <Field.Root>
-          <Field.Label>Worktree root</Field.Label>
+          <Field.Label>{t('worktree_root')}</Field.Label>
           <Field.Description className="text-foreground-muted">
             {projectType === 'local'
               ? 'Worktree placement is unavailable until the local runtime is ready.'
@@ -213,8 +214,8 @@ export const BaseProjectSettingsSection = observer(function BaseProjectSettingsS
         <>
           <fieldset disabled={hostActionReason !== null} className="contents">
             <ProvenanceField
-              label="Worktree root"
-              description="Where task worktrees are created."
+              label={t('worktree_root')}
+              description={t('where_task_worktrees_are_created')}
               resolved={hostActionReason ? null : (effective?.worktreeRoot ?? null)}
               flavor="inherited"
               isExplicit={placementForm.worktreeDirectory.trim() !== ''}
@@ -266,8 +267,8 @@ export const BaseProjectSettingsSection = observer(function BaseProjectSettingsS
       <Separator />
 
       <ProvenanceField
-        label="Default branch"
-        description="The branch new tasks are created from by default."
+        label={t('default_branch')}
+        description={t('the_branch_new_tasks_are_created_from_by')}
         resolved={effective?.defaultBranch ?? null}
         isExplicit={gitIdentityForm.defaultBranch !== null}
         onReset={() => updateGitIdentity('defaultBranch', null)}
@@ -282,7 +283,7 @@ export const BaseProjectSettingsSection = observer(function BaseProjectSettingsS
       <Separator />
 
       <ProvenanceField
-        label="Base remote"
+        label={t('base_remote')}
         description="Used for fetching remote branches, choosing task base branches and targeting pull requests."
         resolved={effective?.baseRemote ?? null}
         isExplicit={gitIdentityForm.baseRemote.trim() !== ''}
@@ -299,8 +300,8 @@ export const BaseProjectSettingsSection = observer(function BaseProjectSettingsS
       <Separator />
 
       <ProvenanceField
-        label="Push remote"
-        description="Used when publishing task branches and pushing commits."
+        label={t('push_remote')}
+        description={t('used_when_publishing_task_branches_and_p')}
         resolved={effective?.pushRemote ?? null}
         isExplicit={gitIdentityForm.pushRemote.trim() !== ''}
         onReset={() => updateGitIdentity('pushRemote', '')}
@@ -316,7 +317,7 @@ export const BaseProjectSettingsSection = observer(function BaseProjectSettingsS
       <Separator />
 
       <Field.Root>
-        <Field.Label>Agent git credentials</Field.Label>
+        <Field.Label>{t('agent_git_credentials_2')}</Field.Label>
         <Field.Description className="text-foreground-muted">
           Which git credentials agent and terminal sessions use in this project. Effective account
           wires the account above, system keeps your machine's credentials, none disables credential
@@ -349,7 +350,7 @@ export const BaseProjectSettingsSection = observer(function BaseProjectSettingsS
       <Field.Root orientation="horizontal">
         <div className="flex flex-1 flex-col gap-1">
           <div className="flex items-center gap-2">
-            <Field.Label>Enable tmux</Field.Label>
+            <Field.Label>{t('enable_tmux')}</Field.Label>
             {tmuxSupported &&
             (hostObservationKind !== 'unavailable' || placementForm.tmux !== undefined) ? (
               <ProvenanceBadge provenance={effectiveTmux.provenance} flavor="inherited" />

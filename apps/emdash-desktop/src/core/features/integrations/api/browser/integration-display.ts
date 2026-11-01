@@ -1,5 +1,6 @@
 import type { IssueProviderType } from '@core/primitives/issue-providers/api';
 import type { IntegrationProviderDescriptor } from '../contract';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export const ISSUE_FEATURE_LABELS: Record<string, string> = {
   issues: 'Issues',
@@ -16,7 +17,7 @@ const DEFAULT_ISSUE_TERMS = {
 const GITLAB_WORK_ITEM_TERMS = {
   singular: 'work item',
   plural: 'work items',
-  title: 'Work Item',
+  title: t('work_item'),
   article: 'a',
 } as const;
 

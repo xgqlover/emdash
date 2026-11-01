@@ -2,6 +2,7 @@ import { Combobox, Field } from '@emdash/ui/react/primitives';
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import type { SshConfigHost } from '@core/primitives/ssh/api';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export function MachineHostPicker({
   id,
@@ -43,11 +44,11 @@ export function MachineHostPicker({
           variant="default"
           showTrigger={false}
           rightAddon={
-            <Combobox.Trigger aria-label="Show SSH config hosts">
+            <Combobox.Trigger aria-label={t('show_ssh_config_hosts')}>
               <ChevronDown className="size-4" />
             </Combobox.Trigger>
           }
-          placeholder="Select or enter a host"
+          placeholder={t('select_or_enter_a_host')}
           autoComplete="off"
         />
         <Combobox.Content>

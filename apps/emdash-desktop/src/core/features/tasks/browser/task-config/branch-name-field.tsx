@@ -1,6 +1,7 @@
 import { Input, Label, Switch } from '@emdash/ui/react/primitives';
 import type { BranchNameState } from '@core/features/tasks/browser/create-task-modal/use-branch-name';
 import { useTaskConfig } from '@core/features/tasks/contributions/browser/task-config/task-config-context';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 interface BranchNameFieldProps {
   state: Pick<BranchNameState, 'branchName' | 'setBranchName' | 'branchAlreadyExists'>;
@@ -15,7 +16,7 @@ export function BranchNameField({ state, pushBranch, onPushBranchChange }: Branc
 
   return (
     <div className="flex flex-col rounded-lg border border-border px-2.5 py-2">
-      <span className="flex items-center gap-1.5 text-xs text-foreground-passive">Branch name</span>
+      <span className="flex items-center gap-1.5 text-xs text-foreground-passive">{t('branch_name')}</span>
       {autoBranchName ? (
         <span className="py-1 text-sm text-foreground-muted italic">
           Branch name will be auto-generated
@@ -39,7 +40,7 @@ export function BranchNameField({ state, pushBranch, onPushBranchChange }: Branc
       {showPush && (
         <div className="mt-1 flex items-center gap-1.5">
           <Switch size="sm" checked={pushBranch} onCheckedChange={onPushBranchChange} />
-          <Label>Push branch to remote</Label>
+          <Label>{t('push_branch_to_remote')}</Label>
         </div>
       )}
     </div>

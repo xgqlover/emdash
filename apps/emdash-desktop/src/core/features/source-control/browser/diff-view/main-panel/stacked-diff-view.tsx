@@ -18,6 +18,7 @@ import { formatDiffLineCount } from '@core/primitives/formatting/browser/format-
 import { cn } from '@core/primitives/styling/browser/cn';
 import { StackedDiffPanelStore, type DiffSlotStore } from '../stores/stacked-diff-panel-store';
 import { useDiffFacets } from './use-diff-facets';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 const LARGE_DIFF_LINE_THRESHOLD = 1500;
 
@@ -128,7 +129,7 @@ const StackedDiffPanel = observer(function StackedDiffPanel({ panelStore }: Stac
 
   if (visibleSlots.length === 0) {
     return (
-      <EmptyState label="No changes" description="Select or make changes to files to see diffs." />
+      <EmptyState label={t('no_changes')} description={t('select_or_make_changes_to_files_to_see_d')} />
     );
   }
 

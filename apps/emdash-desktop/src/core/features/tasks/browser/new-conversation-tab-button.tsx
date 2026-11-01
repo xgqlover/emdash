@@ -5,6 +5,7 @@ import { useTaskViewContext } from '@core/features/tasks/contributions/browser/t
 import { useOpenModal } from '@core/manifests/browser/modal-api';
 import { BoundShortcut } from '@core/primitives/keybindings/browser/shortcut';
 import { usePaneContext } from '@core/primitives/workbench-shell/browser/tabs/pane-context';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 /**
  * The "+" rendered after the last tab in the tab strip (browser-tab idiom).
@@ -37,7 +38,7 @@ export const NewConversationTabButton = observer(function NewConversationTabButt
           icon
           variant="ghost"
           onClick={handleCreateConversation}
-          aria-label="New conversation"
+          aria-label={t('new_conversation_2')}
         >
           <Plus className="size-3.5" />
         </Button>

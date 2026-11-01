@@ -9,6 +9,7 @@ import type { SettingsPageProps } from '@core/primitives/settings/api/page-contr
 import type { ConnectionState } from '@core/primitives/ssh/api';
 import { MachineListRow } from '../components/machine-list-row';
 import { createMachinesListView, type MachinesListViewModel } from '../machines-list-model';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 function isRecentlyUsed(state: ConnectionState): boolean {
   return state === 'connected' || state === 'connecting' || state === 'reconnecting';
@@ -37,7 +38,7 @@ export const MachinesSettingsPage = observer(function MachinesSettingsPage({
       <PageLayout.Header
         sticky
         title="Machines"
-        description="Manage reusable machines for remote projects."
+        description={t('manage_reusable_machines_for_remote_proj')}
       />
       <view.Root>
         <CollectionView

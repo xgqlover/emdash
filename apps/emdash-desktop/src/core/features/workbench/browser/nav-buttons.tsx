@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { BoundShortcut } from '@core/primitives/keybindings/browser/shortcut';
 import type { HistoryEntry } from '@core/primitives/navigation/api';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 import {
   getNavigation,
   getNavigationHistory,
@@ -22,7 +23,7 @@ export const NavButtons = observer(function NavButtons() {
             variant="ghost"
             size="sm"
             className="size-7 p-0"
-            aria-label="Go back"
+            aria-label={t('go_back')}
             disabled={!canGoBack}
             onClick={() => getNavigationHistory().back(applyHistoryEntry)}
           >
@@ -40,7 +41,7 @@ export const NavButtons = observer(function NavButtons() {
             variant="ghost"
             size="sm"
             className="size-7 p-0"
-            aria-label="Go forward"
+            aria-label={t('go_forward')}
             disabled={!canGoForward}
             onClick={() => getNavigationHistory().forward(applyHistoryEntry)}
           >

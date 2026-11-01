@@ -3,6 +3,7 @@ import { card } from '@emdash/ui/styles/recipes/card';
 import { CheckCircle2, Copy } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { SshConfigHost } from '@core/primitives/ssh/api';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export function MachineConnectionDetails({
   host,
@@ -28,19 +29,19 @@ export function MachineConnectionDetails({
         </div>
         <CopyableConnectionDetail
           key={`jump-${host?.proxyJump}`}
-          label="Jump host"
+          label={t('jump_host')}
           value={host?.proxyJump}
         />
         {host?.proxyCommand && (
           <CopyableConnectionDetail
             key={host.proxyCommand}
-            label="Proxy command"
+            label={t('proxy_command')}
             value={host.proxyCommand}
             copyOnValueClick
           />
         )}
         <div className="grid grid-cols-[9rem_minmax(0,1fr)] gap-3">
-          <dt className="text-foreground-muted">Forward SSH agent</dt>
+          <dt className="text-foreground-muted">{t('forward_ssh_agent')}</dt>
           <dd>{host?.forwardAgent ? 'On' : 'Off'}</dd>
         </div>
       </dl>

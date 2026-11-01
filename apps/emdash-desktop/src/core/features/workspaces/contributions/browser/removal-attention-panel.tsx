@@ -8,6 +8,7 @@ import {
   type ProjectWorkspaceRow,
 } from '@core/primitives/workspaces/api';
 import { workspaceRowLabel } from './workspace-row-label';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 type RemovalAction = 'retry' | 'untrack';
 
@@ -40,11 +41,11 @@ export function WorkspaceRemovalAttentionPanel({
       const registry = await getWorkspaceRegistryWireClient();
       if (action === 'retry') {
         await registry.retryWorkspaceRemoval({ workspaceId });
-        toast('Removal retrying', { description: 'The removal runs again in the background.' });
+        toast('Removal retrying', { description: t('the_removal_runs_again_in_the_background') });
       } else {
         await registry.abandonWorkspaceRemoval({ workspaceId });
         toast('Workspace untracked', {
-          description: 'Emdash dropped the pending removal without deleting files on the host.',
+          description: t('emdash_dropped_the_pending_removal_witho'),
         });
       }
     } catch (error) {
@@ -88,7 +89,7 @@ export function WorkspaceRemovalAttentionPanel({
               onClick={() => void runAction('retry', row.workspaceId)}
             />
             <RemovalActionButton
-              label="Untrack anyway"
+              label={t('untrack_anyway')}
               pending={pendingAction === `untrack:${row.workspaceId}`}
               disabled={pendingAction !== null}
               onClick={() => void runAction('untrack', row.workspaceId)}

@@ -49,7 +49,7 @@ const TelemetryCard: React.FC = () => {
               void setTelemetryEnabled(checked);
             }}
             disabled={loading || envDisabled}
-            aria-label="Enable anonymous telemetry"
+            aria-label={t('enable_anonymous_telemetry')}
           />
           {!hasKeyAndHost && (
             <span className="text-muted-foreground text-[10px]">

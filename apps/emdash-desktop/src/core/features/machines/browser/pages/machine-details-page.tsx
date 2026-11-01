@@ -52,6 +52,7 @@ import { WorkspacesListView } from '../components/workspaces-list-view';
 import { useHostServerState } from '../use-host-server-state';
 import { useMachineMetrics } from '../use-machine-metrics';
 import { useMachineAvailability } from '../use-machine-status-kind';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 type MachineDetailsSection =
   | 'system'
@@ -193,7 +194,7 @@ export const MachineDetailsPage = observer(function MachineDetailsPage({
 
       if (projects.length > 0) {
         await openConfirm({
-          title: 'Cannot delete SSH connection',
+          title: t('cannot_delete_ssh_connection'),
           description:
             'This SSH connection is still used by at least one project. Change those projects to another connection before deleting it.',
           confirmLabel: 'Close',
@@ -202,7 +203,7 @@ export const MachineDetailsPage = observer(function MachineDetailsPage({
       }
 
       const outcome = await openConfirm({
-        title: 'Delete SSH connection',
+        title: t('delete_ssh_connection'),
         description: `This will remove "${machine.name}" and its saved credentials from this device.`,
         confirmLabel: 'Delete',
         variant: 'destructive',
@@ -258,7 +259,7 @@ export const MachineDetailsPage = observer(function MachineDetailsPage({
                   variant="secondary"
                   size="xs"
                   icon
-                  aria-label="Machine actions"
+                  aria-label={t('machine_actions')}
                 />
               }
             >

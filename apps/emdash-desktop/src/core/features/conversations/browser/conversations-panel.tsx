@@ -24,6 +24,7 @@ import {
   activeConversationId as getActiveConversationId,
 } from './pane-selectors';
 import { createConversationTerminalAttachments } from './terminal-attachments';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export const ConversationsPanel = observer(function ConversationsPanel() {
   const { projectId, taskId } = useTaskViewContext();
@@ -149,7 +150,7 @@ export const ConversationsPanel = observer(function ConversationsPanel() {
           <PaneSizingContextProvider sessionIds={allSessionIds} bottomPadding={contextBarHeight}>
             <div className="flex min-h-0 flex-1 flex-col">
               {disabledReason && activeSession?.status !== 'ready' ? (
-                <EmptyState label="Conversation unavailable" description={disabledReason} />
+                <EmptyState label={t('conversation_unavailable')} description={disabledReason} />
               ) : activeSessionId &&
                 attachments &&
                 activeSession?.status === 'ready' &&

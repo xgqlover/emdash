@@ -127,7 +127,7 @@ export const UnstagedSectionBody = observer(function UnstagedSectionBody() {
 // [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
         title: t('discard_all_changes'),
         variant: 'destructive',
-        description: 'Are you sure you want to discard all changes? This can not be undone.',
+        description: t('are_you_sure_you_want_to_discard_all_cha'),
       });
       if (!outcome.success) return;
 

@@ -20,6 +20,7 @@ import {
 import { AgentCapabilityIcons } from '@core/features/agents/contributions/browser/agent-capability-icons';
 import { AgentIcon } from '@core/features/agents/contributions/browser/agent-icon';
 import { cn } from '@core/primitives/styling/browser/cn';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 interface AgentSelectorProps {
   value: AgentProviderId | null;
@@ -127,7 +128,7 @@ export const AgentSelector: React.FC<AgentSelectorProps> = observer(
           ref={setAnchorEl}
           className={cn('min-w-(--anchor-width)', contentClassName)}
         >
-          <Combobox.Input showTrigger={false} placeholder="Search agents..." />
+          <Combobox.Input showTrigger={false} placeholder={t('search_agents')} />
           <Combobox.List className="pb-0">
             {(group: AgentGroup) => (
               <Combobox.Group key={group.value} items={group.items} className="py-1">

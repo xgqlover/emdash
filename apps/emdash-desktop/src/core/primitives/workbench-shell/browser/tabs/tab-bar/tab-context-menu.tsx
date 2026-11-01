@@ -8,6 +8,7 @@ import type {
   TabViewContext,
 } from '@core/primitives/workbench-shell/browser/tabs/core/tab-provider';
 import type { TabCommand } from './tab-commands';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 /** Renders a shortcut hint from a command or raw chord getter. */
 function CmdShortcut({ shortcut }: { shortcut?: TabCommand['shortcut'] }) {
@@ -43,7 +44,7 @@ export const TabContextMenu = observer(function TabContextMenu({
       ? [
           {
             id: 'engine:keep-open',
-            label: 'Keep Open',
+            label: t('keep_open'),
             group: 'close' as const,
             run: () => host.pin(tab.tabId),
           },
@@ -51,13 +52,13 @@ export const TabContextMenu = observer(function TabContextMenu({
       : []),
     {
       id: 'engine:close',
-      label: 'Close Tab',
+      label: t('close_tab'),
       group: 'close' as const,
       run: () => host.requestCloseTab(tab.tabId),
     },
     {
       id: 'engine:close-others',
-      label: 'Close Other Tabs',
+      label: t('close_other_tabs'),
       group: 'close' as const,
       run: () => host.closeOthers(tab.tabId),
     },

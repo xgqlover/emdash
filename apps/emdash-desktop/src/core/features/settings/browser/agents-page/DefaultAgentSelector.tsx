@@ -5,6 +5,7 @@ import { useAgents } from '@core/features/agents/api/browser/use-agents';
 import { AgentSelector } from '@core/features/agents/contributions/browser/agent-selector';
 import { useAppSettingsKey } from '@core/features/settings/api/browser/use-app-settings-key';
 import type { AppSettings } from '@core/services/settings/api';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export const DefaultAgentSelector: React.FC = () => {
   const {
@@ -28,7 +29,7 @@ export const DefaultAgentSelector: React.FC = () => {
   return (
     <div className="flex items-center justify-between gap-4 rounded-lg border bg-background-1 p-3 px-4">
       <div className="flex flex-col gap-1">
-        <span className="text-sm text-foreground">Default agent</span>
+        <span className="text-sm text-foreground">{t('default_agent')}</span>
         <span className="text-xs text-foreground-muted">
           Selected by default when creating a new task.
         </span>

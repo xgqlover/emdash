@@ -8,6 +8,7 @@ import {
 } from '@core/primitives/browser/api';
 import { openExternal } from '@core/primitives/desktop-host/browser/host-client';
 import type { BrowserWebviewAdapter } from './browser-webview-types';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export function openBrowserUrlExternally(url: string): void {
   if (!canOpenBrowserUrlExternally(url)) return;
@@ -49,7 +50,7 @@ export function clearBrowserData(
       }
 
       toast.error('Could not clear browser data', {
-        description: 'Try again, or reload the browser view manually.',
+        description: t('try_again_or_reload_the_browser_view_man'),
       });
     })
     .catch((error: unknown) => {
@@ -66,7 +67,7 @@ export function confirmClearBrowserStorage(
   profileLabel = 'this browser profile'
 ): void {
   void openModal('confirmActionModal', {
-    title: 'Clear browser storage?',
+    title: t('clear_browser_storage'),
     description: `This clears cookies, local storage, IndexedDB, and cache for ${profileLabel}. Browser tabs using the same storage boundary will be signed out.`,
     confirmLabel: 'Clear Storage',
     variant: 'destructive',

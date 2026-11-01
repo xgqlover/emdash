@@ -24,6 +24,7 @@ import { lifecycleScriptsStoreToken } from '@core/features/workspaces/contributi
 import { projectAvailabilityUi } from '@core/manifests/browser/project-availability-ui';
 import { BoundShortcut } from '@core/primitives/keybindings/browser/shortcut';
 import { ViewScopeInstanceProvider } from '@core/primitives/view-scopes/react';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export const TerminalsPanel = observer(function TerminalsPanel() {
   const { projectId, taskId } = useTaskViewContext();
@@ -180,8 +181,8 @@ export const TerminalsPanel = observer(function TerminalsPanel() {
   const terminalEmptyState = (
     <EmptyState
       bare
-      label="No terminals yet"
-      description="Add a terminal to run shell commands in this task's working directory."
+      label={t('no_terminals_yet')}
+      description={t('add_a_terminal_to_run_shell_commands_in_')}
       action={
         <projectAvailabilityUi.LiveActionGuard projectId={projectId}>
           <Button
@@ -202,8 +203,8 @@ export const TerminalsPanel = observer(function TerminalsPanel() {
   const scriptsEmptyState = (
     <EmptyState
       bare
-      label="No scripts configured"
-      description="Add setup, run, or teardown scripts to your project configuration."
+      label={t('no_scripts_configured')}
+      description={t('add_setup_run_or_teardown_scripts_to_you')}
     />
   );
 
@@ -257,7 +258,7 @@ export const TerminalsPanel = observer(function TerminalsPanel() {
           unavailableState={
             <EmptyState
               bare
-              label="Terminal unavailable"
+              label={t('terminal_unavailable')}
               description={liveActionDisabledReason ?? 'Live actions are unavailable.'}
             />
           }

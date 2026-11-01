@@ -29,6 +29,7 @@ import { useModalController, useOpenModal } from '@core/manifests/browser/modal-
 import { DEFAULT_REMOTE_NAME } from '@core/primitives/git/api';
 import { ConfirmButton } from '@core/primitives/keybindings/browser/confirm-button';
 import { defineModal } from '@core/primitives/modals/react';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 import type {
   ProviderAccountRef,
   ProviderAccountSummary,
@@ -233,7 +234,7 @@ export const AddRemoteModal = observer(function AddRemoteModal({
     <ModalLayout
       header={
         <Dialog.Header>
-          <Dialog.Title>Add Remote</Dialog.Title>
+          <Dialog.Title>{t('add_remote_2')}</Dialog.Title>
         </Dialog.Header>
       }
       footer={
@@ -278,7 +279,7 @@ export const AddRemoteModal = observer(function AddRemoteModal({
                 <Select.Trigger
                   appearance="input"
                   className="w-full"
-                  aria-label="Repository provider"
+                  aria-label={t('repository_provider')}
                 >
                   {provider === 'github' ? 'GitHub' : 'GitLab'}
                 </Select.Trigger>
@@ -289,7 +290,7 @@ export const AddRemoteModal = observer(function AddRemoteModal({
               </Select.Root>
             </Field.Root>
             <Field.Root>
-              <Field.Label>Repository Name</Field.Label>
+              <Field.Label>{t('repository_name_2')}</Field.Label>
               <Input
                 autoFocus
                 value={repositoryName}
@@ -344,7 +345,7 @@ export const AddRemoteModal = observer(function AddRemoteModal({
         {tab === 'link' && (
           <Field.Group>
             <Field.Root>
-              <Field.Label>Remote URL</Field.Label>
+              <Field.Label>{t('remote_url')}</Field.Label>
               <Input
                 autoFocus
                 placeholder="https://git.example.com/owner/repo.git"

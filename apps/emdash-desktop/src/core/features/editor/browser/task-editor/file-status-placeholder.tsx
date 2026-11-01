@@ -4,6 +4,7 @@ import type { LucideIcon } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import type { FileTabResource } from '@core/features/editor/api/browser/task-editor/stores/file-tab-resource';
 import { openWithOS } from '@core/features/workbench/api/browser/open-with-os';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 /**
  * Placeholder for a file tab whose OpenFileStore entry is not ready: the
@@ -24,7 +25,7 @@ export const FileStatusPlaceholder = observer(function FileStatusPlaceholder({
     return (
       <Shell>
         <Spinner size="sm" />
-        <span className="text-xs text-foreground-passive">Loading file...</span>
+        <span className="text-xs text-foreground-passive">{t('loading_file_2')}</span>
       </Shell>
     );
   }

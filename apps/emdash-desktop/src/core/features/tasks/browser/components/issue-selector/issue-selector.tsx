@@ -23,6 +23,7 @@ import { cn } from '@core/primitives/styling/browser/cn';
 import { IssueStatusIndicator, toIssueStatus } from './issue-status-indicator';
 import { getLinkedIssueMap, type LinkedIssueInfo } from './use-linked-issue-urls';
 import { useIssueSearch } from './useIssueSearch';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export function IssueIdentifier({
   issue,
@@ -202,7 +203,7 @@ export const IssueSelector = observer(function IssueSelector({
         }}
       >
         <Select.Trigger
-          aria-label="Select issue provider"
+          aria-label={t('select_issue_provider')}
           className="h-6 gap-1 border-none bg-transparent px-1.5 shadow-none focus:ring-0"
         >
           <ProviderLogo provider={issueProvider} className="h-3.5 w-3.5" />

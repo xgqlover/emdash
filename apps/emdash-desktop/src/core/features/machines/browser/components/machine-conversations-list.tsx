@@ -15,6 +15,7 @@ import { useWorkspaceGroups } from '@core/features/workspaces/api/browser/use-wo
 import { useOpenModal } from '@core/manifests/browser/modal-api';
 import { useSearchFocusHotkeys } from '@core/primitives/keybindings/browser';
 import { cn } from '@core/primitives/styling/browser/cn';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 import {
   joinMachineConversationRows,
   type MachineConversationItem,
@@ -158,7 +159,7 @@ export function MachineConversationsList({
 
   const deleteConversation = async (item: MachineConversationItem) => {
     const outcome = await openConfirm({
-      title: 'Delete conversation?',
+      title: t('delete_conversation'),
       description: `This permanently deletes “${item.conversation.title}” from its machine. If the machine is offline, the deletion runs when it reconnects.`,
       confirmLabel: 'Delete',
       variant: 'destructive',
@@ -210,7 +211,7 @@ export function MachineConversationsList({
         errorSlot={
           <EmptyState
             bare
-            label="Could not load conversations."
+            label={t('could_not_load_conversations')}
             description={
               conversationsQuery.error instanceof Error
                 ? conversationsQuery.error.message
@@ -288,10 +289,10 @@ function ConversationStatusCell({ item }: { item: MachineConversationItem }) {
           </span>
         </span>
       ) : (
-        <Pill tone="warning">Not linked</Pill>
+        <Pill tone="warning">{t('not_linked')}</Pill>
       )}
-      {item.missing && <Pill tone="destructive">Missing on host</Pill>}
-      {item.dangling && !item.missing && <Pill tone="warning">Workspace removed</Pill>}
+      {item.missing && <Pill tone="destructive">{t('missing_on_host')}</Pill>}
+      {item.dangling && !item.missing && <Pill tone="warning">{t('workspace_removed')}</Pill>}
       {item.pendingRemoval && (
         <Pill tone="warning" pulse>
           Removal pending…

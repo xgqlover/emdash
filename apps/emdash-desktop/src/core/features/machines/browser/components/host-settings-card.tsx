@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { detectPlatformContext } from '@core/primitives/keybindings/api';
 import { getMachinesStore } from '../../contributions/app-stores';
 import { useHostSettings } from '../use-host-settings';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 /**
  * Per-host defaults (host-settings runtime): shellSetup, worktree root, tmux, and
@@ -90,7 +91,7 @@ export const HostSettingsCard = observer(function HostSettingsCard({
   return (
     <SettingsCard>
       <Field.Root>
-        <Field.Label>Host defaults</Field.Label>
+        <Field.Label>{t('host_defaults')}</Field.Label>
         <Field.Description>
           Machine-level defaults applied to workspaces on this host. Stored in the host&apos;s
           emdash data directory; edits made to the file directly show up here live.
@@ -104,7 +105,7 @@ export const HostSettingsCard = observer(function HostSettingsCard({
         ) : null}
 
         <Field.Root>
-          <Field.Label>Shell setup</Field.Label>
+          <Field.Label>{t('shell_setup')}</Field.Label>
           <Field.Description className="text-foreground-muted">
             Shell commands prepended to every lifecycle script and terminal session on this host
             (nvm, mise, …). A workspace&apos;s .emdash.json shellSetup overrides this.
@@ -122,7 +123,7 @@ export const HostSettingsCard = observer(function HostSettingsCard({
         <Separator />
 
         <Field.Root>
-          <Field.Label>Worktree root</Field.Label>
+          <Field.Label>{t('worktree_root')}</Field.Label>
           <Field.Description className="text-foreground-muted">
             Default directory new worktrees are created under on this host. Project settings can
             override it per project.
@@ -144,7 +145,7 @@ export const HostSettingsCard = observer(function HostSettingsCard({
 
         <Field.Root orientation="horizontal">
           <div className="flex flex-1 flex-col gap-1">
-            <Field.Label>Enable tmux by default</Field.Label>
+            <Field.Label>{t('enable_tmux_by_default')}</Field.Label>
             <Field.Description className="text-foreground-muted">
               Default tmux preference for sessions on this host. Project settings can override it
               per project.
@@ -168,7 +169,7 @@ export const HostSettingsCard = observer(function HostSettingsCard({
 
             <Field.Root orientation="horizontal">
               <div className="flex flex-1 flex-col gap-1">
-                <Field.Label>Sync local settings</Field.Label>
+                <Field.Label>{t('sync_local_settings')}</Field.Label>
                 <Field.Description className="text-foreground-muted">
                   Mirror this machine&apos;s local settings to this host (currently watcher
                   exclusions). While on, the host&apos;s values follow this machine&apos;s; the last
@@ -185,7 +186,7 @@ export const HostSettingsCard = observer(function HostSettingsCard({
             <Separator />
 
             <Field.Root>
-              <Field.Label>Watcher exclusions</Field.Label>
+              <Field.Label>{t('watcher_exclusions_2')}</Field.Label>
               <Field.Description className="text-foreground-muted">
                 {syncLocalSettings
                   ? 'Synced from this machine\u2019s local settings. '

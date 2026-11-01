@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import { defineModal } from '@core/primitives/modals/react';
 import { getLanguageServices } from './language-services';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 /** Details are shown on demand from the file tab menu, never in the file header. */
 export const LanguageStatus = observer(function LanguageStatus({ file }: { file: HostFileRef }) {
@@ -11,7 +12,7 @@ export const LanguageStatus = observer(function LanguageStatus({ file }: { file:
   const status = services?.status(file);
   const [restarting, setRestarting] = useState(false);
   const [restartError, setRestartError] = useState<string>();
-  if (!status) return <Dialog.Body>Language services are not available for this file.</Dialog.Body>;
+  if (!status) return <Dialog.Body>{t('language_services_are_not_available_for_')}</Dialog.Body>;
   const { connection } = status;
   const server = connection.kind === 'connected' ? connection.server : undefined;
   const starting = connection.kind === 'connecting' || server?.phase === 'starting';
@@ -68,8 +69,8 @@ function LanguageServicesDialog({ file }: { file: HostFileRef }) {
   return (
     <>
       <Dialog.Header>
-        <Dialog.Title>Language services</Dialog.Title>
-        <Dialog.Description>Project intelligence for this file’s workspace.</Dialog.Description>
+        <Dialog.Title>{t('language_services')}</Dialog.Title>
+        <Dialog.Description>{t('project_intelligence_for_this_file_s_wor')}</Dialog.Description>
       </Dialog.Header>
       <LanguageStatus file={file} />
     </>

@@ -1,5 +1,6 @@
 import { MessageSquare } from 'lucide-react';
 import { AgentIcon } from '@core/features/agents/contributions/browser/agent-icon';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 /**
  * Agent provider icon with an optional MessageSquare badge overlaid in the
@@ -23,7 +24,7 @@ export function ConversationAgentIcon({
       <AgentIcon id={providerId} size={size} className={className} />
       {isAcp && (
         <span
-          title="ACP chat"
+          title={t('acp_chat')}
           className="absolute -right-1 -bottom-1 flex items-center justify-center rounded-full bg-background ring-1 ring-background"
         >
           <MessageSquare className="size-2.5 text-foreground-muted" />

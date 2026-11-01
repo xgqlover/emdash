@@ -39,7 +39,7 @@ function PreviewSoundButton({
               className="text-muted-foreground hover:text-foreground"
               disabled={disabled}
               onClick={() => soundPlayer.preview(path)}
-              aria-label="Preview sound"
+              aria-label={t('preview_sound')}
             >
               <Play className="size-3.5" />
             </Button>
@@ -87,7 +87,7 @@ const NotificationSettingsCard: React.FC = () => {
     const result = await (
       await getHostClient()
     ).openSelectAudioFileDialog({
-      title: 'Choose custom sound',
+      title: t('choose_custom_sound'),
       message: 'Select an audio file to play for agent events',
     });
     if (result) updateNotifications({ customSoundPath: result });
@@ -212,7 +212,7 @@ const NotificationSettingsCard: React.FC = () => {
                     </Select.Trigger>
                     <Select.Content className="min-w-max">
                       <Select.Item value="always">Always</Select.Item>
-                      <Select.Item value="unfocused">Only when unfocused</Select.Item>
+                      <Select.Item value="unfocused">{t('only_when_unfocused')}</Select.Item>
                     </Select.Content>
                   </Select.Root>
                 </>
@@ -220,7 +220,7 @@ const NotificationSettingsCard: React.FC = () => {
             />
 
             <SettingRow
-              title="OS notifications"
+              title={t('os_notifications')}
               description="Show system banners when agents need attention or finish (while Emdash is unfocused)."
               control={
                 <>

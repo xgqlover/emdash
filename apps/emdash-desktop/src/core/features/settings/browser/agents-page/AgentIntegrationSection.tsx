@@ -6,6 +6,7 @@ import { useAppSettingsKey } from '@core/features/settings/api/browser/use-app-s
 import { settingsViewDef } from '@core/features/settings/contributions/views';
 import type { AgentPayload } from '@core/primitives/agents/api';
 import { useNavigate } from '@core/primitives/navigation/browser/navigation-hooks';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 const HOME_PREFIX_RE = /^\/(?:Users|home)\/[^/]+/;
 
@@ -21,7 +22,7 @@ function InfoTooltip({ children }: { children: React.ReactNode }) {
           <button
             type="button"
             className="text-foreground-muted hover:text-foreground"
-            aria-label="More information"
+            aria-label={t('more_information')}
           >
             <Info className="size-3.5" aria-hidden="true" />
           </button>
@@ -85,8 +86,8 @@ export function AgentTrustSection({ agent }: { agent: AgentPayload }) {
     <Field.Root>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
-          <Label>Workspace Trust</Label>
-          <InfoTooltip>Skip the folder trust prompt in supported CLIs for new tasks.</InfoTooltip>
+          <Label>{t('workspace_trust')}</Label>
+          <InfoTooltip>{t('skip_the_folder_trust_prompt_in_supporte')}</InfoTooltip>
         </div>
         <Button
           type="button"

@@ -10,6 +10,7 @@ import { ExternalLink, Globe, Pencil, Plus, Terminal } from 'lucide-react';
 import React from 'react';
 import { AgentIcon } from '@core/features/agents/contributions/browser/agent-icon';
 import { McpServerIcon } from '@core/features/mcp/browser/mcpIcons';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 interface McpCardProps {
   server?: McpServer;
@@ -110,7 +111,7 @@ export const McpCard: React.FC<McpCardProps> = ({
                 <ExternalLink className="h-4 w-4" />
               </Button>
             </Tooltip.Trigger>
-            <Tooltip.Content>View docs</Tooltip.Content>
+            <Tooltip.Content>{t('view_docs')}</Tooltip.Content>
           </Tooltip.Root>
         )}
         <Tooltip.Root>

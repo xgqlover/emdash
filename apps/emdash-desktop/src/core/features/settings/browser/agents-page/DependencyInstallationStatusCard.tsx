@@ -6,6 +6,7 @@ import type { AgentPayload, InstallOption, SelectedSource } from '@core/primitiv
 import { resolveActiveInstallation, sourceKey } from '@core/primitives/agents/api';
 import { InstalledBadge, RecommendedBadge, UsedBadge } from './agent-status-badge';
 import { buildSourceRows, provenanceLabel } from './installation-sources';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export type InstallationState = 'found' | 'not-found' | 'uninstalled' | 'checking';
 
@@ -107,16 +108,16 @@ export const DependencyInstallationStatusCard = observer(function DependencyInst
           <DropdownMenu.Trigger
             disabled={state === 'checking'}
             className="shrink-0 rounded p-1 text-foreground-passive hover:bg-background-2 hover:text-foreground"
-            aria-label="Installation options"
+            aria-label={t('installation_options')}
           >
             <MoreHorizontal className="h-3.5 w-3.5" />
           </DropdownMenu.Trigger>
           <DropdownMenu.Content align="end">
             <DropdownMenu.Sub>
-              <DropdownMenu.SubTrigger>Change source</DropdownMenu.SubTrigger>
+              <DropdownMenu.SubTrigger>{t('change_source')}</DropdownMenu.SubTrigger>
               <DropdownMenu.SubContent>
                 <DropdownMenu.Group>
-                  <DropdownMenu.Label>Select source</DropdownMenu.Label>
+                  <DropdownMenu.Label>{t('select_source')}</DropdownMenu.Label>
                   <DropdownMenu.Separator />
                   {sourceRows.map((row) => {
                     const rowKey = sourceKey(row.ref);

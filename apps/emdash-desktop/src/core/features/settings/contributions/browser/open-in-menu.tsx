@@ -13,6 +13,7 @@ import {
 } from '@core/primitives/open-in-apps/api/open-in-apps';
 import { openInCommandRegistry } from '@core/primitives/open-in-apps/browser/open-in-command-registry';
 import { cn } from '@core/primitives/styling/browser/cn';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 interface OpenInMenuProps {
   path: string;
@@ -166,14 +167,14 @@ export const OpenInMenu: React.FC<OpenInMenuProps> = ({
             render={
               <DropdownMenu.Trigger
                 className="group flex size-6 shrink-0 items-center justify-center border-none bg-transparent transition-colors hover:bg-background-1 hover:text-foreground"
-                aria-label="Open in options"
+                aria-label={t('open_in_options')}
                 disabled={menuApps.length === 0}
               >
                 <ChevronDown className="size-3.5" />
               </DropdownMenu.Trigger>
             }
           ></Tooltip.Trigger>
-          <Tooltip.Content side="bottom">Select open in app</Tooltip.Content>
+          <Tooltip.Content side="bottom">{t('select_open_in_app')}</Tooltip.Content>
         </Tooltip.Root>
         <DropdownMenu.Content align="end" sideOffset={6} width="content">
           <DropdownMenu.RadioGroup

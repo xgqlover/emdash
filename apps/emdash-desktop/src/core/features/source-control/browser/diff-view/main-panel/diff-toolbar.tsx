@@ -57,10 +57,10 @@ export const DiffToolbar = observer(function DiffToolbar({ tab }: DiffToolbarPro
               }
             }}
           >
-            <ToggleGroup.Item size="sm" icon value="unified" aria-label="Unified diff">
+            <ToggleGroup.Item size="sm" icon value="unified" aria-label={t('unified_diff')}>
               <AlignJustify className="h-3.5 w-3.5" />
             </ToggleGroup.Item>
-            <ToggleGroup.Item size="sm" icon value="split" aria-label="Split diff">
+            <ToggleGroup.Item size="sm" icon value="split" aria-label={t('split_diff')}>
               <Columns2 className="h-3.5 w-3.5" />
             </ToggleGroup.Item>
           </ToggleGroup.Root>

@@ -10,6 +10,7 @@ import {
 import { RemoteSelector } from '@core/features/source-control/contributions/browser/remote-selector';
 import type { GitBranchRef, GitRemote } from '@core/primitives/git/api';
 import { cn } from '@core/primitives/styling/browser/cn';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 type BranchSelectorTab = 'local' | 'remote';
 export {
@@ -135,7 +136,7 @@ export function BranchSelector({
         <Combobox.Trigger className="hover:bg-muted/30 flex h-9 items-center justify-between rounded-md border border-border px-2.5 py-1 text-left text-sm outline-none">
           <div className="text-muted-foreground flex items-center gap-2">
             <GitBranch />
-            <Combobox.Value placeholder="Select a branch" />
+            <Combobox.Value placeholder={t('select_a_branch')} />
           </div>
         </Combobox.Trigger>
       )}
@@ -181,7 +182,7 @@ export function BranchSelector({
         )}
         <Combobox.Input
           showTrigger={false}
-          placeholder="Search branches"
+          placeholder={t('search_branches')}
           inputRef={inputRef}
           rightAddon={
             onRefresh && (
@@ -196,7 +197,7 @@ export function BranchSelector({
                       disabled={isRefreshing}
                       aria-disabled={!!refreshDisabledReason}
                       aria-description={refreshDisabledReason ?? undefined}
-                      aria-label="Refresh branches"
+                      aria-label={t('refresh_branches')}
                     >
                       <RefreshCw className={cn('size-3', isRefreshing && 'animate-spin')} />
                     </InputGroup.Button>

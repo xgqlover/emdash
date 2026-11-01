@@ -78,6 +78,7 @@ import {
 import { detectPlatformContext } from '@core/primitives/keybindings/api';
 import { disabled, enabled, hidden, type ViewScopeImpl } from '@core/primitives/view-scopes/api';
 import { useViewScope } from '@core/primitives/view-scopes/react';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 const MAX_COPY_FILE_BYTES = 10 * 1024 * 1024;
 const PLATFORM = detectPlatformContext().os;
@@ -132,7 +133,7 @@ async function importLocalFiles(args: {
   const destinations = sourceFiles.map((file) => joinFileTreePath(destDirPath, file.name));
   if (new Set(destinations).size !== destinations.length) {
     toast.error('Import failed', {
-      description: 'Multiple dropped files have the same destination name.',
+      description: t('multiple_dropped_files_have_the_same_des'),
     });
     return;
   }
@@ -527,7 +528,7 @@ export const EditorFileTree = observer(function EditorFileTree() {
         return;
       }
       if (result.data.truncated) {
-        toast.error('Copy failed', { description: 'File is too large to copy.' });
+        toast.error('Copy failed', { description: t('file_is_too_large_to_copy') });
         return;
       }
       await copyTextToClipboard(result.data.content);
@@ -697,7 +698,7 @@ export const EditorFileTree = observer(function EditorFileTree() {
     if (isOpenableFileTreeNode(node)) {
       items.push({
         id: 'copy-file',
-        label: 'Copy Contents',
+        label: t('copy_contents'),
         icon: <FileText size={14} />,
         onSelect: () => void copyFile(node),
       });
@@ -705,13 +706,13 @@ export const EditorFileTree = observer(function EditorFileTree() {
     items.push(
       {
         id: 'copy-path',
-        label: 'Copy path',
+        label: t('copy_path'),
         icon: <Copy size={14} />,
         onSelect: () => void copyPath(node),
       },
       {
         id: 'copy-relative-path',
-        label: 'Copy relative path',
+        label: t('copy_relative_path'),
         icon: <Copy size={14} />,
         onSelect: () => void copyRelativePath(node),
       }
@@ -796,7 +797,7 @@ export const EditorFileTree = observer(function EditorFileTree() {
   const content =
     files?.observation.kind === 'unavailable' ? (
       <EmptyState
-        label="Files unavailable"
+        label={t('files_unavailable')}
         description={liveActionDisabledReason ?? 'The file tree has not been observed yet.'}
       />
     ) : searchQuery && !liveActionsDisabled ? (
@@ -819,7 +820,7 @@ export const EditorFileTree = observer(function EditorFileTree() {
           const items: FileTreeRootMenuItem[] = [
             {
               id: 'new-file',
-              label: 'New File',
+              label: t('new_file'),
               icon: <FilePlus size={14} />,
               disabled: liveActionsDisabled,
               onSelect: () =>
@@ -827,7 +828,7 @@ export const EditorFileTree = observer(function EditorFileTree() {
             },
             {
               id: 'new-folder',
-              label: 'New Folder',
+              label: t('new_folder'),
               icon: <FolderPlus size={14} />,
               disabled: liveActionsDisabled,
               onSelect: () =>
@@ -1001,7 +1002,7 @@ export function FileTreeHeaderBar({
           >
             <FolderPlus className="size-3.5" />
           </HeaderAction>
-          <HeaderAction label="Collapse all" onClick={context.collapseAll}>
+          <HeaderAction label={t('collapse_all')} onClick={context.collapseAll}>
             <CopyMinus className="size-3.5" />
           </HeaderAction>
           <HeaderAction
@@ -1171,8 +1172,8 @@ export function FileTreeGitChangeIndicator({ status }: { status: GitChangeStatus
     <span
       className="flex size-4 items-center justify-center"
       style={{ color: fileTreeGitStatusColor(status) }}
-      aria-label="Contains emphasized items"
-      title="Contains emphasized items"
+      aria-label={t('contains_emphasized_items')}
+      title={t('contains_emphasized_items')}
     >
       <Circle aria-hidden className="size-2 fill-current opacity-40" strokeWidth={0} />
     </span>

@@ -21,6 +21,7 @@ import {
 import { projectAvailabilityUi } from '@core/manifests/browser/project-availability-ui';
 import { BoundShortcut } from '@core/primitives/keybindings/browser/shortcut';
 import { cn } from '@core/primitives/styling/browser/cn';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export type TerminalDrawerMode = 'terminals' | 'scripts';
 
@@ -132,7 +133,7 @@ export const TerminalDrawerTabBar = observer(function TerminalDrawerTabBar({
                     >
                       <X className="size-3" />
                     </Tooltip.Trigger>
-                    <Tooltip.Content>Close terminal</Tooltip.Content>
+                    <Tooltip.Content>{t('close_terminal')}</Tooltip.Content>
                   </Tooltip.Root>
                 }
               />
@@ -224,7 +225,7 @@ export function NewTerminalButton({
               size="xs"
               icon
               className="size-6 rounded-r-none px-0"
-              aria-label="New terminal"
+              aria-label={t('new_terminal')}
               onClick={() => onAddTerminal()}
             />
           }
@@ -244,7 +245,7 @@ export function NewTerminalButton({
               size="xs"
               icon
               className="size-6 rounded-l-none px-0"
-              aria-label="New terminal with shell"
+              aria-label={t('new_terminal_with_shell')}
             />
           }
         >
@@ -262,7 +263,7 @@ export function NewTerminalButton({
               Failed to load shells
             </DropdownMenu.Item>
           ) : shellMenuState.availability.length === 0 ? (
-            <DropdownMenu.Item disabled>No shells found</DropdownMenu.Item>
+            <DropdownMenu.Item disabled>{t('no_shells_found')}</DropdownMenu.Item>
           ) : (
             shellMenuState.availability.map((entry) => (
               <DropdownMenu.Item

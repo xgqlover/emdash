@@ -108,7 +108,7 @@ function UserFilterPopover({
           </li>
         ))}
         {filtered.length === 0 && (
-          <li className="text-muted-foreground px-2 py-3 text-center text-xs">No results</li>
+          <li className="text-muted-foreground px-2 py-3 text-center text-xs">{t('no_results')}</li>
         )}
       </ul>
     </FilterButton>
@@ -162,7 +162,7 @@ function LabelFilterPopover({
           </li>
         ))}
         {filtered.length === 0 && (
-          <li className="text-muted-foreground px-2 py-3 text-center text-xs">No results</li>
+          <li className="text-muted-foreground px-2 py-3 text-center text-xs">{t('no_results')}</li>
         )}
       </ul>
     </FilterButton>
@@ -475,7 +475,7 @@ const PrToolbar = observer(function PrToolbar({
           <PrSortSelect view={view} />
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-sm text-foreground-passive">Filter by</span>
+          <span className="text-sm text-foreground-passive">{t('filter_by')}</span>
           <UserFilterPopover
             label={t('author')}
             items={authorItems}

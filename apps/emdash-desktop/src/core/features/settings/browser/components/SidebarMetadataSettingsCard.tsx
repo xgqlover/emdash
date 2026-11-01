@@ -40,7 +40,7 @@ const SidebarMetadataSettingsCard: React.FC = () => {
                 checked={showLineChanges}
                 onCheckedChange={(checked) => update({ showLeftSidebarLineChanges: checked })}
                 disabled={busy}
-                aria-label="Show left sidebar line changes"
+                aria-label={t('show_left_sidebar_line_changes')}
               />
             </>
           }
@@ -60,7 +60,7 @@ const SidebarMetadataSettingsCard: React.FC = () => {
                 checked={showPrStatus}
                 onCheckedChange={(checked) => update({ showLeftSidebarPrStatus: checked })}
                 disabled={busy}
-                aria-label="Show left sidebar PR status"
+                aria-label={t('show_left_sidebar_pr_status')}
               />
             </>
           }
@@ -80,7 +80,7 @@ const SidebarMetadataSettingsCard: React.FC = () => {
                 checked={showTimestamps}
                 onCheckedChange={(checked) => update({ showLeftSidebarTimestamps: checked })}
                 disabled={busy}
-                aria-label="Show left sidebar timestamps"
+                aria-label={t('show_left_sidebar_timestamps')}
               />
             </>
           }

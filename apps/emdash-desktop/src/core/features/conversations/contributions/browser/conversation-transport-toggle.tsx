@@ -1,6 +1,7 @@
 import { Toggle, Tooltip } from '@emdash/ui/react/primitives';
 import { MessageSquare, SquareTerminal } from 'lucide-react';
 import type { ConversationType } from '@core/primitives/conversations/api';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export function ConversationTransportToggle({
   value,
@@ -17,7 +18,7 @@ export function ConversationTransportToggle({
       <Tooltip.Trigger
         render={
           <Toggle
-            aria-label="Use chat UI"
+            aria-label={t('use_chat_ui')}
             pressed={useChatUi}
             onPressedChange={(pressed) => onValueChange(pressed ? 'acp' : 'pty')}
             disabled={disabled}

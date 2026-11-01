@@ -1,6 +1,7 @@
 import { PageLayout } from '@emdash/ui/react/patterns';
 import type { SettingsPageProps } from '@core/primitives/settings/api/page-contribution';
 import { WorkspacesListView } from '../components/workspaces-list-view';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export function LocalWorkspacesSettingsPage({ openDetail }: SettingsPageProps) {
   return (
@@ -8,7 +9,7 @@ export function LocalWorkspacesSettingsPage({ openDetail }: SettingsPageProps) {
       <PageLayout.Header
         sticky
         title="Workspaces"
-        description="Review local project workspaces and remove stale task worktrees."
+        description={t('review_local_project_workspaces_and_remo')}
       />
       <WorkspacesListView scope={{ kind: 'local' }} openDetail={openDetail} />
     </div>

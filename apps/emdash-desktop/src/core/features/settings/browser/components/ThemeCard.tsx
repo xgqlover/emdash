@@ -18,8 +18,8 @@ const ThemeCard: React.FC = () => {
     icon: LucideIcon;
   }> = [
     { value: null, label: t('system'), ariaLabel: t('set_theme_system'), icon: Monitor },
-    { value: 'emlight', label: 'Emdash Light', ariaLabel: t('set_theme_light'), icon: Sun },
-    { value: 'emdark', label: 'Emdash Dark', ariaLabel: t('set_theme_dark'), icon: Moon },
+    { value: 'emlight', label: t('emdash_light'), ariaLabel: t('set_theme_light'), icon: Sun },
+    { value: 'emdark', label: t('emdash_dark'), ariaLabel: t('set_theme_dark'), icon: Moon },
   ];
 
   const handleSetTheme = (next: Theme) => {

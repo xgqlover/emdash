@@ -43,6 +43,7 @@ import {
 } from './browser-toolbar-actions';
 import { browserUrlInputText } from './browser-url-input';
 import type { BrowserWebviewAdapter } from './browser-webview-types';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 // Selection is conveyed by the checkmark alone (matching SelectItem); the base
 // radio item pins a background on the checked row and mutes unchecked rows.
@@ -198,8 +199,8 @@ export function BrowserToolbar({
             onFocus={(event) => event.currentTarget.select()}
             className="h-7 truncate border-0 text-sm shadow-none hover:border-0 focus-visible:border-0 focus-visible:ring-0"
             style={URL_INPUT_PADDING}
-            aria-label="Browser URL"
-            placeholder="Search or enter URL"
+            aria-label={t('browser_url')}
+            placeholder={t('search_or_enter_url')}
             spellCheck={false}
             autoCapitalize="none"
           />
@@ -214,7 +215,7 @@ export function BrowserToolbar({
         )}
       </form>
       <ToolbarIconButton
-        label="Copy screenshot"
+        label={t('copy_screenshot')}
         disabled={session.currentUrl === BROWSER_DEFAULT_URL || session.isLoading}
         onClick={takeScreenshot}
       >
@@ -233,7 +234,7 @@ export function BrowserToolbar({
               variant="ghost"
               icon
               className="size-7 shrink-0"
-              aria-label="Browser actions"
+              aria-label={t('browser_actions')}
             />
           }
         >
@@ -247,11 +248,11 @@ export function BrowserToolbar({
             Force reload
           </DropdownMenu.Item>
           {import.meta.env.DEV && (
-            <DropdownMenu.Item onClick={openDevTools}>Open DevTools</DropdownMenu.Item>
+            <DropdownMenu.Item onClick={openDevTools}>{t('open_devtools')}</DropdownMenu.Item>
           )}
           <DropdownMenu.Separator />
           <DropdownMenu.Sub>
-            <DropdownMenu.SubTrigger>Browser profile</DropdownMenu.SubTrigger>
+            <DropdownMenu.SubTrigger>{t('browser_profile')}</DropdownMenu.SubTrigger>
             <DropdownMenu.SubContent className="min-w-44">
               <DropdownMenu.RadioGroup
                 value={session.profileId}
@@ -291,7 +292,7 @@ export function BrowserToolbar({
                   variant="ghost"
                   icon
                   className="size-6"
-                  aria-label="Zoom out"
+                  aria-label={t('zoom_out')}
                   disabled={!canZoomOut(zoomFactor)}
                   onClick={() => onSetZoomFactor?.(previousBrowserZoomFactor(zoomFactor))}
                 >
@@ -305,7 +306,7 @@ export function BrowserToolbar({
                   variant="ghost"
                   icon
                   className="size-6"
-                  aria-label="Zoom in"
+                  aria-label={t('zoom_in')}
                   disabled={!canZoomIn(zoomFactor)}
                   onClick={() => onSetZoomFactor?.(nextBrowserZoomFactor(zoomFactor))}
                 >
@@ -317,7 +318,7 @@ export function BrowserToolbar({
                 variant="ghost"
                 icon
                 className="size-6"
-                aria-label="Reset zoom"
+                aria-label={t('reset_zoom')}
                 disabled={isDefaultBrowserZoomFactor(zoomFactor)}
                 onClick={() => onSetZoomFactor?.(BROWSER_DEFAULT_ZOOM_FACTOR)}
               >
@@ -338,7 +339,7 @@ export function BrowserToolbar({
           >
             Clear cache
           </DropdownMenu.Item>
-          <DropdownMenu.Item onClick={confirmClearStorage}>Clear browser storage</DropdownMenu.Item>
+          <DropdownMenu.Item onClick={confirmClearStorage}>{t('clear_browser_storage_2')}</DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Root>
     </div>

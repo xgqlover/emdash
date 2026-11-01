@@ -27,11 +27,11 @@ export const ProjectsGroupLabel = observer(function ProjectsGroupLabel() {
                 />
               }
             />
-            <Tooltip.Content>Sort by</Tooltip.Content>
+            <Tooltip.Content>{t('sort_by')}</Tooltip.Content>
           </Tooltip.Root>
           <DropdownMenu.Content className="min-w-48">
             <DropdownMenu.Group>
-              <DropdownMenu.Label>Sort by</DropdownMenu.Label>
+              <DropdownMenu.Label>{t('sort_by')}</DropdownMenu.Label>
               <DropdownMenu.RadioGroup value={getSidebarStore().taskSortBy}>
                 <DropdownMenu.RadioItem
                   value="created-at"

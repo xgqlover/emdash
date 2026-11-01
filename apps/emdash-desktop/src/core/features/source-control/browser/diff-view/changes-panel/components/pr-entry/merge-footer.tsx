@@ -80,7 +80,7 @@ export function MergeFooter({
               size="xs"
               variant="secondary"
               loading={isMerging}
-              loadingLabel="Merging..."
+              loadingLabel={t('merging')}
               icon={<GitMerge className="size-3" />}
               options={mergeActions.map(({ value, label, description }) => ({
                 id: value,

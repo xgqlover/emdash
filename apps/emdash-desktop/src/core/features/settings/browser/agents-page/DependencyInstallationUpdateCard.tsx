@@ -9,6 +9,7 @@ import {
   CommandRow,
 } from '@core/primitives/agents/browser/install-command-row';
 import { SudoRetryPanel } from '@core/primitives/agents/browser/SudoRetryPanel';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export type DependencyInstallationUpdateCardProps = {
   agentId: string;
@@ -167,7 +168,7 @@ function UpdateCard({
               strokeWidth={3}
             />
           </div>
-          <span>Update available</span>
+          <span>{t('update_available')}</span>
         </div>
         {versionArrow}
       </div>

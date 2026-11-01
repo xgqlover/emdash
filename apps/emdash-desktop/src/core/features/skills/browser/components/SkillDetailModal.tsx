@@ -12,6 +12,7 @@ import { ConfirmButton } from '@core/primitives/keybindings/browser/confirm-butt
 import { defineModal } from '@core/primitives/modals/react';
 import { useCloseGuard } from '@core/primitives/modals/react/use-close-guard';
 import { SkillIconRenderer } from './SkillIconRenderer';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 const sourceMeta = {
   openai: { name: 'OpenAI', icon: 'https://github.com/openai.png' },
@@ -112,7 +113,7 @@ export const SkillDetailModal: React.FC<SkillDetailModalProps> = ({
 
         {!showLoadingContent && detailedSkill.defaultPrompt && (
           <div className="bg-muted/40 space-y-1 rounded-md pb-2">
-            <p className="text-muted-foreground text-xs font-medium">Example prompt</p>
+            <p className="text-muted-foreground text-xs font-medium">{t('example_prompt')}</p>
             <pre className="text-xs wrap-break-word whitespace-pre-wrap text-foreground">
               {detailedSkill.defaultPrompt}
             </pre>
@@ -185,7 +186,7 @@ function SkillDetailShimmer() {
   return (
     <div
       className="min-h-32 space-y-4 rounded-md border border-border bg-background-quaternary-1 px-3 py-3"
-      aria-label="Loading skill details"
+      aria-label={t('loading_skill_details')}
     >
       <div className="space-y-2">
         <div className={`${lineClass} w-24`} />

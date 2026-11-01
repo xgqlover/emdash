@@ -14,6 +14,7 @@ import type { WorkspacesScope } from '@core/features/workspaces/api/browser/use-
 import { useWorkspaceRows } from '@core/features/workspaces/api/browser/use-workspace-rows';
 import { WorkspacesOfflineState } from '@core/features/workspaces/contributions/browser/workspace-states';
 import { useOpenModal } from '@core/manifests/browser/modal-api';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 import {
   buildWorkspaceItems,
   createWorkspacesListView,
@@ -88,7 +89,7 @@ export const WorkspacesListView = observer(function WorkspacesListView({
 
   if (scope.kind === 'machine' && !enabled) {
     return (
-      <WorkspacesOfflineState description="Workspaces load when the machine reconnects and its workspace server is healthy." />
+      <WorkspacesOfflineState description={t('workspaces_load_when_the_machine_reconne')} />
     );
   }
 
@@ -113,7 +114,7 @@ export const WorkspacesListView = observer(function WorkspacesListView({
         errorSlot={
           <EmptyState
             bare
-            label="Could not load workspaces."
+            label={t('could_not_load_workspaces')}
             description={errorMessage(workspaceQuery.error)}
           />
         }

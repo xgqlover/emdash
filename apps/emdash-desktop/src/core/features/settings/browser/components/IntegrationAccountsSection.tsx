@@ -7,6 +7,7 @@ import { useOpenModal } from '@core/manifests/browser/modal-api';
 import type { ProviderAccountSummary } from '@core/primitives/provider-accounts/api';
 import { providerCredentialSourceLabel } from '@core/primitives/provider-accounts/browser/account-label';
 import type { IntegrationItem } from './IntegrationsCard';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 /**
  * Connected-account rows for one provider — GitHub included: every provider's
@@ -172,7 +173,7 @@ export function IntegrationAccountRows({
                     <RefreshCw />
                   </Button>
                 </Tooltip.Trigger>
-                <Tooltip.Content side="top">Reconnect account</Tooltip.Content>
+                <Tooltip.Content side="top">{t('reconnect_account')}</Tooltip.Content>
               </Tooltip.Root>
             ) : null}
             <Tooltip.Root>
@@ -189,7 +190,7 @@ export function IntegrationAccountRows({
                   <X />
                 </Button>
               </Tooltip.Trigger>
-              <Tooltip.Content side="top">Remove account</Tooltip.Content>
+              <Tooltip.Content side="top">{t('remove_account')}</Tooltip.Content>
             </Tooltip.Root>
           </div>
         ))}

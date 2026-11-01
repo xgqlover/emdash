@@ -43,10 +43,10 @@ export function ExternalLinkChoiceDialog({
   return (
     <>
       <Dialog.Header showCloseButton={false}>
-        <Dialog.Title>Open link?</Dialog.Title>
+        <Dialog.Title>{t('open_link')}</Dialog.Title>
       </Dialog.Header>
       <Dialog.Body className="space-y-4 pt-0 text-sm leading-relaxed">
-        <p>Choose where to open this link.</p>
+        <p>{t('choose_where_to_open_this_link')}</p>
         <div className="bg-muted/50 relative rounded-md border border-border">
           <div className="max-h-32 overflow-y-auto px-3 py-2.5 pr-10 font-mono text-[13px] leading-relaxed break-all text-foreground">
             {url}

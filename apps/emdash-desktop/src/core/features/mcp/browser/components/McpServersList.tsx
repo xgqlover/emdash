@@ -6,6 +6,7 @@ import { McpCard } from '@core/features/mcp/browser/components/McpCard';
 import { McpDrawer, type McpDrawerMode } from '@core/features/mcp/browser/components/McpDrawer';
 import type { UseMcpsResult } from '@core/features/mcp/browser/components/useMcps';
 import { useOpenModal } from '@core/manifests/browser/modal-api';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 type McpServersListProps = {
   mcp: UseMcpsResult;
@@ -27,7 +28,7 @@ export const McpServersList: React.FC<McpServersListProps> = ({
   const handleRemoveRequest = (serverName: string) => {
     onDrawerModeChange(null);
     void openConfirm({
-      title: 'Remove MCP server?',
+      title: t('remove_mcp_server'),
       description: `This will remove "${serverName}" from all agents. This action cannot be undone.`,
       confirmLabel: 'Remove',
     }).then((outcome) => {

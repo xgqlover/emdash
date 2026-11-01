@@ -27,7 +27,7 @@ const COMMIT_ROW_GAP = 4;
 const DEFAULT_EMPTY_STATE = {
 // [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   label: t('no_commits'),
-  description: 'No commits available',
+  description: t('no_commits_available'),
 };
 
 type CommitListEmptyState = {

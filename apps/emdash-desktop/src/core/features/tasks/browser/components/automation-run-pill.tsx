@@ -5,6 +5,7 @@ import { useState } from 'react';
 import type { TaskStore } from '@core/features/tasks/api/browser/stores/task-store';
 import { cn } from '@core/primitives/styling/browser/cn';
 import { registeredTaskData } from '@core/primitives/task-state/browser/task-state';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 type AutomationRunPillProps = {
   taskStore: TaskStore;
@@ -54,7 +55,7 @@ export const AutomationRunPill = observer(function AutomationRunPill({
         </div>
         {timestamp != null && (
           <div className="flex flex-col gap-1">
-            <MicroLabel className="text-foreground-passive">Run date</MicroLabel>
+            <MicroLabel className="text-foreground-passive">{t('run_date')}</MicroLabel>
             <span className="text-sm">
               {new Date(timestamp).toLocaleString(undefined, {
                 dateStyle: 'medium',

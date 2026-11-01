@@ -2,6 +2,7 @@ import { Button } from '@emdash/ui/react/primitives';
 import { Check, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Comment, useTextareaAutoFocus } from './comment-card';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 interface CommentInputProps {
   lineNumber: number;
@@ -52,7 +53,7 @@ export const CommentInput: React.FC<CommentInputProps> = ({
             className="h-8 w-8"
             onClick={onCancel}
             title="Cancel (Esc)"
-            aria-label="Cancel comment"
+            aria-label={t('cancel_comment')}
           >
             <X className="h-4 w-4" />
           </Button>
@@ -64,7 +65,7 @@ export const CommentInput: React.FC<CommentInputProps> = ({
             onClick={handleSubmit}
             disabled={!content.trim()}
             title="Submit (Cmd/Ctrl+Enter)"
-            aria-label="Submit comment"
+            aria-label={t('submit_comment')}
           >
             <Check className="h-4 w-4 text-foreground-success" />
           </Button>
@@ -77,7 +78,7 @@ export const CommentInput: React.FC<CommentInputProps> = ({
           value={content}
           onChange={(e) => setContent(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Add a note about this line..."
+          placeholder={t('add_a_note_about_this_line')}
           autoFocus
         />
       </Comment.Body>

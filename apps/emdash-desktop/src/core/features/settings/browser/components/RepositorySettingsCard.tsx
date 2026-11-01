@@ -69,7 +69,7 @@ const RepositorySettingsCard: React.FC = () => {
                 checked={appendRandomBranchSuffix}
                 onCheckedChange={(checked) => updateProject({ appendRandomBranchSuffix: checked })}
                 disabled={projectBusy}
-                aria-label="Append random branch suffix"
+                aria-label={t('append_random_branch_suffix')}
               />
             </>
           }
@@ -89,7 +89,7 @@ const RepositorySettingsCard: React.FC = () => {
                 checked={pushOnCreate}
                 onCheckedChange={(checked) => updateProject({ pushOnCreate: checked })}
                 disabled={projectBusy}
-                aria-label="Enable automatic push on create"
+                aria-label={t('enable_automatic_push_on_create')}
               />
             </>
           }

@@ -48,7 +48,7 @@ function SyncErrorStatusCard({
       status="destructive"
       className="text-foreground-destructive"
       icon={<AlertCircle className="size-3.5 shrink-0 text-foreground-destructive" />}
-      label={<span className="font-medium text-foreground-destructive">Sync failed</span>}
+      label={<span className="font-medium text-foreground-destructive">{t('sync_failed')}</span>}
       content={
         <span className="block truncate text-foreground-destructive/80" title={error ?? undefined}>
 {/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}

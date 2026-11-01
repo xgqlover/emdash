@@ -105,7 +105,7 @@ export function AutomationsView() {
     const automation = pendingDelete;
     setPendingDelete(null);
     void openConfirm({
-      title: 'Delete automation',
+      title: t('delete_automation'),
       description: `"${automation.name}" and its run history will be permanently deleted.`,
       confirmLabel: 'Delete',
     }).then((outcome) => {

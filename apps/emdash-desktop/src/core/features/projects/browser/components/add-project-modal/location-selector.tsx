@@ -5,6 +5,7 @@ import { CheckIcon, HomeIcon, SearchIcon, SettingsIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import type { SshConfig } from '@core/primitives/ssh/api';
 import type { Strategy } from './add-project-modal';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 type MachineOption = SshConfig & { id: string };
 
@@ -47,7 +48,7 @@ export function LocationSelector({
             size="xs"
             tone="neutral"
             className="max-w-34 min-w-1 justify-between"
-            aria-label="Project location"
+            aria-label={t('project_location')}
           >
             <span className="flex min-w-0 items-center gap-2">
               {strategy === 'ssh' ? (
@@ -69,7 +70,7 @@ export function LocationSelector({
         <DropdownMenu.Item className="items-start py-2" onClick={onSelectLocal}>
           <div className="flex min-w-0 flex-col gap-0.5">
             <span className="font-medium">Local</span>
-            <span className="text-xs text-foreground-muted">Add a project from this computer.</span>
+            <span className="text-xs text-foreground-muted">{t('add_a_project_from_this_computer')}</span>
           </div>
           {strategy === 'local' && <CheckIcon className="mt-0.5 ml-auto size-4" />}
         </DropdownMenu.Item>
@@ -87,7 +88,7 @@ export function LocationSelector({
               <input
                 type="text"
                 value={query}
-                placeholder="Filter machines..."
+                placeholder={t('filter_machines')}
                 className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-foreground-muted"
                 onChange={(event) => setQuery(event.target.value)}
                 onKeyDown={(event) => {
@@ -113,7 +114,7 @@ export function LocationSelector({
                 />
               ))
             ) : (
-              <p className="px-2 py-2 text-xs text-foreground-muted">No machines found.</p>
+              <p className="px-2 py-2 text-xs text-foreground-muted">{t('no_machines_found')}</p>
             )}
             <DropdownMenu.Separator />
             <DropdownMenu.Item onClick={onManageMachines}>
@@ -137,7 +138,7 @@ function RemoteLocationSummary({
   return (
     <div className="flex min-w-0 flex-col gap-0.5 pr-2">
       <span className="font-medium">Remote</span>
-      <span className="text-xs text-foreground-muted">Add a project from a remote machine.</span>
+      <span className="text-xs text-foreground-muted">{t('add_a_project_from_a_remote_machine')}</span>
       <span className="flex min-w-0 items-center gap-1.5 text-xs text-foreground-muted">
         {machine ? (
           <>

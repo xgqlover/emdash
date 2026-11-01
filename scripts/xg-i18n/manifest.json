@@ -453,6 +453,2020 @@
         "                {t('pull_request')}",
         "                {t(requestProvider === 'gitlab' ? 'merge_request' : 'pull_request')}"
       ]
+    ],
+    "renderer/app/app-shutdown-lifecycle.tsx": [
+      [
+        "description: 'Resolve any file conflicts and try quitting again.',",
+        "description: t('resolve_any_file_conflicts_and_try_quitt'),"
+      ],
+      [
+        "description: 'Your changes were kept. Try quitting again.',",
+        "description: t('your_changes_were_kept_try_quitting_agai'),"
+      ],
+      [
+        "title: 'Quit Emdash?',",
+        "title: t('quit_emdash'),"
+      ],
+      [
+        "aria-label=\"Shutting down Emdash\"",
+        "aria-label={t('shutting_down_emdash')}"
+      ]
+    ],
+    "core/primitives/workbench-shell/browser/tabs/tab-bar/tab-context-menu.tsx": [
+      [
+        "label: 'Keep Open',",
+        "label: t('keep_open'),"
+      ],
+      [
+        "label: 'Close Tab',",
+        "label: t('close_tab'),"
+      ],
+      [
+        "label: 'Close Other Tabs',",
+        "label: t('close_other_tabs'),"
+      ]
+    ],
+    "core/primitives/agents/browser/SudoRetryPanel.tsx": [
+      [
+        "<span className=\"font-medium\">Permission denied</span>",
+        "<span className=\"font-medium\">{t('permission_denied')}</span>"
+      ],
+      [
+        "aria-label=\"Dismiss permission error\"",
+        "aria-label={t('dismiss_permission_error')}"
+      ]
+    ],
+    "core/primitives/agents/browser/install-command-row.tsx": [
+      [
+        "aria-label=\"Copy command\"",
+        "aria-label={t('copy_command')}"
+      ]
+    ],
+    "core/features/settings/browser/search/settings-search.ts": [
+      [
+        "description: 'App version and updates.',",
+        "description: t('app_version_and_updates'),"
+      ],
+      [
+        "label: 'Privacy & Telemetry',",
+        "label: t('privacy_telemetry'),"
+      ],
+      [
+        "description: 'Help improve Emdash by sending anonymous usage data.',",
+        "description: t('help_improve_emdash_by_sending_anonymous'),"
+      ],
+      [
+        "label: 'Auto-generate task names',",
+        "label: t('auto_generate_task_names_2'),"
+      ],
+      [
+        "description: 'Automatically suggests a task name when creating a new task.',",
+        "description: t('automatically_suggests_a_task_name_when_'),"
+      ],
+      [
+        "label: 'Auto-trust worktree directories',",
+        "label: t('auto_trust_worktree_directories'),"
+      ],
+      [
+        "description: 'Skip the folder trust prompt in supported CLIs for new tasks.',",
+        "description: t('skip_the_folder_trust_prompt_in_supporte'),"
+      ],
+      [
+        "label: 'Create branch and worktree by default',",
+        "label: t('create_branch_and_worktree_by_default'),"
+      ],
+      [
+        "description: 'Start new From Branch tasks in a dedicated task branch and worktree.',",
+        "description: t('start_new_from_branch_tasks_in_a_dedicat'),"
+      ],
+      [
+        "label: 'Preserve task name capitalization',",
+        "label: t('preserve_task_name_capitalization'),"
+      ],
+      [
+        "description: 'Keep uppercase letters in generated and manually entered task names.',",
+        "description: t('keep_uppercase_letters_in_generated_and_'),"
+      ],
+      [
+        "label: 'Include issue context by default',",
+        "label: t('include_issue_context_by_default'),"
+      ],
+      [
+        "description: 'Add the selected issue to the initial agent prompt.',",
+        "description: t('add_the_selected_issue_to_the_initial_ag'),"
+      ],
+      [
+        "label: 'Enable tmux',",
+        "label: t('enable_tmux'),"
+      ],
+      [
+        "description: 'Run agent sessions and terminals in tmux sessions by default.',",
+        "description: t('run_agent_sessions_and_terminals_in_tmux'),"
+      ],
+      [
+        "description: 'Get notified when agents need your attention.',",
+        "description: t('get_notified_when_agents_need_your_atten'),"
+      ],
+      [
+        "description: 'Play audio cues for agent events.',",
+        "description: t('play_audio_cues_for_agent_events'),"
+      ],
+      [
+        "label: 'Custom sound',",
+        "label: t('custom_sound_2'),"
+      ],
+      [
+        "description: 'Use an audio file instead of the built-in cue.',",
+        "description: t('use_an_audio_file_instead_of_the_built_i'),"
+      ],
+      [
+        "label: 'Sound timing',",
+        "label: t('sound_timing_2'),"
+      ],
+      [
+        "description: 'When to play sounds.',",
+        "description: t('when_to_play_sounds'),"
+      ],
+      [
+        "label: 'OS notifications',",
+        "label: t('os_notifications'),"
+      ],
+      [
+        "description: 'Show system banners when agents need attention or finish.',",
+        "description: t('show_system_banners_when_agents_need_att'),"
+      ],
+      [
+        "label: 'Emdash Account',",
+        "label: t('emdash_account'),"
+      ],
+      [
+        "description: 'Create an Emdash account to automatically connect GitHub using OAuth2.',",
+        "description: t('create_an_emdash_account_to_automaticall'),"
+      ],
+      [
+        "description: 'Manage installed CLI agents and their configuration.',",
+        "description: t('manage_installed_cli_agents_and_their_co'),"
+      ],
+      [
+        "description: 'Manage local MCP servers available to agents.',",
+        "description: t('manage_local_mcp_servers_available_to_ag'),"
+      ],
+      [
+        "description: 'Manage reusable local agent skills.',",
+        "description: t('manage_reusable_local_agent_skills'),"
+      ],
+      [
+        "description: 'Connect issue trackers and source control providers.',",
+        "description: t('connect_issue_trackers_and_source_contro'),"
+      ],
+      [
+        "description: 'Reusable remote hosts for SSH projects.',",
+        "description: t('reusable_remote_hosts_for_ssh_projects'),"
+      ],
+      [
+        "label: 'Branch prefix',",
+        "label: t('branch_prefix'),"
+      ],
+      [
+        "description: 'Leave empty to create branches without a prefix.',",
+        "description: t('leave_empty_to_create_branches_without_a'),"
+      ],
+      [
+        "label: 'Random branch suffix',",
+        "label: t('random_branch_suffix'),"
+      ],
+      [
+        "description: 'Add a random suffix to branch names.',",
+        "description: t('add_a_random_suffix_to_branch_names'),"
+      ],
+      [
+        "label: 'Auto-push on create',",
+        "label: t('auto_push_on_create'),"
+      ],
+      [
+        "description: 'Push the new branch to the selected project remote and set upstream.',",
+        "description: t('push_the_new_branch_to_the_selected_proj'),"
+      ],
+      [
+        "description: 'Review task worktree usage and remove stale task worktrees.',",
+        "description: t('review_task_worktree_usage_and_remove_st'),"
+      ],
+      [
+        "description: 'Every conversation record on this machine, including unlinked ones.',",
+        "description: t('every_conversation_record_on_this_machin'),"
+      ],
+      [
+        "description: 'Manage reusable prompts for tasks and conversations.',",
+        "description: t('manage_reusable_prompts_for_tasks_and_co'),"
+      ],
+      [
+        "description: 'Subscription limits for Codex and Claude Code accounts on all machines.',",
+        "description: t('subscription_limits_for_codex_and_claude'),"
+      ],
+      [
+        "description: 'Review local resource utilization and system dependencies.',",
+        "description: t('review_local_resource_utilization_and_sy'),"
+      ],
+      [
+        "description: 'Keep quick access to Emdash while agents run in the background.',",
+        "description: t('keep_quick_access_to_emdash_while_agents'),"
+      ],
+      [
+        "label: 'Color mode',",
+        "label: t('color_mode'),"
+      ],
+      [
+        "description: 'Choose how Emdash looks.',",
+        "description: t('choose_how_emdash_looks'),"
+      ],
+      [
+        "label: 'Default terminal shell',",
+        "label: t('default_terminal_shell'),"
+      ],
+      [
+        "description: 'Used for new local terminals.',",
+        "description: t('used_for_new_local_terminals'),"
+      ],
+      [
+        "label: 'Terminal font',",
+        "label: t('terminal_font'),"
+      ],
+      [
+        "description: 'Choose the font family for the terminal.',",
+        "description: t('choose_the_font_family_for_the_terminal'),"
+      ],
+      [
+        "label: 'Terminal font size',",
+        "label: t('terminal_font_size_2'),"
+      ],
+      [
+        "description: 'Adjust the font size used by terminal sessions and CLI agents.',",
+        "description: t('adjust_the_font_size_used_by_terminal_se'),"
+      ],
+      [
+        "label: 'Auto-copy selected text',",
+        "label: t('auto_copy_selected_text'),"
+      ],
+      [
+        "description: 'Automatically copy text to clipboard when you select it in the terminal.',",
+        "description: t('automatically_copy_text_to_clipboard_whe'),"
+      ],
+      [
+        "label: 'Use Option as Meta key',",
+        "label: t('use_option_as_meta_key'),"
+      ],
+      [
+        "description: 'Treat the Option key as the Meta key in the terminal.',",
+        "description: t('treat_the_option_key_as_the_meta_key_in_'),"
+      ],
+      [
+        "label: 'Left sidebar line changes',",
+        "label: t('left_sidebar_line_changes_2'),"
+      ],
+      [
+        "description: 'Show added and removed line counts for tasks in the left sidebar.',",
+        "description: t('show_added_and_removed_line_counts_for_t'),"
+      ],
+      [
+        "label: 'Left sidebar PR status',",
+        "label: t('left_sidebar_pr_status'),"
+      ],
+      [
+        "description: 'Show GitHub PR merge and status icons for tasks in the left sidebar.',",
+        "description: t('show_github_pr_merge_and_status_icons_fo'),"
+      ],
+      [
+        "label: 'Left sidebar timestamps',",
+        "label: t('left_sidebar_timestamps'),"
+      ],
+      [
+        "description: 'Show the relative task timestamp in the left sidebar.',",
+        "description: t('show_the_relative_task_timestamp_in_the_'),"
+      ],
+      [
+        "label: 'Resource monitor',",
+        "label: t('resource_monitor'),"
+      ],
+      [
+        "description: 'Track CPU and memory usage for running agents.',",
+        "description: t('track_cpu_and_memory_usage_for_running_a'),"
+      ],
+      [
+        "label: 'Context bar',",
+        "label: t('context_bar'),"
+      ],
+      [
+        "description: 'Hide the on-screen context trigger.',",
+        "description: t('hide_the_on_screen_context_trigger'),"
+      ],
+      [
+        "label: 'Keyboard shortcuts',",
+        "label: t('keyboard_shortcuts'),"
+      ],
+      [
+        "description: 'Rebind, reset, or remove app keyboard shortcuts.',",
+        "description: t('rebind_reset_or_remove_app_keyboard_shor'),"
+      ],
+      [
+        "label: 'Default browser profile',",
+        "label: t('default_browser_profile'),"
+      ],
+      [
+        "description: 'New browser tabs open with this profile.',",
+        "description: t('new_browser_tabs_open_with_this_profile'),"
+      ],
+      [
+        "label: 'Disable CORS for localhost',",
+        "label: t('disable_cors_for_localhost'),"
+      ],
+      [
+        "description: 'Allow localhost pages in Emdash browser tabs to call APIs without CORS headers.',",
+        "description: t('allow_localhost_pages_in_emdash_browser_'),"
+      ],
+      [
+        "label: 'Browser profiles',",
+        "label: t('browser_profiles_2'),"
+      ],
+      [
+        "description: 'Each profile keeps its own cookies and logins, shared across tasks.',",
+        "description: t('each_profile_keeps_its_own_cookies_and_l'),"
+      ],
+      [
+        "label: 'Browsing data',",
+        "label: t('browsing_data'),"
+      ],
+      [
+        "description: 'Clear cookies, cached files, and site data from the in-app browser.',",
+        "description: t('clear_cookies_cached_files_and_site_data'),"
+      ]
+    ],
+    "core/features/settings/browser/agents-page/AgentIntegrationSection.tsx": [
+      [
+        "aria-label=\"More information\"",
+        "aria-label={t('more_information')}"
+      ],
+      [
+        "<Label>Workspace Trust</Label>",
+        "<Label>{t('workspace_trust')}</Label>"
+      ],
+      [
+        "<InfoTooltip>Skip the folder trust prompt in supported CLIs for new tasks.</InfoTooltip>",
+        "<InfoTooltip>{t('skip_the_folder_trust_prompt_in_supporte')}</InfoTooltip>"
+      ]
+    ],
+    "core/features/settings/browser/agents-page/AgentMcpSection.tsx": [
+      [
+        "<p className=\"text-muted-foreground text-xs\">No MCP servers configured for this agent yet.</p>",
+        "<p className=\"text-muted-foreground text-xs\">{t('no_mcp_servers_configured_for_this_agent')}</p>"
+      ],
+      [
+        "<Label>MCP Servers</Label>",
+        "<Label>{t('mcp_servers')}</Label>"
+      ]
+    ],
+    "core/features/settings/browser/agents-page/AgentsSettingsPage.tsx": [
+      [
+        "header={{ title: 'Agents', description: 'Manage agents and model configurations.' }}",
+        "header={{ title: 'Agents', description: t('manage_agents_and_model_configurations') }}"
+      ]
+    ],
+    "core/features/settings/browser/agents-page/AgentsToolbar.tsx": [
+      [
+        "aria-label=\"Refresh agent detection\"",
+        "aria-label={t('refresh_agent_detection')}"
+      ]
+    ],
+    "core/features/settings/browser/agents-page/DefaultAgentSelector.tsx": [
+      [
+        "<span className=\"text-sm text-foreground\">Default agent</span>",
+        "<span className=\"text-sm text-foreground\">{t('default_agent')}</span>"
+      ]
+    ],
+    "core/features/settings/browser/agents-page/DependencyInstallationStatusCard.tsx": [
+      [
+        "aria-label=\"Installation options\"",
+        "aria-label={t('installation_options')}"
+      ],
+      [
+        "<DropdownMenu.SubTrigger>Change source</DropdownMenu.SubTrigger>",
+        "<DropdownMenu.SubTrigger>{t('change_source')}</DropdownMenu.SubTrigger>"
+      ],
+      [
+        "<DropdownMenu.Label>Select source</DropdownMenu.Label>",
+        "<DropdownMenu.Label>{t('select_source')}</DropdownMenu.Label>"
+      ]
+    ],
+    "core/features/settings/browser/agents-page/DependencyInstallationUpdateCard.tsx": [
+      [
+        "<span>Update available</span>",
+        "<span>{t('update_available')}</span>"
+      ]
+    ],
+    "core/features/settings/browser/agents-page/InstalledAgentContent.tsx": [
+      [
+        "aria-label=\"More information\"",
+        "aria-label={t('more_information')}"
+      ],
+      [
+        "<Label>Advanced settings</Label>",
+        "<Label>{t('advanced_settings')}</Label>"
+      ],
+      [
+        "<Label htmlFor=\"sheet-extraArgs\">Additional parameters</Label>",
+        "<Label htmlFor=\"sheet-extraArgs\">{t('additional_parameters')}</Label>"
+      ],
+      [
+        "<Label>Environment variables</Label>",
+        "<Label>{t('environment_variables')}</Label>"
+      ]
+    ],
+    "core/features/settings/browser/agents-page/installation-sources.ts": [
+      [
+        "label: 'Path Override',",
+        "label: t('path_override'),"
+      ],
+      [
+        "label: 'CLI Override',",
+        "label: t('cli_override'),"
+      ]
+    ],
+    "core/features/settings/browser/components/BrowserSettingsCard.tsx": [
+      [
+        "description: 'Try again, or reload the browser view manually.',",
+        "description: t('try_again_or_reload_the_browser_view_man'),"
+      ],
+      [
+        "placeholder=\"Profile name\"",
+        "placeholder={t('profile_name')}"
+      ],
+      [
+        "aria-label=\"New browser profile name\"",
+        "aria-label={t('new_browser_profile_name')}"
+      ],
+      [
+        "aria-label=\"Save new browser profile\"",
+        "aria-label={t('save_new_browser_profile')}"
+      ],
+      [
+        "aria-label=\"Cancel adding profile\"",
+        "aria-label={t('cancel_adding_profile')}"
+      ],
+      [
+        "<SettingsSection title=\"Browsing data\" bare>",
+        "<SettingsSection title={t('browsing_data')} bare>"
+      ],
+      [
+        "{ kind: 'siteData', label: 'Site data', actionLabel: 'Delete site data' },",
+        "{ kind: 'siteData', label: t('site_data'), actionLabel: 'Delete site data' },"
+      ],
+      [
+        "label: 'Cached images and files',",
+        "label: t('cached_images_and_files'),"
+      ],
+      [
+        "title: 'Clear all browsing data?',",
+        "title: t('clear_all_browsing_data'),"
+      ],
+      [
+        "title: 'Delete cookies?',",
+        "title: t('delete_cookies'),"
+      ],
+      [
+        "title: 'Delete site data?',",
+        "title: t('delete_site_data'),"
+      ],
+      [
+        "title: 'Delete cached images and files?',",
+        "title: t('delete_cached_images_and_files'),"
+      ],
+      [
+        "description: 'The browser profile no longer exists or could not be cleared.',",
+        "description: t('the_browser_profile_no_longer_exists_or_'),"
+      ],
+      [
+        "description: 'The profile storage could not be cleared, so the profile was kept.',",
+        "description: t('the_profile_storage_could_not_be_cleared'),"
+      ]
+    ],
+    "core/features/settings/browser/components/IntegrationAccountsSection.tsx": [
+      [
+        "<Tooltip.Content side=\"top\">Reconnect account</Tooltip.Content>",
+        "<Tooltip.Content side=\"top\">{t('reconnect_account')}</Tooltip.Content>"
+      ],
+      [
+        "<Tooltip.Content side=\"top\">Remove account</Tooltip.Content>",
+        "<Tooltip.Content side=\"top\">{t('remove_account')}</Tooltip.Content>"
+      ]
+    ],
+    "core/features/settings/browser/components/IntegrationRow.tsx": [
+      [
+        "<div className=\"text-xs font-medium text-foreground\">Copy install command</div>",
+        "<div className=\"text-xs font-medium text-foreground\">{t('copy_install_command')}</div>"
+      ]
+    ],
+    "core/features/settings/browser/components/NotificationSettingsCard.tsx": [
+      [
+        "aria-label=\"Preview sound\"",
+        "aria-label={t('preview_sound')}"
+      ],
+      [
+        "title: 'Choose custom sound',",
+        "title: t('choose_custom_sound'),"
+      ],
+      [
+        "<Select.Item value=\"unfocused\">Only when unfocused</Select.Item>",
+        "<Select.Item value=\"unfocused\">{t('only_when_unfocused')}</Select.Item>"
+      ],
+      [
+        "title=\"OS notifications\"",
+        "title={t('os_notifications')}"
+      ]
+    ],
+    "core/features/settings/browser/components/RepositorySettingsCard.tsx": [
+      [
+        "aria-label=\"Append random branch suffix\"",
+        "aria-label={t('append_random_branch_suffix')}"
+      ],
+      [
+        "aria-label=\"Enable automatic push on create\"",
+        "aria-label={t('enable_automatic_push_on_create')}"
+      ]
+    ],
+    "core/features/settings/browser/components/ResetToDefaultButton.tsx": [
+      [
+        "aria-label=\"Reset to default\"",
+        "aria-label={t('reset_to_default_2')}"
+      ]
+    ],
+    "core/features/settings/browser/components/SidebarMetadataSettingsCard.tsx": [
+      [
+        "aria-label=\"Show left sidebar line changes\"",
+        "aria-label={t('show_left_sidebar_line_changes')}"
+      ],
+      [
+        "aria-label=\"Show left sidebar PR status\"",
+        "aria-label={t('show_left_sidebar_pr_status')}"
+      ],
+      [
+        "aria-label=\"Show left sidebar timestamps\"",
+        "aria-label={t('show_left_sidebar_timestamps')}"
+      ]
+    ],
+    "core/features/settings/browser/components/TelemetryCard.tsx": [
+      [
+        "aria-label=\"Enable anonymous telemetry\"",
+        "aria-label={t('enable_anonymous_telemetry')}"
+      ]
+    ],
+    "core/features/settings/browser/components/ThemeCard.tsx": [
+      [
+        "{ value: 'emlight', label: 'Emdash Light', ariaLabel: t('set_theme_light'), icon: Sun },",
+        "{ value: 'emlight', label: t('emdash_light'), ariaLabel: t('set_theme_light'), icon: Sun },"
+      ],
+      [
+        "{ value: 'emdark', label: 'Emdash Dark', ariaLabel: t('set_theme_dark'), icon: Moon },",
+        "{ value: 'emdark', label: t('emdash_dark'), ariaLabel: t('set_theme_dark'), icon: Moon },"
+      ]
+    ],
+    "core/features/settings/contributions/browser/open-in-menu.tsx": [
+      [
+        "aria-label=\"Open in options\"",
+        "aria-label={t('open_in_options')}"
+      ],
+      [
+        "<Tooltip.Content side=\"bottom\">Select open in app</Tooltip.Content>",
+        "<Tooltip.Content side=\"bottom\">{t('select_open_in_app')}</Tooltip.Content>"
+      ]
+    ],
+    "core/features/projects/browser/project-availability-presentation.ts": [
+      [
+        "title: 'Checking connection',",
+        "title: t('checking_connection'),"
+      ]
+    ],
+    "core/features/projects/browser/components/project-error-details.tsx": [
+      [
+        "<Popover.Title>Error details</Popover.Title>",
+        "<Popover.Title>{t('error_details')}</Popover.Title>"
+      ]
+    ],
+    "core/features/projects/browser/components/relink-project-modal.tsx": [
+      [
+        "<Dialog.Title>Relink Project</Dialog.Title>",
+        "<Dialog.Title>{t('relink_project')}</Dialog.Title>"
+      ]
+    ],
+    "core/features/projects/browser/components/rename-project-modal.tsx": [
+      [
+        "<p className=\"text-destructive mt-1 text-xs\">Project name cannot be empty.</p>",
+        "<p className=\"text-destructive mt-1 text-xs\">{t('project_name_cannot_be_empty')}</p>"
+      ]
+    ],
+    "core/features/projects/browser/components/add-project-modal/content.tsx": [
+      [
+        "<Select.Trigger appearance=\"input\" className=\"w-full\" aria-label=\"Repository provider\">",
+        "<Select.Trigger appearance=\"input\" className=\"w-full\" aria-label={t('repository_provider')}>"
+      ],
+      [
+        "label=\"Choose visibility\"",
+        "label={t('choose_visibility')}"
+      ],
+      [
+        "description=\"Choose who can see and commit to this repository\"",
+        "description={t('choose_who_can_see_and_commit_to_this_re')}"
+      ],
+      [
+        "actionLabel=\"Creating as\"",
+        "actionLabel={t('creating_as_2')}"
+      ],
+      [
+        "<Field.Label htmlFor={repositoryUrlId}>Repository URL</Field.Label>",
+        "<Field.Label htmlFor={repositoryUrlId}>{t('repository_url')}</Field.Label>"
+      ],
+      [
+        "placeholder=\"Enter a repository URL\"",
+        "placeholder={t('enter_a_repository_url')}"
+      ]
+    ],
+    "core/features/projects/browser/components/add-project-modal/location-selector.tsx": [
+      [
+        "aria-label=\"Project location\"",
+        "aria-label={t('project_location')}"
+      ],
+      [
+        "<span className=\"text-xs text-foreground-muted\">Add a project from this computer.</span>",
+        "<span className=\"text-xs text-foreground-muted\">{t('add_a_project_from_this_computer')}</span>"
+      ],
+      [
+        "placeholder=\"Filter machines...\"",
+        "placeholder={t('filter_machines')}"
+      ],
+      [
+        "<p className=\"px-2 py-2 text-xs text-foreground-muted\">No machines found.</p>",
+        "<p className=\"px-2 py-2 text-xs text-foreground-muted\">{t('no_machines_found')}</p>"
+      ],
+      [
+        "<span className=\"text-xs text-foreground-muted\">Add a project from a remote machine.</span>",
+        "<span className=\"text-xs text-foreground-muted\">{t('add_a_project_from_a_remote_machine')}</span>"
+      ]
+    ],
+    "core/features/projects/browser/components/add-project-modal/owner-selector.tsx": [
+      [
+        "aria-label=\"Repository owner\"",
+        "aria-label={t('repository_owner')}"
+      ],
+      [
+        "<Combobox.Input showTrigger={false} placeholder=\"Search owners...\" />",
+        "<Combobox.Input showTrigger={false} placeholder={t('search_owners')} />"
+      ],
+      [
+        "<Combobox.Empty>No owners found.</Combobox.Empty>",
+        "<Combobox.Empty>{t('no_owners_found')}</Combobox.Empty>"
+      ]
+    ],
+    "core/features/projects/browser/components/add-project-modal/project-directory-picker.tsx": [
+      [
+        "aria-label=\"Directory location\"",
+        "aria-label={t('directory_location')}"
+      ]
+    ],
+    "core/features/projects/browser/components/add-project-modal/untrusted-repository-notice.tsx": [
+      [
+        "title: 'Trust this repository?',",
+        "title: t('trust_this_repository'),"
+      ]
+    ],
+    "core/features/projects/browser/components/task-view/task-list.tsx": [
+      [
+        "aria-label=\"Task status\"",
+        "aria-label={t('task_status')}"
+      ],
+      [
+        "aria-label=\"Clear selection\"",
+        "aria-label={t('clear_selection')}"
+      ]
+    ],
+    "core/features/projects/browser/components/task-view/task-row.tsx": [
+      [
+        "aria-label=\"Select task\"",
+        "aria-label={t('select_task')}"
+      ]
+    ],
+    "core/features/projects/browser/components/pr-view/pr-sync-status-card.tsx": [
+      [
+        "label={<span className=\"font-medium text-foreground-destructive\">Sync failed</span>}",
+        "label={<span className=\"font-medium text-foreground-destructive\">{t('sync_failed')}</span>}"
+      ]
+    ],
+    "core/features/projects/browser/components/pr-view/pr-view.tsx": [
+      [
+        "<li className=\"text-muted-foreground px-2 py-3 text-center text-xs\">No results</li>",
+        "<li className=\"text-muted-foreground px-2 py-3 text-center text-xs\">{t('no_results')}</li>"
+      ],
+      [
+        "<span className=\"text-sm text-foreground-passive\">Filter by</span>",
+        "<span className=\"text-sm text-foreground-passive\">{t('filter_by')}</span>"
+      ]
+    ],
+    "core/features/projects/browser/components/settings-view/project-settings-footer.tsx": [
+      [
+        "aria-label=\"Reset changes\"",
+        "aria-label={t('reset_changes')}"
+      ]
+    ],
+    "core/features/projects/browser/components/settings-view/settings-panel.tsx": [
+      [
+        "<p className=\"text-sm font-medium\">Could not load project settings</p>",
+        "<p className=\"text-sm font-medium\">{t('could_not_load_project_settings')}</p>"
+      ]
+    ],
+    "core/features/projects/browser/components/settings-view/sections/base-project-settings-section.tsx": [
+      [
+        "{ value: 'effective-account', label: 'Effective account' },",
+        "{ value: 'effective-account', label: t('effective_account') },"
+      ],
+      [
+        "title: 'Select worktree root',",
+        "title: t('select_worktree_root_2'),"
+      ],
+      [
+        "<Field.Label>Worktree root</Field.Label>",
+        "<Field.Label>{t('worktree_root')}</Field.Label>"
+      ],
+      [
+        "label=\"Worktree root\"",
+        "label={t('worktree_root')}"
+      ],
+      [
+        "description=\"Where task worktrees are created.\"",
+        "description={t('where_task_worktrees_are_created')}"
+      ],
+      [
+        "label=\"Default branch\"",
+        "label={t('default_branch')}"
+      ],
+      [
+        "description=\"The branch new tasks are created from by default.\"",
+        "description={t('the_branch_new_tasks_are_created_from_by')}"
+      ],
+      [
+        "label=\"Base remote\"",
+        "label={t('base_remote')}"
+      ],
+      [
+        "label=\"Push remote\"",
+        "label={t('push_remote')}"
+      ],
+      [
+        "description=\"Used when publishing task branches and pushing commits.\"",
+        "description={t('used_when_publishing_task_branches_and_p')}"
+      ],
+      [
+        "<Field.Label>Agent git credentials</Field.Label>",
+        "<Field.Label>{t('agent_git_credentials_2')}</Field.Label>"
+      ],
+      [
+        "<Field.Label>Enable tmux</Field.Label>",
+        "<Field.Label>{t('enable_tmux')}</Field.Label>"
+      ]
+    ],
+    "core/features/projects/browser/components/settings-view/sections/shareable-project-settings-section.tsx": [
+      [
+        "<Field.Label>Environment variables</Field.Label>",
+        "<Field.Label>{t('environment_variables')}</Field.Label>"
+      ],
+      [
+        "label=\"Auto-run on task creation\"",
+        "label={t('auto_run_on_task_creation')}"
+      ]
+    ],
+    "core/features/projects/browser/components/main-panel/active-project.tsx": [
+      [
+        "item.value === 'pull-request' ? { ...item, label: 'Merge Requests' } : item",
+        "item.value === 'pull-request' ? { ...item, label: t('merge_requests') } : item"
+      ]
+    ],
+    "core/features/projects/contributions/browser/use-confirm-delete-project.tsx": [
+      [
+        "title: 'Delete project',",
+        "title: t('delete_project'),"
+      ]
+    ],
+    "core/features/usage/browser/usage-account-section.tsx": [
+      [
+        "<Text tone=\"muted\">Usage unavailable</Text>",
+        "<Text tone=\"muted\">{t('usage_unavailable')}</Text>"
+      ]
+    ],
+    "core/features/usage/browser/usage-overview-view.tsx": [
+      [
+        "<PageLayout.Header sticky title=\"Usage\" description=\"Your subscription limits.\" />",
+        "<PageLayout.Header sticky title=\"Usage\" description={t('your_subscription_limits')} />"
+      ],
+      [
+        "description=\"Sign in with Codex or Claude Code on a connected machine, then refresh.\"",
+        "description={t('sign_in_with_codex_or_claude_code_on_a_c')}"
+      ],
+      [
+        "aria-label=\"Refresh usage\"",
+        "aria-label={t('refresh_usage')}"
+      ]
+    ],
+    "core/features/library/browser/prompts/prompt-modal.tsx": [
+      [
+        "placeholder=\"Security review\"",
+        "placeholder={t('security_review')}"
+      ]
+    ],
+    "core/features/agents/api/browser/components/agent-selector/agent-selector-options.ts": [
+      [
+        "{ value: 'not-installed', label: 'Not installed', items: notInstalledOptions },",
+        "{ value: 'not-installed', label: t('not_installed'), items: notInstalledOptions },"
+      ]
+    ],
+    "core/features/agents/contributions/browser/agent-capability-icons.tsx": [
+      [
+        "<CapabilityIcon label=\"Supports Chat UI\">",
+        "<CapabilityIcon label={t('supports_chat_ui')}>"
+      ],
+      [
+        "<CapabilityIcon label=\"Supports TUI\">",
+        "<CapabilityIcon label={t('supports_tui')}>"
+      ]
+    ],
+    "core/features/agents/contributions/browser/agent-selector.tsx": [
+      [
+        "<Combobox.Input showTrigger={false} placeholder=\"Search agents...\" />",
+        "<Combobox.Input showTrigger={false} placeholder={t('search_agents')} />"
+      ]
+    ],
+    "core/features/integrations/api/browser/integration-display.ts": [
+      [
+        "title: 'Work Item',",
+        "title: t('work_item'),"
+      ]
+    ],
+    "core/features/integrations/browser/SetupFormShell.tsx": [
+      [
+        "toast('Integration connected', { description: 'Integration set up successfully.' });",
+        "toast('Integration connected', { description: t('integration_set_up_successfully') });"
+      ]
+    ],
+    "core/features/integrations/browser/device-sign-in.tsx": [
+      [
+        "toast.error('Copy failed', { description: 'Copy the code manually.' });",
+        "toast.error('Copy failed', { description: t('copy_the_code_manually') });"
+      ],
+      [
+        "<Step number={2}>Authorize Emdash.</Step>",
+        "<Step number={2}>{t('authorize_emdash')}</Step>"
+      ],
+      [
+        "<span>Waiting for authorization</span>",
+        "<span>{t('waiting_for_authorization')}</span>"
+      ]
+    ],
+    "core/features/integrations/browser/integration-setup-modal.tsx": [
+      [
+        "<Dialog.Body>This connection method cannot reconnect a selected account.</Dialog.Body>",
+        "<Dialog.Body>{t('this_connection_method_cannot_reconnect_')}</Dialog.Body>"
+      ],
+      [
+        "aria-label=\"Account name\"",
+        "aria-label={t('account_name')}"
+      ]
+    ],
+    "core/features/integrations/contributions/browser/provider-identity-strip.tsx": [
+      [
+        "<span className=\"text-xs font-medium text-foreground-muted\">Act as</span>",
+        "<span className=\"text-xs font-medium text-foreground-muted\">{t('act_as')}</span>"
+      ]
+    ],
+    "core/features/integrations/contributions/browser/standard-integration-auth.tsx": [
+      [
+        "title: 'Use device flow',",
+        "title: t('use_device_flow'),"
+      ],
+      [
+        "title: 'Use an access token',",
+        "title: t('use_an_access_token'),"
+      ],
+      [
+        "description: 'Self-hosted instances, or a token you already have',",
+        "description: t('self_hosted_instances_or_a_token_you_alr'),"
+      ],
+      [
+        "description: 'Sign into your Emdash account',",
+        "description: t('sign_into_your_emdash_account'),"
+      ],
+      [
+        "label: 'Sign In',",
+        "label: t('sign_in'),"
+      ],
+      [
+        "title: 'Sign in to Emdash',",
+        "title: t('sign_in_to_emdash'),"
+      ]
+    ],
+    "core/features/tasks/browser/add-remote-modal.tsx": [
+      [
+        "<Dialog.Title>Add Remote</Dialog.Title>",
+        "<Dialog.Title>{t('add_remote_2')}</Dialog.Title>"
+      ],
+      [
+        "aria-label=\"Repository provider\"",
+        "aria-label={t('repository_provider')}"
+      ],
+      [
+        "<Field.Label>Repository Name</Field.Label>",
+        "<Field.Label>{t('repository_name_2')}</Field.Label>"
+      ],
+      [
+        "<Field.Label>Remote URL</Field.Label>",
+        "<Field.Label>{t('remote_url')}</Field.Label>"
+      ]
+    ],
+    "core/features/tasks/browser/main-panel.tsx": [
+      [
+        "return <TaskViewLoadingState label=\"Creating task\" />;",
+        "return <TaskViewLoadingState label={t('creating_task_2')} />;"
+      ],
+      [
+        "title=\"Workspace is unavailable\"",
+        "title={t('workspace_is_unavailable')}"
+      ],
+      [
+        "description=\"The Task is still available, but its workspace needs live Project access.\"",
+        "description={t('the_task_is_still_available_but_its_work')}"
+      ]
+    ],
+    "core/features/tasks/browser/new-conversation-tab-button.tsx": [
+      [
+        "aria-label=\"New conversation\"",
+        "aria-label={t('new_conversation_2')}"
+      ]
+    ],
+    "core/features/tasks/browser/rename-task-modal.tsx": [
+      [
+        "<Dialog.Title>Rename task</Dialog.Title>",
+        "<Dialog.Title>{t('rename_task')}</Dialog.Title>"
+      ]
+    ],
+    "core/features/tasks/browser/task-scope.tsx": [
+      [
+        "? { title: 'Git Push', description: 'Push commits to remote' }",
+        "? { title: t('git_push'), description: t('push_commits_to_remote') }"
+      ],
+      [
+        ": { title: 'Git Publish Branch', description: 'Publish this branch to remote' };",
+        ": { title: t('git_publish_branch'), description: t('publish_this_branch_to_remote') };"
+      ],
+      [
+        "? { title: 'Unpin Task', description: 'Remove this task from pinned' }",
+        "? { title: t('unpin_task'), description: t('remove_this_task_from_pinned') }"
+      ],
+      [
+        ": { title: 'Pin Task', description: 'Pin this task to keep it at the top' };",
+        ": { title: t('pin_task'), description: t('pin_this_task_to_keep_it_at_the_top') };"
+      ]
+    ],
+    "core/features/tasks/browser/context-bar/add-context-popover.tsx": [
+      [
+        "label=\"Line comments\"",
+        "label={t('line_comments')}"
+      ],
+      [
+        "<span>Add context</span>",
+        "<span>{t('add_context')}</span>"
+      ],
+      [
+        "<Combobox.Input showTrigger={false} placeholder=\"Search...\" />",
+        "<Combobox.Input showTrigger={false} placeholder={t('search')} />"
+      ],
+      [
+        "<p className=\"text-xs text-foreground-passive\">Add to input</p>",
+        "<p className=\"text-xs text-foreground-passive\">{t('add_to_input')}</p>"
+      ]
+    ],
+    "core/features/tasks/browser/task-config/branch-name-field.tsx": [
+      [
+        "<span className=\"flex items-center gap-1.5 text-xs text-foreground-passive\">Branch name</span>",
+        "<span className=\"flex items-center gap-1.5 text-xs text-foreground-passive\">{t('branch_name')}</span>"
+      ],
+      [
+        "<Label>Push branch to remote</Label>",
+        "<Label>{t('push_branch_to_remote')}</Label>"
+      ]
+    ],
+    "core/features/tasks/browser/task-config/branch-picker-field.tsx": [
+      [
+        "<Combobox.Value placeholder=\"Select a branch\" />",
+        "<Combobox.Value placeholder={t('select_a_branch')} />"
+      ],
+      [
+        "<Field.Label>Create task branch and worktree</Field.Label>",
+        "<Field.Label>{t('create_task_branch_and_worktree')}</Field.Label>"
+      ],
+      [
+        "<Field.Label>Push branch to remote</Field.Label>",
+        "<Field.Label>{t('push_branch_to_remote')}</Field.Label>"
+      ]
+    ],
+    "core/features/tasks/browser/task-config/existing-workspace-picker.tsx": [
+      [
+        "<EmptyState label=\"No workspaces found\" className=\"border-none bg-transparent\" />",
+        "<EmptyState label={t('no_workspaces_found')} className=\"border-none bg-transparent\" />"
+      ]
+    ],
+    "core/features/tasks/browser/task-config/new-worktree-panel.tsx": [
+      [
+        "<Combobox.Value placeholder=\"Select a branch\" />",
+        "<Combobox.Value placeholder={t('select_a_branch')} />"
+      ]
+    ],
+    "core/features/tasks/browser/task-config/pr-new-branch-panel.tsx": [
+      [
+        "<Field.Label>Push branch to remote</Field.Label>",
+        "<Field.Label>{t('push_branch_to_remote')}</Field.Label>"
+      ]
+    ],
+    "core/features/tasks/browser/components/activity-badge.tsx": [
+      [
+        "aria-label=\"Workspace activity\"",
+        "aria-label={t('workspace_activity')}"
+      ],
+      [
+        "title=\"Open script output\"",
+        "title={t('open_script_output')}"
+      ]
+    ],
+    "core/features/tasks/browser/components/automation-run-pill.tsx": [
+      [
+        "<MicroLabel className=\"text-foreground-passive\">Run date</MicroLabel>",
+        "<MicroLabel className=\"text-foreground-passive\">{t('run_date')}</MicroLabel>"
+      ]
+    ],
+    "core/features/tasks/browser/components/pr-selector/pr-selector.tsx": [
+      [
+        "aria-label=\"Filter by status\"",
+        "aria-label={t('filter_by_status')}"
+      ],
+      [
+        "<span className=\"shrink-0 font-medium text-foreground-destructive\">Sync failed</span>",
+        "<span className=\"shrink-0 font-medium text-foreground-destructive\">{t('sync_failed')}</span>"
+      ]
+    ],
+    "core/features/tasks/browser/components/preview-servers/manual-forward-button.tsx": [
+      [
+        "aria-label=\"Forward remote port\"",
+        "aria-label={t('forward_remote_port')}"
+      ]
+    ],
+    "core/features/tasks/browser/components/preview-servers/manual-forward-dialog.tsx": [
+      [
+        "<Dialog.Title>Forward Port</Dialog.Title>",
+        "<Dialog.Title>{t('forward_port')}</Dialog.Title>"
+      ]
+    ],
+    "core/features/tasks/browser/components/issue-selector/issue-selector.tsx": [
+      [
+        "aria-label=\"Select issue provider\"",
+        "aria-label={t('select_issue_provider')}"
+      ]
+    ],
+    "core/features/tasks/contributions/browser/project-selector.tsx": [
+      [
+        "<Combobox.Value placeholder=\"Select a project\" />",
+        "<Combobox.Value placeholder={t('select_a_project')} />"
+      ],
+      [
+        "<Combobox.Input showTrigger={false} placeholder=\"Search projects...\" />",
+        "<Combobox.Input showTrigger={false} placeholder={t('search_projects')} />"
+      ]
+    ],
+    "core/features/tasks/contributions/browser/task-context-menu.tsx": [
+      [
+        "description: 'The branch name could not be copied to the clipboard.',",
+        "description: t('the_branch_name_could_not_be_copied_to_t'),"
+      ]
+    ],
+    "core/features/automations/browser/components/AutomationSettingsFields.tsx": [
+      [
+        "<Label>Callback token</Label>",
+        "<Label>{t('callback_token')}</Label>"
+      ],
+      [
+        "<Label>Callback URL</Label>",
+        "<Label>{t('callback_url')}</Label>"
+      ],
+      [
+        "label: 'Workspace Settings',",
+        "label: t('workspace_settings'),"
+      ]
+    ],
+    "core/features/automations/browser/components/AutomationsView.tsx": [
+      [
+        "title: 'Delete automation',",
+        "title: t('delete_automation'),"
+      ]
+    ],
+    "core/features/machines/browser/machine-authentication-fields.tsx": [
+      [
+        "label=\"Private key\"",
+        "label={t('private_key')}"
+      ],
+      [
+        "<section className=\"grid gap-3\" aria-label=\"Authentication settings\">",
+        "<section className=\"grid gap-3\" aria-label={t('authentication_settings')}>"
+      ],
+      [
+        "<Select.Item value=\"key\">SSH Key</Select.Item>",
+        "<Select.Item value=\"key\">{t('ssh_key')}</Select.Item>"
+      ],
+      [
+        "<p className=\"text-sm text-foreground-muted\">Uses keys available in your SSH agent.</p>",
+        "<p className=\"text-sm text-foreground-muted\">{t('uses_keys_available_in_your_ssh_agent')}</p>"
+      ]
+    ],
+    "core/features/machines/browser/machine-connection-details.tsx": [
+      [
+        "label=\"Jump host\"",
+        "label={t('jump_host')}"
+      ],
+      [
+        "label=\"Proxy command\"",
+        "label={t('proxy_command')}"
+      ],
+      [
+        "<dt className=\"text-foreground-muted\">Forward SSH agent</dt>",
+        "<dt className=\"text-foreground-muted\">{t('forward_ssh_agent')}</dt>"
+      ]
+    ],
+    "core/features/machines/browser/machine-form.tsx": [
+      [
+        "aria-label=\"Connection name\"",
+        "aria-label={t('connection_name')}"
+      ],
+      [
+        "title=\"Optional. Defaults to the host.\"",
+        "title={t('optional_defaults_to_the_host')}"
+      ],
+      [
+        "aria-label=\"Connection source\"",
+        "aria-label={t('connection_source')}"
+      ]
+    ],
+    "core/features/machines/browser/machine-host-picker.tsx": [
+      [
+        "<Combobox.Trigger aria-label=\"Show SSH config hosts\">",
+        "<Combobox.Trigger aria-label={t('show_ssh_config_hosts')}>"
+      ],
+      [
+        "placeholder=\"Select or enter a host\"",
+        "placeholder={t('select_or_enter_a_host')}"
+      ]
+    ],
+    "core/features/machines/browser/machine-manual-fields.tsx": [
+      [
+        "<Collapsible.Trigger type=\"button\">Advanced settings</Collapsible.Trigger>",
+        "<Collapsible.Trigger type=\"button\">{t('advanced_settings')}</Collapsible.Trigger>"
+      ],
+      [
+        "label=\"Jump host\"",
+        "label={t('jump_host')}"
+      ],
+      [
+        "label=\"Forward SSH agent\"",
+        "label={t('forward_ssh_agent')}"
+      ]
+    ],
+    "core/features/machines/browser/use-system-dependencies.ts": [
+      [
+        "description: 'See the install panel for retry and recovery options.',",
+        "description: t('see_the_install_panel_for_retry_and_reco'),"
+      ]
+    ],
+    "core/features/machines/browser/pages/local-workspaces-settings-page.tsx": [
+      [
+        "description=\"Review local project workspaces and remove stale task worktrees.\"",
+        "description={t('review_local_project_workspaces_and_remo')}"
+      ]
+    ],
+    "core/features/machines/browser/pages/machine-details-page.tsx": [
+      [
+        "title: 'Cannot delete SSH connection',",
+        "title: t('cannot_delete_ssh_connection'),"
+      ],
+      [
+        "title: 'Delete SSH connection',",
+        "title: t('delete_ssh_connection'),"
+      ],
+      [
+        "aria-label=\"Machine actions\"",
+        "aria-label={t('machine_actions')}"
+      ]
+    ],
+    "core/features/machines/browser/pages/machines-settings-page.tsx": [
+      [
+        "description=\"Manage reusable machines for remote projects.\"",
+        "description={t('manage_reusable_machines_for_remote_proj')}"
+      ]
+    ],
+    "core/features/machines/browser/pages/system-settings-page.tsx": [
+      [
+        "description=\"Monitor local host resources and required system dependencies.\"",
+        "description={t('monitor_local_host_resources_and_require')}"
+      ]
+    ],
+    "core/features/machines/browser/components/host-settings-card.tsx": [
+      [
+        "<Field.Label>Host defaults</Field.Label>",
+        "<Field.Label>{t('host_defaults')}</Field.Label>"
+      ],
+      [
+        "<Field.Label>Shell setup</Field.Label>",
+        "<Field.Label>{t('shell_setup')}</Field.Label>"
+      ],
+      [
+        "<Field.Label>Worktree root</Field.Label>",
+        "<Field.Label>{t('worktree_root')}</Field.Label>"
+      ],
+      [
+        "<Field.Label>Enable tmux by default</Field.Label>",
+        "<Field.Label>{t('enable_tmux_by_default')}</Field.Label>"
+      ],
+      [
+        "<Field.Label>Sync local settings</Field.Label>",
+        "<Field.Label>{t('sync_local_settings')}</Field.Label>"
+      ],
+      [
+        "<Field.Label>Watcher exclusions</Field.Label>",
+        "<Field.Label>{t('watcher_exclusions_2')}</Field.Label>"
+      ]
+    ],
+    "core/features/machines/browser/components/link-conversation-modal.tsx": [
+      [
+        "<EmptyState label=\"No matches\" className=\"border-none bg-transparent\" />",
+        "<EmptyState label={t('no_matches')} className=\"border-none bg-transparent\" />"
+      ],
+      [
+        "<Dialog.Title>Link conversation to a task</Dialog.Title>",
+        "<Dialog.Title>{t('link_conversation_to_a_task')}</Dialog.Title>"
+      ]
+    ],
+    "core/features/machines/browser/components/machine-conversations-list.tsx": [
+      [
+        "title: 'Delete conversation?',",
+        "title: t('delete_conversation'),"
+      ],
+      [
+        "label=\"Could not load conversations.\"",
+        "label={t('could_not_load_conversations')}"
+      ],
+      [
+        "<Pill tone=\"warning\">Not linked</Pill>",
+        "<Pill tone=\"warning\">{t('not_linked')}</Pill>"
+      ],
+      [
+        "{item.missing && <Pill tone=\"destructive\">Missing on host</Pill>}",
+        "{item.missing && <Pill tone=\"destructive\">{t('missing_on_host')}</Pill>}"
+      ],
+      [
+        "{item.dangling && !item.missing && <Pill tone=\"warning\">Workspace removed</Pill>}",
+        "{item.dangling && !item.missing && <Pill tone=\"warning\">{t('workspace_removed')}</Pill>}"
+      ]
+    ],
+    "core/features/machines/browser/components/machine-resources.tsx": [
+      [
+        "<Field.Label>Resource Utilization</Field.Label>",
+        "<Field.Label>{t('resource_utilization')}</Field.Label>"
+      ]
+    ],
+    "core/features/machines/browser/components/machine-system-dependencies.tsx": [
+      [
+        "<Field.Label>System dependencies</Field.Label>",
+        "<Field.Label>{t('system_dependencies')}</Field.Label>"
+      ],
+      [
+        "<div className=\"p-4 text-sm text-foreground-muted\">Checking system dependencies...</div>",
+        "<div className=\"p-4 text-sm text-foreground-muted\">{t('checking_system_dependencies')}</div>"
+      ],
+      [
+        "<span className=\"shrink-0 text-xs text-foreground-muted\">Not found</span>",
+        "<span className=\"shrink-0 text-xs text-foreground-muted\">{t('not_found')}</span>"
+      ]
+    ],
+    "core/features/machines/browser/components/workspaces-list-view.tsx": [
+      [
+        "<WorkspacesOfflineState description=\"Workspaces load when the machine reconnects and its workspace server is healthy.\" />",
+        "<WorkspacesOfflineState description={t('workspaces_load_when_the_machine_reconne')} />"
+      ],
+      [
+        "label=\"Could not load workspaces.\"",
+        "label={t('could_not_load_workspaces')}"
+      ]
+    ],
+    "core/features/conversations/browser/conversation-agent-icon.tsx": [
+      [
+        "title=\"ACP chat\"",
+        "title={t('acp_chat')}"
+      ]
+    ],
+    "core/features/conversations/browser/conversations-panel.tsx": [
+      [
+        "<EmptyState label=\"Conversation unavailable\" description={disabledReason} />",
+        "<EmptyState label={t('conversation_unavailable')} description={disabledReason} />"
+      ]
+    ],
+    "core/features/conversations/browser/acp/acp-chat-panel.tsx": [
+      [
+        "description: 'Send this queued prompt now and cancel the active turn?',",
+        "description: t('send_this_queued_prompt_now_and_cancel_t'),"
+      ],
+      [
+        "<span className=\"text-foreground\">Failed to load chat.</span>",
+        "<span className=\"text-foreground\">{t('failed_to_load_chat')}</span>"
+      ],
+      [
+        "<h1 className=\"text-2xl tracking-tight text-foreground\">What are we building today?</h1>",
+        "<h1 className=\"text-2xl tracking-tight text-foreground\">{t('what_are_we_building_today')}</h1>"
+      ]
+    ],
+    "core/features/conversations/contributions/browser/conversation-transport-toggle.tsx": [
+      [
+        "aria-label=\"Use chat UI\"",
+        "aria-label={t('use_chat_ui')}"
+      ]
+    ],
+    "core/features/conversations/contributions/browser/sidebar-conversations-list.tsx": [
+      [
+        "title: 'Kill session',",
+        "title: t('kill_session'),"
+      ],
+      [
+        "description: 'Open the chat before exporting it.',",
+        "description: t('open_the_chat_before_exporting_it'),"
+      ],
+      [
+        "aria-label=\"Clear conversation selection\"",
+        "aria-label={t('clear_conversation_selection')}"
+      ]
+    ],
+    "core/features/terminals/browser/task-terminal/terminal-drawer-tab-bar.tsx": [
+      [
+        "<Tooltip.Content>Close terminal</Tooltip.Content>",
+        "<Tooltip.Content>{t('close_terminal')}</Tooltip.Content>"
+      ],
+      [
+        "aria-label=\"New terminal\"",
+        "aria-label={t('new_terminal')}"
+      ],
+      [
+        "aria-label=\"New terminal with shell\"",
+        "aria-label={t('new_terminal_with_shell')}"
+      ],
+      [
+        "<DropdownMenu.Item disabled>No shells found</DropdownMenu.Item>",
+        "<DropdownMenu.Item disabled>{t('no_shells_found')}</DropdownMenu.Item>"
+      ]
+    ],
+    "core/features/terminals/browser/task-terminal/terminal-tab-provider.tsx": [
+      [
+        "label=\"Terminal unavailable\"",
+        "label={t('terminal_unavailable')}"
+      ]
+    ],
+    "core/features/terminals/contributions/browser/task-terminal/terminal-panel.tsx": [
+      [
+        "label=\"No terminals yet\"",
+        "label={t('no_terminals_yet')}"
+      ],
+      [
+        "description=\"Add a terminal to run shell commands in this task's working directory.\"",
+        "description={t('add_a_terminal_to_run_shell_commands_in_')}"
+      ],
+      [
+        "label=\"No scripts configured\"",
+        "label={t('no_scripts_configured')}"
+      ],
+      [
+        "description=\"Add setup, run, or teardown scripts to your project configuration.\"",
+        "description={t('add_setup_run_or_teardown_scripts_to_you')}"
+      ],
+      [
+        "label=\"Terminal unavailable\"",
+        "label={t('terminal_unavailable')}"
+      ]
+    ],
+    "core/features/terminals/contributions/browser/pty/terminal-search-overlay.tsx": [
+      [
+        "placeholder=\"Find in terminal...\"",
+        "placeholder={t('find_in_terminal')}"
+      ],
+      [
+        "aria-label=\"Find in terminal\"",
+        "aria-label={t('find_in_terminal_2')}"
+      ],
+      [
+        "aria-label=\"Previous terminal match\"",
+        "aria-label={t('previous_terminal_match')}"
+      ],
+      [
+        "aria-label=\"Next terminal match\"",
+        "aria-label={t('next_terminal_match')}"
+      ],
+      [
+        "aria-label=\"Close terminal search\"",
+        "aria-label={t('close_terminal_search')}"
+      ]
+    ],
+    "core/features/dev-perf/browser/DevProcessPanelModal.tsx": [
+      [
+        "<h2 className=\"text-sm font-semibold\">Process Panel</h2>",
+        "<h2 className=\"text-sm font-semibold\">{t('process_panel')}</h2>"
+      ],
+      [
+        "<th className=\"w-16 px-2 py-1 text-right font-medium\">CPU %</th>",
+        "<th className=\"w-16 px-2 py-1 text-right font-medium\">{t('cpu')}</th>"
+      ]
+    ],
+    "core/features/github/browser/github-integration-auth.tsx": [
+      [
+        "title: 'Import from GitHub CLI',",
+        "title: t('import_from_github_cli'),"
+      ],
+      [
+        "description: 'Use accounts already authenticated with GitHub CLI',",
+        "description: t('use_accounts_already_authenticated_with_'),"
+      ]
+    ],
+    "core/features/workspaces/contributions/browser/removal-attention-panel.tsx": [
+      [
+        "toast('Removal retrying', { description: 'The removal runs again in the background.' });",
+        "toast('Removal retrying', { description: t('the_removal_runs_again_in_the_background') });"
+      ],
+      [
+        "description: 'Emdash dropped the pending removal without deleting files on the host.',",
+        "description: t('emdash_dropped_the_pending_removal_witho'),"
+      ],
+      [
+        "label=\"Untrack anyway\"",
+        "label={t('untrack_anyway')}"
+      ]
+    ],
+    "core/features/workspaces/contributions/browser/repository-header.tsx": [
+      [
+        "<Button type=\"button\" variant=\"ghost\" size=\"xs\" icon aria-label=\"Workspace actions\">",
+        "<Button type=\"button\" variant=\"ghost\" size=\"xs\" icon aria-label={t('workspace_actions')}>"
+      ],
+      [
+        "<div className=\"font-medium\">Workspace scan completed with warnings</div>",
+        "<div className=\"font-medium\">{t('workspace_scan_completed_with_warnings')}</div>"
+      ]
+    ],
+    "core/features/workspaces/contributions/browser/workspace-detail-page.tsx": [
+      [
+        "checkbox: { label: 'Delete their conversations too' },",
+        "checkbox: { label: t('delete_their_conversations_too') },"
+      ],
+      [
+        "return <WorkspacesLoadingState label=\"Loading workspace\" />;",
+        "return <WorkspacesLoadingState label={t('loading_workspace')} />;"
+      ],
+      [
+        "return <WorkspacesErrorState error={workspaceQuery.error} title=\"Could not load workspace.\" />;",
+        "return <WorkspacesErrorState error={workspaceQuery.error} title={t('could_not_load_workspace')} />;"
+      ]
+    ],
+    "core/features/workspaces/contributions/browser/workspace-pills.tsx": [
+      [
+        "<span className={pillClass('destructive', { className })}>Removal failed</span>",
+        "<span className={pillClass('destructive', { className })}>{t('removal_failed')}</span>"
+      ]
+    ],
+    "core/features/editor/browser/lsp/language-status.tsx": [
+      [
+        "if (!status) return <Dialog.Body>Language services are not available for this file.</Dialog.Body>;",
+        "if (!status) return <Dialog.Body>{t('language_services_are_not_available_for_')}</Dialog.Body>;"
+      ],
+      [
+        "<Dialog.Title>Language services</Dialog.Title>",
+        "<Dialog.Title>{t('language_services')}</Dialog.Title>"
+      ],
+      [
+        "<Dialog.Description>Project intelligence for this file’s workspace.</Dialog.Description>",
+        "<Dialog.Description>{t('project_intelligence_for_this_file_s_wor')}</Dialog.Description>"
+      ]
+    ],
+    "core/features/editor/browser/renderers/svg-renderer.tsx": [
+      [
+        "<div className=\"text-xs text-foreground-passive\">Empty file</div>",
+        "<div className=\"text-xs text-foreground-passive\">{t('empty_file')}</div>"
+      ]
+    ],
+    "core/features/editor/browser/task-editor/conflict-dialog.tsx": [
+      [
+        "<Dialog.Title>File Modified Externally</Dialog.Title>",
+        "<Dialog.Title>{t('file_modified_externally')}</Dialog.Title>"
+      ]
+    ],
+    "core/features/editor/browser/task-editor/file-content-search.tsx": [
+      [
+        "<div className=\"text-muted-foreground px-3 py-6 text-center text-xs\">No results found</div>",
+        "<div className=\"text-muted-foreground px-3 py-6 text-center text-xs\">{t('no_results_found')}</div>"
+      ]
+    ],
+    "core/features/editor/browser/task-editor/file-status-placeholder.tsx": [
+      [
+        "<span className=\"text-xs text-foreground-passive\">Loading file...</span>",
+        "<span className=\"text-xs text-foreground-passive\">{t('loading_file_2')}</span>"
+      ]
+    ],
+    "core/features/editor/browser/task-editor/file-tab-item.tsx": [
+      [
+        "label: 'Reveal File',",
+        "label: t('reveal_file'),"
+      ],
+      [
+        "title=\"Unsaved changes\"",
+        "title={t('unsaved_changes')}"
+      ]
+    ],
+    "core/features/editor/browser/task-editor/file-tab-provider.tsx": [
+      [
+        "<EmptyState label=\"File unavailable\" description={liveActionDisabledReason} />",
+        "<EmptyState label={t('file_unavailable')} description={liveActionDisabledReason} />"
+      ]
+    ],
+    "core/features/editor/contributions/browser/editor-file-tree.tsx": [
+      [
+        "description: 'Multiple dropped files have the same destination name.',",
+        "description: t('multiple_dropped_files_have_the_same_des'),"
+      ],
+      [
+        "toast.error('Copy failed', { description: 'File is too large to copy.' });",
+        "toast.error('Copy failed', { description: t('file_is_too_large_to_copy') });"
+      ],
+      [
+        "label: 'Copy Contents',",
+        "label: t('copy_contents'),"
+      ],
+      [
+        "label: 'Copy path',",
+        "label: t('copy_path'),"
+      ],
+      [
+        "label: 'Copy relative path',",
+        "label: t('copy_relative_path'),"
+      ],
+      [
+        "label=\"Files unavailable\"",
+        "label={t('files_unavailable')}"
+      ],
+      [
+        "label: 'New File',",
+        "label: t('new_file'),"
+      ],
+      [
+        "label: 'New Folder',",
+        "label: t('new_folder'),"
+      ],
+      [
+        "<HeaderAction label=\"Collapse all\" onClick={context.collapseAll}>",
+        "<HeaderAction label={t('collapse_all')} onClick={context.collapseAll}>"
+      ],
+      [
+        "aria-label=\"Contains emphasized items\"",
+        "aria-label={t('contains_emphasized_items')}"
+      ],
+      [
+        "title=\"Contains emphasized items\"",
+        "title={t('contains_emphasized_items')}"
+      ]
+    ],
+    "core/features/browser/browser/browser-start-page.tsx": [
+      [
+        "<h2 className=\"text-sm font-medium text-foreground-muted\">Local servers</h2>",
+        "<h2 className=\"text-sm font-medium text-foreground-muted\">{t('local_servers')}</h2>"
+      ]
+    ],
+    "core/features/browser/browser/browser-toolbar-actions.ts": [
+      [
+        "description: 'Try again, or reload the browser view manually.',",
+        "description: t('try_again_or_reload_the_browser_view_man'),"
+      ],
+      [
+        "title: 'Clear browser storage?',",
+        "title: t('clear_browser_storage'),"
+      ]
+    ],
+    "core/features/browser/browser/browser-toolbar.tsx": [
+      [
+        "aria-label=\"Browser URL\"",
+        "aria-label={t('browser_url')}"
+      ],
+      [
+        "placeholder=\"Search or enter URL\"",
+        "placeholder={t('search_or_enter_url')}"
+      ],
+      [
+        "label=\"Copy screenshot\"",
+        "label={t('copy_screenshot')}"
+      ],
+      [
+        "aria-label=\"Browser actions\"",
+        "aria-label={t('browser_actions')}"
+      ],
+      [
+        "<DropdownMenu.Item onClick={openDevTools}>Open DevTools</DropdownMenu.Item>",
+        "<DropdownMenu.Item onClick={openDevTools}>{t('open_devtools')}</DropdownMenu.Item>"
+      ],
+      [
+        "<DropdownMenu.SubTrigger>Browser profile</DropdownMenu.SubTrigger>",
+        "<DropdownMenu.SubTrigger>{t('browser_profile')}</DropdownMenu.SubTrigger>"
+      ],
+      [
+        "aria-label=\"Zoom out\"",
+        "aria-label={t('zoom_out')}"
+      ],
+      [
+        "aria-label=\"Zoom in\"",
+        "aria-label={t('zoom_in')}"
+      ],
+      [
+        "aria-label=\"Reset zoom\"",
+        "aria-label={t('reset_zoom')}"
+      ],
+      [
+        "<DropdownMenu.Item onClick={confirmClearStorage}>Clear browser storage</DropdownMenu.Item>",
+        "<DropdownMenu.Item onClick={confirmClearStorage}>{t('clear_browser_storage_2')}</DropdownMenu.Item>"
+      ]
+    ],
+    "core/features/mcp/browser/components/McpCard.tsx": [
+      [
+        "<Tooltip.Content>View docs</Tooltip.Content>",
+        "<Tooltip.Content>{t('view_docs')}</Tooltip.Content>"
+      ]
+    ],
+    "core/features/mcp/browser/components/McpDrawer.tsx": [
+      [
+        "<MicroLabel>MCP Server</MicroLabel>",
+        "<MicroLabel>{t('mcp_server')}</MicroLabel>"
+      ],
+      [
+        "<Field.Label>Server Name</Field.Label>",
+        "<Field.Label>{t('server_name')}</Field.Label>"
+      ],
+      [
+        "label=\"Environment Variables\"",
+        "label={t('environment_variables')}"
+      ]
+    ],
+    "core/features/mcp/browser/components/McpServersList.tsx": [
+      [
+        "title: 'Remove MCP server?',",
+        "title: t('remove_mcp_server'),"
+      ]
+    ],
+    "core/features/mcp/browser/components/McpToolbar.tsx": [
+      [
+        "aria-label=\"Refresh providers\"",
+        "aria-label={t('refresh_providers')}"
+      ]
+    ],
+    "core/features/mcp/browser/components/McpView.tsx": [
+      [
+        "description: 'Connect your agents with external data sources and tools',",
+        "description: t('connect_your_agents_with_external_data_s'),"
+      ]
+    ],
+    "core/features/mcp/browser/components/SyncToAgentsSection.tsx": [
+      [
+        "<Field.Label>Sync to agents</Field.Label>",
+        "<Field.Label>{t('sync_to_agents')}</Field.Label>"
+      ],
+      [
+        "placeholder=\"Select agent\"",
+        "placeholder={t('select_agent')}"
+      ]
+    ],
+    "core/features/skills/browser/components/CreateSkillModal.tsx": [
+      [
+        "<Dialog.Title>New Skill</Dialog.Title>",
+        "<Dialog.Title>{t('new_skill')}</Dialog.Title>"
+      ],
+      [
+        "placeholder=\"What does this skill do?\"",
+        "placeholder={t('what_does_this_skill_do')}"
+      ]
+    ],
+    "core/features/skills/browser/components/SkillDetailModal.tsx": [
+      [
+        "<p className=\"text-muted-foreground text-xs font-medium\">Example prompt</p>",
+        "<p className=\"text-muted-foreground text-xs font-medium\">{t('example_prompt')}</p>"
+      ],
+      [
+        "aria-label=\"Loading skill details\"",
+        "aria-label={t('loading_skill_details')}"
+      ]
+    ],
+    "core/features/skills/browser/components/SkillsList.tsx": [
+      [
+        "title: 'Uninstall skill?',",
+        "title: t('uninstall_skill'),"
+      ]
+    ],
+    "core/features/skills/browser/components/SkillsToolbar.tsx": [
+      [
+        "aria-label=\"Refresh catalog\"",
+        "aria-label={t('refresh_catalog')}"
+      ]
+    ],
+    "core/features/skills/browser/components/SkillsView.tsx": [
+      [
+        "description: 'Extend your agents with reusable skill modules',",
+        "description: t('extend_your_agents_with_reusable_skill_m'),"
+      ]
+    ],
+    "core/features/skills/browser/components/useSkills.ts": [
+      [
+        "toast('Skill removed', { description: 'Skill has been uninstalled' });",
+        "toast('Skill removed', { description: t('skill_has_been_uninstalled') });"
+      ]
+    ],
+    "core/features/source-control/browser/diff-view/changes-panel/pr-section.tsx": [
+      [
+        "description: 'No commits ahead of the base branch.',",
+        "description: t('no_commits_ahead_of_the_base_branch'),"
+      ],
+      [
+        "label=\"Branch commits\"",
+        "label={t('branch_commits')}"
+      ]
+    ],
+    "core/features/source-control/browser/diff-view/changes-panel/unstaged-section.tsx": [
+      [
+        "description: 'Are you sure you want to discard all changes? This can not be undone.',",
+        "description: t('are_you_sure_you_want_to_discard_all_cha'),"
+      ]
+    ],
+    "core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/commits-list.tsx": [
+      [
+        "description: 'No commits available',",
+        "description: t('no_commits_available'),"
+      ]
+    ],
+    "core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/merge-footer.tsx": [
+      [
+        "loadingLabel=\"Merging...\"",
+        "loadingLabel={t('merging')}"
+      ]
+    ],
+    "core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/merge-ui-state.ts": [
+      [
+        "title: 'Merge status unknown',",
+        "title: t('merge_status_unknown'),"
+      ],
+      [
+        "title: 'Ready to merge',",
+        "title: t('ready_to_merge'),"
+      ],
+      [
+        "title: 'Merge conflicts',",
+        "title: t('merge_conflicts'),"
+      ],
+      [
+        "title: 'Branch is out-of-date',",
+        "title: t('branch_is_out_of_date'),"
+      ],
+      [
+        "title: 'Merging is blocked',",
+        "title: t('merging_is_blocked'),"
+      ],
+      [
+        "title: 'Checks still running',",
+        "title: t('checks_still_running'),"
+      ],
+      [
+        "title: 'Checks not passing',",
+        "title: t('checks_not_passing'),"
+      ],
+      [
+        "title: 'Checks pending or not passing',",
+        "title: t('checks_pending_or_not_passing'),"
+      ]
+    ],
+    "core/features/source-control/browser/diff-view/main-panel/diff-toolbar.tsx": [
+      [
+        "<ToggleGroup.Item size=\"sm\" icon value=\"unified\" aria-label=\"Unified diff\">",
+        "<ToggleGroup.Item size=\"sm\" icon value=\"unified\" aria-label={t('unified_diff')}>"
+      ],
+      [
+        "<ToggleGroup.Item size=\"sm\" icon value=\"split\" aria-label=\"Split diff\">",
+        "<ToggleGroup.Item size=\"sm\" icon value=\"split\" aria-label={t('split_diff')}>"
+      ]
+    ],
+    "core/features/source-control/browser/diff-view/main-panel/image-diff-view.tsx": [
+      [
+        "return <div className=\"text-xs text-foreground-passive\">Failed to decode image</div>;",
+        "return <div className=\"text-xs text-foreground-passive\">{t('failed_to_decode_image')}</div>;"
+      ]
+    ],
+    "core/features/source-control/browser/diff-view/main-panel/stacked-diff-view.tsx": [
+      [
+        "<EmptyState label=\"No changes\" description=\"Select or make changes to files to see diffs.\" />",
+        "<EmptyState label={t('no_changes')} description={t('select_or_make_changes_to_files_to_see_d')} />"
+      ]
+    ],
+    "core/features/source-control/browser/diff-view/comments/comment-input.tsx": [
+      [
+        "aria-label=\"Cancel comment\"",
+        "aria-label={t('cancel_comment')}"
+      ],
+      [
+        "aria-label=\"Submit comment\"",
+        "aria-label={t('submit_comment')}"
+      ],
+      [
+        "placeholder=\"Add a note about this line...\"",
+        "placeholder={t('add_a_note_about_this_line')}"
+      ]
+    ],
+    "core/features/source-control/browser/diff-view/comments/comment-widget.tsx": [
+      [
+        "aria-label=\"Cancel edit comment\"",
+        "aria-label={t('cancel_edit_comment')}"
+      ],
+      [
+        "aria-label=\"Save comment\"",
+        "aria-label={t('save_comment')}"
+      ],
+      [
+        "aria-label=\"Edit comment\"",
+        "aria-label={t('edit_comment')}"
+      ],
+      [
+        "aria-label=\"Delete comment\"",
+        "aria-label={t('delete_comment')}"
+      ],
+      [
+        "placeholder=\"Update the note...\"",
+        "placeholder={t('update_the_note')}"
+      ]
+    ],
+    "core/features/source-control/browser/components/branch-selector.tsx": [
+      [
+        "<Combobox.Value placeholder=\"Select a branch\" />",
+        "<Combobox.Value placeholder={t('select_a_branch')} />"
+      ],
+      [
+        "placeholder=\"Search branches\"",
+        "placeholder={t('search_branches')}"
+      ],
+      [
+        "aria-label=\"Refresh branches\"",
+        "aria-label={t('refresh_branches')}"
+      ]
+    ],
+    "core/features/source-control/contributions/browser/changes-panel.tsx": [
+      [
+        "description=\"Initialize Git to enable changes, commits, branches, and worktree-based tasks.\"",
+        "description={t('initialize_git_to_enable_changes_commits')}"
+      ]
+    ],
+    "core/features/workbench/api/browser/open-external-link.ts": [
+      [
+        "toast.error('Copy failed', { description: 'The link could not be copied to the clipboard.' });",
+        "toast.error('Copy failed', { description: t('the_link_could_not_be_copied_to_the_clip') });"
+      ]
+    ],
+    "core/features/workbench/browser/external-link-choice-dialog.tsx": [
+      [
+        "<Dialog.Title>Open link?</Dialog.Title>",
+        "<Dialog.Title>{t('open_link')}</Dialog.Title>"
+      ],
+      [
+        "<p>Choose where to open this link.</p>",
+        "<p>{t('choose_where_to_open_this_link')}</p>"
+      ]
+    ],
+    "core/features/workbench/browser/nav-buttons.tsx": [
+      [
+        "aria-label=\"Go back\"",
+        "aria-label={t('go_back')}"
+      ],
+      [
+        "aria-label=\"Go forward\"",
+        "aria-label={t('go_forward')}"
+      ]
+    ],
+    "core/features/workbench/browser/quit-unsaved-changes-dialog.tsx": [
+      [
+        "<Dialog.Title>Save changes before quitting?</Dialog.Title>",
+        "<Dialog.Title>{t('save_changes_before_quitting')}</Dialog.Title>"
+      ]
+    ],
+    "core/features/workbench/browser/sidebar-recovery-controls.tsx": [
+      [
+        "aria-label=\"Show left sidebar\"",
+        "aria-label={t('show_left_sidebar')}"
+      ]
+    ],
+    "core/features/workbench/browser/unsaved-changes-dialog.tsx": [
+      [
+        "<Dialog.Title>Unsaved Changes</Dialog.Title>",
+        "<Dialog.Title>{t('unsaved_changes')}</Dialog.Title>"
+      ]
+    ],
+    "core/features/workbench/browser/feedback-modal/feedback-modal.tsx": [
+      [
+        "<span className=\"text-xs font-medium\">Drop image here</span>",
+        "<span className=\"text-xs font-medium\">{t('drop_image_here')}</span>"
+      ],
+      [
+        "placeholder=\"What do you like? How can we improve?\"",
+        "placeholder={t('what_do_you_like_how_can_we_improve')}"
+      ],
+      [
+        "<span className=\"min-w-0\">Include diagnostic logs</span>",
+        "<span className=\"min-w-0\">{t('include_diagnostic_logs')}</span>"
+      ],
+      [
+        "aria-label=\"More information about diagnostic logs\"",
+        "aria-label={t('more_information_about_diagnostic_logs')}"
+      ],
+      [
+        "<span>Open Github Issue instead</span>",
+        "<span>{t('open_github_issue_instead')}</span>"
+      ],
+      [
+        "<span>Attach image</span>",
+        "<span>{t('attach_image')}</span>"
+      ],
+      [
+        "<span>Sending...</span>",
+        "<span>{t('sending')}</span>"
+      ],
+      [
+        "<span>Send Feedback</span>",
+        "<span>{t('send_feedback')}</span>"
+      ]
+    ],
+    "core/features/workbench/browser/feedback-modal/use-feedback-submit.ts": [
+      [
+        "toast('Feedback sent', { description: 'Thanks for your feedback!' });",
+        "toast('Feedback sent', { description: t('thanks_for_your_feedback') });"
+      ],
+      [
+        "toast.error('Failed to send feedback', { description: 'Please try again.' });",
+        "toast.error('Failed to send feedback', { description: t('please_try_again') });"
+      ]
+    ],
+    "core/features/workbench/browser/onboarding/onboarding-shell.tsx": [
+      [
+        "label: 'Sign in',",
+        "label: t('sign_in'),"
+      ]
+    ],
+    "core/features/workbench/browser/onboarding/sign-in-step.tsx": [
+      [
+        "<h1 className=\"text-center text-xl\">Connect GitHub</h1>",
+        "<h1 className=\"text-center text-xl\">{t('connect_github')}</h1>"
+      ]
+    ],
+    "core/features/workbench/browser/onboarding/components/project-conflicts.tsx": [
+      [
+        "<h2 className=\"text-base font-medium\">Project conflicts</h2>",
+        "<h2 className=\"text-base font-medium\">{t('project_conflicts')}</h2>"
+      ]
+    ],
+    "core/features/workbench/browser/sidebar/project-item.tsx": [
+      [
+        "<Tooltip.Content>Project context unavailable</Tooltip.Content>",
+        "<Tooltip.Content>{t('project_context_unavailable')}</Tooltip.Content>"
+      ]
+    ],
+    "core/features/workbench/browser/sidebar/projects-group-label.tsx": [
+      [
+        "<Tooltip.Content>Sort by</Tooltip.Content>",
+        "<Tooltip.Content>{t('sort_by')}</Tooltip.Content>"
+      ],
+      [
+        "<DropdownMenu.Label>Sort by</DropdownMenu.Label>",
+        "<DropdownMenu.Label>{t('sort_by')}</DropdownMenu.Label>"
+      ]
+    ],
+    "core/features/workbench/browser/sidebar/use-sidebar-drop.ts": [
+      [
+        "description: 'Drop a folder to add it as a project.',",
+        "description: t('drop_a_folder_to_add_it_as_a_project'),"
+      ]
+    ],
+    "core/services/pull-requests/browser/pull-request-list-view.ts": [
+      [
+        "'recently-updated': { label: 'Recently updated' },",
+        "'recently-updated': { label: t('recently_updated') },"
+      ]
     ]
   }
 }

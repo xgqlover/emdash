@@ -5,6 +5,7 @@ import {
 } from '@core/primitives/legacy-port/api/legacy-port';
 import { cn } from '@core/primitives/styling/browser/cn';
 import { formatCount, sourceLabel } from './import-format';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 function ConflictChoice({
   source,
@@ -101,7 +102,7 @@ export function ProjectConflicts({
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-2.5">
       <div className="flex shrink-0 flex-col gap-1">
-        <h2 className="text-base font-medium">Project conflicts</h2>
+        <h2 className="text-base font-medium">{t('project_conflicts')}</h2>
         <p className="text-sm text-foreground-muted">
           These projects exist in both selected versions. Choose which version to keep.
         </p>

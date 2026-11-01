@@ -2,6 +2,7 @@ import { Check, Copy } from 'lucide-react';
 import React, { useCallback, useState } from 'react';
 import type { InstallMethod } from '@core/primitives/agents/api';
 import { cn } from '@core/primitives/styling/browser/cn';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export function humanizeMethod(method: InstallMethod): string {
   const labels: Record<InstallMethod, string> = {
@@ -36,7 +37,7 @@ export function CopyButton({ command }: { command: string }) {
       type="button"
       onClick={handleCopy}
       className="shrink-0 rounded p-1 text-foreground-passive opacity-0 transition-opacity group-hover:opacity-100 hover:bg-background-2 hover:text-foreground"
-      aria-label="Copy command"
+      aria-label={t('copy_command')}
     >
       {copied ? (
         <Check className="h-3.5 w-3.5 text-foreground-success" />

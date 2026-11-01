@@ -6,6 +6,7 @@ import {
   type ProjectWorkspaceRow,
 } from '@core/primitives/workspaces/api';
 import { workspaceRowLabel } from './workspace-row-label';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 type PillTone = 'warning' | 'destructive';
 
@@ -39,7 +40,7 @@ export function RemovalPill({
     return (
       <Tooltip.Root>
         <Tooltip.Trigger>
-          <span className={pillClass('destructive', { className })}>Removal failed</span>
+          <span className={pillClass('destructive', { className })}>{t('removal_failed')}</span>
         </Tooltip.Trigger>
         <Tooltip.Content className="max-w-70 text-xs">
           {message ?? 'The removal stopped after a failure that needs your decision.'}

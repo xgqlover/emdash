@@ -8,6 +8,7 @@ import { useModalController } from '@core/manifests/browser/modal-api';
 import { ConfirmButton } from '@core/primitives/keybindings/browser/confirm-button';
 import { defineModal } from '@core/primitives/modals/react';
 import type { SshConfig } from '@core/primitives/ssh/api';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 type MachineOption = SshConfig & { id: string };
 
@@ -43,7 +44,7 @@ export const RelinkProjectModal = observer(function RelinkProjectModal({
     <ModalLayout
       header={
         <Dialog.Header>
-          <Dialog.Title>Relink Project</Dialog.Title>
+          <Dialog.Title>{t('relink_project')}</Dialog.Title>
           <Dialog.Description>
             Choose the Machine that hosts this Project&apos;s repository.
           </Dialog.Description>

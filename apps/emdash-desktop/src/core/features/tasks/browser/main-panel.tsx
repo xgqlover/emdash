@@ -55,7 +55,7 @@ const TaskMainPanelContent = observer(function TaskMainPanelContent() {
     taskStore && 'workspaceId' in taskStore.data ? taskStore.data.workspaceId : undefined;
 
   if (kind === 'creating') {
-    return <TaskViewLoadingState label="Creating task" />;
+    return <TaskViewLoadingState label={t('creating_task_2')} />;
   }
 
   if (kind === 'create-error') {
@@ -111,8 +111,8 @@ const TaskMainPanelContent = observer(function TaskMainPanelContent() {
   if (kind === 'idle' && hostActionDisabledReason) {
     return (
       <MissingWorkspaceState
-        title="Workspace is unavailable"
-        description="The Task is still available, but its workspace needs live Project access."
+        title={t('workspace_is_unavailable')}
+        description={t('the_task_is_still_available_but_its_work')}
         actionDisabledReason={hostActionDisabledReason}
         reprovision={async () => {
           await getTaskManagerStore(projectId)?.provisionTask(taskId);

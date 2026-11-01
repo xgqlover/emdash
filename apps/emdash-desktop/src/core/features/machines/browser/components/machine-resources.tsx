@@ -1,10 +1,11 @@
 import type { ResourceUsageSample } from '@emdash/core/runtimes/resource-usage/api';
 import { Box, Field } from '@emdash/ui/react/primitives';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export function ResourceUtilizationRow({ metrics }: { metrics: ResourceUsageSample | null }) {
   return (
     <Field.Root className="flex flex-col gap-3">
-      <Field.Label>Resource Utilization</Field.Label>
+      <Field.Label>{t('resource_utilization')}</Field.Label>
       <div className="mt-1 grid grid-cols-3 gap-2">
         <ResourceCard
           label="CPU"

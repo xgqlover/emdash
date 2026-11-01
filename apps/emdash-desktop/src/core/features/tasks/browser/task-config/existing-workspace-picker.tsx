@@ -4,6 +4,7 @@ import { ChevronsUpDown, FolderGit2, GitBranch, Link } from 'lucide-react';
 import { useState } from 'react';
 import type { ProjectWorkspaceOption } from '@core/features/tasks/api/browser/create-task-modal/project-workspace-options';
 import { cn } from '@core/primitives/styling/browser/cn';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 function workspaceLabel(ws: ProjectWorkspaceOption): string {
   if (ws.kind === 'repository') return 'Repository root';
@@ -135,7 +136,7 @@ export function ExistingWorkspacePicker({
             </Combobox.Item>
           ))}
           {filtered.length === 0 && (
-            <EmptyState label="No workspaces found" className="border-none bg-transparent" />
+            <EmptyState label={t('no_workspaces_found')} className="border-none bg-transparent" />
           )}
         </Combobox.List>
       </Combobox.Content>

@@ -27,6 +27,7 @@ import { searchContract } from '@core/features/search/api';
 import { getSearchClient } from '@core/features/search/api/client';
 import { useTaskComposition } from '@core/features/workbench/api/browser/task-composition-context';
 import { useDebounce } from '@core/primitives/react-hooks/browser/useDebounce';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 import {
   countContentSearchOccurrences,
   mergeContentSearchFiles,
@@ -156,7 +157,7 @@ export function FileContentSearchResults({
       {state.error ? (
         <div className="text-destructive px-3 py-6 text-center text-xs">{state.error}</div>
       ) : !state.isSearching && state.files.length === 0 ? (
-        <div className="text-muted-foreground px-3 py-6 text-center text-xs">No results found</div>
+        <div className="text-muted-foreground px-3 py-6 text-center text-xs">{t('no_results_found')}</div>
       ) : (
         <SearchResultsTree
           files={searchFiles}

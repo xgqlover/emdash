@@ -6,6 +6,7 @@ import { terminalSearchScope } from '@core/features/workbench/contributions/scop
 import { cn } from '@core/primitives/styling/browser/cn';
 import type { ViewScopeImpl } from '@core/primitives/view-scopes/api';
 import { useViewScope } from '@core/primitives/view-scopes/react';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 interface Props {
   sessionId: string;
@@ -61,9 +62,9 @@ export function TerminalSearchOverlay({
               return;
             }
           }}
-          placeholder="Find in terminal..."
+          placeholder={t('find_in_terminal')}
           className="h-8 min-w-0 border-0 bg-transparent pr-2 pl-8 text-xs shadow-none focus-visible:ring-0"
-          aria-label="Find in terminal"
+          aria-label={t('find_in_terminal_2')}
         />
       </div>
       <div className="ml-auto flex shrink-0 items-center gap-0.5">
@@ -78,7 +79,7 @@ export function TerminalSearchOverlay({
           onClick={() => onStep('prev')}
           disabled={!searchQuery || searchStatus.total === 0}
           className="shrink-0 text-foreground-muted"
-          aria-label="Previous terminal match"
+          aria-label={t('previous_terminal_match')}
         >
           <ChevronUp className="size-3.5" />
         </Button>
@@ -90,7 +91,7 @@ export function TerminalSearchOverlay({
           onClick={() => onStep('next')}
           disabled={!searchQuery || searchStatus.total === 0}
           className="shrink-0 text-foreground-muted"
-          aria-label="Next terminal match"
+          aria-label={t('next_terminal_match')}
         >
           <ChevronDown className="size-3.5" />
         </Button>
@@ -101,7 +102,7 @@ export function TerminalSearchOverlay({
           icon
           onClick={onClose}
           className="shrink-0 text-foreground-muted"
-          aria-label="Close terminal search"
+          aria-label={t('close_terminal_search')}
         >
           <X className="size-3.5" />
         </Button>

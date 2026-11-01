@@ -5,6 +5,7 @@ import type { IntegrationConnectOptions } from '@core/features/integrations/api/
 import { useIntegrationsContext } from '@core/features/integrations/contributions/browser/integrations-provider';
 import { ConfirmButton } from '@core/primitives/keybindings/browser/confirm-button';
 import type { IntegrationFormInput } from './types';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export type SetupFormProps = {
   onSuccess: () => void;
@@ -49,7 +50,7 @@ export function SetupFormShell({
         return;
       }
 
-      toast('Integration connected', { description: 'Integration set up successfully.' });
+      toast('Integration connected', { description: t('integration_set_up_successfully') });
       onSuccess();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to connect.');

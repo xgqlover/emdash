@@ -15,6 +15,7 @@ import {
 } from '@core/features/integrations/contributions/browser/integration-auth-method-picker';
 import { DeviceSignIn } from '../../browser/device-sign-in';
 import { IntegrationSetupForm } from '../../browser/integration-setup-modal';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 type StandardIntegrationAuthProps = IntegrationAuthUiProps & {
   /** Icon of the "sign in through Emdash" option; defaults to a generic sign-in icon. */
@@ -80,7 +81,7 @@ export function StandardIntegrationAuth({
           {
             id: 'device_flow',
             icon: RectangleEllipsis,
-            title: 'Use device flow',
+            title: t('use_device_flow'),
             description: `Connect ${metadata.name} on this device with a one-time code`,
             onSelect: () => setView('device'),
           },
@@ -91,8 +92,8 @@ export function StandardIntegrationAuth({
           {
             id: 'form',
             icon: KeyRound,
-            title: 'Use an access token',
-            description: 'Self-hosted instances, or a token you already have',
+            title: t('use_an_access_token'),
+            description: t('self_hosted_instances_or_a_token_you_alr'),
             onSelect: () => setView('form'),
           },
         ]
@@ -227,14 +228,14 @@ function oauthContent(
   if (hasAccount) {
     return {
       title: `Sign in with ${name}`,
-      description: 'Sign into your Emdash account',
-      label: 'Sign In',
+      description: t('sign_into_your_emdash_account'),
+      label: t('sign_in'),
       loadingLabel: 'Signing in...',
     };
   }
 
   return {
-    title: 'Sign in to Emdash',
+    title: t('sign_in_to_emdash'),
     description: `Create or sign into your Emdash account with ${name}`,
     label: 'Continue',
     loadingLabel: 'Continuing...',

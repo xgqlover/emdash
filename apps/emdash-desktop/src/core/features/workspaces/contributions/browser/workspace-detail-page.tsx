@@ -43,6 +43,7 @@ import { WorkspaceRemovalAttentionPanel } from './removal-attention-panel';
 import { RepositoryHeader } from './repository-header';
 import { PathIssueChip, RemovalPill } from './workspace-pills';
 import { workspaceRowLabel } from './workspace-row-label';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 import {
   WorkspacesEmptyState,
   WorkspacesErrorState,
@@ -256,7 +257,7 @@ export const WorkspaceDetailPage = observer(function WorkspaceDetailPage({
       confirmLabel: 'Delete',
       variant: 'destructive',
       // Unchecked default (spec §7.1): removal keeps conversation records.
-      checkbox: { label: 'Delete their conversations too' },
+      checkbox: { label: t('delete_their_conversations_too') },
     });
 
     if (!outcome.success) return;
@@ -342,7 +343,7 @@ export const WorkspaceDetailPage = observer(function WorkspaceDetailPage({
         confirmLabel: 'Delete',
         variant: 'destructive',
         // Unchecked default (spec §7.1): removal keeps conversation records.
-        checkbox: { label: 'Delete their conversations too' },
+        checkbox: { label: t('delete_their_conversations_too') },
       });
       if (!outcome.success) return;
 
@@ -383,10 +384,10 @@ export const WorkspaceDetailPage = observer(function WorkspaceDetailPage({
   );
 
   if (workspaceQuery.isLoading && liveActionsEnabled) {
-    return <WorkspacesLoadingState label="Loading workspace" />;
+    return <WorkspacesLoadingState label={t('loading_workspace')} />;
   }
   if (workspaceQuery.isError && observation.kind === 'unavailable') {
-    return <WorkspacesErrorState error={workspaceQuery.error} title="Could not load workspace." />;
+    return <WorkspacesErrorState error={workspaceQuery.error} title={t('could_not_load_workspace')} />;
   }
   if (observation.kind === 'unavailable') {
     return (

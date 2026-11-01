@@ -146,7 +146,7 @@ export function ActivityBadgeView({
   return (
     <Popover.Root>
       <Popover.Trigger
-        aria-label="Workspace activity"
+        aria-label={t('workspace_activity')}
         data-activity-state={state}
         className={cn(
           'flex h-7 items-center gap-1.5 rounded-lg px-2 text-xs transition-colors',
@@ -203,7 +203,7 @@ export function ActivityBadgeView({
               >
                 <button
                   type="button"
-                  title="Open script output"
+                  title={t('open_script_output')}
                   onClick={() => onOpenScript(script)}
                   className="flex min-w-0 flex-1 items-start gap-2 text-left"
                 >

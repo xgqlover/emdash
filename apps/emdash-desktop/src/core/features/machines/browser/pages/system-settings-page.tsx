@@ -5,6 +5,7 @@ import { ResourceUtilizationRow } from '../components/machine-resources';
 import { MachineSystemDependenciesCard } from '../components/machine-system-dependencies';
 import { createSystemDependenciesStore } from '../machines-store';
 import { useMachineMetrics } from '../use-machine-metrics';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export function SystemSettingsPage() {
   const metrics = useMachineMetrics(undefined, true);
@@ -15,7 +16,7 @@ export function SystemSettingsPage() {
       <PageLayout.Header
         sticky
         title="System"
-        description="Monitor local host resources and required system dependencies."
+        description={t('monitor_local_host_resources_and_require')}
       />
       <SettingsCard>
         <ResourceUtilizationRow metrics={metrics} />

@@ -2,6 +2,7 @@ import { SettingsCard, SettingsSection } from '@emdash/ui/react/patterns';
 import { CountdownTime, Heading, Icon, Meter, Text } from '@emdash/ui/react/primitives';
 import { AgentIcon } from '@core/features/agents/contributions/browser/agent-icon';
 import type { UsageAccountView } from '../api/schemas';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 type LimitWindow = UsageAccountView['windows'][number];
 const percent = (value: number) => `${Number(value.toFixed(1))}%`;
@@ -74,7 +75,7 @@ function LimitRow({ window, title }: { window: LimitWindow; title: string }) {
       </div>
       {remaining === null ? (
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <Text tone="muted">Usage unavailable</Text>
+          <Text tone="muted">{t('usage_unavailable')}</Text>
           <Text variant="caption" tone="muted">
             {reset}
           </Text>

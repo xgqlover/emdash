@@ -3,6 +3,7 @@ import { Check, Pencil, Trash2, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 import type { DraftComment } from '@core/features/source-control/api/browser/diff-view/stores/draft-comments-store';
 import { Comment, useTextareaAutoFocus } from './comment-card';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 interface CommentWidgetProps {
   comment: DraftComment;
@@ -67,7 +68,7 @@ export const CommentWidget: React.FC<CommentWidgetProps> = ({ comment, onEdit, o
                 className="h-8 w-8"
                 onClick={handleCancel}
                 title="Cancel (Esc)"
-                aria-label="Cancel edit comment"
+                aria-label={t('cancel_edit_comment')}
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -79,7 +80,7 @@ export const CommentWidget: React.FC<CommentWidgetProps> = ({ comment, onEdit, o
                 onClick={handleSave}
                 disabled={!editContent.trim()}
                 title="Save (Cmd/Ctrl+Enter)"
-                aria-label="Save comment"
+                aria-label={t('save_comment')}
               >
                 <Check className="h-4 w-4 text-foreground-success" />
               </Button>
@@ -93,7 +94,7 @@ export const CommentWidget: React.FC<CommentWidgetProps> = ({ comment, onEdit, o
                 className="h-8 w-8"
                 onClick={handleStartEditing}
                 title="Edit"
-                aria-label="Edit comment"
+                aria-label={t('edit_comment')}
               >
                 <Pencil className="h-4 w-4" />
               </Button>
@@ -104,7 +105,7 @@ export const CommentWidget: React.FC<CommentWidgetProps> = ({ comment, onEdit, o
                 className="text-destructive hover:text-destructive h-8 w-8"
                 onClick={() => void onDelete()}
                 title="Delete"
-                aria-label="Delete comment"
+                aria-label={t('delete_comment')}
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -129,7 +130,7 @@ export const CommentWidget: React.FC<CommentWidgetProps> = ({ comment, onEdit, o
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Update the note..."
+            placeholder={t('update_the_note')}
           />
         )}
       </Comment.Body>

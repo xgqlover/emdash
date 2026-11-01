@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { cn } from '@core/primitives/styling/browser/cn';
 import { ImportStep } from './import-step';
 import { SignInStep } from './sign-in-step';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 type OnboardingStep = 'sign-in' | 'import';
 
@@ -10,7 +11,7 @@ const stepConfig: Record<
   { label: string; component: React.ComponentType<{ onComplete: () => void }> }
 > = {
   'sign-in': {
-    label: 'Sign in',
+    label: t('sign_in'),
     component: SignInStep,
   },
   import: {

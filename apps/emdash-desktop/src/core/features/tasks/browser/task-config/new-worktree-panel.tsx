@@ -49,7 +49,7 @@ export function NewWorktreePanel({
                     strokeWidth={2}
                     className="size-3.5 shrink-0 text-foreground-muted"
                   />
-                  <Combobox.Value placeholder="Select a branch" />
+                  <Combobox.Value placeholder={t('select_a_branch')} />
                 </span>
               </div>
               <ChevronDown className="size-4 shrink-0 text-foreground-muted" />

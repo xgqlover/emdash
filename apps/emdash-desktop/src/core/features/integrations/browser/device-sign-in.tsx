@@ -7,6 +7,7 @@ import { invalidateProviderAccountState } from '@core/features/integrations/api/
 import { openExternal } from '@core/primitives/desktop-host/browser/host-client';
 import { log } from '@core/primitives/logging/browser/logger';
 import { EMDASH_ISSUES_URL } from '@core/primitives/urls/api/urls';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 const BROWSER_OPEN_DELAY_SECONDS = 3;
 /** Completion waits for the user, so its call deadline outlasts the code's lifetime. */
@@ -164,7 +165,7 @@ export function DeviceSignIn({
       flashCopied();
     } catch (error) {
       log.error('Failed to copy device code', error);
-      toast.error('Copy failed', { description: 'Copy the code manually.' });
+      toast.error('Copy failed', { description: t('copy_the_code_manually') });
     }
   }, [flashCopied, toast, userCode]);
 
@@ -225,7 +226,7 @@ export function DeviceSignIn({
               <Step number={1}>
                 Check that {providerName} shows this code. If it asks, enter the code.
               </Step>
-              <Step number={2}>Authorize Emdash.</Step>
+              <Step number={2}>{t('authorize_emdash')}</Step>
             </ol>
             {openingIn !== null && openingIn > 0 ? (
               <div className="rounded-lg border border-border-info bg-background-info p-3 text-sm text-foreground-info">
@@ -236,7 +237,7 @@ export function DeviceSignIn({
               <div className="flex items-center justify-between gap-3 text-xs text-foreground-muted">
                 <div className="flex min-w-0 items-center gap-2">
                   <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" />
-                  <span>Waiting for authorization</span>
+                  <span>{t('waiting_for_authorization')}</span>
                   <span>Code expires in {formatTime(secondsLeft)}</span>
                 </div>
                 <button

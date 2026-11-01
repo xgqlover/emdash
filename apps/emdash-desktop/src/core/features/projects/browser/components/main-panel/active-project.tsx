@@ -52,7 +52,7 @@ export const ActiveProject = observer(function ActiveProject() {
   const items =
     provider === 'gitlab'
       ? projectViewItems.map((item) =>
-          item.value === 'pull-request' ? { ...item, label: 'Merge Requests' } : item
+          item.value === 'pull-request' ? { ...item, label: t('merge_requests') } : item
         )
       : projectViewItems;
   return (

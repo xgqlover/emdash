@@ -7,6 +7,7 @@ import React from 'react';
 import { AgentIcon } from '@core/features/agents/contributions/browser/agent-icon';
 import { AgentSelector } from '@core/features/agents/contributions/browser/agent-selector';
 import { cn } from '@core/primitives/styling/browser/cn';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 interface SyncToAgentsSectionProps {
   host: HostRef;
@@ -33,7 +34,7 @@ export const SyncToAgentsSection: React.FC<SyncToAgentsSectionProps> = ({
   return (
     <Field.Root>
       <div className="flex items-center justify-between gap-3">
-        <Field.Label>Sync to agents</Field.Label>
+        <Field.Label>{t('sync_to_agents')}</Field.Label>
         <Button
           type="button"
           variant="link"
@@ -73,7 +74,7 @@ export const SyncToAgentsSection: React.FC<SyncToAgentsSectionProps> = ({
         ))}
         <AgentSelector
           value={null}
-          placeholder="Select agent"
+          placeholder={t('select_agent')}
           connectionId={sshConnectionIdOf(host)}
           onChange={(id) => {
             if (!selectedProviderIds.has(id)) onToggle(id);

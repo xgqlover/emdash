@@ -18,6 +18,7 @@ import { cn } from '@core/primitives/styling/browser/cn';
 import { selectCurrentPr } from '@root/src/core/services/pull-requests/api';
 import { PrBadge } from '@root/src/core/services/pull-requests/browser/components/pr-badge';
 import { type ReadyTask, type TaskListViewModel } from './task-list-model';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 /**
  * Row content for the project task list. The CollectionView shell owns row
@@ -104,7 +105,7 @@ export const TaskRow = observer(function TaskRow({
             checked={isSelected}
             onCheckedChange={() => selection.toggle(id)}
             className="pointer-events-none"
-            aria-label="Select task"
+            aria-label={t('select_task')}
           />
         </span>
         <div className="flex min-w-0 flex-1 items-center gap-2">

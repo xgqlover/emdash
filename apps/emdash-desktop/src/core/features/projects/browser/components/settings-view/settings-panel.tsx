@@ -41,7 +41,7 @@ export const SettingsPanel = observer(function SettingsPanel() {
     return (
       <div className="flex flex-col items-center justify-center gap-3 px-6 py-10 text-center">
         <div className="flex flex-col gap-1">
-          <p className="text-sm font-medium">Could not load project settings</p>
+          <p className="text-sm font-medium">{t('could_not_load_project_settings')}</p>
           <p className="text-sm text-foreground-muted">{store.pageData.error}</p>
         </div>
         <Button

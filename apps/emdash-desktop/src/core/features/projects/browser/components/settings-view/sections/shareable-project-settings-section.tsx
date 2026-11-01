@@ -141,7 +141,7 @@ function ProjectEnvironmentVariables({
 }) {
   return (
     <Field.Root>
-      <Field.Label>Environment variables</Field.Label>
+      <Field.Label>{t('environment_variables')}</Field.Label>
       <Field.Description className="text-foreground-muted">
         Host-local variables added to new terminals, lifecycle scripts, and agent processes for this
         Project. Values remain on this Machine, are not written to .emdash.json, and are passed
@@ -264,7 +264,7 @@ export function ShareableSettingsSection({
             beforeInput={
               descriptor.id === 'scripts.setup' ? (
                 <AutoRunToggle
-                  label="Auto-run on task creation"
+                  label={t('auto_run_on_task_creation')}
                   value={lifecycleForm.autoRunSetupScriptOnTaskCreation}
                   resolved={lifecycle.resolved.autoRunSetup}
                   onCheckedChange={(checked) =>
@@ -274,7 +274,7 @@ export function ShareableSettingsSection({
                 />
               ) : descriptor.id === 'scripts.run' ? (
                 <AutoRunToggle
-                  label="Auto-run on task creation"
+                  label={t('auto_run_on_task_creation')}
                   value={lifecycleForm.autoRunRunScriptOnTaskCreation}
                   resolved={lifecycle.resolved.autoRunRun}
                   onCheckedChange={(checked) =>

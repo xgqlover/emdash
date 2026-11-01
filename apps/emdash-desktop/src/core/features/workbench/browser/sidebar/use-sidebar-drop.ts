@@ -10,6 +10,7 @@ import {
 import { log } from '@core/primitives/logging/browser/logger';
 import { useNavigate } from '@core/primitives/navigation/browser/navigation-hooks';
 import { basenameFromAnyPath } from '@core/primitives/path-name/api';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export function useSidebarDrop() {
   const [isDragOver, setIsDragOver] = useState(false);
@@ -68,7 +69,7 @@ export function useSidebarDrop() {
             }
             if (!status.isDirectory) {
               toast.error('Cannot add project', {
-                description: 'Drop a folder to add it as a project.',
+                description: t('drop_a_folder_to_add_it_as_a_project'),
               });
               return null;
             }

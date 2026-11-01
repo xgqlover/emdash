@@ -23,6 +23,7 @@ import {
 } from '@root/src/core/services/pull-requests/api';
 import { getPullRequestsRuntimeClient } from '@root/src/core/services/pull-requests/api/client';
 import { StatusIcon } from '@root/src/core/services/pull-requests/browser/components/pr-status-icon';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 type StatusFilter = 'open' | 'not-open';
 
@@ -202,7 +203,7 @@ export const PrSelector = observer(function PrSelector({
       }}
     >
       <Select.Trigger
-        aria-label="Filter by status"
+        aria-label={t('filter_by_status')}
         className="h-6 gap-1 border-none bg-transparent px-1.5 text-xs text-foreground-muted shadow-none hover:text-foreground focus:ring-0"
       >
         {statusFilter === 'open' ? 'Open' : 'Closed'}
@@ -303,7 +304,7 @@ export const PrSelector = observer(function PrSelector({
           {errorMessage && prs.length > 0 && (
             <ListPopoverCard status="destructive" className="text-foreground-destructive">
               <AlertCircle className="size-3.5 shrink-0 text-foreground-destructive" />
-              <span className="shrink-0 font-medium text-foreground-destructive">Sync failed</span>
+              <span className="shrink-0 font-medium text-foreground-destructive">{t('sync_failed')}</span>
               <span
                 className="min-w-0 grow truncate text-foreground-destructive/80"
                 title={errorMessage}

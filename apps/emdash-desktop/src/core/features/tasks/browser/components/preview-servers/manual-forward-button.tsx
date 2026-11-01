@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useTaskComposition } from '@core/features/workbench/api/browser/task-composition-context';
 import { projectAvailabilityUi } from '@core/manifests/browser/project-availability-ui';
 import { ManualForwardDialog } from './manual-forward-dialog';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export const ManualForwardButton = observer(function ManualForwardButton() {
   const [open, setOpen] = useState(false);
@@ -27,7 +28,7 @@ export const ManualForwardButton = observer(function ManualForwardButton() {
             type="button"
             disabled={Boolean(disabledReason)}
             className="flex h-7 items-center gap-1.5 rounded-lg px-2 text-xs text-foreground-muted transition-colors hover:bg-background-1 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
-            aria-label="Forward remote port"
+            aria-label={t('forward_remote_port')}
             // [XG-CUSTOM] 2026-10-06 —— 用户真机把这个按钮当成「打开网址」点错过：
             //   它转发的是**远端端口**（把远端 dev server 隧道到本机预览），不是打开网址。
             //   语义（aria-label）保持不变，只把提示写清；功能一个字没改。

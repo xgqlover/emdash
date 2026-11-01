@@ -2,6 +2,7 @@ import { ExpandableImage } from '@emdash/ui/react/components';
 import { observer } from 'mobx-react-lite';
 import { useMemo } from 'react';
 import type { FileTabResource } from '@core/features/editor/api/browser/task-editor/stores/file-tab-resource';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 interface SvgRendererProps {
   tab: FileTabResource;
@@ -32,7 +33,7 @@ export const SvgRenderer = observer(function SvgRenderer({ tab }: SvgRendererPro
           className="max-h-full max-w-full"
         />
       ) : (
-        <div className="text-xs text-foreground-passive">Empty file</div>
+        <div className="text-xs text-foreground-passive">{t('empty_file')}</div>
       )}
     </div>
   );

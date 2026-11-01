@@ -3,6 +3,7 @@ import { Button } from '@emdash/ui/react/primitives';
 import { Plus, RefreshCw } from 'lucide-react';
 import React from 'react';
 import { useSearchFocusHotkeys } from '@core/primitives/keybindings/browser';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 type SkillsToolbarProps = {
   searchQuery: string;
@@ -35,7 +36,7 @@ export function SkillsToolbar({
           icon
           onClick={onRefresh}
           disabled={isRefreshing}
-          aria-label="Refresh catalog"
+          aria-label={t('refresh_catalog')}
         >
           <RefreshCw
             className={`text-muted-foreground h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`}

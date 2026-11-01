@@ -7,6 +7,7 @@ import { MachineFormFeedback } from './machine-form-actions';
 import { MachineHostPicker } from './machine-host-picker';
 import { MachineManualFields, MachineManualRouting } from './machine-manual-fields';
 import type { MachineFormController } from './use-machine-form';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export function MachineFormFields({
   controller,
@@ -49,8 +50,8 @@ export function MachineFormFields({
                         name={field.name}
                         bare
                         autoFocus
-                        aria-label="Connection name"
-                        title="Optional. Defaults to the host."
+                        aria-label={t('connection_name')}
+                        title={t('optional_defaults_to_the_host')}
                         placeholder={name.fallback || 'Connection name'}
                         className="min-w-0 px-0 text-lg!"
                         value={field.state.value}
@@ -64,7 +65,7 @@ export function MachineFormFields({
                 )}
               </form.AppField>
               <ToggleGroup.Root
-                aria-label="Connection source"
+                aria-label={t('connection_source')}
                 className="shrink-0 bg-transparent"
                 value={[mode]}
                 onValueChange={([value]) => {

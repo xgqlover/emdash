@@ -6,6 +6,7 @@ import type { UseSkillsResult } from '@core/features/skills/browser/components/u
 import { useOpenModal } from '@core/manifests/browser/modal-api';
 // [XG-CUSTOM] 技能分类清单（从 skills-central 归一化，_gen_skill_categories.py 生成）
 import { SKILL_CATEGORY } from './skill-categories';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 type SkillsListProps = {
   skills: UseSkillsResult;
@@ -21,7 +22,7 @@ export const SkillsList: React.FC<SkillsListProps> = ({ skills, onOpenTerminal }
       const displayName =
         skills.catalog?.skills.find((skill) => skill.id === skillId)?.displayName ?? skillId;
       const outcome = await openConfirm({
-        title: 'Uninstall skill?',
+        title: t('uninstall_skill'),
         description: `This will uninstall "${displayName}" from all agents. This action cannot be undone.`,
         confirmLabel: 'Uninstall',
       });

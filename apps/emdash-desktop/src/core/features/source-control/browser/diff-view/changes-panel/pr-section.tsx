@@ -32,7 +32,7 @@ import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 const BRANCH_COMMITS_EMPTY_STATE = {
 // [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
   label: t('no_commits'),
-  description: 'No commits ahead of the base branch.',
+  description: t('no_commits_ahead_of_the_base_branch'),
 };
 
 /**
@@ -221,7 +221,7 @@ export const PullRequestsSectionHeader = observer(function PullRequestsSectionHe
             <ChangesViewModeToggle
               value={commitsViewMode}
               onChange={setCommitsViewMode}
-              label="Branch commits"
+              label={t('branch_commits')}
             />
           )}
           {

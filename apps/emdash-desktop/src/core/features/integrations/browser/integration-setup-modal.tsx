@@ -12,6 +12,7 @@ import { useModalController } from '@core/manifests/browser/modal-api';
 import { defineModal } from '@core/primitives/modals/react';
 import { SetupFormShell } from './SetupFormShell';
 import type { SetupIntegrationType } from './types';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 type IntegrationSetupModalArgs = {
   integration: SetupIntegrationType;
@@ -39,7 +40,7 @@ export function IntegrationSetupModal({ integration, accountId, displayName }: P
         </Dialog.Title>
       </Dialog.Header>
       {metadata && !reconnectSupported ? (
-        <Dialog.Body>This connection method cannot reconnect a selected account.</Dialog.Body>
+        <Dialog.Body>{t('this_connection_method_cannot_reconnect_')}</Dialog.Body>
       ) : metadata && AuthUi && (!accountId || authUi?.supportsReconnect) ? (
         <AuthUi
           metadata={metadata}
@@ -169,7 +170,7 @@ export function IntegrationSetupForm({
           <div className="grid gap-1.5">
             <Input
               id="integration-account-name"
-              aria-label="Account name"
+              aria-label={t('account_name')}
               placeholder="Account name *"
               value={accountName}
               onChange={(event) => setAccountName(event.target.value)}

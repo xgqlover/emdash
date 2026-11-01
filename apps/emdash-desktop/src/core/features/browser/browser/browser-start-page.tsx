@@ -1,4 +1,5 @@
 import { Globe, Server } from 'lucide-react';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export function BrowserStartPage({
   devServerUrls,
@@ -15,7 +16,7 @@ export function BrowserStartPage({
         {localUrls.length > 0 && (
           <>
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-medium text-foreground-muted">Local servers</h2>
+              <h2 className="text-sm font-medium text-foreground-muted">{t('local_servers')}</h2>
               <Server className="size-4 text-foreground-tertiary-muted" />
             </div>
             <div className="flex flex-col gap-2">

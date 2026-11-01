@@ -6,6 +6,7 @@ import type { BranchNameState } from '@core/features/tasks/browser/create-task-m
 import type { BranchSelectionState } from '@core/features/tasks/browser/create-task-modal/use-branch-selection';
 import { cn } from '@core/primitives/styling/browser/cn';
 import { BranchNameField } from './branch-name-field';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 interface BranchPickerFieldProps {
   state: BranchSelectionState;
@@ -48,7 +49,7 @@ export function BranchPickerField({
                     strokeWidth={2}
                     className="size-3.5 shrink-0 text-foreground-muted"
                   />
-                  <Combobox.Value placeholder="Select a branch" />
+                  <Combobox.Value placeholder={t('select_a_branch')} />
                 </span>
               </div>
 
@@ -73,14 +74,14 @@ export function BranchPickerField({
                   checked={createBranchAndWorktree}
                   onCheckedChange={setCreateBranchAndWorktree}
                 />
-                <Field.Label>Create task branch and worktree</Field.Label>
+                <Field.Label>{t('create_task_branch_and_worktree')}</Field.Label>
               </Field.Root>
               {createBranchAndWorktree && (
                 <>
                   {branchNameState && <BranchNameField state={branchNameState} />}
                   <Field.Root orientation="horizontal">
                     <Switch checked={pushBranch} onCheckedChange={setPushBranch} />
-                    <Field.Label>Push branch to remote</Field.Label>
+                    <Field.Label>{t('push_branch_to_remote')}</Field.Label>
                   </Field.Root>
                 </>
               )}

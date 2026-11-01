@@ -6,6 +6,7 @@ import type { Provenance, Resolved } from '@core/primitives/project-settings/api
 import type { ProviderAccountSummary } from '@core/primitives/provider-accounts/api';
 import { ProviderAccountLabel } from '@core/primitives/provider-accounts/browser/account-label';
 import { cn } from '@core/primitives/styling/browser/cn';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 /**
  * Shows the acting account, provenance, and account selection for a provider.
@@ -235,7 +236,7 @@ function ChangeAccountPopover<Account extends ProviderAccountSummary>({
     <Popover.Root open={open} onOpenChange={setOpen}>
       <Popover.Trigger render={trigger} disabled={disabled} />
       <Popover.Content align="end" className="flex w-72 flex-col gap-2 p-3">
-        <span className="text-xs font-medium text-foreground-muted">Act as</span>
+        <span className="text-xs font-medium text-foreground-muted">{t('act_as')}</span>
         <div className="flex flex-col gap-1">
           {accounts.map((candidate) => (
             <button

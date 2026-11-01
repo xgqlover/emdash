@@ -2,6 +2,7 @@ import { Tooltip } from '@emdash/ui/react/primitives';
 import { Check, Copy, ExternalLink, Trash2 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTheme } from '@core/primitives/theme/browser';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 type IntegrationStatus =
   | 'connected'
@@ -192,7 +193,7 @@ const IntegrationRow: React.FC<IntegrationRowProps> = ({
               </Tooltip.Trigger>
               <Tooltip.Content side="top">
                 <div className="max-w-[240px] space-y-1">
-                  <div className="text-xs font-medium text-foreground">Copy install command</div>
+                  <div className="text-xs font-medium text-foreground">{t('copy_install_command')}</div>
                   <code className="text-muted-foreground block truncate font-mono text-tiny">
                     {installCommand}
                   </code>

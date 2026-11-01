@@ -41,6 +41,7 @@ import { useOpenModal } from '@core/manifests/browser/modal-api';
 import { projectAvailabilityUi } from '@core/manifests/browser/project-availability-ui';
 import { MAX_CONVERSATION_TITLE_LENGTH } from '@core/primitives/conversations/api';
 import { cn } from '@core/primitives/styling/browser/cn';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 const ROW_HEIGHT = 32;
 const SECTION_HEADER_HEIGHT = 32;
@@ -151,7 +152,7 @@ const ConversationRow = observer(function ConversationRow({
   const handleKillSession = () => {
     if (liveActionDisabledReason) return;
     void openConfirm({
-      title: 'Kill session',
+      title: t('kill_session'),
       description: `"${displayTitle}" will be stopped. The conversation will remain available as inactive/resumable.`,
       confirmLabel: 'Kill session',
       variant: 'destructive',
@@ -175,7 +176,7 @@ const ConversationRow = observer(function ConversationRow({
     const store = getAcpChatResourceManager(taskId, projectId).get(conversationId);
     if (!store) {
       toast.error('Failed to export transcript', {
-        description: 'Open the chat before exporting it.',
+        description: t('open_the_chat_before_exporting_it'),
       });
       return;
     }
@@ -375,7 +376,7 @@ const ConversationSelectionBar = observer(function ConversationSelectionBar({
           icon
           disabled={deleting}
           onClick={selection.clear}
-          aria-label="Clear conversation selection"
+          aria-label={t('clear_conversation_selection')}
         >
           <X className="size-3.5" />
         </Button>

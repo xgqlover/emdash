@@ -9,6 +9,7 @@ import type {
 } from '@core/primitives/agents/api';
 import { resolveActiveInstallation, sourceKey } from '@core/primitives/agents/api';
 import { humanizeMethod } from '@core/primitives/agents/browser/install-command-row';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 // Re-export shared SelectedSource as SourceRef for backward compat with callers.
 export type { SelectedSource as SourceRef };
@@ -153,7 +154,7 @@ export function buildSourceRows(
   const pathInst = installations.find((i) => i.id === 'path');
   rows.push({
     ref: { kind: 'path', path: pathInst?.pathEntry ?? '' },
-    label: 'Path Override',
+    label: t('path_override'),
     status: pathInst?.status ?? 'missing',
   });
 
@@ -161,7 +162,7 @@ export function buildSourceRows(
   const cliInst = installations.find((i) => i.id === 'cli');
   rows.push({
     ref: { kind: 'cli', command: cliInst?.pathEntry ?? '' },
-    label: 'CLI Override',
+    label: t('cli_override'),
     status: cliInst?.status ?? 'missing',
   });
 

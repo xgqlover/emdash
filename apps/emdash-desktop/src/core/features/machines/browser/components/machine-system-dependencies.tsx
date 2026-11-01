@@ -8,6 +8,7 @@ import { SudoRetryPanel } from '@core/primitives/agents/browser/SudoRetryPanel';
 import type { DependencyOperationFailure } from '@core/primitives/host-dependencies/browser/use-dependency-operation-failures';
 import type { SystemDependenciesStore } from '../machines-store';
 import { useSystemDependencies } from '../use-system-dependencies';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 type MachineSystemDependenciesCardProps = {
   machineId?: string;
@@ -59,7 +60,7 @@ export function MachineSystemDependenciesCard({
     <SettingsCard>
       <div className="flex items-center gap-2">
         <Field.Root>
-          <Field.Label>System dependencies</Field.Label>
+          <Field.Label>{t('system_dependencies')}</Field.Label>
           <Field.Description>
             Host tools used by Emdash and coding-agent workflows.
           </Field.Description>
@@ -76,7 +77,7 @@ export function MachineSystemDependenciesCard({
       </div>
       <div className="mt-4">
         {isLoading ? (
-          <div className="p-4 text-sm text-foreground-muted">Checking system dependencies...</div>
+          <div className="p-4 text-sm text-foreground-muted">{t('checking_system_dependencies')}</div>
         ) : error ? (
           <div className="text-destructive p-4 text-sm">
             Failed to load system dependencies: {error.message}
@@ -193,7 +194,7 @@ function SystemDependencyRow({
             {installing ? <Loader2 className="size-3.5 animate-spin" /> : 'Install'}
           </Button>
         ) : (
-          <span className="shrink-0 text-xs text-foreground-muted">Not found</span>
+          <span className="shrink-0 text-xs text-foreground-muted">{t('not_found')}</span>
         )}
       </div>
       {failure ? (

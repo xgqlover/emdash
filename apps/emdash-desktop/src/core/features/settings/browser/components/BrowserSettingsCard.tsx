@@ -143,7 +143,7 @@ export function BrowserSettingsCard() {
       const result = await (await getBrowserClient()).clearBrowsingData({ kind });
       if (!result.success) {
         toast.error('Could not clear browsing data', {
-          description: 'Try again, or reload the browser view manually.',
+          description: t('try_again_or_reload_the_browser_view_man'),
         });
         return;
       }
@@ -384,8 +384,8 @@ export function BrowserSettingsCard() {
                   ref={addInputRef}
                   autoFocus
                   disabled={disabled}
-                  placeholder="Profile name"
-                  aria-label="New browser profile name"
+                  placeholder={t('profile_name')}
+                  aria-label={t('new_browser_profile_name')}
                   className="h-7 min-w-0 flex-1"
                   onKeyDown={(event) => {
                     if (event.key === 'Enter') addProfile(event.currentTarget.value);
@@ -398,7 +398,7 @@ export function BrowserSettingsCard() {
                   icon
                   className="size-7 shrink-0 text-foreground-muted"
                   disabled={disabled}
-                  aria-label="Save new browser profile"
+                  aria-label={t('save_new_browser_profile')}
                   onClick={() => addProfile(addInputRef.current?.value ?? '')}
                 >
                   <Check className="size-4" />
@@ -409,7 +409,7 @@ export function BrowserSettingsCard() {
                   icon
                   className="size-7 shrink-0 text-foreground-muted"
                   disabled={disabled}
-                  aria-label="Cancel adding profile"
+                  aria-label={t('cancel_adding_profile')}
                   onClick={() => setIsAdding(false)}
                 >
                   <X className="size-4" />
@@ -432,7 +432,7 @@ export function BrowserSettingsCard() {
         </SettingsCard>
       </SettingsSection>
 
-      <SettingsSection title="Browsing data" bare>
+      <SettingsSection title={t('browsing_data')} bare>
         <SettingsCard>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <div className="flex min-w-0 flex-1 basis-64 flex-col gap-0.5">
@@ -527,10 +527,10 @@ const BROWSING_DATA_CATEGORIES: ReadonlyArray<{
   actionLabel: string;
 }> = [
   { kind: 'cookies', label: 'Cookies', actionLabel: 'Delete cookies' },
-  { kind: 'siteData', label: 'Site data', actionLabel: 'Delete site data' },
+  { kind: 'siteData', label: t('site_data'), actionLabel: 'Delete site data' },
   {
     kind: 'cache',
-    label: 'Cached images and files',
+    label: t('cached_images_and_files'),
     actionLabel: 'Delete cached images and files',
   },
 ];
@@ -540,25 +540,25 @@ const BROWSING_DATA_CONFIRMATIONS: Record<
   { title: string; description: string; confirmLabel: string }
 > = {
   all: {
-    title: 'Clear all browsing data?',
+    title: t('clear_all_browsing_data'),
     description:
       'This deletes cookies, cached files, and site data for every in-app browser profile. Open browser tabs will be signed out.',
     confirmLabel: 'Clear all data',
   },
   cookies: {
-    title: 'Delete cookies?',
+    title: t('delete_cookies'),
     description:
       'This deletes cookies for every in-app browser profile. Open browser tabs will be signed out.',
     confirmLabel: 'Delete cookies',
   },
   siteData: {
-    title: 'Delete site data?',
+    title: t('delete_site_data'),
     description:
       'This deletes local storage, IndexedDB, service workers, and other site data for every in-app browser profile. Open browser tabs may be signed out.',
     confirmLabel: 'Delete site data',
   },
   cache: {
-    title: 'Delete cached images and files?',
+    title: t('delete_cached_images_and_files'),
     description:
       'This deletes cached images and files for every in-app browser profile. Pages may load more slowly the next time you open them.',
     confirmLabel: 'Delete cached files',
@@ -576,7 +576,7 @@ async function clearProfileStorageAndReload(profileId: string): Promise<void> {
     const result = await (await getBrowserClient()).clearProfileStorage({ profileId });
     if (!result.success) {
       toast.error('Could not clear browser storage', {
-        description: 'The browser profile no longer exists or could not be cleared.',
+        description: t('the_browser_profile_no_longer_exists_or_'),
       });
       return;
     }
@@ -606,7 +606,7 @@ async function deleteProfileAfterStorageClear({
     });
     if (!clearResult.success) {
       toast.error('Could not delete browser profile', {
-        description: 'The profile storage could not be cleared, so the profile was kept.',
+        description: t('the_profile_storage_could_not_be_cleared'),
       });
       return;
     }

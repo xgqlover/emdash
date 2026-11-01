@@ -6,6 +6,7 @@ import { Shortcut } from '@core/primitives/keybindings/browser/shortcut';
 import { cn } from '@core/primitives/styling/browser/cn';
 import { ProviderLogo } from '../components/issue-selector/issue-selector';
 import { buildContextActionText, type ContextAction } from '../context-bar/context-actions';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 const ADD_CONTEXT_HOTKEY = 'Mod+Shift+A';
 type AddContextPopoverSide = 'top' | 'bottom';
@@ -44,7 +45,7 @@ export function ActionItemRow({ action }: { action: ContextAction }) {
       return (
         <ActionItemBaseRow
           icon={<MessageSquare className="size-3.5 shrink-0 text-foreground-muted" />}
-          label="Line comments"
+          label={t('line_comments')}
           text={`${action.commentCount} comment${action.commentCount !== 1 ? 's' : ''} in ${action.fileCount} file${action.fileCount !== 1 ? 's' : ''}`}
         />
       );
@@ -196,7 +197,7 @@ export function AddContextPopover({
               ) : (
                 <ChevronDown className="size-3 shrink-0" />
               )}
-              <span>Add context</span>
+              <span>{t('add_context')}</span>
             </span>
             <Shortcut hotkey={ADD_CONTEXT_HOTKEY} variant="keycaps" />
           </>
@@ -215,7 +216,7 @@ export function AddContextPopover({
           }
         }}
       >
-        <Combobox.Input showTrigger={false} placeholder="Search..." />
+        <Combobox.Input showTrigger={false} placeholder={t('search')} />
         <Combobox.List className="flex-1">
           {(group: { value: string; items: ContextAction[] }) => (
             <Combobox.Group items={group.items}>
@@ -238,7 +239,7 @@ export function AddContextPopover({
         </Combobox.Empty>
         <div className="flex items-center justify-end border-t px-2 py-1.5">
           <span className="flex items-center gap-1">
-            <p className="text-xs text-foreground-passive">Add to input</p>
+            <p className="text-xs text-foreground-passive">{t('add_to_input')}</p>
             <Shortcut hotkey="Enter" variant="keycaps" />
           </span>
         </div>

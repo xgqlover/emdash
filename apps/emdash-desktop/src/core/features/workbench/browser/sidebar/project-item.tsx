@@ -185,7 +185,7 @@ export const SidebarProjectItem = observer(function SidebarProjectItem({
                       <Tooltip.Trigger>
                         <TriangleAlert className="h-3.5 w-3.5 shrink-0 text-foreground-destructive" />
                       </Tooltip.Trigger>
-                      <Tooltip.Content>Project context unavailable</Tooltip.Content>
+                      <Tooltip.Content>{t('project_context_unavailable')}</Tooltip.Content>
                     </Tooltip.Root>
                   )}
                 </span>

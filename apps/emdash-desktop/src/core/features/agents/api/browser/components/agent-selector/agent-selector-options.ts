@@ -1,6 +1,7 @@
 import type { AgentProviderId } from '@emdash/plugins/agents/types';
 import { agentSupportsAcp, type AgentPayload } from '@core/primitives/agents/api';
 import { getAgentInstallActionState } from './agent-install';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export type AgentDisableReason = (
   agent: Pick<AgentPayload, 'id' | 'name' | 'capabilities'>
@@ -76,7 +77,7 @@ export function buildAgentGroups(
 
   return [
     { value: 'installed', label: 'Installed', items: installedOptions },
-    { value: 'not-installed', label: 'Not installed', items: notInstalledOptions },
+    { value: 'not-installed', label: t('not_installed'), items: notInstalledOptions },
   ].filter((group) => group.items.length > 0);
 }
 

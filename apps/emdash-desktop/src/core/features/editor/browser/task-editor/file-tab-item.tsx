@@ -16,6 +16,7 @@ import {
 } from '@core/primitives/workbench-shell/browser/tabs/tab-bar/generic-tab-item';
 import type { TabCommand } from '@core/primitives/workbench-shell/browser/tabs/tab-bar/tab-commands';
 import { getLanguageServices } from '../lsp/language-services';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 function fileTabErrorTooltip(status: ContentStatus): string | undefined {
   if (status.kind !== 'error') return undefined;
@@ -45,7 +46,7 @@ export const FileTabBarItem = observer(function FileTabBarItem({
   if (resource.inWorkspace)
     commands.push({
       id: 'file:reveal',
-      label: 'Reveal File',
+      label: t('reveal_file'),
       icon: FolderOpen,
       group: 'file',
       run: () => {
@@ -92,7 +93,7 @@ export const FileTabBarItem = observer(function FileTabBarItem({
         resource.isDirty ? (
           <div
             className="size-2 rounded-full bg-foreground group-hover:opacity-0"
-            title="Unsaved changes"
+            title={t('unsaved_changes')}
           />
         ) : undefined
       }

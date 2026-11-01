@@ -23,6 +23,7 @@ import { type ProjectHostParams, type ProjectsWireContract } from '@core/feature
 import { nativePathFromHost } from '@core/primitives/desktop-runtime/api';
 import { type Strategy } from './add-project-modal';
 import { projectDirectoryLocation } from './project-directory-location';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 type ContractDefinitionsOf<TContract> = TContract extends Contract<infer Defs> ? Defs : never;
 const DIRECTORY_LISTING_TIMEOUT_MS = 30_000;
@@ -149,7 +150,7 @@ export function ProjectDirectoryPicker({
         }}
       >
         <Input
-          aria-label="Directory location"
+          aria-label={t('directory_location')}
           value={locationInput}
           spellCheck={false}
           onChange={(event) => setLocationInput(event.currentTarget.value)}

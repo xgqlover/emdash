@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 import { getHostClient } from '@core/primitives/desktop-host/browser/host-client';
 import { log } from '@core/primitives/logging/browser/logger';
 import { FEEDBACK_EMAIL_SCHEMA } from './schemas/feedback-email';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 const FEEDBACK_MAX_FILES = 10;
 const FEEDBACK_MAX_PAYLOAD_BYTES = 8 * 1024 * 1024;
@@ -165,11 +166,11 @@ export function useFeedbackSubmit({
         }
 
         onSuccess();
-        toast('Feedback sent', { description: 'Thanks for your feedback!' });
+        toast('Feedback sent', { description: t('thanks_for_your_feedback') });
       } catch (error) {
         log.error('Failed to submit feedback:', error);
         setErrorMessage('Unable to send feedback. Please try again.');
-        toast.error('Failed to send feedback', { description: 'Please try again.' });
+        toast.error('Failed to send feedback', { description: t('please_try_again') });
       } finally {
         setSubmitting(false);
       }

@@ -4,6 +4,7 @@ import { Loader2, TriangleAlert, X } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@core/primitives/styling/browser/cn';
 import { CommandActionButton, CommandRow } from './install-command-row';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export type SudoRetryPanelProps = {
   error: PermissionDeniedError;
@@ -38,11 +39,11 @@ export function SudoRetryPanel({
     >
       <div className="flex items-center gap-2 text-sm">
         <TriangleAlert className="h-4 w-4 shrink-0 text-foreground-warning" />
-        <span className="font-medium">Permission denied</span>
+        <span className="font-medium">{t('permission_denied')}</span>
         {onDismiss ? (
           <button
             type="button"
-            aria-label="Dismiss permission error"
+            aria-label={t('dismiss_permission_error')}
             className="ml-auto rounded p-0.5 text-foreground-passive hover:bg-background-2 hover:text-foreground"
             onClick={onDismiss}
           >

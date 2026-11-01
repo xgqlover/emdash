@@ -6,6 +6,7 @@ import React from 'react';
 import { useAgentMcps } from '@core/features/agents/api/browser/use-agent-mcps';
 import { settingsViewDef } from '@core/features/settings/contributions/views';
 import { useNavigate } from '@core/primitives/navigation/browser/navigation-hooks';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 function McpServerPill({
   server,
@@ -52,7 +53,7 @@ function McpServerPill({
 
 function EmptyMcpState() {
   return (
-    <p className="text-muted-foreground text-xs">No MCP servers configured for this agent yet.</p>
+    <p className="text-muted-foreground text-xs">{t('no_mcp_servers_configured_for_this_agent')}</p>
   );
 }
 
@@ -75,7 +76,7 @@ export function AgentMcpSection({
   return (
     <Field.Root>
       <div className="flex items-center justify-between">
-        <Label>MCP Servers</Label>
+        <Label>{t('mcp_servers')}</Label>
         {onManage && (
           <Button
             type="button"

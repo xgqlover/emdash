@@ -2,6 +2,7 @@ import { CollectionToolbar } from '@emdash/ui/react/patterns';
 import { Button } from '@emdash/ui/react/primitives';
 import { RefreshCw } from 'lucide-react';
 import React from 'react';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 type AgentsToolbarProps = {
   searchQuery: string;
@@ -30,7 +31,7 @@ export function AgentsToolbar({
           icon
           onClick={onRefresh}
           disabled={isRefreshing}
-          aria-label="Refresh agent detection"
+          aria-label={t('refresh_agent_detection')}
         >
           <RefreshCw className={isRefreshing ? 'animate-spin' : ''} />
         </Button>

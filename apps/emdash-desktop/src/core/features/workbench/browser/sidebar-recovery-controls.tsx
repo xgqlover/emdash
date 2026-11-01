@@ -2,6 +2,7 @@ import { Button, Tooltip } from '@emdash/ui/react/primitives';
 import { PanelLeft } from 'lucide-react';
 import { BoundShortcut } from '@core/primitives/keybindings/browser/shortcut';
 import { NavButtons } from './nav-buttons';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export function SidebarRecoveryControls({ onShowSidebar }: { onShowSidebar: () => void }) {
   return (
@@ -12,7 +13,7 @@ export function SidebarRecoveryControls({ onShowSidebar }: { onShowSidebar: () =
             variant="ghost"
             size="sm"
             className="size-7 p-0"
-            aria-label="Show left sidebar"
+            aria-label={t('show_left_sidebar')}
             onClick={onShowSidebar}
           >
             <PanelLeft className="h-4 w-4" />

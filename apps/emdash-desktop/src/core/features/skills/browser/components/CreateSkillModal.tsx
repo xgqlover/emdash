@@ -9,6 +9,7 @@ import { defineModal } from '@core/primitives/modals/react';
 import { useCloseGuard } from '@core/primitives/modals/react/use-close-guard';
 import { captureTelemetry } from '@core/primitives/telemetry/browser/telemetry-client';
 import { getSkillsClient } from '../client';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export function CreateSkillModal({ host }: { host: HostRef }) {
   const { complete, dismiss } = useModalController('createSkillModal');
@@ -63,7 +64,7 @@ export function CreateSkillModal({ host }: { host: HostRef }) {
     <>
       <Dialog.Header>
         <div className="flex flex-col gap-0.5">
-          <Dialog.Title>New Skill</Dialog.Title>
+          <Dialog.Title>{t('new_skill')}</Dialog.Title>
         </div>
       </Dialog.Header>
 
@@ -90,7 +91,7 @@ export function CreateSkillModal({ host }: { host: HostRef }) {
             <Label htmlFor="skill-desc">Description</Label>
             <Input
               id="skill-desc"
-              placeholder="What does this skill do?"
+              placeholder={t('what_does_this_skill_do')}
               value={description}
               onChange={(e) => {
                 setDescription(e.target.value);

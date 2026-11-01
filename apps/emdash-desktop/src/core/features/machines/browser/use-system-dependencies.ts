@@ -12,6 +12,7 @@ import { getHostDependencyErrorMessage } from '@core/primitives/host-dependencie
 import { useDependencyOperationFailures } from '@core/primitives/host-dependencies/browser/use-dependency-operation-failures';
 import type { SystemDependenciesStore } from './machines-store';
 import { useSystemDependencySnapshot } from './use-system-dependency-snapshot';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 const systemDependencyInstallKey = (machineId: string | undefined) =>
   ['machines', machineId, 'system-dependencies', 'install'] as const;
@@ -70,7 +71,7 @@ export function useSystemDependencies(
           method: variables.method,
         });
         toast(`Permission denied installing ${name}`, {
-          description: 'See the install panel for retry and recovery options.',
+          description: t('see_the_install_panel_for_retry_and_reco'),
         });
         return;
       }

@@ -40,6 +40,7 @@ import {
 import { scopes } from '@core/primitives/view-scopes/browser';
 import { useViewScope, ViewScopeInstanceProvider } from '@core/primitives/view-scopes/react';
 import type { ResolvedTab } from '@core/primitives/workbench-shell/browser/tabs/core/tab-provider';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 type TaskScopeParams = { readonly projectId: string; readonly taskId: string };
 
@@ -317,8 +318,8 @@ const taskScopeImplementation = {
     presentation: () => {
       const git = getTaskGitCheckoutStore(params.projectId, params.taskId);
       return git?.isPublished
-        ? { title: 'Git Push', description: 'Push commits to remote' }
-        : { title: 'Git Publish Branch', description: 'Publish this branch to remote' };
+        ? { title: t('git_push'), description: t('push_commits_to_remote') }
+        : { title: t('git_publish_branch'), description: t('publish_this_branch_to_remote') };
     },
     execute: () => {
       const git = getTaskGitCheckoutStore(params.projectId, params.taskId);
@@ -340,8 +341,8 @@ const taskScopeImplementation = {
     presentation: () => {
       const task = getRegisteredTaskData(params.projectId, params.taskId);
       return task?.isPinned
-        ? { title: 'Unpin Task', description: 'Remove this task from pinned' }
-        : { title: 'Pin Task', description: 'Pin this task to keep it at the top' };
+        ? { title: t('unpin_task'), description: t('remove_this_task_from_pinned') }
+        : { title: t('pin_task'), description: t('pin_this_task_to_keep_it_at_the_top') };
     },
     execute: () => {
       const task = getRegisteredTaskData(params.projectId, params.taskId);

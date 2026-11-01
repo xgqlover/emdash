@@ -132,7 +132,7 @@ export const ChangesPanel = observer(function ChangesPanel() {
       return (
         <EmptyState
           label={t('folder_not_git_repo')}
-          description="Initialize Git to enable changes, commits, branches, and worktree-based tasks."
+          description={t('initialize_git_to_enable_changes_commits')}
           action={
             <Button
               variant="primary"

@@ -64,7 +64,7 @@ export const RenameProjectModal = observer(function RenameProjectModal({
               autoFocus
             />
             {isEmpty && (
-              <p className="text-destructive mt-1 text-xs">Project name cannot be empty.</p>
+              <p className="text-destructive mt-1 text-xs">{t('project_name_cannot_be_empty')}</p>
             )}
             {error && <p className="text-destructive mt-1 text-xs">{error}</p>}
           </Field.Root>

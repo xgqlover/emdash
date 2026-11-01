@@ -3,13 +3,14 @@ import { Button, Input, Select } from '@emdash/ui/react/primitives';
 import { useState } from 'react';
 import type { MachineFormMode } from './machine-form-model';
 import type { MachineEditorForm } from './use-machine-form';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 function PrivateKeyField({ inheritedKey, alias }: { inheritedKey?: string; alias: string }) {
   const field = useFieldContext<string>();
   const [draft, setDraft] = useState<string | null>(null);
   return (
     <FormFieldShell
-      label="Private key"
+      label={t('private_key')}
       description={
         alias && (field.state.value || !inheritedKey) ? (
           <span className="flex flex-wrap items-center justify-between gap-2">
@@ -67,7 +68,7 @@ export function MachineAuthenticationFields({
   reuse: { password: boolean; passphrase: boolean };
 }) {
   return (
-    <section className="grid gap-3" aria-label="Authentication settings">
+    <section className="grid gap-3" aria-label={t('authentication_settings')}>
       <form.AppField name={`${mode}.authType`}>
         {(field) => (
           <FormFieldShell label="Authentication" orientation="horizontal">
@@ -88,7 +89,7 @@ export function MachineAuthenticationFields({
                   </Select.Value>
                 </Select.Trigger>
                 <Select.Content>
-                  <Select.Item value="key">SSH Key</Select.Item>
+                  <Select.Item value="key">{t('ssh_key')}</Select.Item>
                   <Select.Item value="agent">Agent</Select.Item>
                   <Select.Item value="password">Password</Select.Item>
                 </Select.Content>
@@ -131,7 +132,7 @@ export function MachineAuthenticationFields({
               )}
             </form.AppField>
           ) : (
-            <p className="text-sm text-foreground-muted">Uses keys available in your SSH agent.</p>
+            <p className="text-sm text-foreground-muted">{t('uses_keys_available_in_your_ssh_agent')}</p>
           )
         }
       </form.Subscribe>

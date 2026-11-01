@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useImportGitHubCliAccounts } from '@core/features/github/api/browser/use-github-auth';
 import type { IntegrationAuthUiProps } from '@core/features/integrations/api/browser/integration-auth-ui';
 import { StandardIntegrationAuth } from '@core/features/integrations/contributions/browser/standard-integration-auth';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export function GitHubIntegrationAuth(props: IntegrationAuthUiProps) {
   const { toast } = useToast();
@@ -50,8 +51,8 @@ export function GitHubIntegrationAuth(props: IntegrationAuthUiProps) {
               {
                 id: 'cli',
                 icon: Terminal,
-                title: 'Import from GitHub CLI',
-                description: 'Use accounts already authenticated with GitHub CLI',
+                title: t('import_from_github_cli'),
+                description: t('use_accounts_already_authenticated_with_'),
                 loadingLabel: 'Checking GitHub CLI accounts',
                 loading: cliLoading,
                 onSelect: () => void refreshCliAuth(),

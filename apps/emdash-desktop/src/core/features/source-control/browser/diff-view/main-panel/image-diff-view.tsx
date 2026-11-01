@@ -232,7 +232,7 @@ function PreviewImage({
   const [decodeFailed, setDecodeFailed] = useState(false);
 
   if (decodeFailed) {
-    return <div className="text-xs text-foreground-passive">Failed to decode image</div>;
+    return <div className="text-xs text-foreground-passive">{t('failed_to_decode_image')}</div>;
   }
 
   return (

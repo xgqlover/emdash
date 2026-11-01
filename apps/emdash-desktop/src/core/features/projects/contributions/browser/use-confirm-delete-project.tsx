@@ -2,6 +2,7 @@ import { getAutomationsClient } from '@core/features/automations/api/browser/cli
 import { getProjectManagerStore } from '@core/features/projects/api/browser/stores/project-selectors';
 import { useOpenModal } from '@core/manifests/browser/modal-api';
 import type { Automation } from '@core/primitives/automations/api';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 async function listProjectAutomations(projectId: string): Promise<Automation[]> {
   return getAutomationsClient()
@@ -51,7 +52,7 @@ export function useConfirmDeleteProject() {
     const automations = await listProjectAutomations(projectId);
 
     const outcome = await openConfirmDeleteProject({
-      title: 'Delete project',
+      title: t('delete_project'),
       description: deleteProjectDescription(projectLabel, automations),
       confirmLabel: 'Delete',
     });

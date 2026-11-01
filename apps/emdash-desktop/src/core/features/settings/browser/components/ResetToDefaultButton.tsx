@@ -1,6 +1,7 @@
 import { Button, Tooltip } from '@emdash/ui/react/primitives';
 import { RotateCcw } from 'lucide-react';
 import React from 'react';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 interface ResetToDefaultButtonProps {
   /** Optional label shown in the tooltip: "Reset to default: <label>" */
@@ -31,7 +32,7 @@ export const ResetToDefaultButton: React.FC<ResetToDefaultButtonProps> = ({
             className="text-muted-foreground h-7 w-7 shrink-0 hover:text-foreground"
             onClick={onReset}
             disabled={disabled}
-            aria-label="Reset to default"
+            aria-label={t('reset_to_default_2')}
           >
             <RotateCcw className="h-3.5 w-3.5" />
           </Button>

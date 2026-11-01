@@ -4,6 +4,7 @@ import type { ContractClient } from '@emdash/wire/rpc';
 import { toJS } from 'mobx';
 import { pullRequestErrorMessage } from '../api';
 import type { PullRequestFilters, PullRequestsContract, PullRequestSort } from '../api';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export type PullRequestListFilterModel = PullRequestFilters & Record<string, unknown>;
 
@@ -35,7 +36,7 @@ export function createPullRequestListView(options: {
       keys: {
         newest: { label: 'Newest' },
         oldest: { label: 'Oldest' },
-        'recently-updated': { label: 'Recently updated' },
+        'recently-updated': { label: t('recently_updated') },
       },
       initial: { key: 'newest' as const, dir: 'desc' as const },
     },

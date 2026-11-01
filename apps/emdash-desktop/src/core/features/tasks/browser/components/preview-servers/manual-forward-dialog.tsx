@@ -2,6 +2,7 @@ import { Button, Dialog, Input, Label, Select } from '@emdash/ui/react/primitive
 import { useState, type FormEvent } from 'react';
 import { usePreviewServers } from '@core/features/workbench/api/browser/task-composition-context';
 import type { PreviewServerProtocol } from '@core/primitives/preview-servers/api';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 function parsePort(value: string): number | undefined {
   const trimmed = value.trim();
@@ -68,7 +69,7 @@ export function ManualForwardDialog({ onClose }: { onClose: () => void }) {
     <Dialog.Content>
       <form onSubmit={handleSubmit}>
         <Dialog.Header>
-          <Dialog.Title>Forward Port</Dialog.Title>
+          <Dialog.Title>{t('forward_port')}</Dialog.Title>
         </Dialog.Header>
         <Dialog.Body>
           <Dialog.Description>

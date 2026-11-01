@@ -16,6 +16,7 @@ import { scopes } from '@core/primitives/view-scopes/browser';
 import { useViewScope, ViewScopeInstanceProvider } from '@core/primitives/view-scopes/react';
 import { KeyValueSection, type KVEntry } from './KeyValueSection';
 import { SyncToAgentsSection } from './SyncToAgentsSection';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export type McpDrawerMode =
   | { type: 'add-catalog'; entry: McpCatalogEntry }
@@ -163,7 +164,7 @@ const McpDrawerContent: React.FC<McpDrawerContentProps> = ({
   return (
     <>
       <Sheet.Header>
-        <MicroLabel>MCP Server</MicroLabel>
+        <MicroLabel>{t('mcp_server')}</MicroLabel>
         <Sheet.Title>
           {isEdit
             ? 'Edit MCP Server'
@@ -181,7 +182,7 @@ const McpDrawerContent: React.FC<McpDrawerContentProps> = ({
           <form.Field name="name">
             {(field) => (
               <Field.Root>
-                <Field.Label>Server Name</Field.Label>
+                <Field.Label>{t('server_name')}</Field.Label>
                 <Input
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
@@ -275,7 +276,7 @@ const McpDrawerContent: React.FC<McpDrawerContentProps> = ({
           <form.Field name="envEntries">
             {(field) => (
               <KeyValueSection
-                label="Environment Variables"
+                label={t('environment_variables')}
                 entries={field.state.value}
                 onChange={(entries) => field.handleChange(entries)}
                 addLabel="+ Add env var"

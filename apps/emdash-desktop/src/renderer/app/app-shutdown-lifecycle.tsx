@@ -7,6 +7,7 @@ import { log } from '@core/primitives/logging/browser/logger';
 import { useMementoClient } from '@core/primitives/mementos/react';
 import { modalStore } from '@core/primitives/modals/react/modal-store';
 import { getDesktopWireClient } from '@renderer/lib/runtime/desktop-wire-client';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export function AppShutdownLifecycle() {
   const mementoClient = useMementoClient();
@@ -31,7 +32,7 @@ export function AppShutdownLifecycle() {
             const allSaved = await openFileStore.saveAllDirty();
             if (!allSaved) {
               toast.error('Could not save all files', {
-                description: 'Resolve any file conflicts and try quitting again.',
+                description: t('resolve_any_file_conflicts_and_try_quitt'),
               });
               return false;
             }
@@ -41,7 +42,7 @@ export function AppShutdownLifecycle() {
         } catch (error) {
           log.error('Failed to resolve unsaved files before quit:', error);
           toast.error('Could not resolve unsaved files', {
-            description: 'Your changes were kept. Try quitting again.',
+            description: t('your_changes_were_kept_try_quitting_agai'),
           });
           return false;
         }
@@ -49,7 +50,7 @@ export function AppShutdownLifecycle() {
 
       if (activeRequestId.current !== requestId) return false;
       const confirmation = await openConfirmQuitModal({
-        title: 'Quit Emdash?',
+        title: t('quit_emdash'),
         description: describeShutdownImpact(summary),
         confirmLabel: 'Quit',
       });
@@ -143,7 +144,7 @@ function ShutdownOverlay() {
       ref={overlay}
       role="alertdialog"
       aria-modal="true"
-      aria-label="Shutting down Emdash"
+      aria-label={t('shutting_down_emdash')}
       tabIndex={-1}
       className="fixed inset-0 z-9999 flex items-center justify-center bg-background/95"
     >

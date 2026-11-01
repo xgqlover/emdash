@@ -10,6 +10,7 @@ import {
 } from '@core/primitives/environment-variables/browser/environment-variable-inputs';
 import { log } from '@core/primitives/logging/browser/logger';
 import { cn } from '@core/primitives/styling/browser/cn';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 const FieldTooltip: React.FC<{ content: string }> = ({ content }) => (
   <Tooltip.Provider>
@@ -18,7 +19,7 @@ const FieldTooltip: React.FC<{ content: string }> = ({ content }) => (
         <button
           type="button"
           className="text-muted-foreground hover:text-foreground"
-          aria-label="More information"
+          aria-label={t('more_information')}
         >
           <Info className="h-3.5 w-3.5" aria-hidden="true" />
         </button>
@@ -124,7 +125,7 @@ export const InstalledAgentContent = observer(function InstalledAgentContent({
           className="flex w-full items-center justify-between rounded-md py-2 text-sm font-medium text-foreground-muted hover:text-foreground"
         >
           <span className="flex h-6 items-center gap-1.5">
-            <Label>Advanced settings</Label>
+            <Label>{t('advanced_settings')}</Label>
             <ChevronRight
               className={cn('size-3.5', 'transition-transform', open ? 'rotate-90' : '')}
             />
@@ -152,7 +153,7 @@ export const InstalledAgentContent = observer(function InstalledAgentContent({
             {(field) => (
               <Field.Root>
                 <div className="flex items-center gap-2">
-                  <Label htmlFor="sheet-extraArgs">Additional parameters</Label>
+                  <Label htmlFor="sheet-extraArgs">{t('additional_parameters')}</Label>
                   <FieldTooltip content="Extra flags appended to the command (e.g. --enable-all-github-mcp-tools)" />
                 </div>
                 <Input
@@ -172,7 +173,7 @@ export const InstalledAgentContent = observer(function InstalledAgentContent({
             {(field) => (
               <Field.Root>
                 <div className="flex items-center gap-2">
-                  <Label>Environment variables</Label>
+                  <Label>{t('environment_variables')}</Label>
                   <FieldTooltip content="Environment variables set when running the agent" />
                 </div>
                 <EnvironmentVariableInputs

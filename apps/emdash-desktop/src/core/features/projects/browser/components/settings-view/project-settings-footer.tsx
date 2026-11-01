@@ -65,7 +65,7 @@ export function ProjectSettingsFooter({
         <Button
           variant="secondary"
           icon
-          aria-label="Reset changes"
+          aria-label={t('reset_changes')}
           onClick={onUndo}
           disabled={!dirty || saving}
         >

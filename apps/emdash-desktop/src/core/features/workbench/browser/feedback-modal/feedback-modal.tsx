@@ -20,6 +20,7 @@ import { useAttachments } from '@core/primitives/react-hooks/browser/use-attachm
 import { cn } from '@core/primitives/styling/browser/cn';
 import { EMDASH_ISSUES_NEW_URL } from '@core/primitives/urls/api/urls';
 import { useFeedbackSubmit } from './use-feedback-submit';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 type FeedbackModalArgs = {
   blurb?: string;
@@ -132,7 +133,7 @@ export function FeedbackModal({ blurb }: FeedbackModalArgs) {
         <div className="border-primary bg-primary/5 absolute inset-0 z-10 flex items-center justify-center rounded-xl border-2 border-dashed">
           <div className="text-primary flex flex-col items-center gap-1">
             <ImageIcon className="size-6" />
-            <span className="text-xs font-medium">Drop image here</span>
+            <span className="text-xs font-medium">{t('drop_image_here')}</span>
           </div>
         </div>
       )}
@@ -152,7 +153,7 @@ export function FeedbackModal({ blurb }: FeedbackModalArgs) {
               id="feedback-details"
               autoFocus
               rows={5}
-              placeholder="What do you like? How can we improve?"
+              placeholder={t('what_do_you_like_how_can_we_improve')}
               className="resize-none"
               value={feedbackDetails}
               onChange={(event) => {
@@ -199,7 +200,7 @@ export function FeedbackModal({ blurb }: FeedbackModalArgs) {
                   onCheckedChange={(checked) => setIncludeDiagnosticLogs(Boolean(checked))}
                   disabled={submitting}
                 />
-                <span className="min-w-0">Include diagnostic logs</span>
+                <span className="min-w-0">{t('include_diagnostic_logs')}</span>
               </label>
               <Tooltip.Provider delay={150}>
                 <Tooltip.Root>
@@ -207,7 +208,7 @@ export function FeedbackModal({ blurb }: FeedbackModalArgs) {
                     <button
                       type="button"
                       className="text-muted-foreground mt-1 inline-flex size-4 items-center justify-center hover:text-foreground"
-                      aria-label="More information about diagnostic logs"
+                      aria-label={t('more_information_about_diagnostic_logs')}
                     >
                       <Info className="size-3.5" aria-hidden="true" />
                     </button>
@@ -225,7 +226,7 @@ export function FeedbackModal({ blurb }: FeedbackModalArgs) {
               rel="noopener noreferrer"
               className="text-muted-foreground inline-flex items-center gap-1 text-xs hover:text-foreground"
             >
-              <span>Open Github Issue instead</span>
+              <span>{t('open_github_issue_instead')}</span>
               <ExternalLink className="size-3" aria-hidden="true" />
             </a>
 
@@ -274,7 +275,7 @@ export function FeedbackModal({ blurb }: FeedbackModalArgs) {
           disabled={submitting}
         >
           <Paperclip className="h-4 w-4" aria-hidden="true" />
-          <span>Attach image</span>
+          <span>{t('attach_image')}</span>
         </Button>
         <ConfirmButton
           variant="primary"
@@ -287,10 +288,10 @@ export function FeedbackModal({ blurb }: FeedbackModalArgs) {
           {submitting ? (
             <>
               <Spinner size="sm" />
-              <span>Sending...</span>
+              <span>{t('sending')}</span>
             </>
           ) : (
-            <span>Send Feedback</span>
+            <span>{t('send_feedback')}</span>
           )}
         </ConfirmButton>
       </Dialog.Footer>

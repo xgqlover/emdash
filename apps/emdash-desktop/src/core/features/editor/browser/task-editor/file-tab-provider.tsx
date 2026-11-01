@@ -31,6 +31,7 @@ import { FileContentToolbar } from './file-content-toolbar';
 import { FILE_CONTENT_TYPES } from './file-content-types';
 import { FileStatusPlaceholder } from './file-status-placeholder';
 import { FileTabBarItem, FileTabBarItemDragPreview } from './file-tab-item';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export interface FileOpenArgs {
   path: string;
@@ -91,7 +92,7 @@ const FileContent = observer(function FileContent({ host, ctx }: TabContentProps
         </div>
         {activeFile && blocked && liveActionDisabledReason ? (
           <div className="absolute inset-0">
-            <EmptyState label="File unavailable" description={liveActionDisabledReason} />
+            <EmptyState label={t('file_unavailable')} description={liveActionDisabledReason} />
           </div>
         ) : activeFile && blocked ? (
           <div className="absolute inset-0">

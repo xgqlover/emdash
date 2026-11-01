@@ -9,6 +9,7 @@ import {
   type ProjectIssueRecovery,
 } from '@core/features/projects/api/browser/project-attachment-recovery';
 import type { ProjectHostAccessState } from '@core/features/projects/api/browser/stores/project-context';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export const DEFAULT_PROJECT_LIVE_ACTION_DISABLED_REASON = PROJECT_LIVE_ACCESS_REQUIRED_MESSAGE;
 
@@ -116,7 +117,7 @@ export function classifyProjectAvailability({
       return {
         severity: 'info',
         announcement: 'polite',
-        title: 'Checking connection',
+        title: t('checking_connection'),
         detail: 'The Project stays open while the current connection is validated.',
         progress: true,
         actions: [],

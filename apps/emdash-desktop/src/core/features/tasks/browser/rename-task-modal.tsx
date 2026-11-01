@@ -87,7 +87,7 @@ export const RenameTaskModal = observer(function RenameTaskModal({
   return (
     <>
       <Dialog.Header showCloseButton={false}>
-        <Dialog.Title>Rename task</Dialog.Title>
+        <Dialog.Title>{t('rename_task')}</Dialog.Title>
       </Dialog.Header>
       <Dialog.Body className="pt-0">
         <Field.Group>

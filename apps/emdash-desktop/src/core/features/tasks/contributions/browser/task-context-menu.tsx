@@ -1,6 +1,7 @@
 import { ContextMenu, toast } from '@emdash/ui/react/primitives';
 import { Archive, Copy, MessageSquare, Pencil, Pin, PinOff, RotateCcw, Trash2 } from 'lucide-react';
 import React from 'react';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 interface TaskContextMenuProps {
   children: React.ReactNode;
@@ -44,7 +45,7 @@ export function TaskContextMenu({
       toast('Branch name copied');
     } catch {
       toast.error('Copy failed', {
-        description: 'The branch name could not be copied to the clipboard.',
+        description: t('the_branch_name_could_not_be_copied_to_t'),
       });
     }
   };

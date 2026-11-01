@@ -3,6 +3,7 @@ import type { Result } from '@emdash/shared';
 import { Alert, Button } from '@emdash/ui/react/primitives';
 import { useState, type ReactNode } from 'react';
 import { CopyButton } from '@core/primitives/agents/browser/install-command-row';
+import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
 
 export type TrustRepositoryConfirmation = {
   title: string;
@@ -36,7 +37,7 @@ export function UntrustedRepositoryNotice({
 
   const handleTrust = async () => {
     const confirmed = await confirm({
-      title: 'Trust this repository?',
+      title: t('trust_this_repository'),
       description: (
         <div className="flex flex-col gap-3">
           <p>Emdash will run this command on {hostLabel}:</p>
