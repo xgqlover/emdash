@@ -4,13 +4,13 @@
   "hint": "标记是锚点，hash 只作辅助：上游 rebase 后 hash/行号必变，判「定制还在不在」看 markers 与 anchors",
   "upstream": {
     "ref": "origin/main",
-    "base": "760b60caade30f4f1dc870d26af4a612dd426cd7"
+    "base": "ab766e8fbb436584dcf0f299740e79d559b8ed31"
   },
   "stats": {
-    "files": 327,
-    "markers": 2396,
-    "newFiles": 133,
-    "modifiedFiles": 194
+    "files": 329,
+    "markers": 2405,
+    "newFiles": 134,
+    "modifiedFiles": 195
   },
   "files": {
     ".github/workflows/release-prod.yml": {
@@ -52,124 +52,124 @@
     "apps/emdash-desktop/electron-builder.config.ts": {
       "markers": 118,
       "lines": [
-        11,
-        38,
-        49,
-        67,
-        76,
-        86,
-        122,
-        124,
-        126,
-        128,
-        130,
-        132,
-        134,
-        136,
-        138,
-        140,
-        142,
-        144,
-        146,
-        148,
-        150,
-        152,
-        154,
-        156,
-        158,
-        160,
-        162,
-        164,
-        166,
-        168,
-        170,
-        172,
-        174,
-        176,
-        178,
-        180,
-        182,
-        184,
-        186,
-        188,
-        190,
-        192,
-        194,
-        196,
-        198,
-        200,
-        202,
-        204,
-        206,
-        208,
-        210,
-        212,
-        214,
-        216,
-        218,
-        220,
-        222,
-        224,
-        226,
-        228,
-        230,
-        232,
-        234,
-        236,
-        238,
-        240,
-        242,
-        244,
-        246,
-        248,
-        250,
-        252,
-        254,
-        256,
-        258,
-        260,
-        262,
-        264,
-        266,
-        268,
-        270,
-        272,
-        274,
-        276,
-        278,
-        280,
-        282,
-        284,
-        286,
-        288,
-        290,
-        292,
-        294,
-        296,
-        298,
-        300,
-        302,
-        304,
-        306,
-        308,
-        310,
-        312,
-        314,
-        316,
-        318,
-        320,
-        322,
-        324,
-        326,
-        328,
-        330,
-        332,
-        334,
-        336,
-        338,
-        407,
-        419,
-        422
+        12,
+        39,
+        50,
+        68,
+        77,
+        87,
+        123,
+        125,
+        127,
+        129,
+        131,
+        133,
+        135,
+        137,
+        139,
+        141,
+        143,
+        145,
+        147,
+        149,
+        151,
+        153,
+        155,
+        157,
+        159,
+        161,
+        163,
+        165,
+        167,
+        169,
+        171,
+        173,
+        175,
+        177,
+        179,
+        181,
+        183,
+        185,
+        187,
+        189,
+        191,
+        193,
+        195,
+        197,
+        199,
+        201,
+        203,
+        205,
+        207,
+        209,
+        211,
+        213,
+        215,
+        217,
+        219,
+        221,
+        223,
+        225,
+        227,
+        229,
+        231,
+        233,
+        235,
+        237,
+        239,
+        241,
+        243,
+        245,
+        247,
+        249,
+        251,
+        253,
+        255,
+        257,
+        259,
+        261,
+        263,
+        265,
+        267,
+        269,
+        271,
+        273,
+        275,
+        277,
+        279,
+        281,
+        283,
+        285,
+        287,
+        289,
+        291,
+        293,
+        295,
+        297,
+        299,
+        301,
+        303,
+        305,
+        307,
+        309,
+        311,
+        313,
+        315,
+        317,
+        319,
+        321,
+        323,
+        325,
+        327,
+        329,
+        331,
+        333,
+        335,
+        337,
+        339,
+        414,
+        426,
+        429
       ],
       "anchors": [
         "const _envVersion = (process.env.npm_package_version || '').trim();",
@@ -184,7 +184,7 @@
         "electronFuses: {",
         "npmRebuild: false,"
       ],
-      "hash": "e4fb6d852523fa2c0fb7419411f22ca82cc0d9a2",
+      "hash": "0df812f9d030f69c975e339e81adfdb2bd0ce590",
       "origin": "modified",
       "firstCommit": "32fb70f94|2026-09-18|fix: 去掉 win azureSignOptions（fork 无 Azure 凭据，签名卡 6h 超时），打 unsigned 包",
       "lastCommit": "32fb70f94|2026-09-18|fix: 去掉 win azureSignOptions（fork 无 Azure 凭据，签名卡 6h 超时），打 unsigned 包",
@@ -210,12 +210,12 @@
     "apps/emdash-desktop/package.json": {
       "markers": 1,
       "lines": [
-        200
+        199
       ],
       "anchors": [
         "2026-10-14] 版本 1.2.43-xiangwo：取图网格点击目标 page→orig 兜底（真机反馈「点了没图的框没反应」）；另 1.2.41 未设工作区回退、1.2.42 planOutbound(MCP Apps)。⚠️ J"
       ],
-      "hash": "420a2cd1be4458b5b32ea2838da7f5580d6df7f3",
+      "hash": "3431655694dc6aac4c5ef8a1b50db72f0644ccc2",
       "origin": "modified",
       "firstCommit": "1dce8b4ad|2026-10-14|[XG-CUSTOM 2026-10-14] 取图网格：点击目标 page→orig 兜底 + 版本 1.2.43-xiangwo + 台账标记",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -494,13 +494,13 @@
       "markers": 2,
       "lines": [
         1,
-        113
+        114
       ],
       "anchors": [
         "import { t } from '@renderer/lib/i18n';",
         "<SheetHeader title={t('create_automation')} onClose={onClose} />"
       ],
-      "hash": "7a1800d1544afb8056b6323a599ec753787fb59d",
+      "hash": "feba5755eb023c0d1f243fc637bebc4c6eda9ef0",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -624,12 +624,12 @@
     "apps/emdash-desktop/src/core/features/automations/browser/useAutomationFormState.ts": {
       "markers": 6,
       "lines": [
-        26,
-        99,
-        195,
-        213,
-        269,
-        283
+        27,
+        100,
+        196,
+        214,
+        273,
+        287
       ],
       "anchors": [
         "import { getLocalTimeZone, validateTriggerConfig } from '@core/primitives/automations/api';",
@@ -639,7 +639,7 @@
         "setCronExpr(template.defaultTrigger.expr ?? '');",
         "2026-10-05] 触发源（表单渲染「On schedule / On event」）"
       ],
-      "hash": "3eb51cfc2291526684f2a2e1b7a8764d04fec0e7",
+      "hash": "2698eef6d1d955f32458476c7e4a06ebd90d8799",
       "origin": "modified",
       "firstCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
       "lastCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
@@ -1116,26 +1116,26 @@
         391,
         445,
         484,
-        521,
-        531,
+        522,
         532,
-        607,
-        632,
-        713,
-        721,
-        723,
-        757,
-        839,
-        857,
-        878,
-        899,
-        1024,
-        1091,
-        1119,
-        1176,
-        1206,
-        1214,
-        1287
+        533,
+        608,
+        633,
+        714,
+        722,
+        724,
+        758,
+        840,
+        858,
+        879,
+        900,
+        1025,
+        1092,
+        1120,
+        1177,
+        1207,
+        1215,
+        1288
       ],
       "anchors": [
         "import { XIANGWO_BOTS, XIANGWO_EXPERTS, XIANGWO_ROLES, XIANGWO_SUBAGENTS } from './xiangwo-experts';",
@@ -1174,7 +1174,7 @@
         "{agent?.name ?? '此 agent'} 需要你登录。 ⏎ </span>",
         "onClick={() => viewRef.current?.scrollToBottom({ behavior: 'smooth' })}"
       ],
-      "hash": "88048dfed929a874c6c47598666902684ff85e5e",
+      "hash": "81a75166056c8f5d71607be93867ae8fc8ff2978",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1268,6 +1268,22 @@
       "origin": "new",
       "firstCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
       "lastCommit": "8014b746d|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-10] 接通 ACP 原生 resource_link（emdash 自己的「子产物」行）",
+      "note": "会话/ACP 定制（专家交接横条、专家表）"
+    },
+    "apps/emdash-desktop/src/core/features/conversations/browser/acp/xg-card-modal.tsx": {
+      "markers": 2,
+      "lines": [
+        1,
+        37
+      ],
+      "anchors": [
+        "import { Button, Dialog } from '@emdash/ui/react/primitives';",
+        "<Bot style={{ width: '1rem', height: '1rem' }} />"
+      ],
+      "hash": "6e0137e86225ac418634030e8c02cbff7a79dc68",
+      "origin": "new",
+      "firstCommit": "eea4db795|2026-10-27|refactor(@Dot): 落卡弹窗改走 emdash 原生弹窗机制（catalog + ModalRenderer）",
+      "lastCommit": "eea4db795|2026-10-27|refactor(@Dot): 落卡弹窗改走 emdash 原生弹窗机制（catalog + ModalRenderer）",
       "note": "会话/ACP 定制（专家交接横条、专家表）"
     },
     "apps/emdash-desktop/src/core/features/conversations/browser/acp/xiangwo-experts.ts": {
@@ -1397,14 +1413,14 @@
     "apps/emdash-desktop/src/core/features/github/node/services/octokit-provider.ts": {
       "markers": 2,
       "lines": [
-        4,
+        5,
         40
       ],
       "anchors": [
         "import { SocksProxyAgent } from 'socks-proxy-agent';",
         "const proxyUrl = process.env.XIANGWO_GITHUB_PROXY || process.env.XIANGWO_BROWSER_PROXY;"
       ],
-      "hash": "652b52eb96bdec2acce5b4e7e79a70466d874392",
+      "hash": "e252ac6e7f346657e94f73155c3dbff669c51377",
       "origin": "modified",
       "firstCommit": "5e2ac9092|2026-09-27|feat: 交接台搜索/新建 + octokit 走 socks5 代理 + 打包依赖收集修复（files 全量收集根治缺包）",
       "lastCommit": "5e2ac9092|2026-09-27|feat: 交接台搜索/新建 + octokit 走 socks5 代理 + 打包依赖收集修复（files 全量收集根治缺包）",
@@ -1577,14 +1593,14 @@
       "lines": [
         1,
         3,
-        277
+        329
       ],
       "anchors": [
         "import { Dialog, Input, ModalLayout, SelectableCard, toast } from '@emdash/ui/react/primitives';",
         "import { t } from '@renderer/lib/i18n';",
         "<Dialog.Title>{t('add_project')}</Dialog.Title>"
       ],
-      "hash": "78fd0d5ffc6ffc976651a2e680428884175ca292",
+      "hash": "fe24b5c21851e337875c9964eccae467f7d6d235",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
@@ -1595,8 +1611,8 @@
       "lines": [
         1,
         3,
-        65,
-        133
+        70,
+        155
       ],
       "anchors": [
         "import { SettingsRow } from '@emdash/ui/react/patterns';",
@@ -1604,7 +1620,7 @@
         "<Field.Label>{t('initialize_git_repository')}</Field.Label>",
         "<Field.Label htmlFor={repositoryNameId}>{t('repository_name')}</Field.Label>"
       ],
-      "hash": "9f25dd89931f5316047ce3d3dbcf93e3ab1c4df5",
+      "hash": "4027a8b0f316993fbddd3eab2e9150fc36b99206",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
@@ -1633,8 +1649,8 @@
       "lines": [
         1,
         3,
-        27,
-        33
+        28,
+        34
       ],
       "anchors": [
         "import { getPillTabId, PillTabs, type PillTab } from '@emdash/ui/react/patterns';",
@@ -1642,7 +1658,7 @@
         "label: t('pull_requests'),",
         "label: t('workspaces'),"
       ],
-      "hash": "59d9415ec8705fb0c7158275c2a07ebac84f9d03",
+      "hash": "9573de6b852ab00c3eb0e418400d732f78a3a867",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1652,13 +1668,13 @@
       "markers": 2,
       "lines": [
         1,
-        3
+        4
       ],
       "anchors": [
-        "import { StatusIcon } from '@emdash/ui/react/components';",
+        "import { isGitHubDotComHost, parseRepositoryRef } from '@emdash/core/primitives/repository/api';",
         "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "94135c3c5c1563c04aa88a7a10419587f22ef851",
+      "hash": "945af568aa588fd82678cb9c39f07f9c54b4dddd",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
@@ -1668,15 +1684,15 @@
       "markers": 3,
       "lines": [
         1,
-        3,
-        48
+        4,
+        49
       ],
       "anchors": [
-        "import { Button, RelativeTime, Tooltip } from '@emdash/ui/react/primitives';",
+        "import type { PullRequest } from '@emdash/plugins/pull-requests/schemas';",
         "import { t } from '@renderer/lib/i18n';",
         "<Tooltip.Content>{t('open_pr_on_github')}</Tooltip.Content>"
       ],
-      "hash": "e6372cd6025423bf85f6ec780e882dc20df013dc",
+      "hash": "b02c2fd6960e841eb486eb5ca510b692414c48d0",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
@@ -1689,7 +1705,7 @@
         3,
         13,
         54,
-        136
+        143
       ],
       "anchors": [
         "import { ListPopoverCard, type ListPopoverCardStatus } from '@emdash/ui/react/components';",
@@ -1698,7 +1714,7 @@
         "</span>",
         "const error = state?.error ? pullRequestErrorMessage(state.error) : t('unknown_error');"
       ],
-      "hash": "396b5989696cb127e853a7a983504bfd818b7fb4",
+      "hash": "ce7ba48083349dbcfd85009316161b8efbe34647",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
@@ -1709,14 +1725,14 @@
       "lines": [
         1,
         3,
-        413
+        438
       ],
       "anchors": [
         "import { CollectionToolbar, CollectionView, SortSelect } from '@emdash/ui/react/patterns';",
         "import { t } from '@renderer/lib/i18n';",
         "<ToggleGroup.Item value=\"open\">{t('open')}</ToggleGroup.Item>"
       ],
-      "hash": "0ae3eaed6bac66708224abad88cbe46c11c44eb5",
+      "hash": "d10a7e631d074f478cae7dc3fffcd7cc38b3f815",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "484b43a9f|2026-09-17|快照(源点09-17): emdash全量定制-中文化+项我集成+专家体系+浮窗+WeKnora+MCP+A方案双写",
@@ -1878,21 +1894,21 @@
       "markers": 6,
       "lines": [
         1,
-        3,
-        53,
-        62,
-        76,
-        81
+        4,
+        71,
+        80,
+        94,
+        99
       ],
       "anchors": [
-        "import { menuItemBase } from '@emdash/ui/styles/recipes/menu-item';",
+        "import { isGitHubDotComHost } from '@emdash/core/primitives/repository/api';",
         "import { t } from '@renderer/lib/i18n';",
         "label: t('create_from_branch'),",
         "label: t('create_from_issue'),",
         "label: t('create_from_pr'),",
         "disabledReason: createDisabledReason ?? t('no_remote_repository'),"
       ],
-      "hash": "b2771a668cca000a15f4da89b11bbcbd18573e6e",
+      "hash": "b2ef4cac062dcf2d3403ac39069b35a8699eea62",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -2489,7 +2505,7 @@
       "anchors": [
         "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "2d089b312b796e9dd48b2fcf9187ace1d6330526",
+      "hash": "7df106ee87c31322e7aa702213b00e744514d278",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
@@ -2498,16 +2514,16 @@
     "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/checks-list.tsx": {
       "markers": 3,
       "lines": [
-        21,
-        88,
-        121
+        17,
+        84,
+        117
       ],
       "anchors": [
         "import { t } from '@renderer/lib/i18n';",
         "return <div className=\"px-3 py-2 text-xs text-foreground-passive\">{t('no_checks_available')}</div>;",
         "return <EmptyState label={t('no_checks_or_comments')} description={t('nothing_available_yet')} />;"
       ],
-      "hash": "568345410a6801acdff06d5aba09dcee995c5ddf",
+      "hash": "884e9d3165277f1a8766d1d59553f33063ae4a3f",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
@@ -2562,15 +2578,15 @@
     "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/create-pr-modal.tsx": {
       "markers": 9,
       "lines": [
-        39,
-        231,
-        257,
-        265,
-        277,
-        288,
-        320,
-        340,
-        363
+        40,
+        241,
+        267,
+        275,
+        287,
+        298,
+        332,
+        354,
+        377
       ],
       "anchors": [
         "import { t } from '@renderer/lib/i18n';",
@@ -2583,7 +2599,7 @@
         "label: draft ? t('create_draft') : t('create_pr'),",
         "</ConfirmButton>"
       ],
-      "hash": "46441476468da44e8e9c8de1653acdf9b96df095",
+      "hash": "4d33a0c238c6602c86be92f672a8ccf2959f174b",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
@@ -2626,8 +2642,8 @@
       "lines": [
         30,
         33,
-        89,
-        253
+        91,
+        260
       ],
       "anchors": [
         "import { t } from '@renderer/lib/i18n';",
@@ -2635,7 +2651,7 @@
         "sectionLabel: showBranchCommits ? t('branch_commits') : t('pull_requests'),",
         "<Tooltip.Content>{hostActionReason ?? t('refresh_pull_requests')}</Tooltip.Content>"
       ],
-      "hash": "ef3be1e375b9b7c43fec5c5d1375824ad06cf8df",
+      "hash": "89ec6a6ce4d94cbc2f08598444381fba33cb91de",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
@@ -2848,10 +2864,10 @@
       "markers": 5,
       "lines": [
         1,
-        119,
-        149,
-        155,
-        175
+        139,
+        173,
+        179,
+        203
       ],
       "anchors": [
         "import { t } from '@renderer/lib/i18n';",
@@ -2860,7 +2876,7 @@
         "label: t('workspace_settings'),",
         "</ConfirmButton>"
       ],
-      "hash": "e79fc1dae0f9462647978cc86bbe12557d7fe9ae",
+      "hash": "187a917c8b47927dc36eedd6ed03bb11cd97dfda",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -2870,9 +2886,9 @@
       "markers": 4,
       "lines": [
         1,
-        30,
-        40,
-        44
+        34,
+        44,
+        48
       ],
       "anchors": [
         "import { t } from '@renderer/lib/i18n';",
@@ -2880,7 +2896,7 @@
         "{t('issue')} ⏎ </ToggleGroup.Item>",
         "{t('pull_request')} ⏎ </ToggleGroup.Item>"
       ],
-      "hash": "29e2dd92ec5fbcf8d9816805f9fa2c1c88901afd",
+      "hash": "11fc40648291609c57a2e488d92dd140cb9be52f",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -2910,7 +2926,7 @@
       "anchors": [
         "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "f48a534d875a79f4195a05a5b19617af368091f0",
+      "hash": "4737e44b264a81757d56cba19e0aeaf11e8cecb5",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -2950,13 +2966,13 @@
       "markers": 2,
       "lines": [
         1,
-        42
+        43
       ],
       "anchors": [
         "import { t } from '@renderer/lib/i18n';",
         "{createBranchAndWorktree ? t('from_branch') : t('branch')} ⏎ </span>"
       ],
-      "hash": "73f01c27e98cd76cf6ea715f52d5144326a56833",
+      "hash": "835d7223bad34ae6868b9a0c354703e142856bcb",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -3030,15 +3046,15 @@
       "markers": 3,
       "lines": [
         1,
-        73,
-        84
+        75,
+        86
       ],
       "anchors": [
         "import { t } from '@renderer/lib/i18n';",
         "<span className=\"text-foreground-muted\">{t('settings')}</span>",
         "<Tabs.Tab value=\"checkout\">{t('checkout_branch')}</Tabs.Tab>"
       ],
-      "hash": "8fca486268a5049a02eeccce802a210524d6526b",
+      "hash": "96a3732414ddc5a502e7485592d4db01be28ee3f",
       "origin": "modified",
       "firstCommit": "b29178993|2026-10-16|chore(xg-custom): 63 个历史欠账补 [XG-CUSTOM] 标记 + 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -3329,12 +3345,12 @@
     "apps/emdash-desktop/src/core/features/workspaces/contributions/browser/workspace-detail-page.tsx": {
       "markers": 1,
       "lines": [
-        292
+        298
       ],
       "anchors": [
         "void openTask({ projectId: item.row.projectId, initialWorkspaceId: workspaceId });"
       ],
-      "hash": "07e2a6c0baca2e78f1a580332f224eb9662e2eb7",
+      "hash": "0d64e67962fa4ce0d33454fc90bf531feb90b92f",
       "origin": "modified",
       "firstCommit": "b49be18c5|2026-09-26|chore: 补 [XG-CUSTOM] 标记（telemetry/tsconfig/window/workspace-detail）",
       "lastCommit": "9df75ff09|2026-09-26|merge: 官方升级 1.2.6 + 适配 xiangwo 定制（acp重构/附件API/i18n去重/插件websiteUrl/tsconfig别名）",
@@ -3667,7 +3683,7 @@
         "export type FocusView = 'home' | 'project' | 'task' | 'settings' | 'automations' | 'xiangwo';",
         "xiangwo_viewed: { from_view: FocusView | null };"
       ],
-      "hash": "2c99fe1b85b9010e61b323f3fd93218ed35692e4",
+      "hash": "d1b650055c32c67816955eb4ec18ae6e9a06858a",
       "origin": "modified",
       "firstCommit": "b49be18c5|2026-09-26|chore: 补 [XG-CUSTOM] 标记（telemetry/tsconfig/window/workspace-detail）",
       "lastCommit": "9df75ff09|2026-09-26|merge: 官方升级 1.2.6 + 适配 xiangwo 定制（acp重构/附件API/i18n去重/插件websiteUrl/tsconfig别名）",
@@ -3676,12 +3692,12 @@
     "apps/emdash-desktop/src/core/services/notifications/node/sqlite-store.ts": {
       "markers": 1,
       "lines": [
-        118
+        122
       ],
       "anchors": [
         "const keep = await this.db"
       ],
-      "hash": "2f440408ad35b3e7dbc155352747994e9526dfd4",
+      "hash": "e4111cdea519d33fae0a754311bca981de16c946",
       "origin": "modified",
       "firstCommit": "3254972e6|2026-10-24|fix(xg-custom): 4 处真机故障修复 + 版本 1.2.46-xiangwo",
       "lastCommit": "3254972e6|2026-10-24|fix(xg-custom): 4 处真机故障修复 + 版本 1.2.46-xiangwo",
@@ -3781,18 +3797,18 @@
       "markers": 13,
       "lines": [
         11,
-        65,
-        107,
-        158,
-        160,
-        187,
-        365,
-        383,
-        397,
-        401,
-        421,
-        432,
-        967
+        69,
+        117,
+        171,
+        173,
+        200,
+        381,
+        399,
+        413,
+        417,
+        437,
+        448,
+        975
       ],
       "anchors": [
         "import { desc } from 'drizzle-orm';",
@@ -3808,7 +3824,7 @@
         "const liveRemoteProxy = async (connectionId: string) => {",
         "resolveToolWindowUrl, ⏎ promptLibrary: promptLibraryService,"
       ],
-      "hash": "0046f748d8d3ffc051ddf2afdeb2e0fe360f4ee2",
+      "hash": "575e462661cd7521761fa5b2449ece2e02143213",
       "origin": "modified",
       "firstCommit": "d7996e9ec|2026-09-19|fix(integrations): WeKnora/T8 窗口走 SSH 端口转发，修 Windows 远程项目打不开",
       "lastCommit": "d7996e9ec|2026-09-19|fix(integrations): WeKnora/T8 窗口走 SSH 端口转发，修 Windows 远程项目打不开",
@@ -3817,56 +3833,56 @@
     "apps/emdash-desktop/src/main/bootstrap/boot/wiring.ts": {
       "markers": 50,
       "lines": [
-        3,
-        21,
-        35,
-        61,
-        63,
-        92,
+        2,
+        20,
+        34,
+        60,
+        62,
+        84,
+        94,
+        100,
         102,
         108,
-        110,
-        116,
-        136,
-        143,
-        154,
+        128,
+        135,
+        146,
+        148,
+        150,
+        153,
         156,
-        158,
-        161,
-        164,
-        171,
-        180,
-        183,
-        198,
-        203,
-        212,
-        222,
+        163,
+        172,
+        175,
+        190,
+        195,
+        204,
+        214,
+        231,
         239,
-        247,
-        249,
-        273,
-        275,
-        278,
-        280,
-        294,
-        341,
+        241,
+        265,
+        267,
+        270,
+        272,
+        286,
+        333,
+        338,
+        340,
         346,
-        348,
-        354,
-        359,
-        361,
-        366,
-        368,
-        373,
-        375,
-        380,
-        382,
+        351,
+        353,
+        358,
+        360,
+        365,
+        367,
+        372,
+        374,
+        379,
+        384,
         387,
-        392,
-        395,
-        397,
-        399,
-        401
+        389,
+        391,
+        393
       ],
       "anchors": [
         "import { browserEvents } from '@core/features/browser/node';",
@@ -3913,7 +3929,7 @@
         "kaneoAct: (payload) => kaneoActCall(payload as unknown as Record<string, unknown>),",
         "taskSpaceList: () => taskSpaceCall('list'),"
       ],
-      "hash": "f2759ab6fa6c0bcbc4b58d60b70f9605171e2a93",
+      "hash": "81108a276afd64e3764a94ab28365d0e6f06f802",
       "origin": "modified",
       "firstCommit": "67ccd329e|2026-09-22|feat: 专家交接台升级（wire RPC 修复 + bot/专家二级分组 + 并入对话 Sheet + 横条关闭）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -5265,14 +5281,14 @@
     "apps/emdash-desktop/src/renderer/App.tsx": {
       "markers": 2,
       "lines": [
-        10,
-        37
+        9,
+        36
       ],
       "anchors": [
         "import { useEmbeddedBrowserOpenRequests } from '@core/features/workbench/api/browser/embedded-browser-open-request';",
         "useEmbeddedBrowserOpenRequests();"
       ],
-      "hash": "e12b6bea368977975e8b43fb9e11762757b1def4",
+      "hash": "7e9a408cc640481aebfb27f8159ceef4ab5e0342",
       "origin": "modified",
       "firstCommit": "9ec2107ba|2026-10-01|[XG-CUSTOM] 内嵌浏览器：从零开页（对齐 HippoBuddy 的 WebContentsView 升级）+ iframe 命名正名",
       "lastCommit": "9ec2107ba|2026-10-01|[XG-CUSTOM] 内嵌浏览器：从零开页（对齐 HippoBuddy 的 WebContentsView 升级）+ iframe 命名正名",
@@ -6349,7 +6365,7 @@
         "] as const;",
         "function openXgCardForTypeTest() {"
       ],
-      "hash": "fac7909fd4585739fe548adb5cc78639f614805c",
+      "hash": "976115de45557d8cf61eed21ffe102f13e1d05e4",
       "origin": "modified",
       "firstCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
       "lastCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
@@ -6374,19 +6390,19 @@
       "lines": [
         56,
         152,
-        476,
-        479,
-        484,
-        511
+        486,
+        489,
+        494,
+        521
       ],
       "anchors": [
         "const artifactsDirectory = join(appDirectory, 'dist-artifacts');",
         "await buildLinuxRuntimeDependencies(nodeDistributionDirectory, temporaryDirectory);",
         "async function buildLinuxRuntimeDependencies(",
         "const stagingDirectory = join(temporaryDirectory, 'linux-runtime-deps');",
-        "const nodeModules = join(stagingDirectory, 'node_modules');"
+        "// [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json ⏎ const nodeModules = join(stagingDirectory, 'node_modules');"
       ],
-      "hash": "1b3704036dc587d4ac8eeac0be4d998051324765",
+      "hash": "d17c9c7679df859bca123d79b34cd86930c820be",
       "origin": "modified",
       "firstCommit": "501f2b81c|2026-09-28|fix(workspace-server): 恢复无 Docker 本地编译 native 依赖的 [XG-CUSTOM] 补丁",
       "lastCommit": "501f2b81c|2026-09-28|fix(workspace-server): 恢复无 Docker 本地编译 native 依赖的 [XG-CUSTOM] 补丁",
@@ -7229,21 +7245,36 @@
       "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "note": "packages 定制"
     },
+    "packages/chat-ui/src/components/rows/message/message.css.ts": {
+      "markers": 1,
+      "lines": [
+        47
+      ],
+      "anchors": [
+        "export const footerTime = style({"
+      ],
+      "hash": "11d4f0cebcef6319deca2a1bb5709296fbda90e3",
+      "origin": "modified",
+      "firstCommit": "f02da6557|2026-10-28|[XG-CUSTOM 2026-10-28] 聊天消息带时间（ACP _meta.xg.ts → 页脚 HH:MM）",
+      "lastCommit": "f02da6557|2026-10-28|[XG-CUSTOM 2026-10-28] 聊天消息带时间（ACP _meta.xg.ts → 页脚 HH:MM）",
+      "note": "packages 定制"
+    },
     "packages/chat-ui/src/components/rows/message/message.def.tsx": {
-      "markers": 12,
+      "markers": 13,
       "lines": [
         1,
         15,
         27,
-        46,
-        61,
-        95,
-        100,
-        108,
-        110,
-        253,
-        307,
-        310
+        47,
+        62,
+        96,
+        101,
+        109,
+        111,
+        254,
+        268,
+        326,
+        329
       ],
       "anchors": [
         "import { useCommands } from '@components/contexts/CommandsContext';",
@@ -7255,10 +7286,11 @@
         "if (imagesH > 0) return imagesH + footer;",
         "function AssistantImageContent(props: { image: ChatMessageImage }) {",
         "<Show when={props.data.images?.length}>",
+        "<time",
         "} ⏎ const footer = item.role === 'assistant' ? vars.footerH : 0;",
         "// image-only message must not reserve a text line. ⏎ const imagesH ="
       ],
-      "hash": "1b9defe49f66da298f6047eba207ab6c1bea5bce",
+      "hash": "24464c4f8a46d35c8fa53149f57f3bddb9831777",
       "origin": "modified",
       "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
@@ -7283,42 +7315,46 @@
       "note": "packages 定制"
     },
     "packages/chat-ui/src/model.ts": {
-      "markers": 3,
+      "markers": 4,
       "lines": [
         48,
         65,
-        87
+        80,
+        89
       ],
       "anchors": [
         "export type ChatMessageImage = {",
         "uri?: string;",
+        "at?: number;",
         "images?: ChatMessageImage[];"
       ],
-      "hash": "080d5a9009b21884314ed356f1923eb3f7e47721",
+      "hash": "06c7b893097195468d50a6c9478ffb6c9654d7c1",
       "origin": "modified",
       "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "note": "packages 定制"
     },
     "packages/core/src/primitives/acp-transcript/api/normalized-event.ts": {
-      "markers": 6,
+      "markers": 7,
       "lines": [
         20,
         34,
         39,
         43,
         80,
-        184
+        85,
+        189
       ],
       "anchors": [
         "export type NormalizedImageBlock = {",
         "uri?: string;",
         "caption?: string;",
         "sourceHost?: string;",
+        "at?: number;",
         "images?: NormalizedImageBlock[];",
         "kind: 'resource_link';"
       ],
-      "hash": "95dff9d5140850f7be8bea26993c06fbe9966e57",
+      "hash": "f8f5701ac538646c63e63d83b703496bb842b7f9",
       "origin": "modified",
       "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
@@ -7401,15 +7437,19 @@
       "note": "packages 定制"
     },
     "packages/core/src/runtimes/acp/api/models/turns/messages.ts": {
-      "markers": 2,
+      "markers": 4,
       "lines": [
-        17,
-        21
+        14,
+        22,
+        26,
+        45
       ],
       "anchors": [
-        "images: z"
+        "at: z.number().optional(),",
+        "images: z",
+        "export type TranscriptMessageAt = { at?: number };"
       ],
-      "hash": "36e7058c4aa61cdf3c8bc7efee3bda20bc581de3",
+      "hash": "7e816df48176e5b2761d863770abccd41c667fb9",
       "origin": "modified",
       "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
@@ -7481,21 +7521,23 @@
       "note": "packages 定制"
     },
     "packages/core/src/runtimes/acp/api/reducer/decode.ts": {
-      "markers": 5,
+      "markers": 6,
       "lines": [
-        53,
-        65,
-        153,
-        159,
-        185
+        26,
+        60,
+        72,
+        161,
+        167,
+        194
       ],
       "anchors": [
+        "function messageAt(update: { _meta?: unknown }): number | undefined {",
         "function imageMetaValue(meta: unknown, key: string): unknown {",
         "function imageMetaString(value: unknown): string {",
         "if (update.content.type === 'image') {",
         "if (update.content.type === 'resource_link') {"
       ],
-      "hash": "1377cb4ca6052d858ca155f6d598c6336480649e",
+      "hash": "9d60f9f5f8dbc4721cd3b4ad3d660db621d620cc",
       "origin": "modified",
       "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
@@ -7536,8 +7578,8 @@
         43,
         631,
         639,
-        680,
-        867
+        681,
+        868
       ],
       "anchors": [
         "import { makeDiffId, makePlanId, makeResourceLinkId, makeToolId } from './ids';",
@@ -7547,7 +7589,7 @@
         "case 'resource_link': {",
         "case 'resource-link': ⏎ return item;"
       ],
-      "hash": "2438a0844b6138666c865afa49e257fa697d87fb",
+      "hash": "6f567458466756519f5339f8ea399a135d9a8a9f",
       "origin": "modified",
       "firstCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
@@ -7798,12 +7840,12 @@
     "packages/core/vitest.config.ts": {
       "markers": 1,
       "lines": [
-        16
+        17
       ],
       "anchors": [
         "env: {"
       ],
-      "hash": "fcf4447811c429334ad4bf5543107ffc4f5d43c3",
+      "hash": "76bc95dbf8cd537322dc9adafffb0bceb8841425",
       "origin": "modified",
       "firstCommit": "af361c579|2026-10-09|fix(skills): [XG-CUSTOM 2026-10-09] 中央技能库正确接入（逐项容错 / 只读语义 / 分类分组生效）",
       "lastCommit": "af361c579|2026-10-09|fix(skills): [XG-CUSTOM 2026-10-09] 中央技能库正确接入（逐项容错 / 只读语义 / 分类分组生效）",

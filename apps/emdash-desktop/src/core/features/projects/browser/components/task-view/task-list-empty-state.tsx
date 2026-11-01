@@ -78,7 +78,7 @@ export const TaskListEmptyState = observer(function TaskListEmptyState({
     },
     {
     // [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
-          label: `创建自 ${issueName.title}`,
+          label: t('create_from_issue'),
           description: hasAnyIntegration
             ? t('link_from_issue')
             : t('configure_issue_integrations'),
@@ -92,14 +92,12 @@ export const TaskListEmptyState = observer(function TaskListEmptyState({
     },
     {
     // [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
-          label: `创建自 ${requestName}`,
-          description: `从 ${requestName.toLowerCase()} 创建任务`,
+          label: t('create_from_pr'),
+          description: t('create_from_pr_desc'),
           icon: GitPullRequest,
           disabled: !!createDisabledReason || !supportsPullRequests,
     // [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
-          disabledReason:
-            createDisabledReason ??
-            (!supportsPullRequests ? t('no_remote_repository') : undefined),
+          disabledReason: createDisabledReason ?? t('no_remote_repository'),
       onActivate: () => void openTaskModal({ projectId, strategy: 'from-pull-request' }),
     },
   ];

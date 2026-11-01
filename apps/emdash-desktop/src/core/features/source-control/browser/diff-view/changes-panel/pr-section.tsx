@@ -89,11 +89,7 @@ function usePullRequestsSectionModel() {
     branchCommitRange,
     showBranchCommits,
     // [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
-        sectionLabel: showBranchCommits
-          ? t('branch_commits')
-          : provider === 'gitlab'
-            ? '合并请求'
-            : t('pull_requests'),
+        sectionLabel: showBranchCommits ? t('branch_commits') : t('pull_requests'),
     sectionCount: showBranchCommits ? (branchCommitCount ?? 0) : pullRequests.length,
   };
 }

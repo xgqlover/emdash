@@ -41,10 +41,12 @@ export function LinkedEntitySection({
           }}
         >
           <ToggleGroup.Item className="text-xs" value="issue" disabled={!hasAnyIssueIntegration}>
-                {issueLabel}
+    {/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
+                {t('issue')}
               </ToggleGroup.Item>
               <ToggleGroup.Item className="text-xs" value="pr" disabled={!hasPrSupport}>
-                {requestProvider === 'gitlab' ? '合并请求' : t('pull_request')}
+    {/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
+                {t('pull_request')}
           </ToggleGroup.Item>
         </ToggleGroup.Root>
       </div>
