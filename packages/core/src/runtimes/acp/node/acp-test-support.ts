@@ -171,6 +171,10 @@ export class FakeAcpProcessHandle extends EventEmitter implements AcpProcessHand
   readonly stderr = new PassThrough();
   exitCode: number | null = null;
   readonly kill = vi.fn<(signal?: NodeJS.Signals) => void | Promise<void>>();
+  /** [XG-CUSTOM 2026-11-02] Diagnostics sampled by the connection watchdog. */
+  pid: number | undefined = 4242;
+  /** Set to `undefined` to simulate a host that cannot report a stdout byte counter. */
+  stdoutBytes: number | undefined = 0;
 
   onExit(cb: (code: number | null) => void): void {
     this.on('exit', (code: number | null) => cb(code));

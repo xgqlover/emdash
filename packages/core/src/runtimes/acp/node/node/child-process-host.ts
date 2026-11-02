@@ -45,6 +45,21 @@ class ChildProcessHandle implements AcpProcessHandle {
     return this.child.stderr ?? undefined;
   }
 
+  /** [XG-CUSTOM 2026-11-02] See AcpProcessHandle.pid. */
+  get pid(): number | undefined {
+    return this.child.pid;
+  }
+
+  /**
+   * [XG-CUSTOM 2026-11-02] See AcpProcessHandle.stdoutBytes.
+   * `child.stdout` is a net.Socket, whose `bytesRead` is maintained by libuv; reading it
+   * does not disturb the stream. Non-socket stdio reports undefined (probe unsupported).
+   */
+  get stdoutBytes(): number | undefined {
+    const bytesRead = (this.child.stdout as { bytesRead?: unknown } | null)?.bytesRead;
+    return typeof bytesRead === 'number' ? bytesRead : undefined;
+  }
+
   get exitCode() {
     return this.child.exitCode;
   }

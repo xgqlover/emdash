@@ -36,6 +36,18 @@ export interface AcpProcessHandle {
   readonly stdout: Readable;
   /** Optional separate stderr stream (not available on PTY channels). */
   readonly stderr?: Readable;
+  /**
+   * [XG-CUSTOM 2026-11-02] OS pid of the spawned process, when the host can report it.
+   * Diagnostics only: correlates a hung initialize with `ps` / `/proc`.
+   */
+  readonly pid?: number;
+  /**
+   * [XG-CUSTOM 2026-11-02] Bytes received on `stdout` since spawn, when the host can report it.
+   * A plain counter lets the initialize watchdog prove "the agent never spoke" **without**
+   * attaching a 'data' listener, which would move the stream to flowing mode and steal
+   * frames from the ACP SDK reader.
+   */
+  readonly stdoutBytes?: number;
   /** Exit code if the process has already exited, null otherwise. */
   readonly exitCode: number | null;
   /** Register a callback to be called when the process exits. */
