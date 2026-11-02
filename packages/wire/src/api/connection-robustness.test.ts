@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { FakeWorkerProcess } from '../testing/fake-worker-process';
 import { WorkerLink } from '../worker/link';
 import { connect } from './connect';
+import type { WireHeldCallEvictedEvent } from './instrumentation';
 import { WireError, type WireMessage, type WireTransport } from './protocol';
 
 describe('connection call deadline', () => {
@@ -137,7 +138,11 @@ describe('hold-until-deadline while disconnected', () => {
     connection.dispose();
   });
 
-  it('rejects the newly issued call on held-buffer overflow, never a held one', async () => {
+  // [XG-CUSTOM 2026-11-02] The overflow policy changed: a full buffer now drops
+  // the OLDEST held call (FIFO) so the newest request always gets a slot. The
+  // old policy rejected the newest call and left stale ones parked in the
+  // buffer — 1 000 dead calls per disconnect in the field.
+  it('evicts the oldest held call on overflow, never the newly issued one', async () => {
     const clock = createManualClock();
     const transport = scriptedTransport({ reconnectCapable: true });
     const connection = connect(transport, { clock, maxHeldCalls: 2 });
@@ -147,14 +152,142 @@ describe('hold-until-deadline while disconnected', () => {
     const second = connection.call('held.second', {});
     const third = connection.call('held.third', {});
 
-    expect(await expectWireError(third, 'DISCONNECTED')).toMatchObject({ delivery: 'not-sent' });
+    const evicted = await expectWireError(first, 'DISCONNECTED');
+    expect(evicted.message).toBe('Wire held-call buffer is full while disconnected');
+    expect(evicted.delivery).toBe('not-sent');
 
     transport.goUp();
-    expect(transport.sent.map(callPath)).toEqual(['held.first', 'held.second']);
-    transport.replyToCall('held.first', 'one');
+    expect(transport.sent.map(callPath)).toEqual(['held.second', 'held.third']);
     transport.replyToCall('held.second', 'two');
-    await expect(first).resolves.toBe('one');
+    transport.replyToCall('held.third', 'three');
     await expect(second).resolves.toBe('two');
+    await expect(third).resolves.toBe('three');
+    connection.dispose();
+  });
+
+  it('counts every evicted held call through heldCallEvicted instrumentation', async () => {
+    const clock = createManualClock();
+    const transport = scriptedTransport({ reconnectCapable: true });
+    const events: WireHeldCallEvictedEvent[] = [];
+    const connection = connect(transport, {
+      clock,
+      maxHeldCalls: 1,
+      instrumentation: { heldCallEvicted: (event) => events.push(event) },
+    });
+
+    transport.goDown();
+    const calls = ['held.a', 'held.b', 'held.c'].map((path) => connection.call(path, {}));
+
+    await expectWireError(calls[0]!, 'DISCONNECTED');
+    await expectWireError(calls[1]!, 'DISCONNECTED');
+    expect(events.map((event) => event.path)).toEqual(['held.a', 'held.b']);
+    expect(events.map((event) => event.evictedTotal)).toEqual([1, 2]);
+    expect(events.map((event) => event.buffered)).toEqual([0, 0]);
+    expect(events.map((event) => event.maxHeldCalls)).toEqual([1, 1]);
+
+    transport.goUp();
+    expect(transport.sent.map(callPath)).toEqual(['held.c']);
+    transport.replyToCall('held.c', 'ok');
+    await expect(calls[2]!).resolves.toBe('ok');
+    connection.dispose();
+  });
+
+  it('never lets the held buffer grow past maxHeldCalls under sustained pressure', async () => {
+    const clock = createManualClock();
+    const transport = scriptedTransport({ reconnectCapable: true });
+    const events: WireHeldCallEvictedEvent[] = [];
+    const connection = connect(transport, {
+      clock,
+      maxHeldCalls: 3,
+      instrumentation: { heldCallEvicted: (event) => events.push(event) },
+    });
+
+    transport.goDown();
+    const calls = Array.from({ length: 20 }, (_, index) =>
+      connection.call(`pressure.${index}`, {}).catch((error: unknown) => error)
+    );
+
+    // Eviction fires only when the buffer is already full, and the post-eviction
+    // size is always one below the bound (the new call then fills that slot).
+    expect(events.length).toBe(17);
+    expect(events.every((event) => event.buffered <= 2)).toBe(true);
+    expect(events.every((event) => event.maxHeldCalls === 3)).toBe(true);
+    expect(events.at(-1)?.evictedTotal).toBe(17);
+
+    transport.goUp();
+    // Only the three newest survive; everything older is a not-sent rejection.
+    expect(transport.sent.map(callPath)).toEqual(['pressure.17', 'pressure.18', 'pressure.19']);
+    for (const path of ['pressure.17', 'pressure.18', 'pressure.19']) {
+      transport.replyToCall(path, path);
+    }
+    const settled = await Promise.all(calls);
+    expect(settled.slice(0, 17).every((value) => value instanceof WireError)).toBe(true);
+    expect(settled.slice(17)).toEqual(['pressure.17', 'pressure.18', 'pressure.19']);
+    connection.dispose();
+  });
+
+  it('keeps maxHeldCalls: 0 failing fast because there is nothing to evict', async () => {
+    const clock = createManualClock();
+    const transport = scriptedTransport({ reconnectCapable: true });
+    const connection = connect(transport, { clock, maxHeldCalls: 0 });
+
+    transport.goDown();
+    const evicted = await expectWireError(connection.call('never.held', {}), 'DISCONNECTED');
+    expect(evicted.delivery).toBe('not-sent');
+
+    transport.goUp();
+    expect(transport.sent).toHaveLength(0);
+    connection.dispose();
+  });
+
+  it('fails a holdWhileDisconnected:false read fast and still holds the rest', async () => {
+    const clock = createManualClock();
+    const transport = scriptedTransport({ reconnectCapable: true });
+    const connection = connect(transport, { clock });
+
+    transport.goDown();
+    const read = connection.call('metrics.poll', {}, { holdWhileDisconnected: false });
+    const rejected = await expectWireError(read, 'DISCONNECTED');
+    expect(rejected.delivery).toBe('not-sent');
+    expect(rejected.message).toBe('Wire transport disconnected');
+
+    const held = connection.call('must.not.drop', {});
+    transport.goUp();
+    expect(transport.sent.map(callPath)).toEqual(['must.not.drop']);
+    transport.replyToCall('must.not.drop', 'ok');
+    await expect(held).resolves.toBe('ok');
+    connection.dispose();
+  });
+
+  it('applies the hold opt-out to snapshot reads too', async () => {
+    const clock = createManualClock();
+    const transport = scriptedTransport({ reconnectCapable: true });
+    const connection = connect(transport, { clock });
+
+    transport.goDown();
+    const snapshot = connection.snapshot('topic', { holdWhileDisconnected: false });
+    const rejected = await expectWireError(snapshot, 'DISCONNECTED');
+    expect(rejected.delivery).toBe('not-sent');
+
+    transport.goUp();
+    expect(transport.sent).toHaveLength(0);
+    connection.dispose();
+  });
+
+  it('still holds a snapshot read that did not opt out', async () => {
+    const clock = createManualClock();
+    const transport = scriptedTransport({ reconnectCapable: true });
+    const connection = connect(transport, { clock });
+
+    transport.goDown();
+    const snapshot = connection.snapshot('topic');
+
+    transport.goUp();
+    expect(transport.sent).toHaveLength(1);
+    const posted = transport.sent[0];
+    expect(posted?.kind).toBe('snapshot');
+    transport.replyOk(requestId(posted!));
+    await expect(snapshot).resolves.toBeUndefined();
     connection.dispose();
   });
 

@@ -54,10 +54,14 @@ export const CreateTaskModal = observer(function CreateTaskModal({
   projectId,
   strategy: initialStrategy,
   initialPR,
+  initialWorkspaceId,
 }: {
   projectId?: string;
   strategy?: CreateTaskStrategy;
   initialPR?: PullRequest;
+  // [XG-CUSTOM] workspace detail 的“在任务中打开”会传这个；缺了会在点 + 时
+  // 直接 ReferenceError: initialWorkspaceId is not defined（2026-11-02 真机）。
+  initialWorkspaceId?: string;
 }) {
   const { complete } = useModalController('taskModal');
   const selectedProjectId = useDefaultProjectId(projectId);

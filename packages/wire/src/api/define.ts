@@ -18,6 +18,13 @@ export type ProcedureDef<
    * operations whose duration has no fixed bound.
    */
   callTimeoutMs?: number;
+  /**
+   * [XG-CUSTOM 2026-11-02] Idempotent, read-only procedures set this to `false`
+   * so they fail fast (DISCONNECTED / not-sent) while the transport is down
+   * instead of queueing in the held-call buffer. Use it only for calls whose
+   * caller keeps its last value and retries — never for writes or mutations.
+   */
+  holdWhileDisconnected?: boolean;
 };
 
 export type LiveStateDef<
@@ -267,6 +274,8 @@ export function procedure<
   input: InputSchema;
   output: OutputSchema;
   callTimeoutMs?: number;
+  /** [XG-CUSTOM 2026-11-02] See ProcedureDef.holdWhileDisconnected. */
+  holdWhileDisconnected?: boolean;
 }): ProcedureDef<InputSchema, OutputSchema> {
   return { kind: 'procedure', ...def };
 }

@@ -81,6 +81,22 @@ export type WireTransportEvent = {
   event: 'connect' | 'disconnect' | 'reconnect';
 };
 
+/**
+ * [XG-CUSTOM 2026-11-02] A held call was dropped by FIFO eviction because the
+ * held-call buffer was full while disconnected. This is the only way an
+ * already-held call can disappear, so it is reported explicitly: `evictedTotal`
+ * is the running counter for the connection (seen as `heldEvicted` in logs).
+ */
+export type WireHeldCallEvictedEvent = {
+  callId: string;
+  path?: string;
+  /** Held calls still buffered after the eviction. */
+  buffered: number;
+  maxHeldCalls: number;
+  /** Running total of evicted held calls on this connection. */
+  evictedTotal: number;
+};
+
 export type WireInstrumentation = {
   callStart?(event: WireCallStartEvent): void;
   callEnd?(event: WireCallEndEvent): void;
@@ -95,6 +111,7 @@ export type WireInstrumentation = {
   batchDropped?(event: WireBatchDroppedEvent): void;
   scopeCleanupError?(event: WireScopeCleanupErrorEvent): void;
   transport?(event: WireTransportEvent): void;
+  heldCallEvicted?(event: WireHeldCallEvictedEvent): void;
 };
 
 export const noopInstrumentation: WireInstrumentation = {};
@@ -120,6 +137,7 @@ export function mergeInstrumentation(
     batchDropped: (event) => emit(active, 'batchDropped', event),
     scopeCleanupError: (event) => emit(active, 'scopeCleanupError', event),
     transport: (event) => emit(active, 'transport', event),
+    heldCallEvicted: (event) => emit(active, 'heldCallEvicted', event),
   };
 }
 

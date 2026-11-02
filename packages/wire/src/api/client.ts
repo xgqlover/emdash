@@ -65,7 +65,12 @@ export type MutationCallOptions = {
   };
 };
 
-export type ProcedureCallOptions = Pick<CallOptions, 'signal' | 'timeoutMs'>;
+// [XG-CUSTOM 2026-11-02] `holdWhileDisconnected` is a per-call opt-out for
+// idempotent reads (see CallOptions); procedure definitions can set it once.
+export type ProcedureCallOptions = Pick<
+  CallOptions,
+  'signal' | 'timeoutMs' | 'holdWhileDisconnected'
+>;
 export type FileUploadCallOptions = ProcedureCallOptions & {
   onProgress?: (progress: { sent: number; total?: number }) => void;
 };
@@ -76,7 +81,12 @@ export type ClientOptions = {
 
 export type LiveClientHandle<T = unknown> = {
   readonly topic: string;
-  snapshot(): Promise<LiveSnapshot<T>>;
+  /**
+   * [XG-CUSTOM 2026-11-02] `options.holdWhileDisconnected: false` makes an
+   * idempotent read fail fast while disconnected instead of queueing. The
+   * followers' resync refetch uses it; the one-shot initial seed keeps holding.
+   */
+  snapshot(options?: Pick<CallOptions, 'holdWhileDisconnected'>): Promise<LiveSnapshot<T>>;
   attach(push: (update: LiveUpdate) => void, options?: AttachOptions): Promise<Unsubscribe>;
   asLiveSource(): LiveSource;
 };
@@ -246,13 +256,12 @@ function buildContractClient(
     switch (def.kind) {
       case 'procedure': {
         const callTimeoutMs = def.callTimeoutMs;
+        const holdWhileDisconnected = def.holdWhileDisconnected;
         client[name] = (input: unknown, options?: ProcedureCallOptions) =>
           connection.call(
             fullPath,
             input,
-            callTimeoutMs === undefined || options?.timeoutMs !== undefined
-              ? options
-              : { ...options, timeoutMs: callTimeoutMs }
+            procedureCallOptions(options, { callTimeoutMs, holdWhileDisconnected })
           );
         break;
       }
@@ -305,6 +314,27 @@ function buildContractClient(
   return client;
 }
 
+/**
+ * [XG-CUSTOM 2026-11-02] Folds a procedure's defaults into the per-call options.
+ * The caller's explicit option always wins; the definition supplies the default.
+ */
+function procedureCallOptions(
+  options: ProcedureCallOptions | undefined,
+  defaults: { callTimeoutMs?: number; holdWhileDisconnected?: boolean }
+): ProcedureCallOptions | undefined {
+  const merged = { ...options };
+  if (defaults.callTimeoutMs !== undefined && options?.timeoutMs === undefined) {
+    merged.timeoutMs = defaults.callTimeoutMs;
+  }
+  if (defaults.holdWhileDisconnected !== undefined && options?.holdWhileDisconnected === undefined) {
+    merged.holdWhileDisconnected = defaults.holdWhileDisconnected;
+  }
+  if (merged.timeoutMs === undefined && merged.holdWhileDisconnected === undefined) {
+    return options;
+  }
+  return merged;
+}
+
 /** Builds the generic per-topic handle every live endpoint kind hands out. */
 export function createLiveClientHandle<T>(
   connection: Connection,
@@ -312,7 +342,11 @@ export function createLiveClientHandle<T>(
 ): LiveClientHandle<T> {
   return {
     topic,
-    snapshot: () => connection.snapshot(topic) as Promise<LiveSnapshot<T>>,
+    // [XG-CUSTOM 2026-11-02] Per-call option, not a blanket default: the initial
+    // seed of a replica must still be held (a model attached while disconnected
+    // seeds on reconnect, which is what the reattach tests pin). Only the
+    // repeating resync refetch opts out, in `live/replica/{state,log,job}.ts`.
+    snapshot: (options) => connection.snapshot(topic, options) as Promise<LiveSnapshot<T>>,
     attach: (push, options) => connection.attach(topic, push, options),
     asLiveSource() {
       return {

@@ -48,7 +48,9 @@ export class ReplicaState<T> implements LiveSource {
     this.localWaiters = new LiveStateWaiters(() => this.localCursor(), { clock: deps.clock });
     this.client = new LiveStateClient<T>(
       deps.schema,
-      () => handle.snapshot(),
+      // [XG-CUSTOM 2026-11-02] Resync refetch of an idempotent snapshot: never
+      // queue it while disconnected (retried on the follower's backoff instead).
+      () => handle.snapshot({ holdWhileDisconnected: false }),
       (value, meta) => this.handleChange(value, meta),
       {
         instrumentation: deps.instrumentation,

@@ -329,4 +329,53 @@ describe('Host supervisor lifecycle policy', () => {
     expect(peer.channels[0]?.closed).toBe(true);
     await expect(driver.supervisor.ensureSsh()).resolves.toBeUndefined();
   });
+  // [XG-CUSTOM 2026-11-02] 「断开后要人手动点 Retry」的回归：自动重连必须是**有界**的
+  // 1 s / 2 s / 4 s / 8 s / 16 s 五级（31 s 窗口），每级都带 attempt 号；
+  // 之后不再空转，落到既有的 30 s 稳态节拍上（repeatLast），既不自愈不了也不放大抖动。
+  it('auto-reconnects on a bounded 1/2/4/8/16 s ladder and reports each attempt', async () => {
+    await driver.dispose();
+    const times: number[] = [];
+    const states: Array<{ kind: string; attempt?: number }> = [];
+    driver = createSupervisorDriver(peer, {
+      log: (state) => {
+        states.push(state as { kind: string; attempt?: number });
+      },
+      ssh: {
+        connected: () => false,
+        establish: async () => {
+          times.push(Date.now());
+          throw new Error('ssh down');
+        },
+        reset: () => {},
+        probe: async () => {},
+      },
+    });
+
+    void driver.connect().catch(() => undefined);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(times).toHaveLength(1);
+
+    for (const step of [1_000, 2_000, 4_000, 8_000, 16_000]) {
+      await vi.advanceTimersByTimeAsync(step);
+    }
+
+    expect(times).toHaveLength(6);
+    const deltas = times.slice(1).map((time, index) => time - (times[index] ?? 0));
+    expect(deltas).toEqual([1_000, 2_000, 4_000, 8_000, 16_000]);
+
+    // Every rung is published with its own attempt number, so the ladder is
+    // auditable from the state/log stream instead of looking like one flap.
+    // Six attempts = the first try plus the five bounded retries above.
+    const attempts = states
+      .filter((state) => state.kind === 'recovering')
+      .map((state) => state.attempt);
+    expect(
+      [...new Set(attempts)].filter((attempt) => attempt !== undefined).sort((a, b) => a! - b!)
+    ).toEqual([1, 2, 3, 4, 5, 6]);
+
+    // Past the burst the cadence falls back to the pre-existing 30 s steady tail.
+    await vi.advanceTimersByTimeAsync(30_000);
+    expect(times).toHaveLength(7);
+  });
 });
+

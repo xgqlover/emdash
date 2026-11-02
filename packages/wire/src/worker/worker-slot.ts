@@ -24,7 +24,14 @@ const DEFAULT_SHUTDOWN_GRACE_MS = 1_000;
 
 export const DEFAULT_WORKER_SUPERVISION: WorkerSupervision = {
   restart: 'on-failure',
-  schedule: retrySchedule({ delaysMs: [250, 1_000, 2_500], repeatLast: true, maxRetries: 5 }),
+  // [XG-CUSTOM 2026-11-02] Bounded supervision ladder: 1 s / 2 s / 5 s / 10 s,
+  // five restarts, then the worker is marked failed. Unbounded hot restarts were
+  // how a broken worker amplified a blip into a whole-service brownout.
+  schedule: retrySchedule({
+    delaysMs: [1_000, 2_000, 5_000, 10_000],
+    repeatLast: true,
+    maxRetries: 5,
+  }),
 };
 
 export type WorkerSlotOptions<Defs extends ContractDefinitions> = {
@@ -75,6 +82,11 @@ export class WorkerSlot<Defs extends ContractDefinitions> implements WireWorker<
       clock: this.clock,
     });
     this.stableClient = createClient(options.definition.contract, this.connection);
+    // [XG-CUSTOM 2026-11-02] A failed send is evidence the worker is gone; it must
+    // be logged once, structured, and then handled exactly like an exit.
+    this.link.onPostFailure(({ generation, payloadKind, error }) =>
+      this.reportProcessFailure(generation, payloadKind, error)
+    );
     options.scope.add(() => this.dispose());
   }
 
@@ -238,6 +250,31 @@ export class WorkerSlot<Defs extends ContractDefinitions> implements WireWorker<
       if (this.current?.generation === generation) this.current = undefined;
       await generationScope.dispose();
     }
+  }
+
+  /**
+   * [XG-CUSTOM 2026-11-02] A single worker must never be able to take the host
+   * down. Any IPC/process error is logged once with `worker`/`code`/`payloadKind`,
+   * the link is detached (pending calls fail fast or stay held), and the process
+   * is killed so the normal exit path drives a bounded restart.
+   */
+  private reportProcessFailure(
+    generation: number,
+    payloadKind: string | undefined,
+    error: unknown
+  ): void {
+    const code = (error as { code?: unknown } | null | undefined)?.code;
+    this.options.logger.warn('worker ipc failure; treating worker as dead', {
+      worker: this.name,
+      generation,
+      payloadKind,
+      code: typeof code === 'string' ? code : undefined,
+      message: error instanceof Error ? error.message : String(error),
+    });
+    this.link.detach(generation);
+    const current = this.current;
+    if (current?.generation !== generation) return;
+    void Promise.resolve(current.process.kill()).catch(() => undefined);
   }
 
   private waitForReady(generation: number, signal: AbortSignal): Promise<void> {

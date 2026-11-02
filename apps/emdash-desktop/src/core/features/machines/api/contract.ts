@@ -87,9 +87,14 @@ export const machinesContract = defineContract({
     input: voidInput,
     output: z.custom<SshConnectionUsage>(),
   }),
+  // [XG-CUSTOM 2026-11-02] Idempotent 5 s poll. It must never queue while the
+  // transport is down (that is what filled the held-call buffer and made the
+  // resource panel flap between values and "—"): fail fast, keep the last
+  // sample, retry on the next tick.
   getMachineMetrics: procedure({
     input: hostInput,
     output: resourceUsageSampleSchema,
+    holdWhileDisconnected: false,
   }),
   systemDependencies: liveModel({
     key: hostInput,

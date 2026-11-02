@@ -123,7 +123,11 @@ export class LiveFollower<T> {
   applyUpdate(update: LiveUpdate): void {
     if (this.disposed) return;
     if (!this.isReady()) {
-      this.triggerResync('sequence-gap', { reason: 'update-before-seed' });
+      // [XG-CUSTOM 2026-11-02] A delta that lands before the initial seed is not
+      // evidence of a gap: the seed that is already in flight carries everything
+      // up to its own sequence, and any delta after it is re-checked below. The
+      // old behaviour fired a resync per delta, which showed up in the client log
+      // as an `update-before-seed` storm every time a replica was created.
       return;
     }
 
@@ -134,6 +138,14 @@ export class LiveFollower<T> {
       });
       return;
     }
+
+    // [XG-CUSTOM 2026-11-02] A delta the current cursor already covers must be
+    // ignored, not treated as a gap. After a reconnect the server can replay an
+    // update whose sequence is at or behind the snapshot we just seeded; the old
+    // strict `baseSequence !== sequence` check bounced every replica into another
+    // resync (client log: `expected 14, got 15` / `expected 1, got 16` inside the
+    // same millisecond — several cursors on one topic, one of them behind).
+    if (update.sequence <= this.sequence) return;
 
     if (update.baseSequence !== this.sequence) {
       this.triggerResync('sequence-gap', {

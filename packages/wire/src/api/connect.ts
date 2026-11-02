@@ -29,6 +29,15 @@ export type CallOptions = {
    * disable the deadline for this call.
    */
   timeoutMs?: number;
+  /**
+   * [XG-CUSTOM 2026-11-02] Per-call opt-out of hold-while-disconnected. `false`
+   * makes an idempotent read fail immediately with `DISCONNECTED` /
+   * `delivery: 'not-sent'` while the transport is down instead of sitting in
+   * the held-call buffer. Callers keep the last good value and retry; the
+   * request is never queued, so a 5 s snapshot poll cannot fill the buffer.
+   * Defaults to holding (every call that must not be lost keeps queueing).
+   */
+  holdWhileDisconnected?: boolean;
   upload?: {
     channel: string;
     meta: WireFileMeta;
@@ -52,8 +61,15 @@ export type ConnectOptions = {
    */
   callTimeoutMs?: number;
   /**
-   * Bound on calls held while disconnected. Overflow rejects the newly issued
-   * call immediately; held calls are never silently dropped.
+   * [XG-CUSTOM 2026-11-02] Bound on calls held while disconnected. Overflow
+   * evicts the **oldest** held call FIFO-style — it is rejected with
+   * `DISCONNECTED` / `delivery: 'not-sent'` — and the new call takes its slot.
+   * Rationale: before this, overflow rejected the *newest* call and the stale
+   * ones sat in the buffer until their deadline, which is how a disconnected
+   * client ended up with 1 000 dead calls and 1 478 "buffer is full" errors.
+   * `0` keeps the original fail-fast behaviour (nothing is ever held).
+   * Every eviction is counted and reported through
+   * `instrumentation.heldCallEvicted`.
    */
   maxHeldCalls?: number;
 };
@@ -67,6 +83,8 @@ type PendingCall = {
   reject(error: Error): void;
   cleanup(): void;
   posted: boolean;
+  /** [XG-CUSTOM 2026-11-02] `false` for `holdWhileDisconnected: false` callers. */
+  holdable: boolean;
   deadline: TimerHandle | undefined;
 };
 
@@ -85,7 +103,7 @@ export type Connection = {
   call(path: string, input: unknown, options?: CallOptions): Promise<unknown>;
   openBlobConsumer(channel: string): BlobConsumer;
   openBlobProducer(channel: string, source: BlobSource): BlobProducer;
-  snapshot(topic: string): Promise<LiveSnapshot<unknown>>;
+  snapshot(topic: string, options?: CallOptions): Promise<LiveSnapshot<unknown>>;
   attach(
     topic: string,
     push: (update: LiveUpdate) => void,
@@ -114,6 +132,8 @@ export function connect(transport: WireTransport, options: ConnectOptions = {}):
   let terminal = false;
   let terminalCause: unknown;
   let disposed = false;
+  /** [XG-CUSTOM 2026-11-02] Held calls dropped by FIFO eviction (diagnostics). */
+  let heldEvicted = 0;
 
   instrumentation?.transport?.({ event: 'connect' });
 
@@ -328,6 +348,7 @@ export function connect(transport: WireTransport, options: ConnectOptions = {}):
         resolve,
         reject,
         posted: false,
+        holdable: options.holdWhileDisconnected !== false,
         deadline: undefined,
         cleanup() {
           removeAbortListener();
@@ -351,6 +372,17 @@ export function connect(transport: WireTransport, options: ConnectOptions = {}):
       }
 
       if (holdsWhileDisconnected && !connected) {
+        // [XG-CUSTOM 2026-11-02] Idempotent reads (`holdWhileDisconnected: false`)
+        // never enter the buffer: they fail fast so the caller can keep its last
+        // value and retry, instead of queueing a snapshot per tick.
+        if (!pendingCall.holdable) {
+          pending.delete(message.id);
+          pendingCall.cleanup();
+          reject(
+            new WireError('DISCONNECTED', 'Wire transport disconnected', { delivery: 'not-sent' })
+          );
+          return;
+        }
         holdCall(pendingCall);
         return;
       }
@@ -399,17 +431,50 @@ export function connect(transport: WireTransport, options: ConnectOptions = {}):
   }
 
   function holdCall(pendingCall: PendingCall): void {
-    if (heldCallIds.length >= maxHeldCalls) {
-      pending.delete(pendingCall.message.id);
-      pendingCall.cleanup();
-      pendingCall.reject(
-        new WireError('DISCONNECTED', 'Wire held-call buffer is full while disconnected', {
-          delivery: 'not-sent',
-        })
-      );
-      return;
+    // [XG-CUSTOM 2026-11-02] FIFO eviction: a full buffer drops the OLDEST held
+    // call, not the newest one (see `maxHeldCalls`). `maxHeldCalls: 0` keeps the
+    // old fail-fast contract because there is never anything to evict.
+    while (heldCallIds.length >= maxHeldCalls) {
+      if (!evictOldestHeldCall()) {
+        rejectHeldOverflow(pendingCall);
+        return;
+      }
     }
     heldCallIds.push(pendingCall.message.id);
+  }
+
+  /** Rejects the oldest held call. Returns false when the buffer was empty. */
+  function evictOldestHeldCall(): boolean {
+    const evictedId = heldCallIds.shift();
+    if (evictedId === undefined) return false;
+    const evicted = pending.get(evictedId);
+    if (!evicted) return true;
+    pending.delete(evictedId);
+    evicted.cleanup();
+    heldEvicted += 1;
+    instrumentation?.heldCallEvicted?.({
+      callId: evictedId,
+      path: evicted.message.kind === 'call' ? evicted.message.path : undefined,
+      buffered: heldCallIds.length,
+      maxHeldCalls,
+      evictedTotal: heldEvicted,
+    });
+    evicted.reject(
+      new WireError('DISCONNECTED', 'Wire held-call buffer is full while disconnected', {
+        delivery: 'not-sent',
+      })
+    );
+    return true;
+  }
+
+  function rejectHeldOverflow(pendingCall: PendingCall): void {
+    pending.delete(pendingCall.message.id);
+    pendingCall.cleanup();
+    pendingCall.reject(
+      new WireError('DISCONNECTED', 'Wire held-call buffer is full while disconnected', {
+        delivery: 'not-sent',
+      })
+    );
   }
 
   function postPendingCall(pendingCall: PendingCall): void {
@@ -417,7 +482,7 @@ export function connect(transport: WireTransport, options: ConnectOptions = {}):
       transport.post(pendingCall.message);
       pendingCall.posted = true;
     } catch (error) {
-      if (!holdsWhileDisconnected || isStructuredCloneError(error)) {
+      if (!holdsWhileDisconnected || !pendingCall.holdable || isStructuredCloneError(error)) {
         pending.delete(pendingCall.message.id);
         pendingCall.cleanup();
         pendingCall.reject(createPostError(pendingCall.message, error));
@@ -522,8 +587,8 @@ export function connect(transport: WireTransport, options: ConnectOptions = {}):
       blobProducers.set(channel, producer);
       return producer;
     },
-    snapshot(topic) {
-      return request({ kind: 'snapshot', id: createRequestId(), topic }) as Promise<
+    snapshot(topic, options) {
+      return request({ kind: 'snapshot', id: createRequestId(), topic }, options) as Promise<
         LiveSnapshot<unknown>
       >;
     },

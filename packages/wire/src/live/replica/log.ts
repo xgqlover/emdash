@@ -41,7 +41,8 @@ export class ReplicaLog implements LiveSource {
   ) {
     if (!options.store) this.local = new LiveLogSource(options);
     this.client = new LiveLogClient({
-      refetchSnapshot: () => handle.snapshot(),
+      // [XG-CUSTOM 2026-11-02] Idempotent resync read: fail fast instead of queueing.
+      refetchSnapshot: () => handle.snapshot({ holdWhileDisconnected: false }),
       onReset: (data) => this.reset(data),
       onAppend: (chunk) => this.append(chunk),
       onResyncFailed: options.onResyncFailed ?? resyncRetry(),

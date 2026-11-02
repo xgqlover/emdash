@@ -17,6 +17,7 @@ import { cn } from '@core/primitives/styling/browser/cn';
 import { disabled, enabled, hidden, type ViewScopeImpl } from '@core/primitives/view-scopes/api';
 import { scopes } from '@core/primitives/view-scopes/browser';
 import { useViewScope, ViewScopeInstanceProvider } from '@core/primitives/view-scopes/react';
+import { ModalErrorBoundary } from './modal-error-boundary';
 
 type RuntimeModalEntry = {
   // The catalog erases each component's props at this renderer boundary.
@@ -208,7 +209,12 @@ const ModalDialog = observer(function ModalDialog({
         >
           <ViewScopeInstanceProvider instance={instance}>
             <ModalHostContext.Provider value={{ id: entry.id, controller: hostController }}>
-              <Component {...entry.args} />
+              {/* [XG-CUSTOM 2026-11-02] 弹窗内渲染抛错只关掉这个弹窗 + Toast，不再让 app 级
+                  ErrorBoundary 把整页接管成 "Emdash couldn't display that view"（真机：
+                  create-task-modal 少声明 initialWorkspaceId，点「+」即崩）。 */}
+              <ModalErrorBoundary modalId={entry.id} onDismiss={dismissModal}>
+                <Component {...entry.args} />
+              </ModalErrorBoundary>
             </ModalHostContext.Provider>
           </ViewScopeInstanceProvider>
         </DialogPrimitive.Popup>

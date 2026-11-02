@@ -296,8 +296,9 @@ export const WorkspaceDetailPage = observer(function WorkspaceDetailPage({
     (item: WorkspaceDetailListItem) => {
       const workspaceId = item.row.workspaceId;
       if (!workspaceId) return;
-      // [XG-CUSTOM] taskModal 官方已改为 void 参数（projectId 改走 store），旧调用保留待官方修
-      // @ts-expect-error taskModal void 参数与旧调用不匹配
+      // [XG-CUSTOM 2026-11-02] `initialWorkspaceId` 现在真的在 taskModal 的 props 里声明了
+      // （见 create-task-modal.tsx），这条 `@ts-expect-error` 因此变成未使用指令；
+      // 它原本压着的正是「点 + 时 ReferenceError」的那个缺口，删掉它 = 缺口已补的证据。
       void openTask({ projectId: item.row.projectId, initialWorkspaceId: workspaceId });
     },
     [openTask]

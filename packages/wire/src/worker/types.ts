@@ -30,6 +30,12 @@ export type WorkerProcessSpec = {
 export interface WorkerProcess {
   readonly pid: number | undefined;
   send(message: unknown): void;
+  /**
+   * [XG-CUSTOM 2026-11-02] Asynchronous IPC/process failures (EPIPE,
+   * ERR_IPC_CHANNEL_CLOSED). Always subscribe when provided: an unobserved
+   * 'error' event from a dead worker used to take the whole host process down.
+   */
+  onError?(cb: (error: unknown) => void): Unsubscribe;
   onMessage(cb: (message: unknown) => void): Unsubscribe;
   onExit(cb: (exit: ProcessExit) => void): Unsubscribe;
   onStdio(cb: (stream: WorkerStdioStream, chunk: string) => void): Unsubscribe;

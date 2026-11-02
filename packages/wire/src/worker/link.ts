@@ -9,6 +9,8 @@ type ActiveGeneration = {
   process: WorkerProcess;
   ready: boolean;
   readySignaled: boolean;
+  /** [XG-CUSTOM 2026-11-02] Subscription to the process' own error channel. */
+  unsubscribeError?: Unsubscribe;
 };
 
 export class WorkerLink implements WireTransport {
@@ -19,17 +21,47 @@ export class WorkerLink implements WireTransport {
   private readonly reconnectEmitter = createEmitter<void>();
   private readonly terminalFailureEmitter = createEmitter<unknown>();
   private readonly readyEmitter = createEmitter<number>();
+  private readonly postFailureEmitter = createEmitter<{
+    generation: number;
+    payloadKind: string;
+    error: unknown;
+  }>();
+  /**
+   * [XG-CUSTOM 2026-11-02] Last payload kind handed to `send()`. A dead IPC
+   * channel reports asynchronously (`onError`), so this is what lets the single
+   * diagnostic line name the payload kind instead of leaving it blank.
+   */
+  private lastPayloadKind: string | undefined;
 
   post(message: WireMessage): void {
     const active = this.active;
     if (this.closed || !active?.ready) {
       throw new WireError('DISCONNECTED', 'Wire worker is not ready');
     }
-    active.process.send({
-      kind: 'wire-worker-frame',
-      channel: RUNTIME_CHANNEL,
-      payload: message,
-    });
+    this.lastPayloadKind = message.kind;
+    try {
+      active.process.send({
+        kind: 'wire-worker-frame',
+        channel: RUNTIME_CHANNEL,
+        payload: message,
+      });
+    } catch (error) {
+      // [XG-CUSTOM 2026-11-02] Report the generation + payload kind so the slot
+      // can log one structured line ("worker X send failed (EPIPE) for call")
+      // and then treat the worker as dead. Never let a raw IPC error escape.
+      this.reportPostFailure(active.generation, message.kind, error);
+      throw new WireError('DISCONNECTED', 'Wire worker process is unavailable', {
+        cause: error,
+        delivery: 'not-sent',
+      });
+    }
+  }
+
+  /** [XG-CUSTOM 2026-11-02] Send failures, already normalised to a WireError for callers. */
+  onPostFailure(
+    cb: (event: { generation: number; payloadKind: string; error: unknown }) => void
+  ): Unsubscribe {
+    return this.postFailureEmitter.subscribe(cb);
   }
 
   onMessage(cb: (message: WireMessage) => void): Unsubscribe {
@@ -59,7 +91,21 @@ export class WorkerLink implements WireTransport {
 
   attach(generation: number, process: WorkerProcess): void {
     if (this.closed) return;
-    this.active = { generation, process, ready: false, readySignaled: false };
+    this.active = {
+      generation,
+      process,
+      ready: false,
+      readySignaled: false,
+      unsubscribeError: process.onError?.((error) =>
+        this.reportPostFailure(generation, this.lastPayloadKind, error)
+      ),
+    };
+  }
+
+  /** [XG-CUSTOM 2026-11-02] One place turns any send/process failure into a report. */
+  private reportPostFailure(generation: number, payloadKind: string | undefined, error: unknown): void {
+    if (this.closed) return;
+    this.postFailureEmitter.emit({ generation, payloadKind: payloadKind ?? 'unknown', error });
   }
 
   handleMessage(generation: number, message: unknown): void {
@@ -90,6 +136,7 @@ export class WorkerLink implements WireTransport {
   detach(generation: number, _exit?: ProcessExit): void {
     const active = this.active;
     if (!active || active.generation !== generation) return;
+    active.unsubscribeError?.();
     this.active = undefined;
     if (!this.closed) this.disconnectEmitter.emit();
   }
@@ -97,6 +144,7 @@ export class WorkerLink implements WireTransport {
   close(): void {
     if (this.closed) return;
     this.closed = true;
+    this.active?.unsubscribeError?.();
     this.active = undefined;
     this.disconnectEmitter.emit();
     this.terminalFailureEmitter.emit(new Error('Wire worker link closed'));
@@ -105,5 +153,6 @@ export class WorkerLink implements WireTransport {
     this.reconnectEmitter.clear();
     this.terminalFailureEmitter.clear();
     this.readyEmitter.clear();
+    this.postFailureEmitter.clear();
   }
 }

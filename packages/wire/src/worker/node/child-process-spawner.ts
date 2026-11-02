@@ -1,5 +1,5 @@
 import { fork, type ChildProcess } from 'node:child_process';
-import type { Unsubscribe } from '@emdash/shared';
+import { createEmitter, type Unsubscribe } from '@emdash/shared';
 import type { Scope } from '@emdash/shared/concurrency';
 import { recordSpawn } from '@emdash/shared/perf';
 import { listen, type EventEmitterLike } from '../events';
@@ -24,12 +24,35 @@ function spawnChildProcess(spec: WorkerProcessSpec): WorkerProcess {
     serialization: 'advanced',
   });
 
+  // [XG-CUSTOM 2026-11-02] A worker that dies turns `send()` into EPIPE. Before
+  // this, that error surfaced as an unhandled 'error' event on the ChildProcess
+  // and took the entire workspace-server process down (ops log 2026-11-02:
+  // "Unhandled 'error' event" -> whole service exit). Now every failure - sync
+  // throw or async write error - is routed to `onError`, which the slot always
+  // observes, and the worker is restarted by supervision instead.
+  const failures = createEmitter<unknown>();
+  child.on('error', (error) => failures.emit(error));
+
   return {
     get pid() {
       return child.pid;
     },
     send(message) {
-      child.send(message as Parameters<ChildProcess['send']>[0]);
+      try {
+        child.send(
+          message as Parameters<ChildProcess['send']>[0],
+          undefined,
+          undefined,
+          (error) => {
+            if (error) failures.emit(error);
+          }
+        );
+      } catch (error) {
+        failures.emit(error);
+      }
+    },
+    onError(cb): Unsubscribe {
+      return failures.subscribe(cb);
     },
     onMessage(cb): Unsubscribe {
       return listen(child as unknown as EventEmitterLike, 'message', (message) => cb(message));

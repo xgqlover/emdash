@@ -4,13 +4,13 @@
   "hint": "标记是锚点，hash 只作辅助：上游 rebase 后 hash/行号必变，判「定制还在不在」看 markers 与 anchors",
   "upstream": {
     "ref": "origin/main",
-    "base": "ab766e8fbb436584dcf0f299740e79d559b8ed31"
+    "base": "592281113a9d83a2987d8a1715d0fedf854d44c4"
   },
   "stats": {
-    "files": 450,
-    "markers": 2535,
-    "newFiles": 134,
-    "modifiedFiles": 316
+    "files": 479,
+    "markers": 2589,
+    "newFiles": 140,
+    "modifiedFiles": 339
   },
   "files": {
     ".github/workflows/release-prod.yml": {
@@ -215,7 +215,7 @@
       "anchors": [
         "2026-10-14] 版本 1.2.43-xiangwo：取图网格点击目标 page→orig 兜底（真机反馈「点了没图的框没反应」）；另 1.2.41 未设工作区回退、1.2.42 planOutbound(MCP Apps)。⚠️ J"
       ],
-      "hash": "1d33bd4e5c90863c9598bc1dbf2bc0d46ca18551",
+      "hash": "5631cc579b1d9bdde571690e901ea3bc1a094b9d",
       "origin": "modified",
       "firstCommit": "1dce8b4ad|2026-10-14|[XG-CUSTOM 2026-10-14] 取图网格：点击目标 page→orig 兜底 + 版本 1.2.43-xiangwo + 台账标记",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1896,6 +1896,20 @@
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "core feature 定制"
     },
+    "apps/emdash-desktop/src/core/features/machines/api/contract.ts": {
+      "markers": 1,
+      "lines": [
+        90
+      ],
+      "anchors": [
+        "getMachineMetrics: procedure({"
+      ],
+      "hash": "2a024fc7a2258e74c25d47af3c1df56d72c24561",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "note": "core feature 定制"
+    },
     "apps/emdash-desktop/src/core/features/machines/browser/components/host-settings-card.tsx": {
       "markers": 1,
       "lines": [
@@ -1939,14 +1953,18 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/machines/browser/components/machine-resources.tsx": {
-      "markers": 1,
+      "markers": 3,
       "lines": [
-        3
+        2,
+        5,
+        69
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "export function ResourceUtilizationRow({ metrics }: { metrics: MachineMetricsView | null }) {",
+        "<div"
       ],
-      "hash": "07b6183556e31373ea12b8be7bf90945eb084c0d",
+      "hash": "2f3e097093ef460f1d69987610ec1758056d0884",
       "origin": "modified",
       "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
@@ -2104,6 +2122,34 @@
       "origin": "modified",
       "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/machines/browser/use-machine-metrics.test.ts": {
+      "markers": 1,
+      "lines": [
+        8
+      ],
+      "anchors": [
+        "const mocks = vi.hoisted(() => ({"
+      ],
+      "hash": "18036b9f0a3d3307c66605a5474ccd0c3eae28f0",
+      "origin": "new",
+      "firstCommit": "cf62fc0b5|2026-11-02|fix(emdash): 点 + 崩溃（initialWorkspaceId）+ 弹窗局部错误边界；资源面板保留上一帧+stale → 1.2.63-xiangwo",
+      "lastCommit": "cf62fc0b5|2026-11-02|fix(emdash): 点 + 崩溃（initialWorkspaceId）+ 弹窗局部错误边界；资源面板保留上一帧+stale → 1.2.63-xiangwo",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/machines/browser/use-machine-metrics.ts": {
+      "markers": 1,
+      "lines": [
+        8
+      ],
+      "anchors": [
+        "const STALE_AFTER_FAILURES = 3;"
+      ],
+      "hash": "6e9d411aaf49d92bade59292b44eb00ef5c2190d",
+      "origin": "modified",
+      "firstCommit": "cf62fc0b5|2026-11-02|fix(emdash): 点 + 崩溃（initialWorkspaceId）+ 弹窗局部错误边界；资源面板保留上一帧+stale → 1.2.63-xiangwo",
+      "lastCommit": "cf62fc0b5|2026-11-02|fix(emdash): 点 + 崩溃（initialWorkspaceId）+ 弹窗局部错误边界；资源面板保留上一帧+stale → 1.2.63-xiangwo",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/machines/browser/use-system-dependencies.ts": {
@@ -2566,7 +2612,7 @@
       "anchors": [
         "import { t } from '@renderer/lib/i18n';"
       ],
-      "hash": "05ec54f03586f47d9064aae18ab7ecb34a2b8e19",
+      "hash": "cc06013ad7c50168650e6f280ed772082341790d",
       "origin": "modified",
       "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -4087,22 +4133,24 @@
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/browser/create-task-modal/create-task-modal.tsx": {
-      "markers": 5,
+      "markers": 6,
       "lines": [
         1,
-        139,
-        173,
-        179,
-        203
+        62,
+        143,
+        177,
+        183,
+        207
       ],
       "anchors": [
         "import { t } from '@renderer/lib/i18n';",
+        "initialWorkspaceId?: string;",
         "<Dialog.Title>{t('create_task')}</Dialog.Title>",
         "label: t('initial_conversation'),",
         "label: t('workspace_settings'),",
         "</ConfirmButton>"
       ],
-      "hash": "187a917c8b47927dc36eedd6ed03bb11cd97dfda",
+      "hash": "009b252a66b623681dd465efb5c7eda2149b2738",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -4932,7 +4980,7 @@
         "import { t } from '@renderer/lib/i18n';",
         "void openTask({ projectId: item.row.projectId, initialWorkspaceId: workspaceId });"
       ],
-      "hash": "af9d7cf485cefdf9bb0aa11b6e1c2329b3b6f787",
+      "hash": "326108baa2f9f4e62300ba900ed4e023a6379304",
       "origin": "modified",
       "firstCommit": "b49be18c5|2026-09-26|chore: 补 [XG-CUSTOM] 标记（telemetry/tsconfig/window/workspace-detail）",
       "lastCommit": "9df75ff09|2026-09-26|merge: 官方升级 1.2.6 + 适配 xiangwo 定制（acp重构/附件API/i18n去重/插件websiteUrl/tsconfig别名）",
@@ -5327,6 +5375,38 @@
       "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core 基元定制"
     },
+    "apps/emdash-desktop/src/core/services/hosts/node/connection-supervisor.policy.test.ts": {
+      "markers": 1,
+      "lines": [
+        332
+      ],
+      "anchors": [
+        "it('auto-reconnects on a bounded 1/2/4/8/16 s ladder and reports each attempt', async () => {"
+      ],
+      "hash": "a1ae7e5809878a486b0fd43f470224583aeee9af",
+      "origin": "modified",
+      "firstCommit": "2304b9a75|2026-09-05|refactor(hosts): separate availability routing from recovery ownership",
+      "lastCommit": "2304b9a75|2026-09-05|refactor(hosts): separate availability routing from recovery ownership",
+      "note": "renderer/main 侧定制"
+    },
+    "apps/emdash-desktop/src/core/services/hosts/node/connection-supervisor.ts": {
+      "markers": 3,
+      "lines": [
+        116,
+        557,
+        617
+      ],
+      "anchors": [
+        "delaysMs: [1_000, 2_000, 4_000, 8_000, 16_000, 30_000],",
+        "if (attempt > 1) {",
+        "ambientLog.warn('host reconnect attempt failed, retrying', {"
+      ],
+      "hash": "a9f95c9d216f5f4db871541064085c41948ac15e",
+      "origin": "modified",
+      "firstCommit": "1c9bca3ac|2026-09-11|fix(hosts): keep routine connection checks quiet and usable",
+      "lastCommit": "1c9bca3ac|2026-09-11|fix(hosts): keep routine connection checks quiet and usable",
+      "note": "renderer/main 侧定制"
+    },
     "apps/emdash-desktop/src/core/services/notifications/node/sqlite-store.ts": {
       "markers": 1,
       "lines": [
@@ -5597,8 +5677,8 @@
       ],
       "hash": "745e23d028b10c3c8107f4eb219c00ec5fd12635",
       "origin": "modified",
-      "firstCommit": "865800c15|2026-10-11|merge: 上游 v1.2.8（185 commits / 587 files）+ 保住全部 [XG-CUSTOM] 定制",
-      "lastCommit": "0908f7be9|2026-10-06|fix(open-in): share bounded app lookups across detection and launch",
+      "firstCommit": "2f46648ae|2026-11-02|fix(emdash): 复制不再双写（Ctrl+C 去全局加速键） + lease 失败带 label；刷新定制台账",
+      "lastCommit": "2f46648ae|2026-11-02|fix(emdash): 复制不再双写（Ctrl+C 去全局加速键） + lease 失败带 label；刷新定制台账",
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/main/gateway/runtime-broker.ts": {
@@ -7027,6 +7107,48 @@
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化语言包（zh/en 双包）"
+    },
+    "apps/emdash-desktop/src/renderer/lib/modal/modal-error-boundary.test.ts": {
+      "markers": 1,
+      "lines": [
+        7
+      ],
+      "anchors": [
+        "const toastError = vi.hoisted(() => vi.fn());"
+      ],
+      "hash": "e8e2e310777e9d7b2e535fdeafa5e7139ef96ed1",
+      "origin": "new",
+      "firstCommit": "cf62fc0b5|2026-11-02|fix(emdash): 点 + 崩溃（initialWorkspaceId）+ 弹窗局部错误边界；资源面板保留上一帧+stale → 1.2.63-xiangwo",
+      "lastCommit": "cf62fc0b5|2026-11-02|fix(emdash): 点 + 崩溃（initialWorkspaceId）+ 弹窗局部错误边界；资源面板保留上一帧+stale → 1.2.63-xiangwo",
+      "note": "renderer/main 侧定制"
+    },
+    "apps/emdash-desktop/src/renderer/lib/modal/modal-error-boundary.tsx": {
+      "markers": 1,
+      "lines": [
+        15
+      ],
+      "anchors": [
+        "export class ModalErrorBoundary extends React.Component<"
+      ],
+      "hash": "17ce5c158daa35ac0fa5e04fbd628872fc288356",
+      "origin": "new",
+      "firstCommit": "cf62fc0b5|2026-11-02|fix(emdash): 点 + 崩溃（initialWorkspaceId）+ 弹窗局部错误边界；资源面板保留上一帧+stale → 1.2.63-xiangwo",
+      "lastCommit": "cf62fc0b5|2026-11-02|fix(emdash): 点 + 崩溃（initialWorkspaceId）+ 弹窗局部错误边界；资源面板保留上一帧+stale → 1.2.63-xiangwo",
+      "note": "renderer/main 侧定制"
+    },
+    "apps/emdash-desktop/src/renderer/lib/modal/modal-renderer.tsx": {
+      "markers": 1,
+      "lines": [
+        212
+      ],
+      "anchors": [
+        "<ModalErrorBoundary modalId={entry.id} onDismiss={dismissModal}>"
+      ],
+      "hash": "1270af50e1961dc20fefdb2c8e24a027aa03cf7a",
+      "origin": "modified",
+      "firstCommit": "cf62fc0b5|2026-11-02|fix(emdash): 点 + 崩溃（initialWorkspaceId）+ 弹窗局部错误边界；资源面板保留上一帧+stale → 1.2.63-xiangwo",
+      "lastCommit": "cf62fc0b5|2026-11-02|fix(emdash): 点 + 崩溃（initialWorkspaceId）+ 弹窗局部错误边界；资源面板保留上一帧+stale → 1.2.63-xiangwo",
+      "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/renderer/main.tsx": {
       "markers": 5,
@@ -9275,6 +9397,84 @@
       "lastCommit": "b99fef3ce|2026-10-10|feat(chat): [XG-CUSTOM 2026-10-09] 主聊天窗渲染 agent 发的图 + 每张图的源链接",
       "note": "packages 定制"
     },
+    "packages/core/src/runtimes/acp/api/transport.ts": {
+      "markers": 2,
+      "lines": [
+        40,
+        45
+      ],
+      "anchors": [
+        "readonly pid?: number;",
+        "readonly stdoutBytes?: number;"
+      ],
+      "hash": "570c438e4b28a2852390fb9d74a8889443fd020e",
+      "origin": "modified",
+      "firstCommit": "e14eab8e8|2026-09-14|fix(acp): contain terminal failures and handle Devin shell commands",
+      "lastCommit": "e14eab8e8|2026-09-14|fix(acp): contain terminal failures and handle Devin shell commands",
+      "note": "packages 定制"
+    },
+    "packages/core/src/runtimes/acp/node/acp-test-support.ts": {
+      "markers": 1,
+      "lines": [
+        174
+      ],
+      "anchors": [
+        "pid: number | undefined = 4242;"
+      ],
+      "hash": "f0421c2de3f07dcd31437d8b9f7a199f23ecb4db",
+      "origin": "modified",
+      "firstCommit": "0bf55f442|2026-09-26|Merge remote-tracking branch 'origin/main'",
+      "lastCommit": "5c37fe641|2026-09-25|feat(conversations): persist native provider preferences by host and transport",
+      "note": "packages 定制"
+    },
+    "packages/core/src/runtimes/acp/node/connection/acp-agent-connection.test.ts": {
+      "markers": 1,
+      "lines": [
+        225
+      ],
+      "anchors": [
+        "it('fails fast with spawn-stdio-dead when the agent never writes to stdout', async () => {"
+      ],
+      "hash": "3da9718d38603b5d47b8c1dd343e2d810891b97c",
+      "origin": "modified",
+      "firstCommit": "c0b7aa6be|2026-08-29|fix(acp): await descendant cleanup on shutdown",
+      "lastCommit": "c0b7aa6be|2026-08-29|fix(acp): await descendant cleanup on shutdown",
+      "note": "packages 定制"
+    },
+    "packages/core/src/runtimes/acp/node/connection/acp-agent-connection.ts": {
+      "markers": 3,
+      "lines": [
+        31,
+        99,
+        253
+      ],
+      "anchors": [
+        "const DEFAULT_INITIALIZE_TIMEOUT_MS = 8_000;",
+        "const stderrTail = createStderrTail();",
+        "type StdoutProbe = {"
+      ],
+      "hash": "4e2c4e61be205765f90a2221aec9f568fa7bcba9",
+      "origin": "modified",
+      "firstCommit": "865800c15|2026-10-11|merge: 上游 v1.2.8（185 commits / 587 files）+ 保住全部 [XG-CUSTOM] 定制",
+      "lastCommit": "5c37fe641|2026-09-25|feat(conversations): persist native provider preferences by host and transport",
+      "note": "packages 定制"
+    },
+    "packages/core/src/runtimes/acp/node/node/child-process-host.ts": {
+      "markers": 2,
+      "lines": [
+        48,
+        54
+      ],
+      "anchors": [
+        "get pid(): number | undefined {",
+        "get stdoutBytes(): number | undefined {"
+      ],
+      "hash": "02ab1e32fd71b0829afa5d705ec7c603f7c0b3b4",
+      "origin": "modified",
+      "firstCommit": "bb6a90342|2026-11-01|merge: 跟上上游 v1.2.10（170 提交）· 14 个冲突按「上游新逻辑 + 我们的中文 i18n/[XG-CUSTOM 标记」合并",
+      "lastCommit": "4eff9f81e|2026-10-26|fix(acp): launch agents and terminal commands without a windows console",
+      "note": "packages 定制"
+    },
     "packages/core/src/runtimes/agent-config/node/runtime/skills.ts": {
       "markers": 16,
       "lines": [
@@ -9515,8 +9715,8 @@
       ],
       "hash": "e7f0028604a3659fc817fda05acadb870800bea3",
       "origin": "modified",
-      "firstCommit": "865800c15|2026-10-11|merge: 上游 v1.2.8（185 commits / 587 files）+ 保住全部 [XG-CUSTOM] 定制",
-      "lastCommit": "772b404a1|2026-10-06|refactor(files)!: serve the file tree as shared per-folder listings",
+      "firstCommit": "2f46648ae|2026-11-02|fix(emdash): 复制不再双写（Ctrl+C 去全局加速键） + lease 失败带 label；刷新定制台账",
+      "lastCommit": "2f46648ae|2026-11-02|fix(emdash): 复制不再双写（Ctrl+C 去全局加速键） + lease 失败带 label；刷新定制台账",
       "note": "packages 定制"
     },
     "packages/core/src/runtimes/workspace-registry/node/persistence/payload-codecs.ts": {
@@ -9861,8 +10061,8 @@
       ],
       "hash": "bc5eda6c35359d6965d088def1ee92b614a27c64",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "2f46648ae|2026-11-02|fix(emdash): 复制不再双写（Ctrl+C 去全局加速键） + lease 失败带 label；刷新定制台账",
+      "lastCommit": "2f46648ae|2026-11-02|fix(emdash): 复制不再双写（Ctrl+C 去全局加速键） + lease 失败带 label；刷新定制台账",
       "note": "packages 定制"
     },
     "packages/shared/src/xiangwo-images.test.ts": {
@@ -9899,6 +10099,262 @@
       "origin": "new",
       "firstCommit": "b50490c92|2026-10-10|refactor(shared): [XG-CUSTOM 2026-10-10] 图片协议+语义抽成一份（球与主聊天窗共用）",
       "lastCommit": "b50490c92|2026-10-10|refactor(shared): [XG-CUSTOM 2026-10-10] 图片协议+语义抽成一份（球与主聊天窗共用）",
+      "note": "packages 定制"
+    },
+    "packages/wire/src/api/client.ts": {
+      "markers": 4,
+      "lines": [
+        68,
+        85,
+        318,
+        345
+      ],
+      "anchors": [
+        "export type ProcedureCallOptions = Pick<",
+        "snapshot(options?: Pick<CallOptions, 'holdWhileDisconnected'>): Promise<LiveSnapshot<T>>;",
+        "function procedureCallOptions(",
+        "snapshot: (options) => connection.snapshot(topic, options) as Promise<LiveSnapshot<T>>,"
+      ],
+      "hash": "3e2c2dc1122fe6a10aabbe486195d39ef21ceae0",
+      "origin": "modified",
+      "firstCommit": "bb6a90342|2026-11-01|merge: 跟上上游 v1.2.10（170 提交）· 14 个冲突按「上游新逻辑 + 我们的中文 i18n/[XG-CUSTOM 标记」合并",
+      "lastCommit": "999be2ada|2026-10-26|feat(wire): let procedures declare their own call deadline",
+      "note": "packages 定制"
+    },
+    "packages/wire/src/api/connect.ts": {
+      "markers": 6,
+      "lines": [
+        33,
+        64,
+        86,
+        135,
+        375,
+        434
+      ],
+      "anchors": [
+        "holdWhileDisconnected?: boolean;",
+        "maxHeldCalls?: number;",
+        "holdable: boolean;",
+        "let heldEvicted = 0;",
+        "if (!pendingCall.holdable) {",
+        "while (heldCallIds.length >= maxHeldCalls) {"
+      ],
+      "hash": "95a80ebd7652423af44bf3e54c55d3708eb8c6fa",
+      "origin": "modified",
+      "firstCommit": "9b8ff05ff|2026-09-07|fix(acp): restore drafts after definite delivery failures",
+      "lastCommit": "9b8ff05ff|2026-09-07|fix(acp): restore drafts after definite delivery failures",
+      "note": "packages 定制"
+    },
+    "packages/wire/src/api/connection-robustness.test.ts": {
+      "markers": 1,
+      "lines": [
+        141
+      ],
+      "anchors": [
+        "it('evicts the oldest held call on overflow, never the newly issued one', async () => {"
+      ],
+      "hash": "8d1b81d39eaf1b1256b6b64b9e26c0d11c481b00",
+      "origin": "modified",
+      "firstCommit": "9b8ff05ff|2026-09-07|fix(acp): restore drafts after definite delivery failures",
+      "lastCommit": "9b8ff05ff|2026-09-07|fix(acp): restore drafts after definite delivery failures",
+      "note": "packages 定制"
+    },
+    "packages/wire/src/api/define.ts": {
+      "markers": 2,
+      "lines": [
+        22,
+        277
+      ],
+      "anchors": [
+        "*/ ⏎ holdWhileDisconnected?: boolean;",
+        "/** [XG-CUSTOM 2026-11-02] See ProcedureDef.holdWhileDisconnected. */ ⏎ holdWhileDisconnected?: boolean;"
+      ],
+      "hash": "3b638bd76b600ae607f73d5e0b7dbf6451f484d7",
+      "origin": "modified",
+      "firstCommit": "bb6a90342|2026-11-01|merge: 跟上上游 v1.2.10（170 提交）· 14 个冲突按「上游新逻辑 + 我们的中文 i18n/[XG-CUSTOM 标记」合并",
+      "lastCommit": "999be2ada|2026-10-26|feat(wire): let procedures declare their own call deadline",
+      "note": "packages 定制"
+    },
+    "packages/wire/src/api/hold-while-disconnected.test.ts": {
+      "markers": 1,
+      "lines": [
+        7
+      ],
+      "anchors": [
+        "describe('holdWhileDisconnected plumbing', () => {"
+      ],
+      "hash": "537d27b451e3a558b49ae83da3101f3ac726a9ed",
+      "origin": "new",
+      "firstCommit": "",
+      "lastCommit": "",
+      "note": "packages 定制"
+    },
+    "packages/wire/src/api/instrumentation.ts": {
+      "markers": 1,
+      "lines": [
+        85
+      ],
+      "anchors": [
+        "export type WireHeldCallEvictedEvent = {"
+      ],
+      "hash": "eb45ac6f45e47b9ff84a04724d768268e1e37a90",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "note": "packages 定制"
+    },
+    "packages/wire/src/live/follower.ts": {
+      "markers": 2,
+      "lines": [
+        126,
+        142
+      ],
+      "anchors": [
+        "// as an `update-before-seed` storm every time a replica was created. ⏎ return;",
+        "if (update.sequence <= this.sequence) return;"
+      ],
+      "hash": "077fd5e806cb3cf92731fbf236c5098c11f5bebe",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "note": "packages 定制"
+    },
+    "packages/wire/src/live/reconnect-sequence.test.ts": {
+      "markers": 1,
+      "lines": [
+        11
+      ],
+      "anchors": [
+        "const stateSchema = z.object({ count: z.number() });"
+      ],
+      "hash": "25dd0a677c093c5374f39af9077ab4a2dc82fca8",
+      "origin": "new",
+      "firstCommit": "",
+      "lastCommit": "",
+      "note": "packages 定制"
+    },
+    "packages/wire/src/live/replica/job.ts": {
+      "markers": 1,
+      "lines": [
+        68
+      ],
+      "anchors": [
+        "refetchSnapshot: () =>"
+      ],
+      "hash": "5859cc8ec69764b74b1fc83c5c8066be769b6c01",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "note": "packages 定制"
+    },
+    "packages/wire/src/live/replica/log.ts": {
+      "markers": 1,
+      "lines": [
+        44
+      ],
+      "anchors": [
+        "refetchSnapshot: () => handle.snapshot({ holdWhileDisconnected: false }),"
+      ],
+      "hash": "2b96213b787223c6c0ac961d499dfcc6c70224d2",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "note": "packages 定制"
+    },
+    "packages/wire/src/live/replica/state.ts": {
+      "markers": 1,
+      "lines": [
+        51
+      ],
+      "anchors": [
+        "instrumentation: deps.instrumentation,"
+      ],
+      "hash": "1ae232a206941322406b6e569b8b4e5c152a25fb",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "note": "packages 定制"
+    },
+    "packages/wire/src/worker/link.ts": {
+      "markers": 5,
+      "lines": [
+        12,
+        30,
+        49,
+        60,
+        105
+      ],
+      "anchors": [
+        "unsubscribeError?: Unsubscribe;",
+        "private lastPayloadKind: string | undefined;",
+        "this.reportPostFailure(active.generation, message.kind, error);",
+        "onPostFailure(",
+        "private reportPostFailure(generation: number, payloadKind: string | undefined, error: unknown): void {"
+      ],
+      "hash": "b43ea736271b8846e3ae79d3edbe0b8f80eb3b01",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "note": "packages 定制"
+    },
+    "packages/wire/src/worker/node/child-process-spawner.ts": {
+      "markers": 1,
+      "lines": [
+        27
+      ],
+      "anchors": [
+        "const failures = createEmitter<unknown>();"
+      ],
+      "hash": "5e371eba3bdb44002cf4f4b1aaf6443e0cd470e1",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "note": "packages 定制"
+    },
+    "packages/wire/src/worker/types.ts": {
+      "markers": 1,
+      "lines": [
+        34
+      ],
+      "anchors": [
+        "onError?(cb: (error: unknown) => void): Unsubscribe;"
+      ],
+      "hash": "bd734e4b0186a4b2c3eb22f786628a76eeb439ef",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "note": "packages 定制"
+    },
+    "packages/wire/src/worker/worker-ipc-failure.test.ts": {
+      "markers": 1,
+      "lines": [
+        18
+      ],
+      "anchors": [
+        "const api = defineContract({"
+      ],
+      "hash": "cf1493ed2fcb1cd7189816adb38fda2fc3638eec",
+      "origin": "new",
+      "firstCommit": "",
+      "lastCommit": "",
+      "note": "packages 定制"
+    },
+    "packages/wire/src/worker/worker-slot.ts": {
+      "markers": 3,
+      "lines": [
+        27,
+        85,
+        256
+      ],
+      "anchors": [
+        "schedule: retrySchedule({",
+        "this.link.onPostFailure(({ generation, payloadKind, error }) =>",
+        "private reportProcessFailure( ⏎ generation: number,"
+      ],
+      "hash": "5133401b5fef0028e41f44470b6e93b9dfef5161",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
       "note": "packages 定制"
     },
     "scripts/xg-i18n/apply.mjs": {

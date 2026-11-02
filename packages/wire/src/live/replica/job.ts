@@ -65,8 +65,9 @@ export class ReplicaJob<Def extends LiveJobEndpointDef = LiveJobEndpointDef> imp
     ) as z.ZodType<LiveJobState<JobProgress<Def>, JobResult<Def>, JobError<Def>>>;
     const retryPolicy = resyncRetry();
     this.client = new LiveJobClient<JobProgress<Def>, JobResult<Def>, JobError<Def>>(stateSchema, {
+      // [XG-CUSTOM 2026-11-02] Idempotent resync read: fail fast instead of queueing.
       refetchSnapshot: () =>
-        handle.snapshot() as Promise<
+        handle.snapshot({ holdWhileDisconnected: false }) as Promise<
           LiveSnapshot<LiveJobState<JobProgress<Def>, JobResult<Def>, JobError<Def>>>
         >,
       // Retry like every production replica, but stop once the job reached a

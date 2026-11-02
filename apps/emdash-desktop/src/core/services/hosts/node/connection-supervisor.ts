@@ -1,4 +1,4 @@
-import type { HostRef } from '@emdash/core/primitives/host/api';
+import { formatHostRef, type HostRef } from '@emdash/core/primitives/host/api';
 import {
   runtimeHostUnavailable,
   type RuntimeResolveError,
@@ -14,6 +14,7 @@ import {
   type RetrySchedule,
 } from '@emdash/shared/scheduling';
 import type { WireTransport } from '@emdash/wire/rpc';
+import { log as ambientLog } from '@emdash/shared/logger';
 import { cell, derived, peek, snapshot, type Readable } from '@emdash/wire/state';
 import { SshConnectionFailure } from '@core/primitives/ssh/api/node/connection-control';
 import type { HostAvailabilityState, HostPreparingPhase } from '../api/availability';
@@ -112,7 +113,12 @@ export class HostConnectionSupervisor {
     this.retrySchedule =
       options.retrySchedule ??
       retrySchedule({
-        delaysMs: [500, 1_000, 2_000, 5_000, 10_000, 20_000, 30_000],
+        // [XG-CUSTOM 2026-11-02] Bounded auto-reconnect, no manual Retry needed.
+        // Fast burst = 1 s / 2 s / 4 s / 8 s / 16 s (5 retries, 31 s window), then
+        // the pre-existing 30 s steady cadence via `repeatLast`. The burst is what
+        // "Reconnect on its own"; the steady tail keeps a long outage healing
+        // without the unbounded tight spinning that made the panel flap.
+        delaysMs: [1_000, 2_000, 4_000, 8_000, 16_000, 30_000],
         repeatLast: true,
         jitter: { random: options.random },
       });
@@ -548,6 +554,15 @@ export class HostConnectionSupervisor {
           this.generation = this.options.nextGeneration?.() ?? this.generation + 1;
           this.lastValidatedAt = this.clock.now();
           this.publish({ kind: 'ready', generation: this.generation });
+          // [XG-CUSTOM 2026-11-02] The episode counter is `attempt` above and is
+          // reset by starting a new `recover()` run; log the recovery so the
+          // operator can see the retry ladder converge instead of a silent flap.
+          if (attempt > 1) {
+            ambientLog.info('host reconnected after retries', {
+              host: formatHostRef(this.options.host),
+              attempt,
+            });
+          }
           this.options.onReady?.(this.attachment);
           this.resolveWaiters();
           return;
@@ -583,6 +598,10 @@ export class HostConnectionSupervisor {
         if (!this.isCurrent(attemptScope, epoch)) return;
         const delay = this.retrySchedule.delayFor(attempt - 1);
         if (delay === undefined) {
+          ambientLog.error('host reconnect gave up; manual retry required', {
+            host: formatHostRef(this.options.host),
+            attempt,
+          });
           this.runtimePolicy = { kind: 'paused', reason: 'failed', issue };
           this.publish({ kind: 'paused', reason: 'failed', issue });
           this.rejectWaiters(issue);
@@ -594,6 +613,15 @@ export class HostConnectionSupervisor {
           attempt,
           issue,
           nextAttemptAt: this.clock.now() + delay,
+        });
+        // [XG-CUSTOM 2026-11-02] Every retry carries its attempt number and the
+        // delay it is about to wait, so the backoff ladder is auditable in the log.
+        ambientLog.warn('host reconnect attempt failed, retrying', {
+          host: formatHostRef(this.options.host),
+          attempt,
+          phase,
+          delayMs: delay,
+          reason: issue.type === 'host-unavailable' ? issue.reason : issue.type,
         });
         try {
           await this.clock.sleep(delay, { signal, unref: true });

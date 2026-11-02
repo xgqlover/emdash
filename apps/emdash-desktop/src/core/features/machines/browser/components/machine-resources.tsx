@@ -1,34 +1,45 @@
-import type { ResourceUsageSample } from '@emdash/core/runtimes/resource-usage/api';
 import { Box, Field } from '@emdash/ui/react/primitives';
 import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
+import type { MachineMetricsView } from '../use-machine-metrics';
 
-export function ResourceUtilizationRow({ metrics }: { metrics: ResourceUsageSample | null }) {
+// [XG-CUSTOM 2026-11-02] 面板只在「从来没有采到过」时才显示 `—` / `Unavailable`；
+//   采到过就永远显示数值，掉线后由灰字 `stale · 上次采样 N 前` 表达「这帧旧了」。
+export function ResourceUtilizationRow({ metrics }: { metrics: MachineMetricsView | null }) {
+  const sample = metrics?.metrics ?? null;
+  const stale = metrics?.stale ?? false;
+  const ageMs = metrics?.ageMs ?? 0;
   return (
     <Field.Root className="flex flex-col gap-3">
       <Field.Label>{t('resource_utilization')}</Field.Label>
       <div className="mt-1 grid grid-cols-3 gap-2">
         <ResourceCard
           label="CPU"
-          value={metrics ? formatPercent(metrics.cpu.usedPercent) : '—'}
+          value={sample ? formatPercent(sample.cpu.usedPercent) : '—'}
           description="Utilization"
+          stale={stale}
+          ageMs={ageMs}
         />
         <ResourceCard
           label="Memory"
-          value={metrics ? formatPercent(metrics.memory.usedPercent) : '—'}
+          value={sample ? formatPercent(sample.memory.usedPercent) : '—'}
           description={
-            metrics
-              ? `${formatBytes(metrics.memory.usedBytes)} / ${formatBytes(metrics.memory.totalBytes)}`
+            sample
+              ? `${formatBytes(sample.memory.usedBytes)} / ${formatBytes(sample.memory.totalBytes)}`
               : 'Unavailable'
           }
+          stale={stale}
+          ageMs={ageMs}
         />
         <ResourceCard
           label="Disk"
-          value={metrics ? formatPercent(metrics.disk.usedPercent) : '—'}
+          value={sample ? formatPercent(sample.disk.usedPercent) : '—'}
           description={
-            metrics
-              ? `${formatBytes(metrics.disk.usedBytes)} / ${formatBytes(metrics.disk.totalBytes)}`
+            sample
+              ? `${formatBytes(sample.disk.usedBytes)} / ${formatBytes(sample.disk.totalBytes)}`
               : 'Unavailable'
           }
+          stale={stale}
+          ageMs={ageMs}
         />
       </div>
     </Field.Root>
@@ -39,10 +50,14 @@ function ResourceCard({
   label,
   value,
   description,
+  stale = false,
+  ageMs = 0,
 }: {
   label: string;
   value: string;
   description: string;
+  stale?: boolean;
+  ageMs?: number;
 }) {
   return (
     <Box surface="sunken" borderRadius="md" padding="2" px="3" className="min-w-0">
@@ -51,8 +66,26 @@ function ResourceCard({
       <div className="mt-0.5 truncate text-[11px] text-foreground-passive tabular-nums">
         {description}
       </div>
+      {/* [XG-CUSTOM 2026-11-02] 灰字 stale 标：数值保留，只标注这帧多旧 */}
+      {stale && (
+        <div
+          data-testid="resource-stale"
+          className="mt-0.5 truncate text-[11px] text-foreground-passive tabular-nums"
+        >
+          {`stale · sampled ${formatAge(ageMs)} ago`}
+        </div>
+      )}
     </Box>
   );
+}
+
+function formatAge(ageMs: number): string {
+  const seconds = Math.max(0, Math.round(ageMs / 1000));
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  return `${hours}h`;
 }
 
 function formatPercent(value: number): string {
