@@ -239,7 +239,10 @@ class AppService implements Disposable {
     const template: Electron.MenuItemConstructorOptions[] = [
       {
         label: 'Copy',
-        accelerator: 'CmdOrCtrl+C',
+        // [XG-CUSTOM 2026-11-02] XG-COPY-ONCE：**不要**给菜单项挂全局 `CmdOrCtrl+C`。
+        // 病：`enabled` 只看「有没有选区」⇒ 页面里任一选区存在时，这个菜单项就全局抢 Ctrl+C
+        //     ⇒ 原生复制写一次 + 这里再写一次 ⇒ 用户粘出来是双份。
+        // 现在 Ctrl+C 只由原生负责；从菜单里点「复制」照常可用。
         enabled: hasSelection,
         click: () => clipboard.writeText(selectionText),
       },

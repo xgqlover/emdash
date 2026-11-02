@@ -136,7 +136,7 @@ export class FilesAllocationGraph {
           await listingsLease.release();
         }),
       };
-    });
+    }, `listing:${String(key.path)}`);
   }
 
   /**
@@ -147,13 +147,17 @@ export class FilesAllocationGraph {
    */
   acquireContent(key: ContentKey): PendingLease<ContentResource> {
     return this.acquireResolved(resolveAbsoluteFileLocation(key.path), ({ root, relative }) =>
-      this.contents.acquire(contentIdentity(root, relative))
+      this.contents.acquire(contentIdentity(root, relative)),
+      // [XG-CUSTOM 2026-11-02] XG-LEASE-LABEL 文件路径（not-found 最可能来自这里）
+      `content:${String(key.path)}`
     );
   }
 
   acquireRoot(key: RootKey): PendingLease<RootResource> {
     return this.acquireResolved(resolveRootIdentity(key.root), (identity) =>
-      this.roots.acquire(identity)
+      this.roots.acquire(identity),
+      // [XG-CUSTOM 2026-11-02] XG-LEASE-LABEL 工作区根
+      `root:${String(key.root)}`
     );
   }
 
@@ -228,7 +232,8 @@ export class FilesAllocationGraph {
 
   private acquireResolved<Resolved, Resource>(
     resolved: Promise<Result<Resolved, FsError>>,
-    acquire: (value: Resolved) => PendingLease<Resource>
+    acquire: (value: Resolved) => PendingLease<Resource>,
+    label?: string
   ): PendingLease<Resource> {
     this.assertActive();
     return toPendingLease(
@@ -244,7 +249,9 @@ export class FilesAllocationGraph {
           await resourceLease.release();
           throw error;
         }
-      })
+      }),
+      // [XG-CUSTOM 2026-11-02] XG-LEASE-LABEL：release 失败时把 label 一起记进日志
+      label
     );
   }
 

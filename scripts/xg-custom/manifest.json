@@ -7,10 +7,10 @@
     "base": "ab766e8fbb436584dcf0f299740e79d559b8ed31"
   },
   "stats": {
-    "files": 447,
-    "markers": 2530,
+    "files": 450,
+    "markers": 2535,
     "newFiles": 134,
-    "modifiedFiles": 313
+    "modifiedFiles": 316
   },
   "files": {
     ".github/workflows/release-prod.yml": {
@@ -215,7 +215,7 @@
       "anchors": [
         "2026-10-14] 版本 1.2.43-xiangwo：取图网格点击目标 page→orig 兜底（真机反馈「点了没图的框没反应」）；另 1.2.41 未设工作区回退、1.2.42 planOutbound(MCP Apps)。⚠️ J"
       ],
-      "hash": "71016261a1c10cf98797a1d38c3e7be825cd83f4",
+      "hash": "1d33bd4e5c90863c9598bc1dbf2bc0d46ca18551",
       "origin": "modified",
       "firstCommit": "1dce8b4ad|2026-10-14|[XG-CUSTOM 2026-10-14] 取图网格：点击目标 page→orig 兜底 + 版本 1.2.43-xiangwo + 台账标记",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -346,8 +346,8 @@
       ],
       "hash": "205786b1e21fd097ef6c6fe6ced601e254abb685",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "远程场景 bot 可用性（跳过 hostDependency）"
     },
     "apps/emdash-desktop/src/core/features/agents/api/browser/components/agent-selector/use-agent-availability.ts": {
@@ -376,8 +376,8 @@
       ],
       "hash": "6309458523869cb31fb6257117d89e7b2f19b79c",
       "origin": "modified",
-      "firstCommit": "447b25a74|2026-08-28|fix(agents): replace chat UI pill with capability icons",
-      "lastCommit": "447b25a74|2026-08-28|fix(agents): replace chat UI pill with capability icons",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "远程场景 bot 可用性（跳过 hostDependency）"
     },
     "apps/emdash-desktop/src/core/features/agents/contributions/browser/agent-selector.tsx": {
@@ -390,8 +390,8 @@
       ],
       "hash": "2ecc895e35b0a6d7dfde8f7526062f37f9c89e89",
       "origin": "modified",
-      "firstCommit": "865800c15|2026-10-11|merge: 上游 v1.2.8（185 commits / 587 files）+ 保住全部 [XG-CUSTOM] 定制",
-      "lastCommit": "5e635401d|2026-09-25|fix(ui): align integrated provider picker styling",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "远程场景 bot 可用性（跳过 hostDependency）"
     },
     "apps/emdash-desktop/src/core/features/automations/browser/automation-run-format.ts": {
@@ -869,8 +869,8 @@
       ],
       "hash": "949bcf37d4a17ade9ce0244df272796159842316",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/browser/browser-tab-provider.tsx": {
@@ -912,8 +912,8 @@
       ],
       "hash": "fdb3305cdd72f272c0d167b85adb770faffbf30d",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/browser/browser-toolbar.tsx": {
@@ -926,8 +926,8 @@
       ],
       "hash": "98fab97d75653991b616b6f15b122a8ce03bfc1e",
       "origin": "modified",
-      "firstCommit": "c6e9cd218|2026-09-04|fix(browser): keep URL text clear of the toolbar favicon",
-      "lastCommit": "c6e9cd218|2026-09-04|fix(browser): keep URL text clear of the toolbar favicon",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/browser/browser/browser-webview-bind.test.ts": {
@@ -1398,8 +1398,8 @@
       ],
       "hash": "d8e5be023e30c99d1c2f3620446bc147176d650e",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "会话/ACP 定制（专家交接横条、专家表）"
     },
     "apps/emdash-desktop/src/core/features/conversations/browser/conversations-panel.tsx": {
@@ -1412,8 +1412,8 @@
       ],
       "hash": "b68b283d973a0441c8f3f99793af10db7ab941f8",
       "origin": "modified",
-      "firstCommit": "0bf55f442|2026-09-26|Merge remote-tracking branch 'origin/main'",
-      "lastCommit": "6b30e33bb|2026-09-21|feat(terminals): prepare file drops and pastes on the owning host",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "会话/ACP 定制（专家交接横条、专家表）"
     },
     "apps/emdash-desktop/src/core/features/conversations/browser/create-conversation-modal.tsx": {
@@ -1478,8 +1478,8 @@
       ],
       "hash": "631696e247f7e8168d51e8f3a4d22da79cc732cc",
       "origin": "modified",
-      "firstCommit": "865800c15|2026-10-11|merge: 上游 v1.2.8（185 commits / 587 files）+ 保住全部 [XG-CUSTOM] 定制",
-      "lastCommit": "5e635401d|2026-09-25|fix(ui): align integrated provider picker styling",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "会话/ACP 定制（专家交接横条、专家表）"
     },
     "apps/emdash-desktop/src/core/features/conversations/contributions/browser/sidebar-conversations-list.tsx": {
@@ -1492,8 +1492,8 @@
       ],
       "hash": "ff052b2539f2cb13c5fb21318041429993ee7dc9",
       "origin": "modified",
-      "firstCommit": "0bf55f442|2026-09-26|Merge remote-tracking branch 'origin/main'",
-      "lastCommit": "4e3ed0c69|2026-09-24|fix(notifications): open the right chat tab",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "会话/ACP 定制（专家交接横条、专家表）"
     },
     "apps/emdash-desktop/src/core/features/conversations/contributions/settings.ts": {
@@ -1520,8 +1520,8 @@
       ],
       "hash": "697e0118b84e7a2ef123896990fe9af5a3d8eb43",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/editor/browser/lsp/language-status.tsx": {
@@ -1534,8 +1534,8 @@
       ],
       "hash": "17c8ba75e5e41abbb5700f25d6ff3af6d8460ee2",
       "origin": "modified",
-      "firstCommit": "865800c15|2026-10-11|merge: 上游 v1.2.8（185 commits / 587 files）+ 保住全部 [XG-CUSTOM] 定制",
-      "lastCommit": "8df84693b|2026-10-09|refactor(editor): move language service status into the file tab menu",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/editor/browser/renderers/svg-renderer.tsx": {
@@ -1548,8 +1548,8 @@
       ],
       "hash": "3714f82d0a65f5636cbf3ee6922d55942fd8d5fc",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/editor/browser/task-editor/conflict-dialog.tsx": {
@@ -1562,8 +1562,8 @@
       ],
       "hash": "c9f11541d7d3ef6ca8fdd73e81b2fb3877be2ba5",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/editor/browser/task-editor/file-content-search.tsx": {
@@ -1576,8 +1576,8 @@
       ],
       "hash": "c6768025d1696c06406b689a4eeba4e5b70e1610",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/editor/browser/task-editor/file-status-placeholder.tsx": {
@@ -1590,8 +1590,8 @@
       ],
       "hash": "ee4b7142a9d587539bfad030792652e6999e7937",
       "origin": "modified",
-      "firstCommit": "867904aa7|2026-08-29|fix(host): restrict default app opens to local files",
-      "lastCommit": "867904aa7|2026-08-29|fix(host): restrict default app opens to local files",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/editor/browser/task-editor/file-tab-item.tsx": {
@@ -1604,8 +1604,8 @@
       ],
       "hash": "5aa5b80905b1bafafe4979501924849266f04b4c",
       "origin": "modified",
-      "firstCommit": "865800c15|2026-10-11|merge: 上游 v1.2.8（185 commits / 587 files）+ 保住全部 [XG-CUSTOM] 定制",
-      "lastCommit": "8df84693b|2026-10-09|refactor(editor): move language service status into the file tab menu",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/editor/browser/task-editor/file-tab-provider.tsx": {
@@ -1618,8 +1618,8 @@
       ],
       "hash": "b75a2a20aa52c633f32bf14c114a5404c484b631",
       "origin": "modified",
-      "firstCommit": "865800c15|2026-10-11|merge: 上游 v1.2.8（185 commits / 587 files）+ 保住全部 [XG-CUSTOM] 定制",
-      "lastCommit": "40c01600f|2026-10-01|feat(editor): add host-backed TypeScript language intelligence",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/editor/contributions/browser/editor-file-tree.tsx": {
@@ -1632,8 +1632,8 @@
       ],
       "hash": "940c143464ca96c3d65945e28f1cff45d04d3ff0",
       "origin": "modified",
-      "firstCommit": "865800c15|2026-10-11|merge: 上游 v1.2.8（185 commits / 587 files）+ 保住全部 [XG-CUSTOM] 定制",
-      "lastCommit": "8ec6052ca|2026-10-06|fix: rm folder expansion animation",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/expert-roster/browser/expert-roster-view.tsx": {
@@ -1688,8 +1688,8 @@
       ],
       "hash": "b7e49e094f0a1bef47ce61ac9e0cdec6c4272b43",
       "origin": "modified",
-      "firstCommit": "304fbf78e|2026-10-22|feat(integrations): share Emdash OAuth, device sign-in, and token renewal",
-      "lastCommit": "304fbf78e|2026-10-22|feat(integrations): share Emdash OAuth, device sign-in, and token renewal",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "octokit GitHub API 走 socks5 代理"
     },
     "apps/emdash-desktop/src/core/features/github/node/services/octokit-provider.ts": {
@@ -1762,8 +1762,8 @@
       ],
       "hash": "43846f0fa403ef9cf238888f98cc9a0bed5e907a",
       "origin": "modified",
-      "firstCommit": "88dad04ed|2026-10-18|feat(gitlab): add repository and task workflow parity",
-      "lastCommit": "88dad04ed|2026-10-18|feat(gitlab): add repository and task workflow parity",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/integrations/browser/SetupFormShell.tsx": {
@@ -1776,8 +1776,8 @@
       ],
       "hash": "d24a9f34e08c7d9be52568f447127dcc1321755a",
       "origin": "modified",
-      "firstCommit": "0bf55f442|2026-09-26|Merge remote-tracking branch 'origin/main'",
-      "lastCommit": "834aa1945|2026-10-09|feat(integrations): select authentication methods before setup",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/integrations/browser/device-sign-in.tsx": {
@@ -1790,8 +1790,8 @@
       ],
       "hash": "af02e96ed00b72deab5258bf6c08d3d4d3c31e44",
       "origin": "modified",
-      "firstCommit": "5361d624b|2026-10-22|fix(integrations): keep cancelling the current device sign-in after a retry",
-      "lastCommit": "5361d624b|2026-10-22|fix(integrations): keep cancelling the current device sign-in after a retry",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/integrations/browser/integration-setup-modal.tsx": {
@@ -1804,8 +1804,8 @@
       ],
       "hash": "9850143400831aa21c02d3a595217cbeacf98b69",
       "origin": "modified",
-      "firstCommit": "3948085db|2026-10-21|feat(gitlab): sign in to gitlab.com with OAuth device authorization",
-      "lastCommit": "3948085db|2026-10-21|feat(gitlab): sign in to gitlab.com with OAuth device authorization",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/integrations/contributions/browser/provider-identity-strip.tsx": {
@@ -1818,8 +1818,8 @@
       ],
       "hash": "f10ab0863aecd3793e564806f7d6e16bfdea7a36",
       "origin": "modified",
-      "firstCommit": "0bf55f442|2026-09-26|Merge remote-tracking branch 'origin/main'",
-      "lastCommit": "2e6fff7dd|2026-09-17|refactor(integrations): unify GitHub account and issue lifecycles",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/integrations/contributions/browser/standard-integration-auth.tsx": {
@@ -1832,8 +1832,8 @@
       ],
       "hash": "662331b0bf8ad81b4689ba4e601b97a46d39a2e2",
       "origin": "modified",
-      "firstCommit": "1725e5f65|2026-10-22|fix(account): create and sign in to Emdash accounts only with GitHub",
-      "lastCommit": "1725e5f65|2026-10-22|fix(account): create and sign in to Emdash accounts only with GitHub",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/library/browser/prompts/prompt-library-view.tsx": {
@@ -1906,8 +1906,8 @@
       ],
       "hash": "6c5daf4ca4223e220dee1802d67d193477eed4a7",
       "origin": "modified",
-      "firstCommit": "4cac3f41c|2026-09-01|feat(settings): pass watcherExclude to git and workspace-registry workers",
-      "lastCommit": "4cac3f41c|2026-09-01|feat(settings): pass watcherExclude to git and workspace-registry workers",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/machines/browser/components/link-conversation-modal.tsx": {
@@ -1920,8 +1920,8 @@
       ],
       "hash": "c35b8d976cc2afed00c7bdbfe2f3d0c23abe89ed",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/machines/browser/components/machine-conversations-list.tsx": {
@@ -1934,8 +1934,8 @@
       ],
       "hash": "848e9d857481c6043c96f5d9893014527e503ee0",
       "origin": "modified",
-      "firstCommit": "78a14d5dd|2026-08-21|fix(ui): CollectionToolbar improvement",
-      "lastCommit": "78a14d5dd|2026-08-21|fix(ui): CollectionToolbar improvement",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/machines/browser/components/machine-resources.tsx": {
@@ -1948,8 +1948,8 @@
       ],
       "hash": "07b6183556e31373ea12b8be7bf90945eb084c0d",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/machines/browser/components/machine-system-dependencies.tsx": {
@@ -1962,8 +1962,8 @@
       ],
       "hash": "a376d0ac9b50f236d2520590da962571f9082334",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/machines/browser/components/workspaces-list-view.tsx": {
@@ -1976,8 +1976,8 @@
       ],
       "hash": "d0974fe7f07b82818603ef08556479e6a1deb61f",
       "origin": "modified",
-      "firstCommit": "78a14d5dd|2026-08-21|fix(ui): CollectionToolbar improvement",
-      "lastCommit": "78a14d5dd|2026-08-21|fix(ui): CollectionToolbar improvement",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/machines/browser/machine-authentication-fields.tsx": {
@@ -1990,8 +1990,8 @@
       ],
       "hash": "6c809e88e0783696a046c0fe614ab8d381790876",
       "origin": "modified",
-      "firstCommit": "63da62ac1|2026-09-11|fix(ssh): bind retained credentials to resolved identities",
-      "lastCommit": "63da62ac1|2026-09-11|fix(ssh): bind retained credentials to resolved identities",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/machines/browser/machine-connection-details.tsx": {
@@ -2004,8 +2004,8 @@
       ],
       "hash": "19e240dab7157cfc18aebc0531ac19fce50d3a3b",
       "origin": "modified",
-      "firstCommit": "8d01ffee3|2026-09-11|fix(machines): make SSH config authentication editable",
-      "lastCommit": "8d01ffee3|2026-09-11|fix(machines): make SSH config authentication editable",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/machines/browser/machine-form.tsx": {
@@ -2018,8 +2018,8 @@
       ],
       "hash": "39b18db26577e0548a6c8957f0d7a2b3329b529f",
       "origin": "modified",
-      "firstCommit": "8d01ffee3|2026-09-11|fix(machines): make SSH config authentication editable",
-      "lastCommit": "8d01ffee3|2026-09-11|fix(machines): make SSH config authentication editable",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/machines/browser/machine-host-picker.tsx": {
@@ -2032,8 +2032,8 @@
       ],
       "hash": "61c1ed79aa48e6ac663e3f18cadf81c69247312c",
       "origin": "modified",
-      "firstCommit": "8d01ffee3|2026-09-11|fix(machines): make SSH config authentication editable",
-      "lastCommit": "8d01ffee3|2026-09-11|fix(machines): make SSH config authentication editable",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/machines/browser/machine-manual-fields.tsx": {
@@ -2046,8 +2046,8 @@
       ],
       "hash": "85c73aaec874732243cbd57a1c4a4529ffcfa4d6",
       "origin": "modified",
-      "firstCommit": "8d01ffee3|2026-09-11|fix(machines): make SSH config authentication editable",
-      "lastCommit": "8d01ffee3|2026-09-11|fix(machines): make SSH config authentication editable",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/machines/browser/pages/local-workspaces-settings-page.tsx": {
@@ -2060,8 +2060,8 @@
       ],
       "hash": "c7fd07de70e5de319f21c84d4ee03911bf6b2d34",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/machines/browser/pages/machine-details-page.tsx": {
@@ -2074,8 +2074,8 @@
       ],
       "hash": "28307a5e63b1b8da0d574ae2406ffa820667eb4b",
       "origin": "modified",
-      "firstCommit": "0186a6bdf|2026-09-05|chore: checkpoint",
-      "lastCommit": "0186a6bdf|2026-09-05|chore: checkpoint",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/machines/browser/pages/machines-settings-page.tsx": {
@@ -2088,8 +2088,8 @@
       ],
       "hash": "4f81437c7d3d39e435a1c47667af2b65158a40a7",
       "origin": "modified",
-      "firstCommit": "d9d285339|2026-08-25|fix: ui",
-      "lastCommit": "d9d285339|2026-08-25|fix: ui",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/machines/browser/pages/system-settings-page.tsx": {
@@ -2102,8 +2102,8 @@
       ],
       "hash": "1f0153d0d08d563b2d26c2132fc690fe86624f76",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/machines/browser/use-system-dependencies.ts": {
@@ -2116,8 +2116,8 @@
       ],
       "hash": "20f457d078b05ac5b15ec7d58a51562bbf3a2522",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/machines/contributions/settings-page.ts": {
@@ -2152,8 +2152,8 @@
       ],
       "hash": "205765ce487b8ce85a229fb279e5873062005be4",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/mcp/browser/components/McpDrawer.tsx": {
@@ -2166,8 +2166,8 @@
       ],
       "hash": "e56274f88fb01c31085a3a09ee8b5cdfbadd0cb6",
       "origin": "modified",
-      "firstCommit": "3f055c33d|2026-09-01|fix(mcp): preserve hidden fields when editing servers",
-      "lastCommit": "3f055c33d|2026-09-01|fix(mcp): preserve hidden fields when editing servers",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/mcp/browser/components/McpServersList.tsx": {
@@ -2180,8 +2180,8 @@
       ],
       "hash": "2feaada170cab3206a88a816dfd0e6818615d990",
       "origin": "modified",
-      "firstCommit": "d9d285339|2026-08-25|fix: ui",
-      "lastCommit": "d9d285339|2026-08-25|fix: ui",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/mcp/browser/components/McpToolbar.tsx": {
@@ -2194,8 +2194,8 @@
       ],
       "hash": "95daacf5e9c5facc8243a32b5c0ebca2ae0fd2bf",
       "origin": "modified",
-      "firstCommit": "78a14d5dd|2026-08-21|fix(ui): CollectionToolbar improvement",
-      "lastCommit": "78a14d5dd|2026-08-21|fix(ui): CollectionToolbar improvement",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/mcp/browser/components/McpView.tsx": {
@@ -2208,8 +2208,8 @@
       ],
       "hash": "1dbacf44a9c40579f8c6e905b75aee23e1e63967",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/mcp/browser/components/SyncToAgentsSection.tsx": {
@@ -2222,8 +2222,8 @@
       ],
       "hash": "bd35534932fe28c5fe4180292fc140b2dee2a5d4",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/mcp/contributions/settings-page.tsx": {
@@ -2310,8 +2310,8 @@
       ],
       "hash": "b3d99027eb135366eecbce48a06f59e6f8ba6447",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/add-project-modal/owner-selector.tsx": {
@@ -2324,8 +2324,8 @@
       ],
       "hash": "ec41a55e8fd0c2086af592ac65b36a3eb436c2da",
       "origin": "modified",
-      "firstCommit": "88dad04ed|2026-10-18|feat(gitlab): add repository and task workflow parity",
-      "lastCommit": "88dad04ed|2026-10-18|feat(gitlab): add repository and task workflow parity",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/add-project-modal/project-directory-picker.tsx": {
@@ -2338,8 +2338,8 @@
       ],
       "hash": "9231fd7d461ad8da02e04a7e3dce19dca0a1b18b",
       "origin": "modified",
-      "firstCommit": "865800c15|2026-10-11|merge: 上游 v1.2.8（185 commits / 587 files）+ 保住全部 [XG-CUSTOM] 定制",
-      "lastCommit": "772b404a1|2026-10-06|refactor(files)!: serve the file tree as shared per-folder listings",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/add-project-modal/untrusted-repository-notice.tsx": {
@@ -2352,8 +2352,8 @@
       ],
       "hash": "e028ad7c2543833ea37708614ce3c6f9b1f57e9e",
       "origin": "modified",
-      "firstCommit": "d22133954|2026-10-26|fix(git): quote the copied safe.directory command for windows shells",
-      "lastCommit": "d22133954|2026-10-26|fix(git): quote the copied safe.directory command for windows shells",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/directory-selector-modal.tsx": {
@@ -2478,8 +2478,8 @@
       ],
       "hash": "a6c766c3805c09bd99f2dc7ff7128a6661c8c137",
       "origin": "modified",
-      "firstCommit": "0bf55f442|2026-09-26|Merge remote-tracking branch 'origin/main'",
-      "lastCommit": "f2a17d890|2026-09-16|fix(projects): expose and log project opening failures",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/relink-project-modal.tsx": {
@@ -2492,8 +2492,8 @@
       ],
       "hash": "9e180d2696036f7a5f6229425f8e5fa95c478f59",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/components/rename-project-modal.tsx": {
@@ -2568,7 +2568,7 @@
       ],
       "hash": "05ec54f03586f47d9064aae18ab7ecb34a2b8e19",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化 / 项目界面定制"
     },
@@ -2712,8 +2712,8 @@
       ],
       "hash": "a579b101e09fc42e3dad5a0f5e34727a88c0cc14",
       "origin": "modified",
-      "firstCommit": "0bf55f442|2026-09-26|Merge remote-tracking branch 'origin/main'",
-      "lastCommit": "ad77f81a0|2026-09-16|fix(tasks): run best-effort teardown on archive",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/browser/project-availability-presentation.ts": {
@@ -2726,8 +2726,8 @@
       ],
       "hash": "c54f2008c12ab4b2e3f2f970ef9083343a86b881",
       "origin": "modified",
-      "firstCommit": "4dbee0183|2026-09-07|fix(remote): recover chat after sleep and stabilize connection status",
-      "lastCommit": "4dbee0183|2026-09-07|fix(remote): recover chat after sleep and stabilize connection status",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/projects/contributions/browser/use-confirm-delete-project.tsx": {
@@ -2740,8 +2740,8 @@
       ],
       "hash": "7749babf91b472b945eb784f0b7c0ce90db8ef45",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 / 项目界面定制"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/agents-page/AgentIntegrationSection.tsx": {
@@ -2754,8 +2754,8 @@
       ],
       "hash": "afc0f5d1e2985551e6402bab9a23610651999193",
       "origin": "modified",
-      "firstCommit": "0bf55f442|2026-09-26|Merge remote-tracking branch 'origin/main'",
-      "lastCommit": "537122f8a|2026-09-21|fix(agents): align installation guide and link icons",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/agents-page/AgentMcpSection.tsx": {
@@ -2768,8 +2768,8 @@
       ],
       "hash": "dda50b7bc12fe755cf15e46809f7376131a4f688",
       "origin": "modified",
-      "firstCommit": "0bf55f442|2026-09-26|Merge remote-tracking branch 'origin/main'",
-      "lastCommit": "537122f8a|2026-09-21|fix(agents): align installation guide and link icons",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/agents-page/AgentsSettingsPage.tsx": {
@@ -2782,8 +2782,8 @@
       ],
       "hash": "18a189c7f1a2514aa5a84fb4287d5aaabd49a66d",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/agents-page/AgentsToolbar.tsx": {
@@ -2796,8 +2796,8 @@
       ],
       "hash": "482ace6bf0987af1e17bfdae04e1b08005755ee7",
       "origin": "modified",
-      "firstCommit": "78a14d5dd|2026-08-21|fix(ui): CollectionToolbar improvement",
-      "lastCommit": "78a14d5dd|2026-08-21|fix(ui): CollectionToolbar improvement",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/agents-page/DefaultAgentSelector.tsx": {
@@ -2810,8 +2810,8 @@
       ],
       "hash": "9b0074d4548e6c3b545a6bc6c96ee9ab4694b844",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/agents-page/DependencyInstallationStatusCard.tsx": {
@@ -2824,8 +2824,8 @@
       ],
       "hash": "a2925c0cbcc801dd1979cd98a1627c07275ed828",
       "origin": "modified",
-      "firstCommit": "32c85459f|2026-09-09|feat(settings): validate agent installation overrides",
-      "lastCommit": "32c85459f|2026-09-09|feat(settings): validate agent installation overrides",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/agents-page/DependencyInstallationUpdateCard.tsx": {
@@ -2838,8 +2838,8 @@
       ],
       "hash": "1e9861407129543d918313e54dd020e0aea19882",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/agents-page/InstalledAgentContent.tsx": {
@@ -2852,8 +2852,8 @@
       ],
       "hash": "73c8b592faf4fd09052e8c7c06ce035ac6528425",
       "origin": "modified",
-      "firstCommit": "46a9dcfe5|2026-09-02|refactor(settings): share environment variable inputs",
-      "lastCommit": "46a9dcfe5|2026-09-02|refactor(settings): share environment variable inputs",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/agents-page/installation-sources.ts": {
@@ -2866,8 +2866,8 @@
       ],
       "hash": "dd2f07f16c613fc1de909a00f041b3367bd456aa",
       "origin": "modified",
-      "firstCommit": "32c85459f|2026-09-09|feat(settings): validate agent installation overrides",
-      "lastCommit": "32c85459f|2026-09-09|feat(settings): validate agent installation overrides",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/components/AccountTab.tsx": {
@@ -2986,8 +2986,8 @@
       ],
       "hash": "bfcb5869bb53686958395165f741cc307267dc06",
       "origin": "modified",
-      "firstCommit": "0bf55f442|2026-09-26|Merge remote-tracking branch 'origin/main'",
-      "lastCommit": "2e6fff7dd|2026-09-17|refactor(integrations): unify GitHub account and issue lifecycles",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/components/IntegrationGridCard.tsx": {
@@ -3016,8 +3016,8 @@
       ],
       "hash": "43666b2540907d0c5d33e9cc378ba6609468ccc9",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/components/IntegrationsCard.tsx": {
@@ -3133,8 +3133,8 @@
       ],
       "hash": "90ab1b28382307da130d9f92dc82b234ce27c96a",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/components/SettingsPage.tsx": {
@@ -3349,8 +3349,8 @@
       ],
       "hash": "c9c1aae4df1d26ef73ca96228ef5919ddf25c52b",
       "origin": "modified",
-      "firstCommit": "865800c15|2026-10-11|merge: 上游 v1.2.8（185 commits / 587 files）+ 保住全部 [XG-CUSTOM] 定制",
-      "lastCommit": "30da08323|2026-10-06|feat(usage): show account limits across machines in settings",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/browser/settings-view.tsx": {
@@ -3381,8 +3381,8 @@
       ],
       "hash": "94f7657e8417d616c4a82c1ce6f83d92194d64c7",
       "origin": "modified",
-      "firstCommit": "865800c15|2026-10-11|merge: 上游 v1.2.8（185 commits / 587 files）+ 保住全部 [XG-CUSTOM] 定制",
-      "lastCommit": "0908f7be9|2026-10-06|fix(open-in): share bounded app lookups across detection and launch",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 + 集成卡片（OpenViking/WeKnora）"
     },
     "apps/emdash-desktop/src/core/features/settings/contributions/settings-pages.ts": {
@@ -3421,8 +3421,8 @@
       ],
       "hash": "3980324e73d6dbb3c64ca9e771f03cf373bea2aa",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "技能库定制（多来源/分类）"
     },
     "apps/emdash-desktop/src/core/features/skills/browser/components/SkillCard.tsx": {
@@ -3491,8 +3491,8 @@
       ],
       "hash": "b6e1dc22ba4f38466e0971a5ed3182eccca10fbc",
       "origin": "modified",
-      "firstCommit": "78a14d5dd|2026-08-21|fix(ui): CollectionToolbar improvement",
-      "lastCommit": "78a14d5dd|2026-08-21|fix(ui): CollectionToolbar improvement",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "技能库定制（多来源/分类）"
     },
     "apps/emdash-desktop/src/core/features/skills/browser/components/SkillsView.tsx": {
@@ -3505,8 +3505,8 @@
       ],
       "hash": "03999a41b382257cc5bf5910a959e36165d756bc",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "技能库定制（多来源/分类）"
     },
     "apps/emdash-desktop/src/core/features/skills/browser/components/skill-categories.ts": {
@@ -3533,8 +3533,8 @@
       ],
       "hash": "79732245cfb620b7f333473f629c04a426b88626",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "技能库定制（多来源/分类）"
     },
     "apps/emdash-desktop/src/core/features/skills/contributions/settings-page.ts": {
@@ -3563,8 +3563,8 @@
       ],
       "hash": "c39684b506439d557458550217aaa2036a26038e",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
     },
     "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/action-card.tsx": {
@@ -3715,8 +3715,8 @@
       ],
       "hash": "f16de5f2b8c31e254b1148ab33b22e965710d89a",
       "origin": "modified",
-      "firstCommit": "5b8beac41|2026-10-20|feat(gitlab): support merge request workflows",
-      "lastCommit": "5b8beac41|2026-10-20|feat(gitlab): support merge request workflows",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
     },
     "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/git-status-section.tsx": {
@@ -3809,8 +3809,8 @@
       ],
       "hash": "e388cbf37283f604ade7fbd986d9e61f72ef7879",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
     },
     "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/comments/comment-widget.tsx": {
@@ -3823,8 +3823,8 @@
       ],
       "hash": "3ae24a9bea79e876539e2d9864785391e9fbd675",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
     },
     "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/diff-tab-item.tsx": {
@@ -3922,8 +3922,8 @@
       ],
       "hash": "33bd53830d966a03c8d5ce41fa5601c38fcc6e63",
       "origin": "modified",
-      "firstCommit": "17fbb168c|2026-09-14|feat(diff): scroll newly opened files to the first change",
-      "lastCommit": "17fbb168c|2026-09-14|feat(diff): scroll newly opened files to the first change",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
     },
     "apps/emdash-desktop/src/core/features/source-control/contributions/browser/changes-panel.tsx": {
@@ -3950,8 +3950,8 @@
       ],
       "hash": "ae610b4ccdae9276b0c847b37646d24b08184e1b",
       "origin": "modified",
-      "firstCommit": "a84968fcd|2026-10-18|fix(repository): preserve Add Remote history and account",
-      "lastCommit": "a84968fcd|2026-10-18|fix(repository): preserve Add Remote history and account",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/browser/components/activity-badge.tsx": {
@@ -3978,8 +3978,8 @@
       ],
       "hash": "fa882def7f1cd2169ba9a5583f79b565271f64bc",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/browser/components/issue-selector/issue-selector.tsx": {
@@ -3992,8 +3992,8 @@
       ],
       "hash": "7d7ae935709e58768fb0edb57c83bdd7e7d5eae6",
       "origin": "modified",
-      "firstCommit": "88dad04ed|2026-10-18|feat(gitlab): add repository and task workflow parity",
-      "lastCommit": "88dad04ed|2026-10-18|feat(gitlab): add repository and task workflow parity",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/browser/components/pr-selector/pr-selector.tsx": {
@@ -4006,8 +4006,8 @@
       ],
       "hash": "ef39836756b13fe05f1022d35470c02fc72b689e",
       "origin": "modified",
-      "firstCommit": "5b8beac41|2026-10-20|feat(gitlab): support merge request workflows",
-      "lastCommit": "5b8beac41|2026-10-20|feat(gitlab): support merge request workflows",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/browser/components/preview-servers/manual-forward-button.tsx": {
@@ -4038,8 +4038,8 @@
       ],
       "hash": "cf989af355c877164b73083e5566fb15744bca6c",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/browser/components/preview-servers/preview-server-pill.tsx": {
@@ -4068,8 +4068,8 @@
       ],
       "hash": "d8c768553599c002bedce458027156deeacdd0ce",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/browser/context-bar/prompt-actions-menu.tsx": {
@@ -4168,8 +4168,8 @@
       ],
       "hash": "68d55e3d72fc5c0f1000620ccb468ac8957432a3",
       "origin": "modified",
-      "firstCommit": "68e8225d9|2026-09-02|feat(workbench): move new-conversation button inline as sticky + after last tab",
-      "lastCommit": "68e8225d9|2026-09-02|feat(workbench): move new-conversation button inline as sticky + after last tab",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/browser/pane-empty-state.tsx": {
@@ -4212,8 +4212,8 @@
       ],
       "hash": "5150602bcc979e7d5fcb5061746a006adc22b4da",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/browser/task-config/branch-picker-field.tsx": {
@@ -4226,8 +4226,8 @@
       ],
       "hash": "82bf05ee9223c1296c2870286dabf9c7e87c1f63",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/browser/task-config/existing-workspace-picker.tsx": {
@@ -4240,7 +4240,7 @@
       ],
       "hash": "fc7935c157b82925caec6aef5850704889619025",
       "origin": "modified",
-      "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "中文化（任务界面）"
     },
@@ -4270,8 +4270,8 @@
       ],
       "hash": "232c42a883190602e8a4bfe9dbe1f944d370d340",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/browser/task-scope.tsx": {
@@ -4330,8 +4330,8 @@
       ],
       "hash": "236f09e7e818d3c750a193d88e55d75c82855dd1",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/contributions/browser/task-config/initial-conversation-section.tsx": {
@@ -4382,8 +4382,8 @@
       ],
       "hash": "c122fe26a3d7380fcc63e70ce7462bb46302ef9c",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/contributions/scopes.ts": {
@@ -4412,8 +4412,8 @@
       ],
       "hash": "3e3a8f51fc2b1a04602cc21da47c6f2d821fe6e3",
       "origin": "modified",
-      "firstCommit": "e9bf7f4d5|2026-09-02|fix(terminals): reflect drawer focus in tab indicator",
-      "lastCommit": "e9bf7f4d5|2026-09-02|fix(terminals): reflect drawer focus in tab indicator",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/terminals/browser/task-terminal/terminal-tab-provider.tsx": {
@@ -4426,8 +4426,8 @@
       ],
       "hash": "85fdea17cd100c721bbff2f46e1663d82d05e4dd",
       "origin": "modified",
-      "firstCommit": "0bf55f442|2026-09-26|Merge remote-tracking branch 'origin/main'",
-      "lastCommit": "6b30e33bb|2026-09-21|feat(terminals): prepare file drops and pastes on the owning host",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/terminals/contributions/browser/pty/terminal-search-overlay.tsx": {
@@ -4440,8 +4440,8 @@
       ],
       "hash": "42367cb96817d41940bdb3d4d25b622ff9ee55de",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/terminals/contributions/browser/task-terminal/terminal-panel.tsx": {
@@ -4454,8 +4454,8 @@
       ],
       "hash": "7490a1464e7ca3b6495d83385edfc9cb1c3a93bf",
       "origin": "modified",
-      "firstCommit": "0bf55f442|2026-09-26|Merge remote-tracking branch 'origin/main'",
-      "lastCommit": "6b30e33bb|2026-09-21|feat(terminals): prepare file drops and pastes on the owning host",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/usage/browser/usage-account-section.tsx": {
@@ -4468,8 +4468,8 @@
       ],
       "hash": "43d206485e55ab2098ff9eac5f297c6d6a994b92",
       "origin": "modified",
-      "firstCommit": "865800c15|2026-10-11|merge: 上游 v1.2.8（185 commits / 587 files）+ 保住全部 [XG-CUSTOM] 定制",
-      "lastCommit": "3ae5d3cb9|2026-10-06|refactor(ui): simplify meter to its active presentation",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/usage/browser/usage-overview-view.tsx": {
@@ -4482,8 +4482,8 @@
       ],
       "hash": "f0212adc9740a3c142cdb7df0609325eb6c344bb",
       "origin": "modified",
-      "firstCommit": "865800c15|2026-10-11|merge: 上游 v1.2.8（185 commits / 587 files）+ 保住全部 [XG-CUSTOM] 定制",
-      "lastCommit": "1b509516c|2026-10-06|fix(usage): keep refresh available during machine preparation",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/workbench/api/browser/embedded-browser-open-request.test.ts": {
@@ -4648,8 +4648,8 @@
       ],
       "hash": "ae0b46485fca477eb8e985c1c364869991e1643e",
       "origin": "modified",
-      "firstCommit": "0bf55f442|2026-09-26|Merge remote-tracking branch 'origin/main'",
-      "lastCommit": "2e6fff7dd|2026-09-17|refactor(integrations): unify GitHub account and issue lifecycles",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
     "apps/emdash-desktop/src/core/features/workbench/browser/feedback-modal/use-feedback-submit.ts": {
@@ -4662,8 +4662,8 @@
       ],
       "hash": "11a4fee7b81f574e6fe947474e9640789a502385",
       "origin": "modified",
-      "firstCommit": "0bf55f442|2026-09-26|Merge remote-tracking branch 'origin/main'",
-      "lastCommit": "2e6fff7dd|2026-09-17|refactor(integrations): unify GitHub account and issue lifecycles",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
     "apps/emdash-desktop/src/core/features/workbench/browser/home-view.tsx": {
@@ -4698,8 +4698,8 @@
       ],
       "hash": "2f9af7e29912f0cfadc6b776b61548dd2e77205b",
       "origin": "modified",
-      "firstCommit": "0fb2fadd4|2026-08-17|fix(ui): borderless header",
-      "lastCommit": "0fb2fadd4|2026-08-17|fix(ui): borderless header",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
     "apps/emdash-desktop/src/core/features/workbench/browser/onboarding/components/project-conflicts.tsx": {
@@ -4712,8 +4712,8 @@
       ],
       "hash": "984aea5570258a43805ad79af1eada4b408951f9",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
     "apps/emdash-desktop/src/core/features/workbench/browser/onboarding/onboarding-shell.tsx": {
@@ -4726,8 +4726,8 @@
       ],
       "hash": "ec55114526eb71b133345ff02bac933419c15732",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
     "apps/emdash-desktop/src/core/features/workbench/browser/onboarding/sign-in-step.tsx": {
@@ -4740,8 +4740,8 @@
       ],
       "hash": "c8919a22bb2d4aa0acddae1dfff69265d3a63b0d",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
     "apps/emdash-desktop/src/core/features/workbench/browser/quit-unsaved-changes-dialog.tsx": {
@@ -4754,8 +4754,8 @@
       ],
       "hash": "fbf0fbaea495345f13cc2232f1f30a014de3e059",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
     "apps/emdash-desktop/src/core/features/workbench/browser/sidebar-recovery-controls.tsx": {
@@ -4768,8 +4768,8 @@
       ],
       "hash": "4a4e7c9140e65e43d70031f9c991cff3c6c588fb",
       "origin": "modified",
-      "firstCommit": "0fb2fadd4|2026-08-17|fix(ui): borderless header",
-      "lastCommit": "0fb2fadd4|2026-08-17|fix(ui): borderless header",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
     "apps/emdash-desktop/src/core/features/workbench/browser/sidebar/left-sidebar.tsx": {
@@ -4876,8 +4876,8 @@
       ],
       "hash": "c38937cbcd55011a250f2fff46cab37f6db19a8c",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
     "apps/emdash-desktop/src/core/features/workbench/browser/unsaved-changes-dialog.tsx": {
@@ -4890,8 +4890,8 @@
       ],
       "hash": "d477d0945c7625bb45921d6cf5dd6a1403fbd902",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
     "apps/emdash-desktop/src/core/features/workspaces/contributions/browser/removal-attention-panel.tsx": {
@@ -4904,8 +4904,8 @@
       ],
       "hash": "d8ec786a666e4aaca82d113f0c5ce9fc846710a7",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "workspace detail 定制（原生化）"
     },
     "apps/emdash-desktop/src/core/features/workspaces/contributions/browser/repository-header.tsx": {
@@ -4918,8 +4918,8 @@
       ],
       "hash": "7e206b98b78dc24ffcdd11609b60e00a93e63623",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "workspace detail 定制（原生化）"
     },
     "apps/emdash-desktop/src/core/features/workspaces/contributions/browser/workspace-detail-page.tsx": {
@@ -4948,8 +4948,8 @@
       ],
       "hash": "001da321785674a563accb77aa4272f4fe417725",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "workspace detail 定制（原生化）"
     },
     "apps/emdash-desktop/src/core/features/xiangwo/browser/xiangwo-view.tsx": {
@@ -5082,8 +5082,8 @@
       ],
       "hash": "d77e8cbfc630f603ec5931a07a10cd36aaf11e08",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core 基元定制"
     },
     "apps/emdash-desktop/src/core/primitives/agents/browser/install-command-row.tsx": {
@@ -5096,8 +5096,8 @@
       ],
       "hash": "d3f601559a1c4065cb2bd7c01b83c6f776006f22",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core 基元定制"
     },
     "apps/emdash-desktop/src/core/primitives/app-identity/api/app-identity.ts": {
@@ -5323,8 +5323,8 @@
       ],
       "hash": "ef5078ecf560ed5eb91c252d7c0bd6a98c9e1e8b",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core 基元定制"
     },
     "apps/emdash-desktop/src/core/services/notifications/node/sqlite-store.ts": {
@@ -5351,8 +5351,8 @@
       ],
       "hash": "335d41e97cdfbc7b47961dacc2ab9d4c86312020",
       "origin": "modified",
-      "firstCommit": "6d3e1a405|2026-10-13|refactor(pull-requests): add pull-requests plugin kind and port GitHub",
-      "lastCommit": "6d3e1a405|2026-10-13|refactor(pull-requests): add pull-requests plugin kind and port GitHub",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/entry/main.ts": {
@@ -5586,6 +5586,20 @@
       "firstCommit": "67ccd329e|2026-09-22|feat: 专家交接台升级（wire RPC 修复 + bot/专家二级分组 + 并入对话 Sheet + 横条关闭）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "启动装配（注入 xiangwo 依赖 / 后台服务）"
+    },
+    "apps/emdash-desktop/src/main/core/app/service.ts": {
+      "markers": 1,
+      "lines": [
+        242
+      ],
+      "anchors": [
+        "enabled: hasSelection,"
+      ],
+      "hash": "745e23d028b10c3c8107f4eb219c00ec5fd12635",
+      "origin": "modified",
+      "firstCommit": "865800c15|2026-10-11|merge: 上游 v1.2.8（185 commits / 587 files）+ 保住全部 [XG-CUSTOM] 定制",
+      "lastCommit": "0908f7be9|2026-10-06|fix(open-in): share bounded app lookups across detection and launch",
+      "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/main/gateway/runtime-broker.ts": {
       "markers": 1,
@@ -6982,8 +6996,8 @@
       ],
       "hash": "8355d1c4f5c09e33a98545d7e9b0206a57a4cb8f",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
+      "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/renderer/lib/i18n/index.ts": {
@@ -9487,6 +9501,24 @@
       "lastCommit": "649c896f2|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 事件触发摄取端（第 3 项第二切片）",
       "note": "packages 定制"
     },
+    "packages/core/src/runtimes/files/node/allocation/allocation-graph.ts": {
+      "markers": 3,
+      "lines": [
+        151,
+        159,
+        253
+      ],
+      "anchors": [
+        "acquireRoot(key: RootKey): PendingLease<RootResource> {",
+        "async useRoot<T>(key: RootKey, run: (root: RootResource) => Promise<T>): Promise<T> {",
+        "private assertActive(): void {"
+      ],
+      "hash": "e7f0028604a3659fc817fda05acadb870800bea3",
+      "origin": "modified",
+      "firstCommit": "865800c15|2026-10-11|merge: 上游 v1.2.8（185 commits / 587 files）+ 保住全部 [XG-CUSTOM] 定制",
+      "lastCommit": "772b404a1|2026-10-06|refactor(files)!: serve the file tree as shared per-folder listings",
+      "note": "packages 定制"
+    },
     "packages/core/src/runtimes/workspace-registry/node/persistence/payload-codecs.ts": {
       "markers": 2,
       "lines": [
@@ -9817,6 +9849,20 @@
       "origin": "modified",
       "firstCommit": "b50490c92|2026-10-10|refactor(shared): [XG-CUSTOM 2026-10-10] 图片协议+语义抽成一份（球与主聊天窗共用）",
       "lastCommit": "b50490c92|2026-10-10|refactor(shared): [XG-CUSTOM 2026-10-10] 图片协议+语义抽成一份（球与主聊天窗共用）",
+      "note": "packages 定制"
+    },
+    "packages/shared/src/lifecycle.ts": {
+      "markers": 1,
+      "lines": [
+        28
+      ],
+      "anchors": [
+        "log.warn('pending lease release failed', label ? { error, label } : { error });"
+      ],
+      "hash": "bc5eda6c35359d6965d088def1ee92b614a27c64",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
       "note": "packages 定制"
     },
     "packages/shared/src/xiangwo-images.test.ts": {
