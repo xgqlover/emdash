@@ -38,13 +38,23 @@ export function useAgentAvailability({
     return result;
   }, [statuses]);
 
+// [XG-CUSTOM 2026-11-03] 远程 host 上「视为已安装」的 agent 前缀。
+// 原因：客户端对 connectionId 的 hostDependency 探测直接返回 remoteRuntimeUnavailable
+//   ⇒ 依赖装在远程 Linux 上的 agent 永远被归为 Not installed、灰掉、不可选。
+//   xiangwo 的 bot 依赖在远程（原为唯一白名单）；deepseek 同理：
+//   远程实测 /usr/local/bin/dsh + nvm dsh 0.2.1-rc.2 都在，`which dsh` 正常，是客户端探测不到而已。
+const REMOTE_INSTALLED_AGENT_PREFIXES = ['xiangwo', 'deepseek'] as const;
+
   const installedAgents = useMemo(
   // [XG-CUSTOM] 项我：可用性判定（原上游此处为普通回调，我们加了口径）
     () => {
       if (isRemote) {
-        // 远程 host：只对 xiangwo 的 bot 跳过检测视为可用；官方 agent 保持原样。
+        // 远程 host：xiangwo 的 bot 与 deepseek（dsh 装在远程）跳过检测视为可用；
+        // 其余官方 agent（codex/claude/grok/devin/opencode…）仍按「远程没装就是灰」处理。
         return (agents ?? [])
-          .filter((agent) => agent.id.startsWith('xiangwo'))
+          .filter((agent) =>
+            REMOTE_INSTALLED_AGENT_PREFIXES.some((prefix) => agent.id.startsWith(prefix))
+          )
           .map((agent) => agent.id);
       }
       return dependencyData

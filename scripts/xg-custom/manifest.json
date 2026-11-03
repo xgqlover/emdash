@@ -7,10 +7,10 @@
     "base": "592281113a9d83a2987d8a1715d0fedf854d44c4"
   },
   "stats": {
-    "files": 479,
-    "markers": 2589,
+    "files": 481,
+    "markers": 2594,
     "newFiles": 140,
-    "modifiedFiles": 339
+    "modifiedFiles": 341
   },
   "files": {
     ".github/workflows/release-prod.yml": {
@@ -351,16 +351,18 @@
       "note": "远程场景 bot 可用性（跳过 hostDependency）"
     },
     "apps/emdash-desktop/src/core/features/agents/api/browser/components/agent-selector/use-agent-availability.ts": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
         25,
-        42
+        41,
+        49
       ],
       "anchors": [
         "const isRemote = Boolean(connectionId);",
+        "const REMOTE_INSTALLED_AGENT_PREFIXES = ['xiangwo', 'deepseek'] as const;",
         "() => {"
       ],
-      "hash": "6d274363511042390096e5ee0ab35c6bbf7fd3bb",
+      "hash": "84cff39fce86f55b9cd0f402f1f3cc4f23b022c7",
       "origin": "modified",
       "firstCommit": "a023bd16a|2026-09-20|fix: SSH 远程项目「创建任务」下拉 bot 全灰（hostDependency 检测不支持远程，远程场景跳过检测视为可用）",
       "lastCommit": "a023bd16a|2026-09-20|fix: SSH 远程项目「创建任务」下拉 bot 全灰（hostDependency 检测不支持远程，远程场景跳过检测视为可用）",
@@ -1906,8 +1908,8 @@
       ],
       "hash": "2a024fc7a2258e74c25d47af3c1df56d72c24561",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
+      "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/machines/browser/components/host-settings-card.tsx": {
@@ -2134,8 +2136,8 @@
       ],
       "hash": "18036b9f0a3d3307c66605a5474ccd0c3eae28f0",
       "origin": "new",
-      "firstCommit": "cf62fc0b5|2026-11-02|fix(emdash): 点 + 崩溃（initialWorkspaceId）+ 弹窗局部错误边界；资源面板保留上一帧+stale → 1.2.63-xiangwo",
-      "lastCommit": "cf62fc0b5|2026-11-02|fix(emdash): 点 + 崩溃（initialWorkspaceId）+ 弹窗局部错误边界；资源面板保留上一帧+stale → 1.2.63-xiangwo",
+      "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
+      "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/machines/browser/use-machine-metrics.ts": {
@@ -2148,8 +2150,8 @@
       ],
       "hash": "6e9d411aaf49d92bade59292b44eb00ef5c2190d",
       "origin": "modified",
-      "firstCommit": "cf62fc0b5|2026-11-02|fix(emdash): 点 + 崩溃（initialWorkspaceId）+ 弹窗局部错误边界；资源面板保留上一帧+stale → 1.2.63-xiangwo",
-      "lastCommit": "cf62fc0b5|2026-11-02|fix(emdash): 点 + 崩溃（initialWorkspaceId）+ 弹窗局部错误边界；资源面板保留上一帧+stale → 1.2.63-xiangwo",
+      "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
+      "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/machines/browser/use-system-dependencies.ts": {
@@ -5385,8 +5387,8 @@
       ],
       "hash": "a1ae7e5809878a486b0fd43f470224583aeee9af",
       "origin": "modified",
-      "firstCommit": "2304b9a75|2026-09-05|refactor(hosts): separate availability routing from recovery ownership",
-      "lastCommit": "2304b9a75|2026-09-05|refactor(hosts): separate availability routing from recovery ownership",
+      "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
+      "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/core/services/hosts/node/connection-supervisor.ts": {
@@ -5403,8 +5405,8 @@
       ],
       "hash": "a9f95c9d216f5f4db871541064085c41948ac15e",
       "origin": "modified",
-      "firstCommit": "1c9bca3ac|2026-09-11|fix(hosts): keep routine connection checks quiet and usable",
-      "lastCommit": "1c9bca3ac|2026-09-11|fix(hosts): keep routine connection checks quiet and usable",
+      "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
+      "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/core/services/notifications/node/sqlite-store.ts": {
@@ -7118,8 +7120,8 @@
       ],
       "hash": "e8e2e310777e9d7b2e535fdeafa5e7139ef96ed1",
       "origin": "new",
-      "firstCommit": "cf62fc0b5|2026-11-02|fix(emdash): 点 + 崩溃（initialWorkspaceId）+ 弹窗局部错误边界；资源面板保留上一帧+stale → 1.2.63-xiangwo",
-      "lastCommit": "cf62fc0b5|2026-11-02|fix(emdash): 点 + 崩溃（initialWorkspaceId）+ 弹窗局部错误边界；资源面板保留上一帧+stale → 1.2.63-xiangwo",
+      "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
+      "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/renderer/lib/modal/modal-error-boundary.tsx": {
@@ -7132,8 +7134,8 @@
       ],
       "hash": "17ce5c158daa35ac0fa5e04fbd628872fc288356",
       "origin": "new",
-      "firstCommit": "cf62fc0b5|2026-11-02|fix(emdash): 点 + 崩溃（initialWorkspaceId）+ 弹窗局部错误边界；资源面板保留上一帧+stale → 1.2.63-xiangwo",
-      "lastCommit": "cf62fc0b5|2026-11-02|fix(emdash): 点 + 崩溃（initialWorkspaceId）+ 弹窗局部错误边界；资源面板保留上一帧+stale → 1.2.63-xiangwo",
+      "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
+      "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/renderer/lib/modal/modal-renderer.tsx": {
@@ -7146,8 +7148,8 @@
       ],
       "hash": "1270af50e1961dc20fefdb2c8e24a027aa03cf7a",
       "origin": "modified",
-      "firstCommit": "cf62fc0b5|2026-11-02|fix(emdash): 点 + 崩溃（initialWorkspaceId）+ 弹窗局部错误边界；资源面板保留上一帧+stale → 1.2.63-xiangwo",
-      "lastCommit": "cf62fc0b5|2026-11-02|fix(emdash): 点 + 崩溃（initialWorkspaceId）+ 弹窗局部错误边界；资源面板保留上一帧+stale → 1.2.63-xiangwo",
+      "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
+      "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/renderer/main.tsx": {
@@ -9409,8 +9411,8 @@
       ],
       "hash": "570c438e4b28a2852390fb9d74a8889443fd020e",
       "origin": "modified",
-      "firstCommit": "e14eab8e8|2026-09-14|fix(acp): contain terminal failures and handle Devin shell commands",
-      "lastCommit": "e14eab8e8|2026-09-14|fix(acp): contain terminal failures and handle Devin shell commands",
+      "firstCommit": "9bb143b64|2026-11-02|fix(acp): initialize 加 8s 死线 + stdio 自检，失败不再静默挂住",
+      "lastCommit": "9bb143b64|2026-11-02|fix(acp): initialize 加 8s 死线 + stdio 自检，失败不再静默挂住",
       "note": "packages 定制"
     },
     "packages/core/src/runtimes/acp/node/acp-test-support.ts": {
@@ -9423,8 +9425,8 @@
       ],
       "hash": "f0421c2de3f07dcd31437d8b9f7a199f23ecb4db",
       "origin": "modified",
-      "firstCommit": "0bf55f442|2026-09-26|Merge remote-tracking branch 'origin/main'",
-      "lastCommit": "5c37fe641|2026-09-25|feat(conversations): persist native provider preferences by host and transport",
+      "firstCommit": "9bb143b64|2026-11-02|fix(acp): initialize 加 8s 死线 + stdio 自检，失败不再静默挂住",
+      "lastCommit": "9bb143b64|2026-11-02|fix(acp): initialize 加 8s 死线 + stdio 自检，失败不再静默挂住",
       "note": "packages 定制"
     },
     "packages/core/src/runtimes/acp/node/connection/acp-agent-connection.test.ts": {
@@ -9437,8 +9439,8 @@
       ],
       "hash": "3da9718d38603b5d47b8c1dd343e2d810891b97c",
       "origin": "modified",
-      "firstCommit": "c0b7aa6be|2026-08-29|fix(acp): await descendant cleanup on shutdown",
-      "lastCommit": "c0b7aa6be|2026-08-29|fix(acp): await descendant cleanup on shutdown",
+      "firstCommit": "9bb143b64|2026-11-02|fix(acp): initialize 加 8s 死线 + stdio 自检，失败不再静默挂住",
+      "lastCommit": "9bb143b64|2026-11-02|fix(acp): initialize 加 8s 死线 + stdio 自检，失败不再静默挂住",
       "note": "packages 定制"
     },
     "packages/core/src/runtimes/acp/node/connection/acp-agent-connection.ts": {
@@ -9453,10 +9455,10 @@
         "const stderrTail = createStderrTail();",
         "type StdoutProbe = {"
       ],
-      "hash": "4e2c4e61be205765f90a2221aec9f568fa7bcba9",
+      "hash": "ee1262e372ec36d6c5e06fa68d0e6c0e6d115eec",
       "origin": "modified",
-      "firstCommit": "865800c15|2026-10-11|merge: 上游 v1.2.8（185 commits / 587 files）+ 保住全部 [XG-CUSTOM] 定制",
-      "lastCommit": "5c37fe641|2026-09-25|feat(conversations): persist native provider preferences by host and transport",
+      "firstCommit": "9bb143b64|2026-11-02|fix(acp): initialize 加 8s 死线 + stdio 自检，失败不再静默挂住",
+      "lastCommit": "9bb143b64|2026-11-02|fix(acp): initialize 加 8s 死线 + stdio 自检，失败不再静默挂住",
       "note": "packages 定制"
     },
     "packages/core/src/runtimes/acp/node/node/child-process-host.ts": {
@@ -9471,8 +9473,40 @@
       ],
       "hash": "02ab1e32fd71b0829afa5d705ec7c603f7c0b3b4",
       "origin": "modified",
-      "firstCommit": "bb6a90342|2026-11-01|merge: 跟上上游 v1.2.10（170 提交）· 14 个冲突按「上游新逻辑 + 我们的中文 i18n/[XG-CUSTOM 标记」合并",
-      "lastCommit": "4eff9f81e|2026-10-26|fix(acp): launch agents and terminal commands without a windows console",
+      "firstCommit": "9bb143b64|2026-11-02|fix(acp): initialize 加 8s 死线 + stdio 自检，失败不再静默挂住",
+      "lastCommit": "9bb143b64|2026-11-02|fix(acp): initialize 加 8s 死线 + stdio 自检，失败不再静默挂住",
+      "note": "packages 定制"
+    },
+    "packages/core/src/runtimes/acp/node/runtime/conversation-handle.ts": {
+      "markers": 1,
+      "lines": [
+        277
+      ],
+      "anchors": [
+        "abandonEviction(): void {"
+      ],
+      "hash": "62963c1a786f7031e4fa48e7420a68c1ce8498b4",
+      "origin": "modified",
+      "firstCommit": "fd3437a01|2026-09-19|fix(acp): 恢复官方附件管理修复发图预览灰标（draftAttachments + downloadAttachment）",
+      "lastCommit": "fd3437a01|2026-09-19|fix(acp): 恢复官方附件管理修复发图预览灰标（draftAttachments + downloadAttachment）",
+      "note": "packages 定制"
+    },
+    "packages/core/src/runtimes/acp/node/runtime/session-manager.ts": {
+      "markers": 3,
+      "lines": [
+        71,
+        255,
+        311
+      ],
+      "anchors": [
+        "const DEFAULT_EVICT_WAIT_MS = 3_000;",
+        "private async awaitEvictionBounded(conversationId: string): Promise<void> {",
+        "private disposeStaleHandle( ⏎ conversationId: string,"
+      ],
+      "hash": "0917001a20e46f714ca1d67e695ca3c08825c04a",
+      "origin": "modified",
+      "firstCommit": "fd3437a01|2026-09-19|fix(acp): 恢复官方附件管理修复发图预览灰标（draftAttachments + downloadAttachment）",
+      "lastCommit": "fd3437a01|2026-09-19|fix(acp): 恢复官方附件管理修复发图预览灰标（draftAttachments + downloadAttachment）",
       "note": "packages 定制"
     },
     "packages/core/src/runtimes/agent-config/node/runtime/skills.ts": {
@@ -10117,8 +10151,8 @@
       ],
       "hash": "3e2c2dc1122fe6a10aabbe486195d39ef21ceae0",
       "origin": "modified",
-      "firstCommit": "bb6a90342|2026-11-01|merge: 跟上上游 v1.2.10（170 提交）· 14 个冲突按「上游新逻辑 + 我们的中文 i18n/[XG-CUSTOM 标记」合并",
-      "lastCommit": "999be2ada|2026-10-26|feat(wire): let procedures declare their own call deadline",
+      "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
+      "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "note": "packages 定制"
     },
     "packages/wire/src/api/connect.ts": {
@@ -10141,8 +10175,8 @@
       ],
       "hash": "95a80ebd7652423af44bf3e54c55d3708eb8c6fa",
       "origin": "modified",
-      "firstCommit": "9b8ff05ff|2026-09-07|fix(acp): restore drafts after definite delivery failures",
-      "lastCommit": "9b8ff05ff|2026-09-07|fix(acp): restore drafts after definite delivery failures",
+      "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
+      "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "note": "packages 定制"
     },
     "packages/wire/src/api/connection-robustness.test.ts": {
@@ -10155,8 +10189,8 @@
       ],
       "hash": "8d1b81d39eaf1b1256b6b64b9e26c0d11c481b00",
       "origin": "modified",
-      "firstCommit": "9b8ff05ff|2026-09-07|fix(acp): restore drafts after definite delivery failures",
-      "lastCommit": "9b8ff05ff|2026-09-07|fix(acp): restore drafts after definite delivery failures",
+      "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
+      "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "note": "packages 定制"
     },
     "packages/wire/src/api/define.ts": {
@@ -10171,8 +10205,8 @@
       ],
       "hash": "3b638bd76b600ae607f73d5e0b7dbf6451f484d7",
       "origin": "modified",
-      "firstCommit": "bb6a90342|2026-11-01|merge: 跟上上游 v1.2.10（170 提交）· 14 个冲突按「上游新逻辑 + 我们的中文 i18n/[XG-CUSTOM 标记」合并",
-      "lastCommit": "999be2ada|2026-10-26|feat(wire): let procedures declare their own call deadline",
+      "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
+      "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "note": "packages 定制"
     },
     "packages/wire/src/api/hold-while-disconnected.test.ts": {
@@ -10185,8 +10219,8 @@
       ],
       "hash": "537d27b451e3a558b49ae83da3101f3ac726a9ed",
       "origin": "new",
-      "firstCommit": "",
-      "lastCommit": "",
+      "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
+      "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "note": "packages 定制"
     },
     "packages/wire/src/api/instrumentation.ts": {
@@ -10199,8 +10233,8 @@
       ],
       "hash": "eb45ac6f45e47b9ff84a04724d768268e1e37a90",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
+      "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "note": "packages 定制"
     },
     "packages/wire/src/live/follower.ts": {
@@ -10215,8 +10249,8 @@
       ],
       "hash": "077fd5e806cb3cf92731fbf236c5098c11f5bebe",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
+      "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "note": "packages 定制"
     },
     "packages/wire/src/live/reconnect-sequence.test.ts": {
@@ -10229,8 +10263,8 @@
       ],
       "hash": "25dd0a677c093c5374f39af9077ab4a2dc82fca8",
       "origin": "new",
-      "firstCommit": "",
-      "lastCommit": "",
+      "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
+      "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "note": "packages 定制"
     },
     "packages/wire/src/live/replica/job.ts": {
@@ -10243,8 +10277,8 @@
       ],
       "hash": "5859cc8ec69764b74b1fc83c5c8066be769b6c01",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
+      "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "note": "packages 定制"
     },
     "packages/wire/src/live/replica/log.ts": {
@@ -10257,8 +10291,8 @@
       ],
       "hash": "2b96213b787223c6c0ac961d499dfcc6c70224d2",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
+      "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "note": "packages 定制"
     },
     "packages/wire/src/live/replica/state.ts": {
@@ -10271,8 +10305,8 @@
       ],
       "hash": "1ae232a206941322406b6e569b8b4e5c152a25fb",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
+      "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "note": "packages 定制"
     },
     "packages/wire/src/worker/link.ts": {
@@ -10293,8 +10327,8 @@
       ],
       "hash": "b43ea736271b8846e3ae79d3edbe0b8f80eb3b01",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
+      "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "note": "packages 定制"
     },
     "packages/wire/src/worker/node/child-process-spawner.ts": {
@@ -10307,8 +10341,8 @@
       ],
       "hash": "5e371eba3bdb44002cf4f4b1aaf6443e0cd470e1",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
+      "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "note": "packages 定制"
     },
     "packages/wire/src/worker/types.ts": {
@@ -10321,8 +10355,8 @@
       ],
       "hash": "bd734e4b0186a4b2c3eb22f786628a76eeb439ef",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
+      "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "note": "packages 定制"
     },
     "packages/wire/src/worker/worker-ipc-failure.test.ts": {
@@ -10335,8 +10369,8 @@
       ],
       "hash": "cf1493ed2fcb1cd7189816adb38fda2fc3638eec",
       "origin": "new",
-      "firstCommit": "",
-      "lastCommit": "",
+      "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
+      "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "note": "packages 定制"
     },
     "packages/wire/src/worker/worker-slot.ts": {
@@ -10353,8 +10387,8 @@
       ],
       "hash": "5133401b5fef0028e41f44470b6e93b9dfef5161",
       "origin": "modified",
-      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
-      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
+      "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "note": "packages 定制"
     },
     "scripts/xg-i18n/apply.mjs": {
