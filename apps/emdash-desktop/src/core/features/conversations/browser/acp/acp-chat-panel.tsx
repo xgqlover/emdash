@@ -727,13 +727,10 @@ const ComposerForStore = observer(function ComposerForStore({
       // [XG-CUSTOM 2026-10-26] bot='shared' 的共享子代理（Dot）在**两个分支都要有**：
       //   原来 bot 窗只取 bot===curBot、项我窗只取 BOTS+ROLES ⇒ Dot 两个分支都不在。
       const sharedSubs = XIANGWO_SUBAGENTS.filter((e) => e.bot === 'shared');
-      const expertPool = curBot
-        ? [
-            ...XIANGWO_SUBAGENTS.filter((e) => e.bot === curBot),
-            ...sharedSubs,
-            ...XIANGWO_EXPERTS,
-          ]
-        : [...XIANGWO_BOTS, ...XIANGWO_ROLES, ...sharedSubs, ...XIANGWO_EXPERTS];
+        // [XG-CUSTOM 2026-11-03] 用户口径：**@ 里只留「能全局干活的」= Dot**。
+        //   10 多个大仓 bot / 跨 bot 专家还没做好，先不放出来（免得选了却干不了）。
+        //   两个 @ 池子（本处 + 上面 composer 那个）必须一致，漏一处就还会列一堆。
+        const expertPool = [...sharedSubs];
       const experts = expertPool
         .filter(
           (e) => !normalized || e.name.toLowerCase().includes(normalized) || e.id.includes(normalized)
