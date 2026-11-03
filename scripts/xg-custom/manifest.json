@@ -7,10 +7,10 @@
     "base": "592281113a9d83a2987d8a1715d0fedf854d44c4"
   },
   "stats": {
-    "files": 481,
-    "markers": 2594,
+    "files": 482,
+    "markers": 2606,
     "newFiles": 140,
-    "modifiedFiles": 341
+    "modifiedFiles": 342
   },
   "files": {
     ".github/workflows/release-prod.yml": {
@@ -210,12 +210,12 @@
     "apps/emdash-desktop/package.json": {
       "markers": 1,
       "lines": [
-        199
+        200
       ],
       "anchors": [
         "2026-10-14] 版本 1.2.43-xiangwo：取图网格点击目标 page→orig 兜底（真机反馈「点了没图的框没反应」）；另 1.2.41 未设工作区回退、1.2.42 planOutbound(MCP Apps)。⚠️ J"
       ],
-      "hash": "5631cc579b1d9bdde571690e901ea3bc1a094b9d",
+      "hash": "0645d246dfeb370bd3589f703656557d41423b68",
       "origin": "modified",
       "firstCommit": "1dce8b4ad|2026-10-14|[XG-CUSTOM 2026-10-14] 取图网格：点击目标 page→orig 兜底 + 版本 1.2.43-xiangwo + 台账标记",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1183,7 +1183,7 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/conversations/browser/acp/acp-chat-panel.tsx": {
-      "markers": 38,
+      "markers": 44,
       "lines": [
         18,
         20,
@@ -1197,32 +1197,38 @@
         205,
         241,
         245,
-        285,
-        339,
-        344,
-        392,
-        446,
-        485,
-        523,
-        533,
+        286,
+        340,
+        345,
+        393,
+        447,
+        486,
+        524,
         534,
-        609,
-        634,
-        715,
-        723,
-        725,
+        535,
+        539,
+        612,
+        637,
+        718,
+        726,
+        728,
+        731,
+        734,
+        735,
+        738,
         759,
-        841,
-        859,
-        880,
-        901,
-        1026,
-        1093,
-        1121,
-        1178,
-        1208,
-        1216,
-        1289
+        774,
+        856,
+        874,
+        895,
+        916,
+        1041,
+        1108,
+        1136,
+        1193,
+        1223,
+        1231,
+        1304
       ],
       "anchors": [
         "import { XIANGWO_BOTS, XIANGWO_EXPERTS, XIANGWO_ROLES, XIANGWO_SUBAGENTS } from './xiangwo-experts';",
@@ -1245,10 +1251,13 @@
         "const images = files.filter((f) => f.type.startsWith('image/'));",
         "const curProvId =",
         "const q = query.trim();",
+        "const expertPool = [...sharedSubsAt];",
         "const fileItems = files.map((f) => ({",
         "return [",
         "const curProviderId =",
         "const sharedSubs = XIANGWO_SUBAGENTS.filter((e) => e.bot === 'shared');",
+        "const expertPool = curBot",
+        "section:",
         "{disabledReason && ( ⏎ <div",
         "{/* <ExpertHandoffBar bot=\"\" session=\"\" /> */} ⏎ </div>",
         "const XG_CARD_PATH_RE = /知识交换中心\\/[^\\s\"'`)\\]>]+\\.md/;",
@@ -1262,7 +1271,7 @@
         "{agent?.name ?? '此 agent'} 需要你登录。 ⏎ </span>",
         "onClick={() => viewRef.current?.scrollToBottom({ behavior: 'smooth' })}"
       ],
-      "hash": "66e344eca6cdf03f38ba85a4face3299d2b17b9c",
+      "hash": "3275b90e84b6215bcb4c68e52af8b3ea42453391",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -5528,7 +5537,7 @@
       "note": "启动装配（注入 xiangwo 依赖 / 后台服务）"
     },
     "apps/emdash-desktop/src/main/bootstrap/boot/phases/services.ts": {
-      "markers": 13,
+      "markers": 15,
       "lines": [
         11,
         69,
@@ -5542,7 +5551,9 @@
         417,
         437,
         448,
-        975
+        599,
+        604,
+        981
       ],
       "anchors": [
         "import { desc } from 'drizzle-orm';",
@@ -5556,9 +5567,11 @@
         "log.warn('",
         "const resolveToolWindowUrl = async (remotePort: number, path = '/'): Promise<string> => {",
         "const liveRemoteProxy = async (connectionId: string) => {",
+        "// [XG-CUSTOM 2026-11-03] 迁移失败不应阻断启动（曾因 safeStorage 解不开旧密文导致打包版打不开） ⏎ try {",
+        "console.warn(`",
         "resolveToolWindowUrl, ⏎ promptLibrary: promptLibraryService,"
       ],
-      "hash": "575e462661cd7521761fa5b2449ece2e02143213",
+      "hash": "2854e08c66b730de32142c5e36d59758ba83fc9a",
       "origin": "modified",
       "firstCommit": "d7996e9ec|2026-09-19|fix(integrations): WeKnora/T8 窗口走 SSH 端口转发，修 Windows 远程项目打不开",
       "lastCommit": "d7996e9ec|2026-09-19|fix(integrations): WeKnora/T8 窗口走 SSH 端口转发，修 Windows 远程项目打不开",
@@ -6452,6 +6465,22 @@
       "lastCommit": "22f7e53c1|2026-10-16|修复：点蓝字 → logo 浮窗/空窗（① 回补 classifyLink ② externalLinks 非 http(s) 改 deny ③ 隧道绑定失败回退 port:0）+ [XG-CUSTOM]",
       "note": "renderer/main 侧定制"
     },
+    "apps/emdash-desktop/src/main/host/secrets/encrypted-app-secrets-store.ts": {
+      "markers": 2,
+      "lines": [
+        35,
+        38
+      ],
+      "anchors": [
+        "const msg = err instanceof Error ? err.message : String(err);",
+        "console.warn(`"
+      ],
+      "hash": "83fed0de13e0d05d353f8c3eadbc2ccb8763da40",
+      "origin": "modified",
+      "firstCommit": "986bae0ad|2026-11-03|fix(emdash): @ 只留 Dot、球侧下拉加 DeepSeek、密文解不开不炸启动、DeepSeek 改 stateless；1.2.66",
+      "lastCommit": "986bae0ad|2026-11-03|fix(emdash): @ 只留 Dot、球侧下拉加 DeepSeek、密文解不开不炸启动、DeepSeek 改 stateless；1.2.66",
+      "note": "renderer/main 侧定制"
+    },
     "apps/emdash-desktop/src/main/host/updates/update-service.test.ts": {
       "markers": 2,
       "lines": [
@@ -7043,18 +7072,20 @@
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/renderer/XiangwoFloatingPanel.tsx": {
-      "markers": 7,
+      "markers": 8,
       "lines": [
         1,
-        40,
-        51,
-        65,
-        67,
-        69,
-        188
+        32,
+        43,
+        54,
+        68,
+        70,
+        72,
+        191
       ],
       "anchors": [
         "import { useEffect, useRef, useState } from 'react';",
+        "type HostBridge = {",
         "isXiangwoOrb?: boolean;",
         "resolveXiangwoChatUrl?: () => Promise<unknown>;",
         "const chatTargetRef = useRef<XiangwoChatTargetView | null>(null);",
@@ -7062,7 +7093,7 @@
         "const isOrb = electronAPI.isXiangwoOrb === true;",
         "if (isOrb && orbMode === 'ball') {"
       ],
-      "hash": "7839200350ce7990522407fea9ec9e5d56271017",
+      "hash": "46f6624f9752c337a286d3896542aeb2d024aa3a",
       "origin": "new",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -9798,14 +9829,16 @@
       "note": "packages 定制"
     },
     "packages/plugins/src/agents/impl/deepseek/index.ts": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        1
+        1,
+        27
       ],
       "anchors": [
-        "import {"
+        "import {",
+        "sessions: {"
       ],
-      "hash": "5bcf365caba78adbf4cda94dd7b8e79ff056a94b",
+      "hash": "abc3894cd7893b1fafe109530894782674e1ede7",
       "origin": "new",
       "firstCommit": "cf35873ec|2026-10-26|feat(agents): 接入 DeepSeek（dsh）作为第一个「自带 CLI agent」",
       "lastCommit": "cf35873ec|2026-10-26|feat(agents): 接入 DeepSeek（dsh）作为第一个「自带 CLI agent」",
