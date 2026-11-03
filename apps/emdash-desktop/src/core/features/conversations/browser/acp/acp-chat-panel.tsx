@@ -276,7 +276,9 @@ function bytesToBase64(bytes: Uint8Array): string {
 //   为什么「@ 没效果」：`@Dot` 的接管逻辑只在项我腿（`_suagent_answer`）里；
 //   DeepSeek 走 `_xg_deepseek_dispatch` 起独立 dsh 子进程，**根本不经过**它 ⇒ 在 DeepSeek 会话里 @ 谁都没用。
 //   要恢复：把这里改 true（或只留 Dot 见下一处 EXPOOL）。
-const XG_AT_MENTION_ON = false;
+// [XG-CUSTOM 2026-11-03 二次修正] 用户澄清：**不是要禁用 @，只是不要那些大 bot**。
+//   ⇒ @ 开，池子只留 shared 子代理（Dot）；10+ 大仓 bot / 跨 bot 专家都不列（它们还没做好）。
+const XG_AT_MENTION_ON = true;
 
 const ComposerForStore = observer(function ComposerForStore({
   store,
