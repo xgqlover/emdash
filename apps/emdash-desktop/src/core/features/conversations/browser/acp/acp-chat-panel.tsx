@@ -271,6 +271,13 @@ function bytesToBase64(bytes: Uint8Array): string {
 // Keyed by conversationId to isolate view-local UI. The store owns the editor
 // model so the document, selection, viewport and undo history survive remounts.
 
+// [XG-CUSTOM 2026-11-03] **@ 提人开关**：用户口径「@ 现在没什么用（@后也没效果），
+//   10 多个大仓 bot 都还没做好，先别放出来」。设为 false ⇒ @ 列表为空（不弹/不列）。
+//   为什么「@ 没效果」：`@Dot` 的接管逻辑只在项我腿（`_suagent_answer`）里；
+//   DeepSeek 走 `_xg_deepseek_dispatch` 起独立 dsh 子进程，**根本不经过**它 ⇒ 在 DeepSeek 会话里 @ 谁都没用。
+//   要恢复：把这里改 true（或只留 Dot 见下一处 EXPOOL）。
+const XG_AT_MENTION_ON = false;
+
 const ComposerForStore = observer(function ComposerForStore({
   store,
   composerSlot,
@@ -537,7 +544,7 @@ const ComposerForStore = observer(function ComposerForStore({
         const sharedSubsAt = XIANGWO_SUBAGENTS.filter((e) => e.bot === 'shared');
         // [XG-CUSTOM 2026-10-31] 主 bot 已在下拉里；@ 里不再重复列（用户口径：大仓 bot 在 @ 里没功用）
         //   口径来源：分支 xg-deepseek-dropdown-20261030 的 54c21b938（当时只合了落卡弹窗，没合这一行）
-        const expertPool = [...sharedSubsAt];
+        const expertPool = XG_AT_MENTION_ON ? [...sharedSubsAt] : [];
         const expertItems: MentionItem[] = expertPool
           .filter(
             (e) =>
@@ -730,7 +737,7 @@ const ComposerForStore = observer(function ComposerForStore({
         // [XG-CUSTOM 2026-11-03] 用户口径：**@ 里只留「能全局干活的」= Dot**。
         //   10 多个大仓 bot / 跨 bot 专家还没做好，先不放出来（免得选了却干不了）。
         //   两个 @ 池子（本处 + 上面 composer 那个）必须一致，漏一处就还会列一堆。
-        const expertPool = [...sharedSubs];
+        const expertPool = XG_AT_MENTION_ON ? [...sharedSubs] : [];
       const experts = expertPool
         .filter(
           (e) => !normalized || e.name.toLowerCase().includes(normalized) || e.id.includes(normalized)
