@@ -732,11 +732,17 @@ const ComposerForStore = observer(function ComposerForStore({
         //   10 多个大仓 bot / 跨 bot 专家还没做好，先不放出来（免得选了却干不了）。
         //   两个 @ 池子（本处 + 上面 composer 那个）必须一致，漏一处就还会列一堆。
         // [XG-CUSTOM 2026-11-03 修正] 这里是**斜杠 / 的专家候选**，不是 @ —— 上一轮我把它也砍了，现恢复原样。
+        // [XG-CUSTOM 2026-11-03] 用户口径：**bot 窗只列「自己名下」的子代理**（+ 共享的 Dot）；
+        //   29 个跨 bot 通用专家（XIANGWO_EXPERTS，bot=''）只在**项我主窗**列，别再塞进每个 bot 大仓。
+        //   原写法 `...EXPERTS` 无条件拼在每个 bot 窗里 ⇒ 进 sxsj 窗也能看到 babado/通用的一堆。
+        // [XG-CUSTOM 2026-11-03 二次] 用户口径：「通用就先用一下也行」⇒ bot 窗**保留通用专家**，
+        //   但**分组显示**：本 bot / 通用 / 共享（Dot），不再糊成一坨（原来全塞一个「专家」组）。
         const expertPool = curBot
           ? [
               ...XIANGWO_SUBAGENTS.filter((e) => e.bot === curBot),
               ...sharedSubs,
               ...XIANGWO_EXPERTS,
+              ...XIANGWO_ROLES,
             ]
           : [...XIANGWO_BOTS, ...XIANGWO_ROLES, ...sharedSubs, ...XIANGWO_EXPERTS];
       const experts = expertPool
@@ -750,7 +756,9 @@ const ComposerForStore = observer(function ComposerForStore({
           description: `切换到专家「${e.name}」`,
           behavior: 'insert-text' as const,
           insertText: `/use ${e.name} `,
-          section: '专家',
+          // [XG-CUSTOM 2026-11-03] 分组：共享(Dot) / 本 bot / 通用 —— 让「谁是通用的」一眼可见
+          section:
+            e.bot === 'shared' ? '共享（Dot）' : curBot && e.bot === curBot ? '本 bot 专家' : '通用专家',
         }));
       return [...experts, ...commands, ...prompts];
     },
