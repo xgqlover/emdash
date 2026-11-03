@@ -1,6 +1,6 @@
 {
   "name": "@emdash/emdash-desktop",
-  "version": "1.2.64-xiangwo",
+  "version": "1.2.66-xiangwo",
   "description": "A cross-platform Electron app that orchestrates multiple coding agents in parallel",
   "keywords": [
     "claude",
@@ -46,7 +46,8 @@
     "lint": "node --test ../../tooling/oxlint/rules/*.test.js ../../tooling/oxlint/scripts/*.test.mjs && oxlint .",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
-    "typecheck": "tsgo --noEmit -p tsconfig.browser.json && tsgo --noEmit -p tsconfig.node.json && tsgo --noEmit -p scripts/release/tsconfig.json"
+    "typecheck": "tsgo --noEmit -p tsconfig.browser.json && tsgo --noEmit -p tsconfig.node.json && tsgo --noEmit -p scripts/release/tsconfig.json",
+    "prepackage:linux": "python3 ../../../scripts/xg_emdash_version_guard.py"
   },
   "dependencies": {
     "@agentclientprotocol/sdk": "^1.1.0",
@@ -196,5 +197,6 @@
     }
   },
   "packageManager": "pnpm@10.28.2",
-  "xgCustomNote": "[XG-CUSTOM 2026-10-14] 版本 1.2.43-xiangwo：取图网格点击目标 page→orig 兜底（真机反馈「点了没图的框没反应」）；另 1.2.41 未设工作区回退、1.2.42 planOutbound(MCP Apps)。⚠️ JSON 不能写注释 ⇒ 台账靠本键认这个文件的定制，升级上游别丢。 1.2.44：点击目标改为 page → 原始地址原文（不再过 /xg/img 代理化，避免把 agent 的 404 JSON 怼给用户）。 1.2.45：点击目标定稿(page→orig→解代理) + **A 打底**（内嵌开页失败⇒退原生 host.openExternal 系统浏览器）。 1.2.46：Kaneo 看板补**项目网格**（8 个项目一直没画 —— `kaneoBoard()` 的 `projects[].cards` 里数据是全的）+ 列序固定四格（to-do/in-progress/in-review/done，缺列补 0）。"
+  "xgCustomNote": "[XG-CUSTOM 2026-10-14] 版本 1.2.43-xiangwo：取图网格点击目标 page→orig 兜底（真机反馈「点了没图的框没反应」）；另 1.2.41 未设工作区回退、1.2.42 planOutbound(MCP Apps)。⚠️ JSON 不能写注释 ⇒ 台账靠本键认这个文件的定制，升级上游别丢。 1.2.44：点击目标改为 page → 原始地址原文（不再过 /xg/img 代理化，避免把 agent 的 404 JSON 怼给用户）。 1.2.45：点击目标定稿(page→orig→解代理) + **A 打底**（内嵌开页失败⇒退原生 host.openExternal 系统浏览器）。 1.2.46：Kaneo 看板补**项目网格**（8 个项目一直没画 —— `kaneoBoard()` 的 `projects[].cards` 里数据是全的）+ 列序固定四格（to-do/in-progress/in-review/done，缺列补 0）。",
+  "xiangwoBase": "1.2.10"
 }

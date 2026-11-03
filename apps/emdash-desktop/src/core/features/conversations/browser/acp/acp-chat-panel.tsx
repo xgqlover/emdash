@@ -535,7 +535,9 @@ const ComposerForStore = observer(function ComposerForStore({
         //   原代码只取 XIANGWO_BOTS ⇒ Dot 在任何窗都搜不到（用户实测「@ 里看不到 Dot」）。
         const q = query.trim();
         const sharedSubsAt = XIANGWO_SUBAGENTS.filter((e) => e.bot === 'shared');
-        const expertPool = [...XIANGWO_BOTS, ...sharedSubsAt];
+        // [XG-CUSTOM 2026-10-31] 主 bot 已在下拉里；@ 里不再重复列（用户口径：大仓 bot 在 @ 里没功用）
+        //   口径来源：分支 xg-deepseek-dropdown-20261030 的 54c21b938（当时只合了落卡弹窗，没合这一行）
+        const expertPool = [...sharedSubsAt];
         const expertItems: MentionItem[] = expertPool
           .filter(
             (e) =>
