@@ -875,7 +875,9 @@ const ComposerForStore = observer(function ComposerForStore({
 //   ① 点蓝字（📇 已落卡链接）⇒ 弹原生 modal
 //   ② 说「退出 / 结束」把 Dot 交回去时 ⇒ **自动**弹最近那张卡的同一个原生 modal（用户口径）
 //   弹窗外壳走 emdash 原生弹窗机制（modalCatalog + ModalRenderer），「看全文」走原生 openFileInTaskEditor。
-const XG_CARD_PATH_RE = /知识交换中心\/[^\s"'`)\]>]+\.md/;
+// [XG-CUSTOM 2026-11-03] 卡落点从 `知识交换中心/` 扩到 `bots/<bot>/cards/`（卡跟窗口走后的新落点）。
+const XG_CARD_PATH_RE = /(?:知识交换中心|bots)\/[^\s"'`)\]>]+\.md/;
+const XG_CARD_PATH_TAIL_RE = /(?:知识交换中心|bots)\/.*\.md$/i;
 const XG_DOT_EXIT_ACK_RE = /Dot 先退开/;
 
 export const AcpChatPanel = observer(function AcpChatPanel() {
@@ -900,7 +902,7 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
     if (!el) return;
     const raw = el.getAttribute('href') ?? '';
     const path = decodeURI(raw).replace(/^[a-z]+:\/\//i, '');
-    if (!/知识交换中心\/.*\.md$/i.test(path)) return;
+    if (!XG_CARD_PATH_TAIL_RE.test(path)) return;
     e.preventDefault();
     e.stopPropagation();
     lastCardPathRef.current = path;   // 供「说退出时自动弹」复用
