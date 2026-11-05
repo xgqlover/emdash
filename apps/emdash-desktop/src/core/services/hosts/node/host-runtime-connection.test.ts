@@ -13,11 +13,14 @@ describe('HostRuntimeConnection', () => {
   let afterMessage: (() => void) | undefined;
   const onDisconnect = vi.fn();
   const onRequestTimeout = vi.fn();
+  // [XG-CUSTOM 2026-11-05] 通道停滞回调（看门狗要它才装；本用例不断言停滞行为）。
+  const onChannelStall = vi.fn();
 
   beforeEach(() => {
     vi.useFakeTimers();
     onDisconnect.mockClear();
     onRequestTimeout.mockClear();
+    onChannelStall.mockClear(); // [XG-CUSTOM 2026-11-05] 看门狗要的这个回调也要清计数
     afterMessage = undefined;
     scope = createScope({ label: 'runtime-connection-test' });
     peer = createFaultPeer();
@@ -40,6 +43,7 @@ describe('HostRuntimeConnection', () => {
       healthTimeoutMs: 50,
       onDisconnect,
       onRequestTimeout,
+      onChannelStall,
     });
   });
 

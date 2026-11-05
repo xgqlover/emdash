@@ -4,6 +4,9 @@ import {
   type RuntimeResolveError,
 } from '@emdash/core/primitives/runtime-resolution/api';
 import type { Scope } from '@emdash/shared/concurrency';
+// [XG-CUSTOM 2026-11-05] oxfmt(sortImports) 把这一行从 @emdash/wire/rpc 之后归位到 shared 组；
+// 本文件新增的看门狗判定（channelStalled）用的就是它，所以顺手记一笔，避免以为是上游改动。
+import { log as ambientLog } from '@emdash/shared/logger';
 import {
   retrySchedule,
   runWithTimeout,
@@ -14,11 +17,12 @@ import {
   type RetrySchedule,
 } from '@emdash/shared/scheduling';
 import type { WireTransport } from '@emdash/wire/rpc';
-import { log as ambientLog } from '@emdash/shared/logger';
 import { cell, derived, peek, snapshot, type Readable } from '@emdash/wire/state';
 import { SshConnectionFailure } from '@core/primitives/ssh/api/node/connection-control';
 import type { HostAvailabilityState, HostPreparingPhase } from '../api/availability';
 import type { WorkspaceServerTarget } from '../api/targets';
+// [XG-CUSTOM 2026-11-05] 通道停滞看门狗：阈值默认值 + 判定结果类型（见 channel-stall-watchdog.ts）。
+import { DEFAULT_WIRE_STALL_MS, type ChannelStallFinding } from './channel-stall-watchdog';
 import { HostRuntimeConnection } from './host-runtime-connection';
 import type { HostServerOperationOwner } from './remote-host-workspace-server';
 import { translateHostPreparationError } from './runtime-resolution';
@@ -68,6 +72,9 @@ export type HostConnectionSupervisorOptions = {
   openTimeoutMs?: number;
   initializeTimeoutMs?: number;
   preparationTimeoutMs?: number;
+  /** [XG-CUSTOM 2026-11-05] 通道停滞阈值/节拍（缺省 15 s / 1 s；`XG_WIRE_STALL_MS` 覆盖阈值）。 */
+  stallMs?: number;
+  stallTickMs?: number;
   client?: { id: string; appVersion: string };
   onReady?(attachment: WorkspaceServerConnection): void;
   log?(state: HostConnectionState, detail: Record<string, unknown>): void;
@@ -105,11 +112,15 @@ export class HostConnectionSupervisor {
   private lastOnlineAt = -Infinity;
   private systemSuspended = false;
   private resettingSsh = false;
+  // [XG-CUSTOM 2026-11-05] 停滞阈值（毫秒），由 options 或 XG_WIRE_STALL_MS 决定。
+  private readonly stallMs: number;
 
   constructor(private readonly options: HostConnectionSupervisorOptions) {
     this.scope = options.scope.child('host-connection');
     this.operations = this.scope.child('server-operations');
     this.clock = options.clock ?? systemClock;
+    // [XG-CUSTOM 2026-11-05] 停滞阈值：默认 15 s；`XG_WIRE_STALL_MS` 可覆盖（非法值回退默认）。
+    this.stallMs = options.stallMs ?? resolveWireStallMs();
     this.retrySchedule =
       options.retrySchedule ??
       retrySchedule({
@@ -131,6 +142,10 @@ export class HostConnectionSupervisor {
       healthTimeoutMs: options.healthTimeoutMs ?? 5_000,
       client: options.client,
       onRequestTimeout: () => this.revalidate('rpc-timeout'),
+      // [XG-CUSTOM 2026-11-05] 通道停滞 ⇒ 走下面 channelStalled 的既有「断开 + 重建」路径。
+      onChannelStall: (finding) => this.channelStalled(finding),
+      stallMs: this.stallMs,
+      stallTickMs: options.stallTickMs,
       onDisconnect: () => {
         if (
           this.scope.disposed ||
@@ -381,6 +396,38 @@ export class HostConnectionSupervisor {
     this.runtimeConnection.detach();
     this.publish({ kind: 'recovering', phase: 'connecting', attempt: 1 });
     if (!this.active) this.start();
+  }
+
+  /**
+   * [XG-CUSTOM 2026-11-05] 通道停滞：走**既有**的「断开 + 重建」路径
+   * （cancel + resetSsh + detach + start），不新写一条连接建立逻辑。
+   *
+   * 为什么必须连带 resetSsh：这种坏通道 SSH 自报 `isConnected`、`onDisconnect` 一次都不触发，
+   * 只 `detach()` wire 会在**同一条卡死的 TCP** 上重开通道 ⇒ 1.2.63 的有界自动重连因此空转
+   * （服务端 Send-Q 从 675 KB 涨到 714 KB 一直回不去）。reset 会走到 `client.destroy()`，
+   * 把积压和那条死 socket 一起丢掉，下次 recover() 才是真的新连接。
+   */
+  private channelStalled(finding: ChannelStallFinding): void {
+    if (this.scope.disposed || this.systemSuspended) return;
+    if (this.options.intent.enabled() !== true) return;
+    if (this.runtimePolicy.kind === 'paused') return;
+    // 已经在重建中：让那次重建走完，不叠第二次（防抖第二道闸；第一道在 watchdog 的 armed）。
+    if (this.active) return;
+    // [XG-CUSTOM 2026-11-05] 结构化日志：{wstag:"stall-detect", pending, idleMs, stallMs, attempt}。
+    ambientLog.warn('wire channel stalled; rebuilding host connection', {
+      wstag: 'stall-detect',
+      host: formatHostRef(this.options.host),
+      pending: finding.pending,
+      idleMs: finding.idleMs,
+      stallMs: finding.stallMs,
+      attempt: finding.attempt,
+    });
+    this.lastCause = 'stall';
+    this.cancel();
+    this.publish({ kind: 'recovering', phase: 'connecting', attempt: finding.attempt });
+    this.resetSsh();
+    this.runtimeConnection.detach();
+    this.start();
   }
 
   suspendSystem(): void {
@@ -752,6 +799,25 @@ export class HostConnectionSupervisor {
       lastValidatedAt: this.lastValidatedAt,
     });
   }
+}
+
+/**
+ * [XG-CUSTOM 2026-11-05] `XG_WIRE_STALL_MS` 覆盖停滞阈值（毫秒）。
+ * 非法值不静默改语义：打一条 warn 再回退默认 15 s。
+ */
+function resolveWireStallMs(): number {
+  if (typeof process === 'undefined') return DEFAULT_WIRE_STALL_MS;
+  const raw = process.env.XG_WIRE_STALL_MS;
+  if (raw === undefined || raw.trim() === '') return DEFAULT_WIRE_STALL_MS;
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    ambientLog.warn('ignoring invalid XG_WIRE_STALL_MS', {
+      value: raw,
+      fallbackMs: DEFAULT_WIRE_STALL_MS,
+    });
+    return DEFAULT_WIRE_STALL_MS;
+  }
+  return Math.floor(parsed);
 }
 
 function isBlocked(error: unknown, issue: RuntimeResolveError): boolean {

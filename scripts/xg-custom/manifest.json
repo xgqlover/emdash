@@ -7,10 +7,10 @@
     "base": "592281113a9d83a2987d8a1715d0fedf854d44c4"
   },
   "stats": {
-    "files": 482,
-    "markers": 2606,
-    "newFiles": 140,
-    "modifiedFiles": 342
+    "files": 488,
+    "markers": 2637,
+    "newFiles": 143,
+    "modifiedFiles": 345
   },
   "files": {
     ".github/workflows/release-prod.yml": {
@@ -215,7 +215,7 @@
       "anchors": [
         "2026-10-14] 版本 1.2.43-xiangwo：取图网格点击目标 page→orig 兜底（真机反馈「点了没图的框没反应」）；另 1.2.41 未设工作区回退、1.2.42 planOutbound(MCP Apps)。⚠️ J"
       ],
-      "hash": "0645d246dfeb370bd3589f703656557d41423b68",
+      "hash": "812836713f396f308ad7a71779439f4325076375",
       "origin": "modified",
       "firstCommit": "1dce8b4ad|2026-10-14|[XG-CUSTOM 2026-10-14] 取图网格：点击目标 page→orig 兜底 + 版本 1.2.43-xiangwo + 台账标记",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1183,7 +1183,7 @@
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/conversations/browser/acp/acp-chat-panel.tsx": {
-      "markers": 44,
+      "markers": 45,
       "lines": [
         18,
         20,
@@ -1220,15 +1220,16 @@
         774,
         856,
         874,
-        895,
-        916,
-        1041,
-        1108,
-        1136,
-        1193,
-        1223,
-        1231,
-        1304
+        878,
+        897,
+        918,
+        1043,
+        1110,
+        1138,
+        1195,
+        1225,
+        1233,
+        1306
       ],
       "anchors": [
         "import { XIANGWO_BOTS, XIANGWO_EXPERTS, XIANGWO_ROLES, XIANGWO_SUBAGENTS } from './xiangwo-experts';",
@@ -1260,7 +1261,7 @@
         "section:",
         "{disabledReason && ( ⏎ <div",
         "{/* <ExpertHandoffBar bot=\"\" session=\"\" /> */} ⏎ </div>",
-        "const XG_CARD_PATH_RE = /知识交换中心\\/[^\\s\"'`)\\]>]+\\.md/;",
+        "const XG_CARD_PATH_RE = /(?:知识交换中心|bots)\\/[^\\s\"'`)\\]>]+\\.md/;",
         "const handleCardLinkClick = useCallback((e: React.MouseEvent) => {",
         "const lastCardPathRef = useRef<string | null>(null);",
         "const handoffHandledRef = useRef<string | null>(null);",
@@ -1271,7 +1272,7 @@
         "{agent?.name ?? '此 agent'} 需要你登录。 ⏎ </span>",
         "onClick={() => viewRef.current?.scrollToBottom({ behavior: 'smooth' })}"
       ],
-      "hash": "3275b90e84b6215bcb4c68e52af8b3ea42453391",
+      "hash": "895d559237d0f03af8653db7fbfba5cd9e3759a1",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1368,16 +1369,18 @@
       "note": "会话/ACP 定制（专家交接横条、专家表）"
     },
     "apps/emdash-desktop/src/core/features/conversations/browser/acp/xg-card-modal.tsx": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
         1,
-        37
+        37,
+        51
       ],
       "anchors": [
         "import { Button, Dialog } from '@emdash/ui/react/primitives';",
-        "<Bot style={{ width: '1rem', height: '1rem' }} />"
+        "<Bot style={{ width: '1rem', height: '1rem' }} />",
+        "[XG-CUSTOM 2026-11-03] 落卡时**不**入 AF；点「并入本轮」才顺带归 AF。 ⏎ </div>"
       ],
-      "hash": "6e0137e86225ac418634030e8c02cbff7a79dc68",
+      "hash": "af0f44f7ad03dc7392db24390a384e05870cf479",
       "origin": "new",
       "firstCommit": "eea4db795|2026-10-27|refactor(@Dot): 落卡弹窗改走 emdash 原生弹窗机制（catalog + ModalRenderer）",
       "lastCommit": "eea4db795|2026-10-27|refactor(@Dot): 落卡弹窗改走 emdash 原生弹窗机制（catalog + ModalRenderer）",
@@ -4188,16 +4191,18 @@
       "note": "中文化（任务界面）"
     },
     "apps/emdash-desktop/src/core/features/tasks/browser/create-task-modal/task-name-field.tsx": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
-        1,
-        25
+        2,
+        13,
+        52
       ],
       "anchors": [
         "import { t } from '@renderer/lib/i18n';",
-        "t('task_name_rules')"
+        "const [draft, setDraft] = useState(taskName);",
+        "</p>"
       ],
-      "hash": "7c6f0ec30b488a78b13aa699805060c1af74f79d",
+      "hash": "fd3c32a08fad178bdecb6c484a5d1520a080f6bd",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -5386,6 +5391,42 @@
       "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "core 基元定制"
     },
+    "apps/emdash-desktop/src/core/services/hosts/node/channel-stall-watchdog.test.ts": {
+      "markers": 1,
+      "lines": [
+        10
+      ],
+      "anchors": [
+        "function createHarness(overrides: { stallMs?: number; tickMs?: number } = {}) {"
+      ],
+      "hash": "339ec47fdfcf9df8a1ba9cfd50aa8a19531dea54",
+      "origin": "new",
+      "firstCommit": "b8e3e20c1|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
+      "lastCommit": "b8e3e20c1|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
+      "note": "renderer/main 侧定制"
+    },
+    "apps/emdash-desktop/src/core/services/hosts/node/channel-stall-watchdog.ts": {
+      "markers": 5,
+      "lines": [
+        4,
+        28,
+        73,
+        75,
+        87
+      ],
+      "anchors": [
+        "2026-11-05] wire 通道停滞看门狗 —— SSH/wire 传输层。",
+        "export type ChannelStallFinding = {",
+        "let lastInboundAt = clock.now();",
+        "let armed = true;",
+        "function tick(): void {"
+      ],
+      "hash": "85a8439db16f9c95f7c85afc4e0b2d1ec075a147",
+      "origin": "new",
+      "firstCommit": "b8e3e20c1|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
+      "lastCommit": "b8e3e20c1|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
+      "note": "renderer/main 侧定制"
+    },
     "apps/emdash-desktop/src/core/services/hosts/node/connection-supervisor.policy.test.ts": {
       "markers": 1,
       "lines": [
@@ -5400,22 +5441,96 @@
       "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "note": "renderer/main 侧定制"
     },
-    "apps/emdash-desktop/src/core/services/hosts/node/connection-supervisor.ts": {
-      "markers": 3,
+    "apps/emdash-desktop/src/core/services/hosts/node/connection-supervisor.stall.test.ts": {
+      "markers": 1,
       "lines": [
-        116,
-        557,
-        617
+        10
       ],
       "anchors": [
-        "delaysMs: [1_000, 2_000, 4_000, 8_000, 16_000, 30_000],",
-        "if (attempt > 1) {",
-        "ambientLog.warn('host reconnect attempt failed, retrying', {"
+        "const STALL_LOG = 'wire channel stalled; rebuilding host connection';"
       ],
-      "hash": "a9f95c9d216f5f4db871541064085c41948ac15e",
+      "hash": "9c27c7acdf4b2b79d38b20bec6fb4511775cce39",
+      "origin": "new",
+      "firstCommit": "b8e3e20c1|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
+      "lastCommit": "b8e3e20c1|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
+      "note": "renderer/main 侧定制"
+    },
+    "apps/emdash-desktop/src/core/services/hosts/node/connection-supervisor.ts": {
+      "markers": 12,
+      "lines": [
+        7,
+        24,
+        75,
+        115,
+        122,
+        127,
+        145,
+        402,
+        416,
+        604,
+        664,
+        805
+      ],
+      "anchors": [
+        "import { log as ambientLog } from '@emdash/shared/logger';",
+        "import { DEFAULT_WIRE_STALL_MS, type ChannelStallFinding } from './channel-stall-watchdog';",
+        "stallMs?: number;",
+        "private readonly stallMs: number;",
+        "this.stallMs = options.stallMs ?? resolveWireStallMs();",
+        "delaysMs: [1_000, 2_000, 4_000, 8_000, 16_000, 30_000],",
+        "onChannelStall: (finding) => this.channelStalled(finding),",
+        "private channelStalled(finding: ChannelStallFinding): void {",
+        "ambientLog.warn('wire channel stalled; rebuilding host connection', {",
+        "if (attempt > 1) {",
+        "ambientLog.warn('host reconnect attempt failed, retrying', {",
+        "function resolveWireStallMs(): number {"
+      ],
+      "hash": "a3669ea9f864a5cd6171c8331d1932eec6fcdaac",
       "origin": "modified",
       "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
+      "note": "renderer/main 侧定制"
+    },
+    "apps/emdash-desktop/src/core/services/hosts/node/host-runtime-connection.test.ts": {
+      "markers": 2,
+      "lines": [
+        16,
+        23
+      ],
+      "anchors": [
+        "const onChannelStall = vi.fn();",
+        "onChannelStall.mockClear();"
+      ],
+      "hash": "5755c1ad3cc08e02bd7f74c87c8567c5bacecce9",
+      "origin": "modified",
+      "firstCommit": "b8e3e20c1|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
+      "lastCommit": "b8e3e20c1|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
+      "note": "renderer/main 侧定制"
+    },
+    "apps/emdash-desktop/src/core/services/hosts/node/host-runtime-connection.ts": {
+      "markers": 7,
+      "lines": [
+        14,
+        32,
+        36,
+        49,
+        67,
+        79,
+        85
+      ],
+      "anchors": [
+        "type ChannelStallFinding,",
+        "onChannelStall(finding: ChannelStallFinding): void;",
+        "stallMs?: number;",
+        "private readonly stallWatchdog: ChannelStallWatchdog;",
+        "this.stallWatchdog = createChannelStallWatchdog({",
+        "// [XG-CUSTOM 2026-11-05] 入站打点：每个 wire 帧刷新 lastInboundAt 并解除防抖闸。 ⏎ this.scope.add(",
+        "// [XG-CUSTOM 2026-11-05] 新物理通道装上 ⇒ 重新计时（重建成功的第一个证据）。 ⏎ this.scope.add("
+      ],
+      "hash": "10fe6dbe75fd33d0e7fe0908b87e2c5d05805c01",
+      "origin": "modified",
+      "firstCommit": "b8e3e20c1|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
+      "lastCommit": "b8e3e20c1|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/core/services/notifications/node/sqlite-store.ts": {
@@ -9800,6 +9915,20 @@
       "lastCommit": "6f41e068a|2026-09-21|fix: workspace-registry lifecycle schema 加 v3 兼容（官方 09-16 b995f4ac 升 v3，避免 future-version 崩溃）+ 更新定制清单",
       "note": "lifecycle schema v3 兼容（future-version 根治）"
     },
+    "packages/core/src/services/runtime-broker/api/runtime-client-binding.ts": {
+      "markers": 1,
+      "lines": [
+        169
+      ],
+      "anchors": [
+        "pendingCallCount(): number {"
+      ],
+      "hash": "2074028d1b2cc7bebcf978427569a333b366fb3b",
+      "origin": "modified",
+      "firstCommit": "b8e3e20c1|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
+      "lastCommit": "b8e3e20c1|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
+      "note": "packages 定制"
+    },
     "packages/core/vitest.config.ts": {
       "markers": 1,
       "lines": [
@@ -10189,24 +10318,28 @@
       "note": "packages 定制"
     },
     "packages/wire/src/api/connect.ts": {
-      "markers": 6,
+      "markers": 8,
       "lines": [
         33,
         64,
         86,
-        135,
-        375,
-        434
+        116,
+        141,
+        381,
+        440,
+        652
       ],
       "anchors": [
         "holdWhileDisconnected?: boolean;",
         "maxHeldCalls?: number;",
         "holdable: boolean;",
+        "pendingCallCount(): number;",
         "let heldEvicted = 0;",
         "if (!pendingCall.holdable) {",
-        "while (heldCallIds.length >= maxHeldCalls) {"
+        "while (heldCallIds.length >= maxHeldCalls) {",
+        "pendingCallCount(): number {"
       ],
-      "hash": "95a80ebd7652423af44bf3e54c55d3708eb8c6fa",
+      "hash": "697ec81f7434bfcbd496c69f8d9fa5d201c1f9dc",
       "origin": "modified",
       "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",

@@ -112,6 +112,12 @@ export type Connection = {
   onDisconnect(cb: () => void): Unsubscribe;
   /** Disposes this logical connection without closing the underlying transport. */
   dispose(): void;
+  /**
+   * [XG-CUSTOM 2026-11-05] 挂起请求数：已发出、还没收到结果也没超时的调用个数。
+   * 直接读本层已有的 `pending` 表（不另建一套计数），给传输层的通道停滞看门狗当判据：
+   * `pending > 0 && now - lastInboundAt > STALL_MS` ⇒ 客户端不再读自己的通道。
+   */
+  pendingCallCount(): number;
 };
 
 export function connect(transport: WireTransport, options: ConnectOptions = {}): Connection {
@@ -642,6 +648,10 @@ export function connect(transport: WireTransport, options: ConnectOptions = {}):
       if (disposed) return () => {};
       disconnectListeners.add(cb);
       return () => disconnectListeners.delete(cb);
+    },
+    // [XG-CUSTOM 2026-11-05] 看门狗的判据来源：就是上面那张 pending 表的大小。
+    pendingCallCount(): number {
+      return pending.size;
     },
     dispose() {
       if (disposed) return;

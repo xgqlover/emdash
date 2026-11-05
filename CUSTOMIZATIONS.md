@@ -1226,3 +1226,66 @@ SSE 唯一出口加**空行收口**（`\n{3,}` ⇒ `\n\n`，流式安全）—�
 **处置**：删拦截器 + 删 `xg-card-modal.tsx` + 撤 catalog 注册与测试钉子，**恢复原生**。
 `看卡 <路径>` / `并入 <路径>` 两个**服务端命令**保留（要并入时打字即可）。
 `xgCardModal` 这个 id 不再存在 —— 以后别再往 `modalDefs` 里加它。
+### [XG-CUSTOM 2026-10-30] 入站图桥：image → 8186 视觉 → 文本（修「这个聊天通道发图收不到」）
+
+**现象**：DeepSeek/DSH 通道里发图，图被 workspace-server 存进
+`~/.emdash/workspace-server/state/acp-attachments/...`，但 DSH 会话里只剩文本（模型 text-only，image 分片被丢）。
+
+**改**：ACP 组装 prompt 时，对每个 image 分片先调 `8186`（OVMS `visone`）转文字，成功则**用 text 分片替换** image 分片；
+失败/超时则原样保留 image 分片（行为不变）。
+
+- 运行产物：`~/.emdash/workspace-server/versions/0.1.13-xiangwo/dist/runtimes-acp-node-CKcuo3xh.mjs`
+  - 新增 `globalThis.__xgOcrAttachment`
+  - `sendPromptInternal` 里 `resolvedAttachments.map` 改成 `await Promise.all(...)` + OCR
+- 源码：`packages/core/src/runtimes/acp/node/session/ocr-bridge.ts`（新）+ `cell.ts`（import + 调用）
+- 开关：`XG_OCR_DISABLE=1` 关闭；`XG_VISION_URL` 覆盖（默认 `http://127.0.0.1:8186`）
+- **生效要重启** `workspace-server`（模块在进程启动时加载）
+- 回退：`.bak-xgocr-*` 覆盖回 dist 文件 + 重启
+
+### [XG-CUSTOM 2026-11-05] SSH/wire 传输层：**通道停滞看门狗**（修「接不上 / Loading chat… 永不结束」）
+
+**现象**（已实测，不是猜）：Win 客户端偶发「接不上」——日志反复出现
+`Wire transport disconnected` / `ACP chat bootstrap failed … Timed out connecting ACP live models` /
+`Failed to refresh ACP history … Wire transport disconnected`，界面停在 `Loading chat…`。
+同一时刻 Linux 侧 `ss -tn` 上服务端那条连接的 **`Send-Q` 从 675 KB 涨到 714 KB 还在涨**，
+而服务端 `worker 14`、日志无 error —— 即 **客户端某个子系统停止读自己的 SSH 通道**，
+但 socket 仍是 ESTABLISHED。重启客户端立刻恢复（Send-Q 归 0）。
+1.2.63 加的「有界自动重连」把这条**坏通道当成正常连接**，所以永远不重建。
+
+**改**（语义尽可能小，一条判据）：
+
+- 新增 `apps/emdash-desktop/src/core/services/hosts/node/channel-stall-watchdog.ts`
+  —— 记录 `lastInboundAt`（每个入站帧打点），按 `stallTickMs`（默认 1 s）检查
+  `pending > 0 && now - lastInboundAt > stallMs`（默认 15 s）⇒ 判**停滞**。
+- 挂起请求数**复用** wire `Connection` 里已有的 `pending` 表：`packages/wire/src/api/connect.ts`
+  新增 `Connection.pendingCallCount()`（`packages/core` 的 `RebindableConnection` 同步透传）。
+- 判定后**不新写连接建立逻辑**：`HostConnectionSupervisor.channelStalled()` 走既有的
+  `cancel() + resetSsh() + runtimeConnection.detach() + start()`。
+  必须连带 `resetSsh()`：这种坏通道 SSH 自报 `isConnected`、`onDisconnect` 一次都不触发，
+  只 detach wire 会在**同一条卡死的 TCP** 上重开通道 —— 这正是 1.2.63 空转的原因。
+- **防抖**：一次停滞只触发一次（watchdog 的 `armed` 闸门）；只有「真的又收到入站帧」或
+  「装上了新物理连接」才重新打开闸门并重新计时；`attempt` = 距上次「通道真的在送数据」以来第几次，
+  重建失败后再静默满 `stallMs` 才会再判一次。
+- 正常空闲（`pending == 0`）**绝不**触发；连接建立中（`handshaking`）不触发。
+- 结构化日志（一条，字段固定）：
+  `wire channel stalled; rebuilding host connection` +
+  `{wstag:"stall-detect", host, pending, idleMs, stallMs, attempt}`。
+
+**开关**：`XG_WIRE_STALL_MS`（毫秒，默认 `15000`；非法值打 warn 回退默认，不静默改语义）。
+
+**测试**（假时钟，零真 sleep、不联网、不起 SSH）：
+
+- `channel-stall-watchdog.test.ts` —— ① `pending>0` + 无入站超阈值 ⇒ 触发一次
+  ② 有入站在继续 ⇒ 不触发 ③ `pending==0` 空闲很久 ⇒ 不触发 ④ 同一停滞期只触发一次
+  ⑤ 重建后入站恢复 ⇒ 复位；另含「握手中不触发」「自定义阈值」。
+- `connection-supervisor.stall.test.ts` —— 真 supervisor + 内存传输对
+  （`dropReplies = true` 就是「不再读通道」）：越阈值 ⇒ 重建（`peer.opens` 1→2）、
+  坏通道上的挂起请求被清掉、`XG_WIRE_STALL_MS=5000` 生效、健康空闲通道不被误重建。
+- **可证伪**：同一份测试放进 `git worktree add --detach HEAD` 的未打补丁树 ⇒
+  单测 `Cannot find module './channel-stall-watchdog'`；集成用例 `expected 1 to be 2`
+  （两条停滞用例全红；健康空闲那条按设计仍绿）。
+
+**回滚**：删掉 `HostRuntimeConnection` 里对 `createChannelStallWatchdog` 的构造与两处打点
+（以及 supervisor 的 `channelStalled` 与 `onChannelStall` 接线），即完全回到 1.2.72 的行为；
+`Connection.pendingCallCount()` 是无副作用的只读方法，留着不影响。
+把 `XG_WIRE_STALL_MS` 调到极大（如 `86400000`）等价于关闭看门狗，**不用重新出包**。

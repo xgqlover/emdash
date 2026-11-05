@@ -166,6 +166,11 @@ class RebindableConnection implements Connection {
     return () => this.disconnectListeners.delete(callback);
   }
 
+  // [XG-CUSTOM 2026-11-05] 透传挂起请求数（通道停滞看门狗的判据），本层不自己维护计数。
+  pendingCallCount(): number {
+    return this.disposed ? 0 : this.current.pendingCallCount();
+  }
+
   dispose(): void {
     if (this.disposed) return;
     this.disposed = true;
