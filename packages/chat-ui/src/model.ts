@@ -59,6 +59,11 @@ export type ChatMessageImage = {
   mimeType: string;
   /** Bare base64 payload, no data-URL prefix. */
   data: string;
+  /**
+   * [XG-CUSTOM 2026-11-10] 远程图直链：文本块 `xiangwo-images` 里的 url。
+   * 有它就不需要 base64（客户端直接 <img src>，由浏览器/Electron 去取）。
+   */
+  url?: string;
   /** Small caption under the image: image `caption` (ACP `_meta`), else marker `alt`/`source`. */
   caption?: string;
   /**
