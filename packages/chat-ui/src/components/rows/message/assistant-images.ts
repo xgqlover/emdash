@@ -54,7 +54,11 @@ export function isOpenablePage(url: string): boolean {
 }
 
 /** Base64 payload -> `data:` URL for `<img src>`. Unknown/empty MIME falls back to PNG. */
-export function assistantImageDataUrl(image: Pick<ChatMessageImage, 'mimeType' | 'data'>): string {
+export function assistantImageDataUrl(
+  image: Pick<ChatMessageImage, 'mimeType' | 'data'> & { url?: string }
+): string {
+  // [XG-CUSTOM 2026-11-10] 文本块来的远程图：直接用 url，不经过 base64。
+  if (image.url && isHttpUrl(image.url)) return image.url;
   const mime = text(image.mimeType) || 'image/png';
   return `data:${mime};base64,${image.data}`;
 }

@@ -271,7 +271,6 @@ function bytesToBase64(bytes: Uint8Array): string {
 // Keyed by conversationId to isolate view-local UI. The store owns the editor
 // model so the document, selection, viewport and undo history survive remounts.
 
-
 const ComposerForStore = observer(function ComposerForStore({
   store,
   composerSlot,
@@ -536,9 +535,7 @@ const ComposerForStore = observer(function ComposerForStore({
         //   原代码只取 XIANGWO_BOTS ⇒ Dot 在任何窗都搜不到（用户实测「@ 里看不到 Dot」）。
         const q = query.trim();
         const sharedSubsAt = XIANGWO_SUBAGENTS.filter((e) => e.bot === 'shared');
-        // [XG-CUSTOM 2026-10-31] 主 bot 已在下拉里；@ 里不再重复列（用户口径：大仓 bot 在 @ 里没功用）
-        //   口径来源：分支 xg-deepseek-dropdown-20261030 的 54c21b938（当时只合了落卡弹窗，没合这一行）
-        const expertPool = [...sharedSubsAt];
+        const expertPool = [...XIANGWO_BOTS, ...sharedSubsAt];
         const expertItems: MentionItem[] = expertPool
           .filter(
             (e) =>
@@ -728,23 +725,13 @@ const ComposerForStore = observer(function ComposerForStore({
       // [XG-CUSTOM 2026-10-26] bot='shared' 的共享子代理（Dot）在**两个分支都要有**：
       //   原来 bot 窗只取 bot===curBot、项我窗只取 BOTS+ROLES ⇒ Dot 两个分支都不在。
       const sharedSubs = XIANGWO_SUBAGENTS.filter((e) => e.bot === 'shared');
-        // [XG-CUSTOM 2026-11-03] 用户口径：**@ 里只留「能全局干活的」= Dot**。
-        //   10 多个大仓 bot / 跨 bot 专家还没做好，先不放出来（免得选了却干不了）。
-        //   两个 @ 池子（本处 + 上面 composer 那个）必须一致，漏一处就还会列一堆。
-        // [XG-CUSTOM 2026-11-03 修正] 这里是**斜杠 / 的专家候选**，不是 @ —— 上一轮我把它也砍了，现恢复原样。
-        // [XG-CUSTOM 2026-11-03] 用户口径：**bot 窗只列「自己名下」的子代理**（+ 共享的 Dot）；
-        //   29 个跨 bot 通用专家（XIANGWO_EXPERTS，bot=''）只在**项我主窗**列，别再塞进每个 bot 大仓。
-        //   原写法 `...EXPERTS` 无条件拼在每个 bot 窗里 ⇒ 进 sxsj 窗也能看到 babado/通用的一堆。
-        // [XG-CUSTOM 2026-11-03 二次] 用户口径：「通用就先用一下也行」⇒ bot 窗**保留通用专家**，
-        //   但**分组显示**：本 bot / 通用 / 共享（Dot），不再糊成一坨（原来全塞一个「专家」组）。
-        const expertPool = curBot
-          ? [
-              ...XIANGWO_SUBAGENTS.filter((e) => e.bot === curBot),
-              ...sharedSubs,
-              ...XIANGWO_EXPERTS,
-              ...XIANGWO_ROLES,
-            ]
-          : [...XIANGWO_BOTS, ...XIANGWO_ROLES, ...sharedSubs, ...XIANGWO_EXPERTS];
+      const expertPool = curBot
+        ? [
+            ...XIANGWO_SUBAGENTS.filter((e) => e.bot === curBot),
+            ...sharedSubs,
+            ...XIANGWO_EXPERTS,
+          ]
+        : [...XIANGWO_BOTS, ...XIANGWO_ROLES, ...sharedSubs, ...XIANGWO_EXPERTS];
       const experts = expertPool
         .filter(
           (e) => !normalized || e.name.toLowerCase().includes(normalized) || e.id.includes(normalized)
@@ -756,9 +743,7 @@ const ComposerForStore = observer(function ComposerForStore({
           description: `切换到专家「${e.name}」`,
           behavior: 'insert-text' as const,
           insertText: `/use ${e.name} `,
-          // [XG-CUSTOM 2026-11-03] 分组：共享(Dot) / 本 bot / 通用 —— 让「谁是通用的」一眼可见
-          section:
-            e.bot === 'shared' ? '共享（Dot）' : curBot && e.bot === curBot ? '本 bot 专家' : '通用专家',
+          section: '专家',
         }));
       return [...experts, ...commands, ...prompts];
     },
@@ -875,9 +860,7 @@ const ComposerForStore = observer(function ComposerForStore({
 //   ① 点蓝字（📇 已落卡链接）⇒ 弹原生 modal
 //   ② 说「退出 / 结束」把 Dot 交回去时 ⇒ **自动**弹最近那张卡的同一个原生 modal（用户口径）
 //   弹窗外壳走 emdash 原生弹窗机制（modalCatalog + ModalRenderer），「看全文」走原生 openFileInTaskEditor。
-// [XG-CUSTOM 2026-11-03] 卡落点从 `知识交换中心/` 扩到 `bots/<bot>/cards/`（卡跟窗口走后的新落点）。
-const XG_CARD_PATH_RE = /(?:知识交换中心|bots)\/[^\s"'`)\]>]+\.md/;
-const XG_CARD_PATH_TAIL_RE = /(?:知识交换中心|bots)\/.*\.md$/i;
+const XG_CARD_PATH_RE = /知识交换中心\/[^\s"'`)\]>]+\.md/;
 const XG_DOT_EXIT_ACK_RE = /Dot 先退开/;
 
 export const AcpChatPanel = observer(function AcpChatPanel() {
@@ -902,7 +885,7 @@ export const AcpChatPanel = observer(function AcpChatPanel() {
     if (!el) return;
     const raw = el.getAttribute('href') ?? '';
     const path = decodeURI(raw).replace(/^[a-z]+:\/\//i, '');
-    if (!XG_CARD_PATH_TAIL_RE.test(path)) return;
+    if (!/知识交换中心\/.*\.md$/i.test(path)) return;
     e.preventDefault();
     e.stopPropagation();
     lastCardPathRef.current = path;   // 供「说退出时自动弹」复用

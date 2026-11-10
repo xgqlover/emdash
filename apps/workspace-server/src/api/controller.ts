@@ -7,9 +7,12 @@ import {
   workspaceWireContract,
 } from '@emdash/core/workspace-server';
 import { err, ok } from '@emdash/shared';
+import { getCurrentLogger } from '@emdash/shared/logger';
 import { createController, forwardContractImpl, type ContractImpl } from '@emdash/wire/rpc';
 import type { ContractClient } from '@emdash/wire/rpc';
 import type { WorkspaceServerRuntimeClients } from '../gateway/workspace-workers';
+// [XG-CUSTOM 2026-11-05] 握手取证日志（只加日志，不改行为）
+import { xgWire, xgWireFail, xgWireOk } from '../wire/xg-handshake-log';
 
 export type WorkspaceWireControllerDeps = {
   runtimes: WorkspaceServerRuntimeClients;
@@ -33,9 +36,36 @@ export function createWorkspaceWireController(deps: WorkspaceWireControllerDeps)
       uptimeMs: Date.now() - startedAt,
       protocolVersion: PROTOCOL_VERSION,
     }),
-    initialize: ({ protocolVersion }) => {
+    initialize: ({ protocolVersion, client }) => {
+      // [XG-CUSTOM 2026-11-05] 握手取证：这是「客户端来问了没有 / 为什么不给 ready」的主判据。
+      // `getCurrentLogger()` 在这里会拿到 `serve()` 用 `runWithLogger` 绑好的子 logger
+      // ⇒ 日志自带 `wireCallId`（= 线上 reqId）；没绑时退化成 noop。
+      // ⛔ 只取白名单字段（协议版本、client.id、client.appVersion），**不打印入参 body**。
+      const handshakeStartedAt = Date.now();
+      const logger = getCurrentLogger();
+      const clientId = client?.id;
+      const clientVersion = client?.appVersion;
+      xgWire(logger, 'debug', {
+        op: 'initialize',
+        phase: 'enter',
+        protocolVersion,
+        serverProtocolVersion: PROTOCOL_VERSION,
+        clientId,
+        clientVersion,
+      });
       const result = negotiateProtocol(protocolVersion, PROTOCOL_VERSION);
+      const ms = Date.now() - handshakeStartedAt;
       if (!result.compatible) {
+        xgWireFail(logger, {
+          op: 'initialize',
+          reason: 'protocol-incompatible',
+          action: result.action,
+          protocolVersion,
+          serverProtocolVersion: PROTOCOL_VERSION,
+          clientId,
+          clientVersion,
+          ms,
+        });
         return err({
           type: 'protocol-incompatible' as const,
           action: result.action,
@@ -43,6 +73,16 @@ export function createWorkspaceWireController(deps: WorkspaceWireControllerDeps)
           serverProtocolVersion: result.serverProtocolVersion,
         });
       }
+      xgWireOk(logger, {
+        op: 'initialize',
+        agreedVersion: result.agreedVersion,
+        agreedMinor: result.agreedMinor,
+        protocolVersion,
+        serverProtocolVersion: PROTOCOL_VERSION,
+        clientId,
+        clientVersion,
+        ms,
+      });
       return ok({
         protocolVersion: PROTOCOL_VERSION,
         agreedVersion: result.agreedVersion,

@@ -14,6 +14,8 @@ import { startDaemon } from './daemon/start';
 import { statusDaemon } from './daemon/status';
 import { stopDaemon } from './daemon/stop';
 import { createWorkspaceServerRuntimeHost } from './gateway/workspace-workers';
+// [XG-CUSTOM 2026-11-05] 握手取证日志（只加日志，不改行为）
+import { xgWireFail, xgWireOk } from './wire/xg-handshake-log';
 import { serveSocket } from './wire/serve-socket';
 import { serveStdio } from './wire/serve-stdio';
 
@@ -61,6 +63,10 @@ async function serve(config: WorkspaceServerConfig, logger: Logger): Promise<Dis
       shellEnv,
       logger,
     });
+    // [XG-CUSTOM 2026-11-05] 服务端「就绪」的两个阶段点：
+    // ① workers 全部 spawn 完成（runtime host 建好）② socket 开始 listen。
+    // 客户端面板的 `Stopped` 若与这两行对不上，就说明「客户端压根没连到这台服务端」。
+    xgWireOk(logger, { op: 'runtime-ready', reason: 'runtime-host-ready' });
     const controller = createWorkspaceWireController({
       appVersion: config.appVersion,
       runtimes: runtimeHost.runtimes,
@@ -74,7 +80,7 @@ async function serve(config: WorkspaceServerConfig, logger: Logger): Promise<Dis
       return { dispose: () => scope.dispose() };
     }
 
-    const handle = await serveSocket(controller, { socketPath: config.serve.path });
+    const handle = await serveSocket(controller, { socketPath: config.serve.path, logger });
     scope.add(() => handle.dispose());
     const paths = daemonPaths(handle.socketPath);
     try {
@@ -91,6 +97,13 @@ async function serve(config: WorkspaceServerConfig, logger: Logger): Promise<Dis
       },
     };
   } catch (error) {
+    // [XG-CUSTOM 2026-11-05] 启动失败 = 服务端从未就绪，必须留一条 warn（原来只有 stderr 一行）。
+    xgWireFail(logger, {
+      op: 'runtime-ready',
+      reason: 'startup-failed',
+      errorMessage: error instanceof Error ? error.message : String(error),
+      errorName: error instanceof Error ? error.name : typeof error,
+    });
     await scope.dispose();
     throw error;
   }

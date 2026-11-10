@@ -29,9 +29,6 @@ const BOTS: ComposerAgentOption[] = [
   { id: 'chief-engineer', name: '总工' },
   { id: 'ceo', name: 'CEO' },
   { id: 'caiwuzongguan', name: '财务' },
-  // [XG-CUSTOM 2026-10-30 / 补合 2026-11-03] 球侧 orb 下拉加 DeepSeek（dsh ACP 执行端）
-  //   出处：分支 xg-deepseek-dropdown-20261030 的 d0f8b7f1a，当时没合进 main。
-  { id: 'deepseek', name: 'DeepSeek' },
 ];
 
 type HostBridge = {

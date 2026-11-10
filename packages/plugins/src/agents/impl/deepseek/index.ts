@@ -24,12 +24,8 @@ export const plugin = definePlugin(
     acp: {
       kind: 'supported',
     },
-    // [XG-CUSTOM 2026-11-03] 改 stateless：服务端 dsh 0.2.0-rc.2 未实现 session/load
-    // （-32601 Method not found / -32603 "already owned by an active write handle"）
-    // ⇒ 客户端按 resumable 走 load 会永久卡在「Loading chat...」；stateless ⇒ 永远走 session/new（实测 1.3s 必成）。
-    // 回滚：把下面改回 'resumable'。
     sessions: {
-      kind: 'stateless',
+      kind: 'resumable',
     },
     // 只声明 binaryNames（不写 installCommands 的 method 'other'，否则会被判「不可安装」→ 整个灰掉）
     hostDependency: npmDependency({

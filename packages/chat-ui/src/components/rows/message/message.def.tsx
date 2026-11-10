@@ -15,6 +15,7 @@ import { assignInlineVars } from '@vanilla-extract/dynamic';
 // [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { Show, For, createMemo } from 'solid-js';
 import type { ChatMessage, ChatMessageImage } from '@/model';
+import { hostOf, parseXiangwoImagesBlock } from '@emdash/shared';
 import {
   assistantImageDataUrl,
   assistantImageGridHeight,
@@ -53,14 +54,30 @@ export function messageFromItem(item: ChatMessage, ctx: SegmentCtx): ChatMessage
   const parsed = isAssistant
     ? splitAssistantImageMeta(item.text)
     : { text: item.text, meta: [] as ReturnType<typeof splitAssistantImageMeta>['meta'] };
+  // [XG-CUSTOM 2026-11-10] 纯文本里也能出图：解析 ```xiangwo-images``` 块，
+  // 用 url 直链合成 image 卡（不走 base64），点击仍打开 page。
+  const block = isAssistant ? parseXiangwoImagesBlock(parsed.text) : undefined;
+  const blockPayload = block?.images;
+  const blockImages: ChatMessageImage[] | undefined =
+    blockPayload && blockPayload.images.length
+      ? blockPayload.images.map((it, i) => ({
+          id: `${item.id}-xgb${i}`,
+          mimeType: '',
+          data: '',
+          url: it.url,
+          uri: it.page || it.url,
+          caption: it.alt || it.source || '',
+          sourceHost: hostOf(it.page || it.url),
+        }))
+      : undefined;
   const images =
     isAssistant && item.images?.length
       ? buildAssistantImages(item.id, item.images, parsed.meta)
-      : undefined;
+      : blockImages;
   return {
     ...item,
 // [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
-    text: parsed.text,
+    text: block ? block.text : parsed.text,
     streaming: ctx.active && item.role === 'assistant',
     attachments: item.attachments?.map((attachment) => ({
       id: attachment.id,
