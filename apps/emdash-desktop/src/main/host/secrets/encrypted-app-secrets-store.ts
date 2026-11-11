@@ -29,7 +29,16 @@ export class EncryptedAppSecretsStore {
     }
 
     this.assertSecureStorageAvailable();
-    return secret(this.safeStorageApi.decryptString(Buffer.from(encrypted, 'base64')), key);
+    try {
+      return secret(this.safeStorageApi.decryptString(Buffer.from(encrypted, 'base64')), key);
+    } catch (err) {
+      // [XG-CUSTOM 2026-11-03] 密文解不开不应炸 boot：safeStorage 后端/钥匙环变化后旧密文必然解不开，
+      // 旧行为直接抛 => services 阶段失败 => 打包版"打不开"。这里删掉坏密文自愈，返回 null 走"未登录"。
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn(`[XG-CUSTOM] app secret 解密失败，已清除该条自愈（key=${key}）: ${msg}`);
+      await this.deleteSecret(key);
+      return null;
+    }
   }
 
   async setSecret(key: string, value: Secret<string>): Promise<void> {

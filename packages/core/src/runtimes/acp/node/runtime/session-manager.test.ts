@@ -1790,6 +1790,125 @@ describe('AcpRuntime conversation lifecycle reports', () => {
     await rt.dispose();
   });
 });
+describe('eviction wait budget', () => {
+  function makeRecordingLogger() {
+    const logger = {
+      level: 'debug' as const,
+      debug: vi.fn<(message: string, fields?: Record<string, unknown>) => void>(),
+      info: vi.fn<(message: string, fields?: Record<string, unknown>) => void>(),
+      warn: vi.fn<(message: string, fields?: Record<string, unknown>) => void>(),
+      error: vi.fn<(message: string, fields?: Record<string, unknown>) => void>(),
+      child: () => logger,
+    };
+    return logger;
+  }
+
+  function timeoutWarnings(logger: ReturnType<typeof makeRecordingLogger>) {
+    return logger.warn.mock.calls.filter(([message]) =>
+      String(message).includes('eviction wait timed out')
+    );
+  }
+
+  /** Starts a session, then makes its eviction un-settleable via a gated terminal teardown. */
+  async function startStuckEviction(conversationId: string, evictWaitTimeoutMs: number) {
+    const logger = makeRecordingLogger();
+    const h = makeAcpHarness({ logger, lifecycle: { evictWaitTimeoutMs } });
+    const rt = new AcpRuntime(h.deps);
+    const input = makeStartInput({ conversationId });
+    await rt.startSession(input, 'resume');
+
+    const gate = deferred<void>();
+    const disposeSpy = vi
+      .spyOn(rt.terminals, 'disposeConversation')
+      .mockImplementation(() => gate.promise);
+    void rt.stopSession(conversationId);
+    await vi.waitFor(() =>
+      expect(rt.manager.inspect().pendingEvictions).toContain(conversationId)
+    );
+    return { h, rt, input, logger, gate, disposeSpy };
+  }
+
+  it('attaches anyway when a stale eviction never settles, and warns with structured fields', async () => {
+    const { rt, input, logger, gate, disposeSpy } = await startStuckEviction(
+      'conv-stuck-evict',
+      25
+    );
+    try {
+      const startedAt = Date.now();
+      const result = await rt.attachSession(input);
+      const elapsedMs = Date.now() - startedAt;
+
+      expect(isOk(result)).toBe(true);
+      expect(elapsedMs).toBeLessThan(2_000);
+      expect(rt.manager.evictWaitTimeouts).toBe(1);
+
+      const warnings = timeoutWarnings(logger);
+      expect(warnings).toHaveLength(1);
+      const fields = warnings[0]![1] as Record<string, unknown>;
+      expect(fields).toMatchObject({
+        conversationId: 'conv-stuck-evict',
+        hadHandle: true,
+        timeoutMs: 25,
+      });
+      expect(typeof fields.waitedMs).toBe('number');
+      expect(typeof fields.handleState).toBe('string');
+      expect(typeof fields.suspended).toBe('boolean');
+      expect(typeof fields.initialQueueConsumed).toBe('boolean');
+      expect(typeof fields.everMaterialized).toBe('boolean');
+      expect(fields.retainedSize).toBeGreaterThanOrEqual(1);
+
+      // The stale handle is gone from the retained map: nothing parks on it again.
+      expect(rt.manager.inspect().pendingEvictions).not.toContain('conv-stuck-evict');
+    } finally {
+      gate.resolve();
+      disposeSpy.mockRestore();
+      await rt.dispose();
+    }
+  });
+
+  it('keeps the unbudgeted behaviour when the eviction settles in time', async () => {
+    const logger = makeRecordingLogger();
+    const h = makeAcpHarness({ logger, lifecycle: { evictWaitTimeoutMs: 25 } });
+    const rt = new AcpRuntime(h.deps);
+    const input = makeStartInput({ conversationId: 'conv-clean-evict' });
+    await rt.startSession(input, 'resume');
+    await rt.stopSession(input.conversationId);
+
+    expect(rt.manager.inspect().pendingEvictions).not.toContain(input.conversationId);
+
+    const result = await rt.attachSession(input);
+    expect(isOk(result)).toBe(true);
+    expect(rt.manager.evictWaitTimeouts).toBe(0);
+    expect(timeoutWarnings(logger)).toHaveLength(0);
+    // Same handle as before the change: attach reuses the retained (now suspended) entry.
+    expect(rt.manager.inspect().retained).toContain(input.conversationId);
+    expect(rt.manager.inspect().pendingEvictions).not.toContain(input.conversationId);
+    await rt.dispose();
+  });
+
+  it('does not wait again on the abandoned eviction for the next attach', async () => {
+    const { h, rt, input, gate, disposeSpy } = await startStuckEviction('conv-stuck-retry', 25);
+    try {
+      expect(isOk(await rt.attachSession(input))).toBe(true);
+      expect(rt.manager.evictWaitTimeouts).toBe(1);
+
+      // A budget far beyond this test's own deadline: a second wait would hang here.
+      h.deps.lifecycle!.evictWaitTimeoutMs = 30_000;
+      const raced = await Promise.race([
+        rt.attachSession(input).then(() => 'attached' as const),
+        new Promise<'blocked'>((resolve) => setTimeout(() => resolve('blocked'), 250)),
+      ]);
+      expect(raced).toBe('attached');
+      // Still 1: the retry never entered the bounded wait at all.
+      expect(rt.manager.evictWaitTimeouts).toBe(1);
+      expect(rt.manager.inspect().pendingEvictions).not.toContain('conv-stuck-retry');
+    } finally {
+      gate.resolve();
+      disposeSpy.mockRestore();
+      await rt.dispose();
+    }
+  });
+});
 /** Uses the runtime's inspection seams so leak assertions follow production ownership. */
 function leakContainers(rt: AcpRuntime): LeakCheckContainer[] {
   return [

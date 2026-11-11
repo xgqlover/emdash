@@ -1,4 +1,4 @@
-import { BookOpen, Bug, FlaskConical, Mail, Search, Wrench } from 'lucide-react';
+import { BookOpen, Bug, Compass, FlaskConical, Mail, Search, Wrench } from 'lucide-react';
 import type { BuiltinAutomationTemplate } from './automation-template';
 
 const TEST_COVERAGE_PROMPT =
@@ -72,6 +72,25 @@ export const builtinAutomationCatalog: BuiltinAutomationTemplate[] = [
     defaultConversationConfig: {
       initialPrompt:
         'Find recently changed or under-documented developer-facing code. Add concise documentation that explains behavior, setup, examples, sharp edges, and validation steps. Prefer updating existing docs over creating duplicate pages.',
+    },
+  },
+  {
+    id: 'pm-one-thing',
+    category: '产品管理',
+    name: 'PM 一件事',
+    description: '用 pm-router 自动选 /discover、/strategy、/write-prd 或 /plan-launch，产出 brief + artifacts',
+    icon: Compass,
+    defaultTrigger: { expr: '0 9 * * 1', tz: 'UTC' },
+    defaultConversationConfig: {
+      initialPrompt:
+        '先读 /home/xgqlover/天天项上/五层四维记忆系统/skills-central/pm-router/SKILL.md 和同目录 routing.json，再按下面的任务用 pm-router 只选一条 command。' +
+        '\n\n本任务：[在这里写产品/包装/上市任务]' +
+        '\n\n执行要求：' +
+        '\n1. 输出选择结果：command、reason、missing、next；' +
+        '\n2. 读该 command 的 command_file，按其中步骤执行；' +
+        '\n3. 先写 brief.md，再写 artifacts/<command>.md；缺信息按假设继续并写 open-questions.md；' +
+        '\n4. 不自动执行下一条 command，最后只给 next 建议；' +
+        '\n5. 产物落到当前工作区，不要只回聊天。',
     },
   },
 ];

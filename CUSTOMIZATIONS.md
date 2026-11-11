@@ -42,7 +42,7 @@
 ### 6. 子代理 enrich（专家 spawn → 原生 subagent 行，09-15）
 
 - **新增** `packages/plugins/src/agents/impl/xiangwo/acp-transform.ts`：`enrichXiangwoUpdate`——把 `_meta.xiangwo.subagent=true` 的 tool_call 提升为 `kind:'subagent'` 事件（仿 claude 的 enrichClaudeUpdate）
-- **改动** `packages/plugins/src/agents/impl/xiangwo/index.ts` + 9 个 `xiangwo-<bot>/index.ts`：`acp` 加 `enrich: enrichXiangwoUpdate`
+- **改动** `packages/plugins/src/agents/impl/xiangwo/index.ts` + 10 个 `xiangwo-<bot>/index.ts`：`acp` 加 `enrich: enrichXiangwoUpdate`
 - **agent 侧** `xiangwo_acp.py`：`send_subagent()` 函数，解析 `【EXPERT_SPAWN:xxx】` 标记 → 发 spawn-subagent tool_call + tool_call_update；`xiangwo-agent/agent.py` R2 专家管道返回带 `【EXPERT_SPAWN:{expert}】` 标记
 - 效果：@bot /R2 派专家时，emdash 聊天窗原生显示「子代理行」（专家名 · 运行中/完成）
 
@@ -62,6 +62,8 @@
 - **注意**：fork 的 workspaceLifecycleSchema 无 previousScriptRuns，zod 生产模式 strip 多余字段，读 v3 数据兼容（详见 OPS 二十四章）
 
 ### 8. 专家交接台 + 专家记忆隔离（09-22）
+
+> **2026-11-10 增补**：交接台的入口说明、`expert_handoff.py list` 瘦身、改动台账，见 §35 与 `docs/规则/交接台-台账.md`。
 
 **交接台（emdash 前端，需打包 AppImage）**：
 - `apps/emdash-desktop/src/main/host/window.ts`：`expertHandoffCall` 导出（spawn python3 expert_handoff.py list/accept/delete）
@@ -1289,3 +1291,163 @@ SSE 唯一出口加**空行收口**（`\n{3,}` ⇒ `\n\n`，流式安全）—�
 （以及 supervisor 的 `channelStalled` 与 `onChannelStall` 接线），即完全回到 1.2.72 的行为；
 `Connection.pendingCallCount()` 是无副作用的只读方法，留着不影响。
 把 `XG_WIRE_STALL_MS` 调到极大（如 `86400000`）等价于关闭看门狗，**不用重新出包**。
+
+### 13. [XG-CUSTOM 2026-11-10] scout provider + 10/10 bot 仓库
+
+- 新增 `packages/plugins/src/agents/impl/xiangwo-scout/index.ts`；`XIANGWO_BOT=scout`，与其余 bot 同一 ACP 桥。
+- `packages/plugins/src/agents/registry.ts` 补 import + 注册；现在 10 个 bot provider。
+- 10 个 `bots/<bot>` 已通过原生 `workspaceRegistry.createWorkspace` 注册（脚本 `scripts/emdash_bot_registry.ts`）。
+- 构建并部署 host runtime `0.1.20-xiangwo`（protocol 12.2.0）；systemd `version.conf` 已钉。
+- 端到端：`acp.startSession → sendPrompt → assistant 回复 → terminate` 全过。
+
+### 14. [XG-CUSTOM 2026-11-10] 交接台 UI 再对齐原生自动化（renderer）
+
+- `features/handoff/browser/handoff-view.tsx`：
+  - 详情 Sheet 从“直接并入”改成 **AutomationDetailView 同骨架**：标题 + `Tabs`（概览 / 并入）+ 底部动作。
+  - 概览页补 `bot / 专家 / 时间 / 状态 / 摘要 / 关联产出(file)`，并明确“并入只填草稿，不自动发、不启动 worker”。
+  - 空态/错误态改用原生 `EmptyState`，不再手写 `<p>`。
+  - 两个工具条补 `useSearchFocusHotkeys()`，和原生 Automations 搜索快捷键一致。
+  - 列表仍复用 `CollectionView / CollectionToolbar / createListView`；行仍是 `AutomationRow` 两行结构。
+- 只改 renderer，不改 host RPC / `expert_handoff.py` 数据契约；build:renderer 通过。
+- 生效方式：需重新构建/打包桌面 App（AppImage/exe）；远程 workspace-server 不需要换。
+
+### 35. [XG-CUSTOM 2026-11-10] 交接台入口说明 + `list` 瘦身 + 台账
+
+**为什么有这节**
+
+用户要求两件事：
+
+1. 交接台的功用要在**入口**写明，不能进去只看到列表不知道怎么用；
+2. 改动代码要**有标记、有台账**，不能升级/更新一下就被冲掉。
+
+完整台账（功能口径、数据链路、已知限制、回滚）在：
+
+```text
+docs/规则/交接台-台账.md
+```
+
+**代码索引**
+
+```bash
+cd emdash
+grep -R "XG-CUSTOM 2026-11-10" apps/emdash-desktop/src
+grep -R "handoff-entry-help-2026-11-10" apps/emdash-desktop/src
+```
+
+**改了什么**
+
+- `apps/emdash-desktop/src/core/features/handoff/browser/handoff-view.tsx`
+  - 页面标题下加常驻 `Alert`：`交接台做什么`。
+  - 明确“专家交接”接的是别的会话里的结论/产物；“并入”只填当前聊天草稿，**不自动发送、不启动 worker**。
+  - 明确“浏览器工作台”接的是页面控制权；接手后 agent 停手，完成后归还；**不是聊天窗口，也不按时间自动执行**。
+  - 副标题改为“专家任务交接 + 浏览器页面控制权交接；这里只交接，不自动执行”。
+  - 两个 Tab 加 `title` hover 提示。
+  - 说明块加 `data-xg-custom="handoff-entry-help-2026-11-10"`，升级后可按属性找回。
+- `apps/emdash-desktop/src/core/features/workbench/browser/sidebar/left-sidebar.tsx`
+  - 交接台入口加 `aria-label` + `title`：不点进去也知道是“专家任务交接 / 浏览器页面控制权（只交接，不自动执行）”。
+- `xiangwo-agent/expert_handoff.py`
+  - `list` 默认只输出卡片字段（`id / bot / expert / title / summary / file / session / status / created / accepted_by / accepted_at / consumed / created_iso / created_local`）。
+  - 去掉 `context` 等大字段；`--full` 保留完整输出。
+  - 位置参数只认 `bot` / `session`；`--full` 不再被误当成 bot（否则 `list --full` 会过滤成 0 条）。
+  - 原因：完整 JSON 约 3.4 MB，Windows 客户端经 SSH 桥接读会超时/截断，UI 显示 `0 个主题 · 0 待接 / 读取交接台失败`。
+  - 结果：约 0.35–0.49 MB，887 条不变；UI 实测 `887 个主题 · 850 待接`，详情 Sheet 正常。
+
+**生效方式**
+
+- renderer 改动：需要重新构建/打包桌面 App（exe/AppImage）。
+- `expert_handoff.py` 是 Linux 主机侧脚本：远程刷新即生效，**不需要重打 exe**。
+- 不改 host RPC 数据契约；不改 `expert_topics.json` 内容。
+
+**验收**
+
+```bash
+cd /home/xgqlover/天天项上/五层四维记忆系统
+python3 xiangwo-agent/expert_handoff.py list \
+  | python3 -c "import json,sys; d=json.load(sys.stdin); print(len(d))"
+# 887
+
+cd emdash
+pnpm --dir apps/emdash-desktop run build:renderer   # ✅ 通过
+pnpm --dir apps/emdash-desktop run typecheck        # ⚠️ 只剩 3 个既有 orb 测试错误
+```
+
+`typecheck` 的 3 个错误在 `src/renderer/orb/orb-to-bottom.test.ts`，是本次之前就有的；
+本次 `handoff-view.tsx` / `left-sidebar.tsx` 无新增类型错误。
+
+版本：`1.2.78-xiangwo`（renderer 改动需重新打包 exe 才生效）。
+
+已打包并验收：
+
+```text
+/home/xgqlover/Desktop/emdash-1.2.78-xiangwo-x64.exe
+bytes   : 208,280,612
+md5     : 2a8112340805d95184f2b99a7e80167e
+sha256  : 40f4cb857f91e76cb4c188459e2c221a770c31c8e512b5269fd0fb7e34d1ae5b
+manifest: /home/xgqlover/Desktop/emdash-1.2.78-xiangwo-x64.exe.manifest.txt
+gate    : 0
+```
+
+入口串已从 exe 的 app.asar 里逐条验过：
+
+```text
+✅ 交接台做什么
+✅ handoff-entry-help-2026-11-10
+✅ 专家任务交接与浏览器页面控制权
+```
+
+**回退**
+
+- UI：删 `handoff-view.tsx` 的 `Alert.Root` 说明块，恢复副标题/Tab 文案；删侧边栏 `title`/`aria-label` 增补。
+- Python：删 `list` 分支的字段投影；或保留代码、需要全文时用 `--full`。
+- 台账（本节 + `docs/规则/交接台-台账.md`）**保留**，记录“为什么改、怎么回退”，不随代码回退删除。
+
+**升级找回**
+
+上游合并冲突时，优先保留：
+
+```text
+handoff-entry-help-2026-11-10（说明块）
+left-sidebar 的 title / aria-label
+expert_handoff.py list 的 _keep 投影
+本节 + docs/规则/交接台-台账.md
+```
+
+**2026-11-11 补充：35 条误伤修复**
+
+- 在 `expert_handoff.py::task_signal` 增加：外语脚本（西里尔/阿拉伯/日文假名）、实质问候、实质服务开场、词义辨析四类豁免；补英文/葡语产品文案、prompt、assembly、画面/视觉、命名/记忆点等域词。
+- v1 dry-run 的 35 条疑似误伤全部转为 `task`；默认隐藏 `109 → 73`，工具目录 29 条不变。
+- 仍**不做**写入闸门；剩余 73 条需第三轮抽检。
+- v2 清单：`docs/规则/交接台-噪声dry-run-2026-11-11-v2.md`；台账：`docs/规则/交接台-台账.md §十`。
+
+**2026-11-11 补充：1.2.79 原生任务列表 UI**
+
+- `handoff-view.tsx` 的范围切换照 Emdash 原生 `TasksTabs`：`ToggleGroup` + 计数（`只看任务 (N)` / `全部 (N)`），不再自造一行统计文本。
+- Toolbar 顺序照原生 `TasksToolbar`：`Tabs → Separator → Spacer → Search → Actions`。
+- 列表仍用 `CollectionView` / `CollectionToolbar` / `Alert` / `Sheet` / `Tabs` / `EmptyState`，没有新增自定义布局组件。
+- 参考：`apps/emdash-desktop/src/core/features/projects/browser/components/task-view/task-list.tsx` 的 `TasksTabs` / `TasksToolbar`。
+- 版本 `1.2.79-xiangwo`；台账：`docs/规则/交接台-台账.md §十一`。
+
+**2026-11-11 补充：1.2.80 后台 ticket worker + 聊天名**
+
+- 「并入到谁的聊天」不再显示 uuid，改为任务名 / 会话标题；重名才追加 4 位短 id。
+- 详情页新增「派给后台」：写入 `work/channel.db` 的 ticket（status=todo），由该 bot 的常驻 worker 领取；结果从 `work/outbox.db` 读回，UI 每 5 秒刷新有票未完成的详情。
+- 新增 host bridge `xiangwo:expert-handoff-dispatch` → `expert_handoff.py dispatch <id>`；幂等，已有票不重复派。
+- 结果只展示，不自动并入；「并入对话」仍由用户决定。
+- 端到端：测试主题 #1062（scout）todo→in_progress→done 约 40s，result=OK；测试票/主题/目录已清理。
+- 版本 `1.2.80-xiangwo`；台账：`docs/规则/交接台-台账.md §十二`。
+
+**2026-11-11 补充：同 bot 专家自动交接**
+
+- 用户口径：跨 bot 暂时不做。
+- `/use` 切专家时，`agent.py` 不再只写 150 字摘要：新增 `expert_handoff.handoff_package()`，把上一位专家历史收成 live-compact 卡片（原文 shadow），再 `add_topic + accept_topic`；新专家执行时 `consume_context` 自动注入，不需要点「并入」。
+- 目标专家可用 `python3 xiangwo-agent/expert_handoff.py retrieve-card <id>` 取回全文。
+- 卡片失败退回纯摘要，不挡切换；手动「并入 / 派给后台」保留为旁路。
+- 台账：`docs/规则/交接台-台账.md §十三`。
+
+
+**2026-11-11 补充：1.2.81 自动化里的 PM 块**
+
+- 「自动化 → 从模板开始」新增 `PM 一件事`（category `产品管理`，id `pm-one-thing`）。
+- 卡片入口读 `skills-central/pm-router/{SKILL.md,routing.json}`，按任务只选一条 command；产物要求 `brief.md` + `artifacts/`，不自动跑下一条。
+- 模板只是入口；真正的 ticket/brief/route 自动派单仍由 `scripts/xg_pm_dispatch.py` 负责（OPS §八）。
+- 版本 `1.2.81-xiangwo`。

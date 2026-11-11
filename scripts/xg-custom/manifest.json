@@ -7,10 +7,10 @@
     "base": "592281113a9d83a2987d8a1715d0fedf854d44c4"
   },
   "stats": {
-    "files": 488,
-    "markers": 2637,
-    "newFiles": 143,
-    "modifiedFiles": 345
+    "files": 492,
+    "markers": 2650,
+    "newFiles": 144,
+    "modifiedFiles": 348
   },
   "files": {
     ".github/workflows/release-prod.yml": {
@@ -5401,8 +5401,8 @@
       ],
       "hash": "339ec47fdfcf9df8a1ba9cfd50aa8a19531dea54",
       "origin": "new",
-      "firstCommit": "b8e3e20c1|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
-      "lastCommit": "b8e3e20c1|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
+      "firstCommit": "0e763d4b2|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
+      "lastCommit": "0e763d4b2|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/core/services/hosts/node/channel-stall-watchdog.ts": {
@@ -5423,8 +5423,8 @@
       ],
       "hash": "85a8439db16f9c95f7c85afc4e0b2d1ec075a147",
       "origin": "new",
-      "firstCommit": "b8e3e20c1|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
-      "lastCommit": "b8e3e20c1|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
+      "firstCommit": "0e763d4b2|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
+      "lastCommit": "0e763d4b2|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/core/services/hosts/node/connection-supervisor.policy.test.ts": {
@@ -5451,8 +5451,8 @@
       ],
       "hash": "9c27c7acdf4b2b79d38b20bec6fb4511775cce39",
       "origin": "new",
-      "firstCommit": "b8e3e20c1|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
-      "lastCommit": "b8e3e20c1|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
+      "firstCommit": "0e763d4b2|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
+      "lastCommit": "0e763d4b2|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/core/services/hosts/node/connection-supervisor.ts": {
@@ -5503,8 +5503,8 @@
       ],
       "hash": "5755c1ad3cc08e02bd7f74c87c8567c5bacecce9",
       "origin": "modified",
-      "firstCommit": "b8e3e20c1|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
-      "lastCommit": "b8e3e20c1|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
+      "firstCommit": "0e763d4b2|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
+      "lastCommit": "0e763d4b2|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/core/services/hosts/node/host-runtime-connection.ts": {
@@ -5529,8 +5529,8 @@
       ],
       "hash": "10fe6dbe75fd33d0e7fe0908b87e2c5d05805c01",
       "origin": "modified",
-      "firstCommit": "b8e3e20c1|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
-      "lastCommit": "b8e3e20c1|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
+      "firstCommit": "0e763d4b2|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
+      "lastCommit": "0e763d4b2|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/core/services/notifications/node/sqlite-store.ts": {
@@ -8358,6 +8358,80 @@
       "lastCommit": "501f2b81c|2026-09-28|fix(workspace-server): 恢复无 Docker 本地编译 native 依赖的 [XG-CUSTOM] 补丁",
       "note": "workspace-server fork 运行时（无 Docker 本地编译补丁）"
     },
+    "apps/workspace-server/src/api/controller.ts": {
+      "markers": 2,
+      "lines": [
+        14,
+        40
+      ],
+      "anchors": [
+        "import { xgWire, xgWireFail, xgWireOk } from '../wire/xg-handshake-log';",
+        "const handshakeStartedAt = Date.now();"
+      ],
+      "hash": "1f569439a0808463a40899cf8a91c29490cdec84",
+      "origin": "modified",
+      "firstCommit": "865800c15|2026-10-11|merge: 上游 v1.2.8（185 commits / 587 files）+ 保住全部 [XG-CUSTOM] 定制",
+      "lastCommit": "bce1f7618|2026-10-26|refactor(workspaces): declare cleanArtifacts without a call deadline",
+      "note": "workspace-server fork 运行时（无 Docker 本地编译补丁）"
+    },
+    "apps/workspace-server/src/index.ts": {
+      "markers": 3,
+      "lines": [
+        17,
+        66,
+        100
+      ],
+      "anchors": [
+        "import { xgWireFail, xgWireOk } from './wire/xg-handshake-log';",
+        "xgWireOk(logger, { op: 'runtime-ready', reason: 'runtime-host-ready' });",
+        "xgWireFail(logger, {"
+      ],
+      "hash": "721843a5260cb47e8f7fa4b171b9f2d888a10b23",
+      "origin": "modified",
+      "firstCommit": "2918ba9ac|2026-08-21|fix(runtimes): resolve user environment per spawn",
+      "lastCommit": "2918ba9ac|2026-08-21|fix(runtimes): resolve user environment per spawn",
+      "note": "workspace-server fork 运行时（无 Docker 本地编译补丁）"
+    },
+    "apps/workspace-server/src/wire/serve-socket.ts": {
+      "markers": 6,
+      "lines": [
+        10,
+        16,
+        28,
+        49,
+        205,
+        222
+      ],
+      "anchors": [
+        "import { xgProbeTransport, xgWire, xgWireFail, xgWireFailThrottled, xgWireOk } from './xg-handshake-log';",
+        "logger?: Logger;",
+        "const READY_EPISODE_MIN_MS = 5_000;",
+        "let connectionSeq = 0;",
+        "function closeReason(input: {",
+        "function peerLabel(socket: Socket): string {"
+      ],
+      "hash": "c18a994aea43c1b30464969521c43c84967be044",
+      "origin": "modified",
+      "firstCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "lastCommit": "44c84f179|2026-08-17|Merge pull request #2999 from generalaction/wss",
+      "note": "workspace-server fork 运行时（无 Docker 本地编译补丁）"
+    },
+    "apps/workspace-server/src/wire/xg-handshake-log.ts": {
+      "markers": 2,
+      "lines": [
+        2,
+        30
+      ],
+      "anchors": [
+        "2026-11-05] 握手/就绪**取证日志**（服务端侧）—— 只加日志，不改行为。",
+        "import { getCurrentLogger, type Logger } from '@emdash/shared/logger';"
+      ],
+      "hash": "08388cb0d9adbf1ce63e64cac532075686da523d",
+      "origin": "new",
+      "firstCommit": "",
+      "lastCommit": "",
+      "note": "workspace-server fork 运行时（无 Docker 本地编译补丁）"
+    },
     "docs/xg-custom-baselines/manifest-pre-update-20261026-143911.json": {
       "markers": 479,
       "lines": [
@@ -9925,8 +9999,8 @@
       ],
       "hash": "2074028d1b2cc7bebcf978427569a333b366fb3b",
       "origin": "modified",
-      "firstCommit": "b8e3e20c1|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
-      "lastCommit": "b8e3e20c1|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
+      "firstCommit": "0e763d4b2|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
+      "lastCommit": "0e763d4b2|2026-11-05|fix(emdash): wire/SSH 通道停滞看门狗 —— pending>0 且 15s 无入站帧即判停滞，走既有「断开+重建」；1.2.73",
       "note": "packages 定制"
     },
     "packages/core/vitest.config.ts": {

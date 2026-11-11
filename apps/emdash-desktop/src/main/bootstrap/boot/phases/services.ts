@@ -596,7 +596,13 @@ export async function bootServices(
     plaintextSecrets,
     legacyAccountImports
   );
-  await migrateGitHubJsonCredentials(providerAccountRegistry);
+  // [XG-CUSTOM 2026-11-03] 迁移失败不应阻断启动（曾因 safeStorage 解不开旧密文导致打包版打不开）
+  try {
+    await migrateGitHubJsonCredentials(providerAccountRegistry);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn(`[XG-CUSTOM] migrateGitHubJsonCredentials 失败，已跳过: ${msg}`);
+  }
   const integrationAccountStore = new IntegrationAccountStore(providerAccountRegistry, (id) =>
     legacyIntegrationAccounts.run(id)
   );

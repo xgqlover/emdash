@@ -47,6 +47,8 @@ export function XgCardModal({ path, onOpenFile, onMerge }: XgCardModalProps) {
             这是 Dot 跑完落的卡（来源 / 证据 / 结论都在卡里）。
             「看全文」用 emdash **原生**打开这个 .md（右侧编辑器，Markdown 渲染）；
             「并入本轮」把这张卡写进当前会话上下文 —— 同一会话里的专家也会在「近期主对话」里看到它。
+            <br />
+            [XG-CUSTOM 2026-11-03] 落卡时**不**入 AF；点「并入本轮」才顺带归 AF。
           </div>
         </div>
       </Dialog.Body>

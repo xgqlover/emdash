@@ -38,10 +38,11 @@ import { provider as pi } from './impl/pi';
 import { provider as primeAgent } from './impl/prime-agent';
 import { provider as qoder } from './impl/qoder';
 import { provider as qwen } from './impl/qwen';
-// [XG-CUSTOM 2026-10-16] 项我 10 个 bot provider 注册（fork 定制；台账见 scripts/xg-custom/manifest.json）
+// [XG-CUSTOM 2026-10-16] 项我 10 个 bot provider 注册（scout 于 2026-11-10 补齐）（fork 定制；台账见 scripts/xg-custom/manifest.json）
 import { provider as xiangwo } from './impl/xiangwo';
 import { provider as xiangwo_sxsj } from './impl/xiangwo-sxsj';
 import { provider as xiangwo_babado } from './impl/xiangwo-babado';
+import { provider as xiangwo_scout } from './impl/xiangwo-scout';
 import { provider as xiangwo_dayi } from './impl/xiangwo-dayi';
 import { provider as xiangwo_shangcha } from './impl/xiangwo-shangcha';
 import { provider as xiangwo_shuobo } from './impl/xiangwo-shuobo';
@@ -65,10 +66,11 @@ for (const p of [
   // [XG-CUSTOM 2026-10-26] DeepSeek（dsh）作为「自带 CLI agent」接入 —— 官方卖点③的第一个样本
   deepseek,
     qwen,
-// [XG-CUSTOM 2026-10-16] 项我 10 个 bot provider 注册（fork 定制；台账见 scripts/xg-custom/manifest.json）
+// [XG-CUSTOM 2026-10-16] 项我 10 个 bot provider 注册（scout 于 2026-11-10 补齐）（fork 定制；台账见 scripts/xg-custom/manifest.json）
   xiangwo,
   xiangwo_sxsj,
   xiangwo_babado,
+  xiangwo_scout,
   xiangwo_dayi,
   xiangwo_shangcha,
   xiangwo_shuobo,

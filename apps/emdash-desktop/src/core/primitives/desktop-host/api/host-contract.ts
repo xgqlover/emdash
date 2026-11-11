@@ -77,6 +77,16 @@ export interface ExpertHandoffTopic {
   file: string;
   status: string;
   created: number;
+  /** [XG-CUSTOM 2026-11-10] host 侧 task_signal 的 UI 过滤信号；旧桥接没有该字段时按“任务”处理。 */
+  task_signal?: boolean;
+  task_reason?: string;
+  /** [XG-CUSTOM 2026-11-11] 派给该 bot 的 ticket worker 后回填。 */
+  ticket_id?: string;
+  ticket_at?: number;
+  ticket_status?: string;
+  ticket_worker?: string;
+  ticket_result?: string;
+  ticket_result_at?: number;
 }
 
 // [XG-CUSTOM] 浏览器工作台 space（对应 wego-lite/task-spaces/spaces.json）
@@ -376,6 +386,11 @@ export const desktopHostContract = defineContract({
   expertHandoffList: procedure({
     input: z.object({ bot: z.string(), session: z.string() }),
     output: z.custom<ExpertHandoffTopic[]>(),
+  }),
+  // [XG-CUSTOM 2026-11-11] 派给该 bot 的常驻 ticket worker；幂等，已有票直接返回状态
+  expertHandoffDispatch: procedure({
+    input: z.object({ id: z.string() }),
+    output: z.custom<ExpertHandoffTopic>(),
   }),
   // [XG-CUSTOM] 浏览器工作台（task-spaces）：页面控制权交接，与专家交接台分开的一组 procedure
   taskSpaceList: procedure({

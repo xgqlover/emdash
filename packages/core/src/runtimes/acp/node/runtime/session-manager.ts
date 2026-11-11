@@ -10,7 +10,7 @@ import type { Result, Serializable } from '@emdash/shared';
 import { err, ok, toSerializedError } from '@emdash/shared';
 import type { Scope } from '@emdash/shared/concurrency';
 import type { Logger } from '@emdash/shared/logger';
-import { systemClock, type Clock } from '@emdash/shared/scheduling';
+import { runWithTimeout, systemClock, TimeoutError, type Clock } from '@emdash/shared/scheduling';
 import type {
   AcpCancelTurnError,
   AcpChangeQueuePromptOrderError,
@@ -68,6 +68,21 @@ import { SessionsListProjector, type SuspendedIntentListEntry } from './sessions
 import type { AcpRuntimeDeps, AcpStartInput, SendPromptInput } from './types';
 
 const DEFAULT_ACTIVATION_DRAIN_TIMEOUT_MS = 5_000;
+// [XG-CUSTOM 2026-11-03] Budget for waiting on a pending conversation eviction before
+// attach/startSession force-disposes the stale handle. Override with `XG_ACP_EVICT_WAIT_MS`
+// (or `lifecycle.evictWaitTimeoutMs` from the embedding app).
+const DEFAULT_EVICT_WAIT_MS = 3_000;
+const EVICT_WAIT_MS_ENV = 'XG_ACP_EVICT_WAIT_MS';
+
+function resolveEvictWaitMs(override: number | undefined): number {
+  if (override !== undefined && Number.isFinite(override) && override >= 0) return override;
+  const raw = process.env[EVICT_WAIT_MS_ENV];
+  if (raw !== undefined && raw !== '') {
+    const parsed = Number(raw);
+    if (Number.isFinite(parsed) && parsed >= 0) return parsed;
+  }
+  return DEFAULT_EVICT_WAIT_MS;
+}
 
 export type AcpWakeFailure = {
   kind: 'wake-failed';
@@ -106,6 +121,8 @@ export class SessionManager {
   readonly sessionsList: SessionsListModel = this.sessionsHost.model;
   readonly router: SessionRouter;
   private readonly retained = new Map<string, ConversationHandle>();
+  /** Diagnostic counter: eviction waits that expired and forced a stale handle disposal. */
+  private evictWaitTimeoutsValue = 0;
   private readonly suspendedIntents = new Map<string, SuspendedIntentEntry>();
   private readonly clock: Clock;
   private readonly lifecycle: ConversationSessionLifecycle;
@@ -184,8 +201,13 @@ export class SessionManager {
     });
   }
 
+  /** Diagnostic counter: how many attach/start calls hit the bounded eviction wait. */
+  get evictWaitTimeouts(): number {
+    return this.evictWaitTimeoutsValue;
+  }
+
   async attach(input: AcpStartInput): Promise<Result<{ sessionId: string | null }, AcpStartError>> {
-    await this.retained.get(input.conversationId)?.waitForEviction();
+    await this.awaitEvictionBounded(input.conversationId);
     const existing = this.getOrRestoreHandle(input.conversationId);
     const entry =
       existing ??
@@ -210,7 +232,7 @@ export class SessionManager {
       AcpStartError
     >
   > {
-    await this.retained.get(input.conversationId)?.waitForEviction();
+    await this.awaitEvictionBounded(input.conversationId);
     const existing = this.retained.get(input.conversationId);
     const restored = existing ? null : this.getOrRestoreHandle(input.conversationId);
     const entry =
@@ -227,6 +249,86 @@ export class SessionManager {
     this.lifecycle.recordInput(input.conversationId);
 
     return this.activateEntry(entry, !existing, mode);
+  }
+
+  /**
+   * [XG-CUSTOM 2026-11-03] Bounded wait for a pending eviction of the retained handle.
+   *
+   * `runEviction` clears its promise only once the eviction operation settles. A stale
+   * handle can leave that operation pending forever (its activation teardown never
+   * completes), and awaiting it unbounded wedges every later attach/startSession for the
+   * conversation: the client reports "Timed out attaching ACP session" while the server
+   * logs nothing at all. After the budget the stale handle is killed, dropped from the
+   * retained map, and the caller proceeds: attach must never depend on an eviction it
+   * cannot observe.
+   */
+  private async awaitEvictionBounded(conversationId: string): Promise<void> {
+    const entry = this.retained.get(conversationId);
+    const pending = entry?.pendingEviction();
+    if (!entry || !pending) return;
+
+    const timeoutMs = resolveEvictWaitMs(this.deps.lifecycle?.evictWaitTimeoutMs);
+    const startedAt = this.clock.now();
+    try {
+      await runWithTimeout(() => pending, { timeoutMs, clock: this.clock });
+      return;
+    } catch (error) {
+      const waitedMs = this.clock.now() - startedAt;
+      if (!(error instanceof TimeoutError)) {
+        // The eviction settled unsuccessfully; `runEviction` already cleared itself, so
+        // the previous behaviour (continue with attach) is preserved.
+        this.deps.logger.warn('SessionManager: conversation eviction failed before attach', {
+          conversationId,
+          waitedMs,
+          hadHandle: true,
+          handleState: entry.state,
+          error: String(error),
+        });
+        return;
+      }
+      this.evictWaitTimeoutsValue += 1;
+      this.deps.logger.warn(
+        'SessionManager: eviction wait timed out; disposing stale conversation handle',
+        {
+          conversationId,
+          waitedMs,
+          timeoutMs,
+          hadHandle: true,
+          handleState: entry.state,
+          suspended: entry.state === 'suspended',
+          initialQueueConsumed: entry.initialQueueConsumed,
+          everMaterialized: entry.everMaterialized,
+          pendingEviction: true,
+          retainedSize: this.retained.size,
+          evictWaitTimeouts: this.evictWaitTimeoutsValue,
+        }
+      );
+      this.disposeStaleHandle(conversationId, entry, error);
+    }
+  }
+
+  /**
+   * [XG-CUSTOM 2026-11-03] Force-dispose a handle whose eviction will not settle.
+   * Follows the existing kill -> force-remove -> drop-from-retained destruction path.
+   * Both destructive calls are best effort: the stuck activation is by definition not
+   * awaitable here, so waiting on `forceRemove` could reintroduce the deadlock.
+   */
+  private disposeStaleHandle(
+    conversationId: string,
+    entry: ConversationHandle,
+    cause: unknown
+  ): void {
+    const reason =
+      cause instanceof Error ? cause : new Error('ACP conversation eviction wait timed out');
+    entry.kill(reason);
+    entry.abandonEviction();
+    this.removeHandle(entry);
+    void entry.forceRemove(reason).catch((error: unknown) => {
+      this.deps.logger.warn('SessionManager: failed to force-remove stale conversation handle', {
+        conversationId,
+        error: String(error),
+      });
+    });
   }
 
   private async activateEntry(

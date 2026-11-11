@@ -41,6 +41,8 @@ export interface AcpRuntimeDeps {
     sweepIntervalMs?: number;
     connectionIdleTtlMs?: number;
     activationDrainTimeoutMs?: number;
+    /** Bound on waiting for a pending conversation eviction before attach disposes it. */
+    evictWaitTimeoutMs?: number;
   };
   logger: Logger;
 }

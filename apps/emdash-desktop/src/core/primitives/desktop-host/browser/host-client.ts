@@ -74,6 +74,11 @@ export async function expertHandoffList(bot: string, session: string) {
   return (await getHostClient()).expertHandoffList({ bot, session });
 }
 
+// [XG-CUSTOM 2026-11-11] 派给该 bot 的常驻 ticket worker；幂等
+export async function expertHandoffDispatch(id: string) {
+  return (await getHostClient()).expertHandoffDispatch({ id });
+}
+
 // [XG-CUSTOM] Pi 树专家名册（专家总览视图）
 export async function expertRoster() {
   return (await getHostClient()).expertRoster({});

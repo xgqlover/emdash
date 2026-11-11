@@ -471,6 +471,10 @@ export function registerXiangwoExpertHandoff(): void {
   ipcMain.handle('xiangwo:expert-handoff-list', (_e, bot: string, session: string) =>
     expertHandoffCall('list', bot, session)
   );
+  // [XG-CUSTOM 2026-11-11] 派给该 bot 的常驻 ticket worker（tickets 表 status=todo）
+  ipcMain.handle('xiangwo:expert-handoff-dispatch', (_e, id: string) =>
+    expertHandoffCall('dispatch', id)
+  );
   // [XG-CUSTOM] 新建交接
   ipcMain.handle(
     'xiangwo:expert-handoff-add',

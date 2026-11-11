@@ -6,6 +6,7 @@ import type {
 } from '@agentclientprotocol/sdk';
 import type { Result } from '@emdash/shared';
 import { ok, toSerializedError } from '@emdash/shared';
+import { ocrAttachment } from './ocr-bridge';
 import type {
   AcpCancelTurnError,
   AcpPermissionRequest,
@@ -551,11 +552,21 @@ export class SessionCell {
       const promptRequest = {
         sessionId: this.acpSessionId,
         prompt: [
-          ...resolvedAttachments.map((attachment) => ({
-            type: 'image' as const,
-            data: attachment.data,
-            mimeType: attachment.mimeType,
-          })),
+          ...(await Promise.all(
+            resolvedAttachments.map(async (attachment) => {
+              try {
+                const ocr = await ocrAttachment(attachment);
+                if (ocr) return { type: 'text' as const, text: ocr };
+              } catch {
+                // fall through to the original image block
+              }
+              return {
+                type: 'image' as const,
+                data: attachment.data,
+                mimeType: attachment.mimeType,
+              };
+            })
+          )),
           ...(prompt.text ? [{ type: 'text' as const, text: prompt.text }] : []),
           ...(prompt.hiddenContext
             ? [{ type: 'text' as const, text: wrapHiddenContext(prompt.hiddenContext) }]

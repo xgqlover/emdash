@@ -394,9 +394,10 @@ const config: Configuration = {
       entry: { StartupWMClass: PRODUCT_NAME },
     },
     target: [
+      // [XG-CUSTOM 2026-11-05] **去掉 rpm**：本机没有 `rpmbuild` ⇒ 每次打包都 exit 1
+      //   （AppImage/deb 其实都已产出，只是整体被判失败）。要 rpm 时装 `rpm` 包再加回来。
       { target: 'AppImage', arch: ['x64'] },
       { target: 'deb', arch: ['x64'] },
-      { target: 'rpm', arch: ['x64'] },
     ],
   },
   deb: {

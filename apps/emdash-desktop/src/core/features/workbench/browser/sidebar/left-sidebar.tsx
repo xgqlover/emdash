@@ -124,10 +124,12 @@ export const LeftSidebar: React.FC = observer(function LeftSidebar() {
           <SidebarMenu>
             <SidebarSearchTrigger />
 {/* [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json */}
+            {/* [XG-CUSTOM 2026-11-10] 入口就写明交接台功用；台账见 CUSTOMIZATIONS.md §35 */}
             <SidebarMenuButton
               isActive={isCurrentView(currentView, 'handoff')}
               onClick={() => navigate(handoffViewDef())}
-              aria-label="交接台"
+              aria-label="交接台：专家任务交接与浏览器页面控制权"
+              title="交接台：专家任务交接 / 浏览器页面控制权（只交接，不自动执行）"
               className="w-full justify-between"
             >
               <span className="flex min-w-0 items-center gap-2">

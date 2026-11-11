@@ -273,6 +273,16 @@ export class ConversationHandle {
     return this.evictionPromiseValue ?? Promise.resolve();
   }
 
+  /**
+   * [XG-CUSTOM 2026-11-03] Forget an eviction promise we can no longer await.
+   *
+   * Used when a bounded wait expires: the operation may still be pending forever, and
+   * keeping the promise would make every later attach/start park on it again.
+   */
+  abandonEviction(): void {
+    this.evictionPromiseValue = null;
+  }
+
   pendingEviction(): Promise<void> | null {
     return this.evictionPromiseValue;
   }
