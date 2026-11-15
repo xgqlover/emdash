@@ -1,4 +1,4 @@
-import { BookOpen, Bug, Compass, FlaskConical, Mail, Search, Wrench } from 'lucide-react';
+import { BookOpen, Bug, Compass, FlaskConical, Inbox, Mail, Search, Wrench } from 'lucide-react';
 import type { BuiltinAutomationTemplate } from './automation-template';
 
 const TEST_COVERAGE_PROMPT =
@@ -72,6 +72,26 @@ export const builtinAutomationCatalog: BuiltinAutomationTemplate[] = [
     defaultConversationConfig: {
       initialPrompt:
         'Find recently changed or under-documented developer-facing code. Add concise documentation that explains behavior, setup, examples, sharp edges, and validation steps. Prefer updating existing docs over creating duplicate pages.',
+    },
+  },
+  {
+    // [XG-CUSTOM 2026-11-17] AF 待接日报：只读 + 落盘，不回复、不归档
+    id: 'xg-af-backlog',
+    category: '运行状态',
+    name: 'AF 待接日报',
+    description: '读 AF 论坛未回答评论，按域/年龄/类型出日报（只读，不回帖）',
+    icon: Inbox,
+    defaultTrigger: { expr: '30 9 * * *', tz: 'Asia/Shanghai' },
+    defaultConversationConfig: {
+      initialPrompt:
+        '用 search_tool 查 "af" 找到 xg-kb 的 af_forum，再用 use_tool 调 af_forum（mode=unanswered, limit=50）。' +
+        '\n\n拿到结果后按 workspace 分组，每行写：域 / 评论 id / 年龄(天) / 类型 / 建议动作。' +
+        '\n类型判据：带 <!--mu-hive:…--> 的是「自家交付」（建议：标 resolved，不需要回）；' +
+        '有人 @ 我们或提问的是「要答」；空内容或 >30 天是「噪音」（建议：归档）。' +
+        '\n\n产物写到当前工作区 outbox/af-backlog-<YYYYMMDD>.md，并在末尾给三行汇总：' +
+        '待接 N / 超 7 天 M / 可自动确认 K。' +
+        '\n\n铁律：本任务只读 —— 不 af_reply、不 af_clean、不改任何 AF 数据；' +
+        '不要用 bash（你没有），只用 search_tool/use_tool 和写文件工具。',
     },
   },
   {

@@ -8,6 +8,7 @@ type Ticket = { owner?: string; stage?: string; age_s?: number; title?: string }
 type Status = {
   ok?: boolean; state?: string; working?: Ticket[]; tickets?: Ticket[];
   flows?: string[]; health?: Record<string, boolean>;
+  af?: { unanswered_effective?: number; over_count?: number; auto_confirmable?: number };
 };
 
 const DOT = 'http://localhost:8900/v1/dot/status';
@@ -36,6 +37,7 @@ export function XgConsoleSection() {
 
   const working = data?.working ?? [];
   const badges = Object.entries(data?.health ?? {});
+  const af = data?.af;
 
   return (
     <div className="border-b border-border-subtle">
@@ -59,6 +61,11 @@ export function XgConsoleSection() {
       {open && (
         <div className="space-y-1.5 px-3 pb-2 text-xs text-fg-muted">
           {err && <div className="text-warning">{err}</div>}
+          {af && (
+            <div className="text-xs text-fg-muted">
+              AF 待接 {af.unanswered_effective ?? '?'}（超 7 天 {af.over_count ?? '?'}）
+            </div>
+          )}
           {working.length === 0 && !err && <div>没有在跑的票</div>}
           {working.map((t, i) => (
             <div key={i} className="flex items-center gap-2">

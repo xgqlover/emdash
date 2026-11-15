@@ -24,6 +24,7 @@ type Status = {
   tickets?: Ticket[];
   flows?: string[];
   health?: Record<string, boolean>;
+  af?: { unanswered_effective?: number; over_count?: number; auto_confirmable?: number; by_workspace?: Record<string, number>; error?: string };
 };
 
 function ageTxt(s: number): string {
@@ -61,6 +62,7 @@ function XgConsoleMainPanel() {
   const tickets = (d?.tickets ?? []).slice(0, 10);
   const flows = d?.flows ?? [];
   const health = Object.entries(d?.health ?? {});
+  const af = d?.af;
 
   return (
     <PageLayout.Content className="space-y-4 overflow-auto p-4">
@@ -127,6 +129,13 @@ function XgConsoleMainPanel() {
       </section>
 
       <section className="space-y-1">
+        {af && (
+          <div className="text-xs text-fg-muted">
+            AF 待接 <b>{af.unanswered_effective ?? '?'}</b>
+            （超 7 天 {af.over_count ?? '?'} · 可自动确认 {af.auto_confirmable ?? '?'}）
+            {af.error ? <span className="text-danger"> · {af.error}</span> : null}
+          </div>
+        )}
         <div className="text-xs font-medium text-foreground-muted">中控台流（{flows.length}）</div>
         {flows.map((f) => (
           <div key={f} className="rounded-md border border-border-subtle px-3 py-1 font-mono text-xs text-foreground-muted">
