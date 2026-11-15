@@ -1480,3 +1480,23 @@ python3 ../scripts/xg_custom_ledger.py --list       # 人看
 
 > 注：**每个 bot 一个 agent 插件已经做了**（`packages/plugins/src/agents/impl/xiangwo-*` 共 11 个），
 > 不需要为这条 fork；我早前说"只有 1 个"是错的。
+
+
+## 5. 对话页「运行中」改读中控台状态（2026-11-17）
+
+- **文件**：`apps/emdash-desktop/src/core/features/xiangwo/browser/xiangwo-view.tsx`
+- **改动**：`loading` 期间每 3s 拉 `http://localhost:8900/v1/dot/status`，有 `working` 就显示
+  「运行中：xg-egress 14s」；没有则退回「项我思考中...」。失败静默（状态接口不通不影响对话）。
+- **为什么**：原来的圈只看请求在不在，进程卡住会一直转；现在跟票走（票来自 pi 的 tool_call/agent_end）。
+- **重新打包**：`scripts/xg-package-linux.sh` 或 `scripts/xg-package-win.sh`（改的是 desktop renderer，必须重打包）。
+
+## 6. 台账可机器校验（2026-11-17）
+
+```bash
+python3 scripts/xg_emdash_patch_audit.py --check          # 文件还在？sha 没变？仍与上游不同？
+python3 scripts/xg_emdash_patch_audit.py --upstream-diff   # 上游也改了哪些 = 必须重放
+python3 scripts/xg_emdash_patch_audit.py --record          # 改完自己东西后刷新基线
+```
+
+基线存在 `emdash/local-patches.json`（976 个相对上游有差异的文件 + sha）。
+进总闸：`三类能力-verify.sh` 的「emdash 定制台账」一项，红了说明我们的改动被覆盖。

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# [XG-CUSTOM 2026-11-17] 合并提交前拦一道：定制台账红了就别合
+set -uo pipefail
+ROOT="$(git rev-parse --show-toplevel)"
+AUD="$ROOT/../scripts/xg_emdash_patch_audit.py"
+[ -f "$AUD" ] || exit 0
+if ! python3 "$AUD" --check >/tmp/xg-emdash-premerge.log 2>&1; then
+  echo "[xg] ❌ 定制台账不一致，拒绝生成合并提交："
+  sed -n '1,20p' /tmp/xg-emdash-premerge.log
+  echo "[xg] 先按上面的清单重放，再 --record，然后重试合并。"
+  exit 1
+fi
+exit 0

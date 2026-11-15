@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# [XG-CUSTOM 2026-11-17] 拉上游/合并之后立刻验：我们的定制还在不在
+set -uo pipefail
+ROOT="$(git rev-parse --show-toplevel)"
+AUD="$ROOT/../scripts/xg_emdash_patch_audit.py"
+[ -f "$AUD" ] || { echo "[xg] 找不到 $AUD，跳过定制校验"; exit 0; }
+LOG=$(mktemp)
+if python3 "$AUD" --check >"$LOG" 2>&1; then
+  echo "[xg] ✅ emdash 定制台账一致（$(grep -oE '台账 [0-9]+ 个文件' "$LOG" | head -1)）"
+  rm -f "$LOG"; exit 0
+fi
+echo ""
+echo "╔══════════════════════════════════════════════════════════════════╗"
+echo "║  ⚠️  emdash 定制被覆盖/丢失！这不是小事，先别继续开发            ║"
+echo "╚══════════════════════════════════════════════════════════════════╝"
+sed -n '1,30p' "$LOG"
+echo ""
+echo "→ 要重放哪些文件（我们改过 且 上游也改过）："
+python3 "$AUD" --upstream-diff 2>/dev/null | sed -n '1,40p'
+echo ""
+echo "→ 处理完再刷新基线：python3 scripts/xg_emdash_patch_audit.py --record"
+rm -f "$LOG"

@@ -3,7 +3,7 @@
 //   emdash 原生 conversation 必须挂 task（createConversationModal 需要 projectId+taskId），
 //   没有"全局主对话"场景。但项我是主智能（所有 bot 的大脑），需要全局视角直接对话，
 //   故保留此自造入口。其余聊天（bot 对话）全部走 emdash 原生 acp-chat-panel + ACP。
-import { Fragment, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { defineViewRuntime } from '@core/primitives/views/react';
 import { xiangwoViewDef } from '../contributions/views';
 import { openExternal } from '@core/primitives/desktop-host/browser/host-client'; // [XG-CUSTOM] 已移除 openXiangwoFloating（浮窗按钮删除）
@@ -58,7 +58,25 @@ export function XiangwoMainPanel() {
   const [pendingImages, setPendingImages] = useState<string[]>([]);
   const [pendingFiles, setPendingFiles] = useState<{ name: string; data: string; mime: string }[]>([]);
   const [loading, setLoading] = useState(false);
+  // [XG-CUSTOM 2026-11-17] 「运行中」改读中控台状态源：/v1/dot/status 的 working 票
+  //   （原来只有一个 "项我思考中..."，看不出谁在干、干了多久；进程挂了它也会一直转）
+  const [working, setWorking] = useState<{ owner: string; age_s: number }[]>([]);
   const [route, setRoute] = useState<'R0' | 'R1' | 'R2'>('R0');
+  useEffect(() => {
+    if (!loading) { setWorking([]); return; }
+    let stop = false;
+    const tick = async () => {
+      try {
+        const r = await fetch('http://localhost:8900/v1/dot/status');
+        const j = (await r.json()) as { working?: { owner?: string; age_s?: number }[] };
+        if (!stop) setWorking((j.working || []).map((w) => ({ owner: w.owner || '?', age_s: w.age_s || 0 })));
+      } catch { /* 状态接口不通不影响对话 */ }
+    };
+    void tick();
+    const id = window.setInterval(tick, 3000);
+    return () => { stop = true; window.clearInterval(id); };
+  }, [loading]);
+
   const imgRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -151,7 +169,13 @@ export function XiangwoMainPanel() {
             </div>
           </div>
         ))}
-        {loading && <div style={{ color: '#888' }}>项我思考中...</div>}
+        {loading && (
+          <div style={{ color: '#888' }}>
+            {working.length > 0
+              ? '运行中：' + working.map((w) => `${w.owner} ${w.age_s}s`).join('、')
+              : '项我思考中...'}
+          </div>
+        )}
       </div>
 
       {pendingImages.length > 0 && (
