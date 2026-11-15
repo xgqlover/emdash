@@ -24,8 +24,8 @@ export const plugin = definePlugin(
 );
 
 export const provider = registerPluginBehavior(plugin, {
-  // [XG-CUSTOM] MCP 配置共用 ~/.xiangwo/mcp.json
-  mcp: passthroughMcpAdapter('.xiangwo/mcp.json'),
+  // [XG-CUSTOM 2026-11-11] MCP 按 bot 解析：优先 ~/.xiangwo/native/<bot>/mcp.json（缺则由 adapter 退回空）
+  mcp: passthroughMcpAdapter('.xiangwo/native/caiwuzongguan/mcp.json'),
   acp: {
     ...createNativeAcpBehavior(() => ({
     command: 'python3',

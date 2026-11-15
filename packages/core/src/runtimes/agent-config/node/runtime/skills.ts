@@ -284,7 +284,16 @@ async function isExternalSkill(fs: PluginFs, name: string): Promise<boolean> {
 
 // [XG-CUSTOM 2026-10-09] 可选来源配置：{ "paths": [...], "ignore": [...] }
 async function readSkillsConfig(fs: PluginFs): Promise<SkillsConfig> {
-  const override = process.env.EMDASH_SKILLS_CONFIG;
+  // [XG-CUSTOM 2026-11-11] 按 bot 解析：EMDASH_SKILLS_AGENT=<bot> 时优先用该 bot 的配置。
+  // 说明：emdash 的技能目录是**进程级**的（AgentConfigRuntimeDeps 里没有 agent 维度），
+  // 所以"按会话"要靠启动时给不同 bot 进程设不同的 EMDASH_SKILLS_AGENT；
+  // 同进程内切 bot 仍是同一份目录。显式 EMDASH_SKILLS_CONFIG 优先级更高（兼容旧用法）。
+  const agent = process.env.EMDASH_SKILLS_AGENT;
+  const perBot =
+    agent && /^[A-Za-z0-9._-]+$/.test(agent)
+      ? `${homedir()}/.xiangwo/native/${agent}/skills-config.json`
+      : '';
+  const override = process.env.EMDASH_SKILLS_CONFIG || perBot;
   const raw = override ? await readFileSafe(override) : await fs.read(SKILLS_CONFIG_PATH);
   if (!raw) return {};
   try {

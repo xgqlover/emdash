@@ -1451,3 +1451,32 @@ expert_handoff.py list 的 _keep 投影
 - 卡片入口读 `skills-central/pm-router/{SKILL.md,routing.json}`，按任务只选一条 command；产物要求 `brief.md` + `artifacts/`，不自动跑下一条。
 - 模板只是入口；真正的 ticket/brief/route 自动派单仍由 `scripts/xg_pm_dispatch.py` 负责（OPS §八）。
 - 版本 `1.2.81-xiangwo`。
+
+## 机器台账（2026-11-11 起）
+
+`grep` 只能"找到"，不能"发现丢了"。所以加一份内容哈希台账：
+
+```bash
+python3 ../scripts/xg_custom_ledger.py --snapshot   # 认账（改完定制就跑）
+python3 ../scripts/xg_custom_ledger.py --check      # 比对：丢一条返回 1
+python3 ../scripts/xg_custom_ledger.py --list       # 人看
+```
+
+台账落在 `docs/emdash-custom-ledger.json`，记录**每条标记的文本哈希**，不含行号——
+上游重排不影响，删掉/改掉才报丢。项我自检 `custom_ledger` 每轮跑一次。
+
+当前基线：**498 文件 / 2,342 条**。
+
+## 还没 fork 的两点（先记账，动工时按此标记）
+
+1. **per-session 技能**：`packages/core/src/runtimes/agent-config/node/runtime/skills.ts:287`
+   现在只读 `process.env.EMDASH_SKILLS_CONFIG`（进程级），要按会话取
+   `~/.xiangwo/native/<bot>/skills-config.json`。
+   标记：`[XG-CUSTOM] EMDASH_SKILLS_CONFIG 按会话解析`。
+2. **per-bot MCP**：`packages/core/src/services/agent-plugins/api/plugins/helpers/mcp.ts:209`
+   `passthroughMcpAdapter(configPath)` 现在固定 `'.xiangwo/mcp.json'`，要允许
+   `~/.xiangwo/native/<bot>/mcp.json`。
+   标记：`[XG-CUSTOM] MCP 配置按 bot 解析`。
+
+> 注：**每个 bot 一个 agent 插件已经做了**（`packages/plugins/src/agents/impl/xiangwo-*` 共 11 个），
+> 不需要为这条 fork；我早前说"只有 1 个"是错的。

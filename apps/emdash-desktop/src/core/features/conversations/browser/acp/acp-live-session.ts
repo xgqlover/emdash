@@ -87,6 +87,17 @@ export class AcpPromptDeliveryUnknownError extends Error {
   }
 }
 
+// [XG-CUSTOM 2026-11-14] attach / ready 的死线必须大于「首轮全量扫描」的耗时。
+//   病：远端工作区第一次 attach 时，客户端要读约 3,965 个文件（40~90 MB）。原来用的是 withTimeout 的默认
+//       10 秒 ⇒ 必然超时 ⇒ catch 里 session.dispose() 把扫到一半的进度连同基线一起丢掉 ⇒ 20 秒后重来。
+//       实测每轮 4,200+ 次 files.fs.readText、写 0.3~2 GB，会话恒定在 20 秒被 ECONNRESET 掐断，索引永远建不成
+//       （客户端 emdash4-file-search.db 长期只有 0.1 MB = 一个 etag 都没存下来）。
+//   现在给 180 秒：让第一轮真正跑完、基线落盘，之后才谈得上「增量」。
+//   ⚠️ 依据：同一时段服务端 initialize=ok、0 条 spawn-stdio-dead / initialize-failed / eviction 日志
+//      ⇒ 不是服务端处理慢，是 attach 的回包排在 4,200 个 readText 结果后面。台账见 scripts/xg-custom/manifest.json
+const ACP_ATTACH_TIMEOUT_MS = 180_000;
+const ACP_SESSION_READY_TIMEOUT_MS = 180_000;
+
 export class AcpLiveSession {
   readonly sessionState: RemoteValueState<SessionState>;
   readonly config: RemoteValueState<z.infer<typeof sessionConfigStateSchema>>;
@@ -169,7 +180,8 @@ export class AcpLiveSession {
     const client = (await getConversationsClient()).acp;
     const result = await withTimeout(
       (signal) => client.attach({ conversationId }, { signal }),
-      'Timed out attaching ACP session'
+      'Timed out attaching ACP session',
+      ACP_ATTACH_TIMEOUT_MS
     );
     if (!result.success) {
       throw new AcpStartError(result.error);
@@ -180,7 +192,11 @@ export class AcpLiveSession {
       result.data.sessionId ? 'resume' : 'fresh'
     );
     try {
-      await withTimeout(session.sessionState.ready, 'Timed out connecting ACP live models');
+      await withTimeout(
+        session.sessionState.ready,
+        'Timed out connecting ACP live models',
+        ACP_SESSION_READY_TIMEOUT_MS
+      );
       runInAction(() => session.usableState.set(true));
       return session;
     } catch (error) {
