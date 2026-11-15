@@ -58,6 +58,25 @@ else
 fi
 VER=$(node -p "require('./apps/emdash-desktop/package.json').version" 2>/dev/null || echo "?")
 echo "④ 当前版本号: $VER"
+
+# [XG-CUSTOM 2026-11-17] 版本号必须 +1（CUSTOMIZATIONS.md 记的惯例，之前我漏了 4 次）
+#   判据：release/.last-shipped-version 记「上一次真正产出给用户装的版本」；
+#         当前版本 == 它 ⇒ 拒绝打包（否则你装到的是"同号不同内容"的包，分不清）
+SHIPPED_FILE="apps/emdash-desktop/release/.last-shipped-version"
+if [ -f "$SHIPPED_FILE" ]; then
+  SHIPPED="$(cat "$SHIPPED_FILE" 2>/dev/null | tr -d ' \n')"
+  if [ -n "$SHIPPED" ] && [ "$SHIPPED" = "$VER" ] && [ "${XG_ALLOW_SAME_VERSION:-}" != "1" ]; then
+    echo "   ❌ 版本号未 +1：当前 $VER = 上次产物 $SHIPPED"
+    echo "      → 先改 apps/emdash-desktop/package.json 的 version（+1），再打包"
+    echo "      → 确实要重打同版本，加 XG_ALLOW_SAME_VERSION=1"
+    fail=1
+  elif [ -n "$SHIPPED" ]; then
+    echo "   ✅ 版本号已推进：$SHIPPED → $VER"
+  fi
+else
+  echo "   · 首次记录产物版本（写入 $SHIPPED_FILE）"
+  mkdir -p "$(dirname "$SHIPPED_FILE")"; echo "$VER" > "$SHIPPED_FILE"
+fi
 if [ "${fail}" = "1" ] && [ "${FORCE}" != "--force" ]; then
   echo "=== ❌ 不建议现在打包（API 调用脚本传 --force 可强行继续）==="; exit 1
 fi

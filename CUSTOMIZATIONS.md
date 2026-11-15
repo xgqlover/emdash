@@ -1523,3 +1523,19 @@ python3 scripts/xg_emdash_patch_audit.py --record          # 改完自己东西�
 
 基线存在 `emdash/local-patches.json`（976 个相对上游有差异的文件 + sha）。
 进总闸：`三类能力-verify.sh` 的「emdash 定制台账」一项，红了说明我们的改动被覆盖。
+
+## 7. 打包前版本号必须 +1（2026-11-17 补硬闸）
+
+惯例本来就有（见 §566「`ae945ee7c` bump」、§573「版本号 `-xiangwo` 后缀即标记」），
+但**只在文档里=靠人记得**。2026-11-17 我连打 4 次 `1.2.83-xiangwo`，内容不同、版本号相同，
+导致「你装的是哪份」无法分辨。
+
+现在 `scripts/xg-pre-package.sh` 里有硬闸：
+
+```text
+apps/emdash-desktop/release/.last-shipped-version   记录上一次产出给用户装的版本
+当前版本 == 它  ⇒ 拒绝打包，提示先 +1
+确实要重打同版本 ⇒ XG_ALLOW_SAME_VERSION=1
+```
+
+规则一句话：**要给用户装的包，version 必须比 .last-shipped-version 大。**
