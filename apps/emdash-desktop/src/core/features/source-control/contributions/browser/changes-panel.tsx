@@ -8,6 +8,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { GitBranchPlus, RotateCw } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
+import { XgConsoleSection } from '@core/features/xg-console/browser/console-section';
 import { Fragment, useMemo, useState } from 'react';
 import {
   asAvailableProject,
@@ -256,6 +257,8 @@ const ChangesPanelSections = observer(function ChangesPanelSections({
 
   return (
     <div className="flex h-full flex-col">
+      {/* [XG-CUSTOM 2026-11-17] 第四个折叠块：中控台运行情况（数据单源 /v1/dot/status） */}
+      <XgConsoleSection />
       <Resizable.Group
         orientation="vertical"
         className="min-h-0 flex-1"
