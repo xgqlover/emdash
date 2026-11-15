@@ -39,6 +39,7 @@ const expectedModalIds = [
   'unsavedChangesModal',
   // [XG-CUSTOM 2026-10-27] Dot 落卡详情（原生弹窗机制）
   'xgCardModal',
+  'waitlistModal',
 ] as const;
 
 function openUnsavedChangesForTypeTest() {

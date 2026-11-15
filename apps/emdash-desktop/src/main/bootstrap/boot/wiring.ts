@@ -58,6 +58,7 @@ import {
   kaneoBoardCall,
   taskSpaceCall,
 } from '@main/host/window'; // [XG-CUSTOM]
+import { waitlistOperations } from '@main/host/waitlist/controller-operations';
 import { resolveXiangwoChatTarget } from '@main/host/xiangwo-chat-target';
 // [XG-CUSTOM 2026-10-09] 球面板窗口的唯一句柄（反向通道 `orb.msg` 要找它，见 startXiangwoBrowserRelay）
 import { getOrbWindow } from '@main/host/xiangwo-orb';
@@ -458,6 +459,7 @@ export function createDesktopWireOptions(
     },
     updateOperations,
     usage: services.usage,
+    waitlistOperations,
     workspaceIdentity: database.workspaceIdentity,
     workspacePlacement: services.workspacePlacement,
     workspaces: {
