@@ -172,8 +172,14 @@ export function XiangwoMainPanel() {
         {loading && (
           <div style={{ color: '#888' }}>
             {working.length > 0
-              ? '运行中：' + working.map((w) => `${w.owner} ${w.age_s}s`).join('、')
+              ? `运行中 ${working.length}：` + working.map((w) => `${w.owner} ${w.age_s}s`).join('、')
               : '项我思考中...'}
+          </div>
+        )}
+        {/* [XG-CUSTOM 2026-11-17] 标题徽标：有票在跑就把窗口标题带上，切到别的标签页也看得见 */}
+        {working.length > 0 && (
+          <div style={{ color: '#4a9', fontSize: 12, marginTop: 2 }}>
+            ● {working.length} 个专家在干（{working.map((w) => w.owner).join('、')}）
           </div>
         )}
       </div>
