@@ -4,7 +4,7 @@
   "hint": "标记是锚点，hash 只作辅助：上游 rebase 后 hash/行号必变，判「定制还在不在」看 markers 与 anchors",
   "upstream": {
     "ref": "origin/main",
-    "base": "592281113a9d83a2987d8a1715d0fedf854d44c4"
+    "base": "ccc6cce4a41627deb6888db6763f3de5ff0e4e08"
   },
   "stats": {
     "files": 496,
@@ -17,9 +17,9 @@
       "markers": 4,
       "lines": [
         36,
-        123,
-        131,
-        147
+        127,
+        135,
+        151
       ],
       "anchors": [
         "continue-on-error: true ⏎ env:",
@@ -27,7 +27,7 @@
         "ELECTRON_MIRROR: https://npmmirror.com/mirrors/electron/",
         "run: echo \"Skipping code signature verification (unsigned fork build).\""
       ],
-      "hash": "06b7d412f8567ff1ca719610b2ed09093420f1db",
+      "hash": "fd3d8136f3d043f52fe348ae9c781372e48731b4",
       "origin": "modified",
       "firstCommit": "57c025643|2026-10-09|[XG-CUSTOM 2026-10-09] CI：建草稿前先清旧草稿（占用永久有界，别再攒到把 Actions 顶停）",
       "lastCommit": "88bedf086|2026-09-16|skip code signing for fork unsigned build",
@@ -196,14 +196,14 @@
       "markers": 3,
       "lines": [
         64,
-        91,
-        113
+        95,
+        117
       ],
       "anchors": [
         "// 顶层 external 解析不到 → AppImage 报 Cannot find package 'zod'。bundle 进产物根治。 ⏎ exclude: [...workspacePackages, 'zod', 'electron-updater', 'human-id', 'nbranch'],",
         "index: resolve('src/renderer/index.html'),"
       ],
-      "hash": "4bbe5c6274ae78ef44cb919cbd30113e0dcfdb12",
+      "hash": "e6a94db19472ec015938cea2a4e92a016fee22c3",
       "origin": "modified",
       "firstCommit": "5e2ac9092|2026-09-27|feat: 交接台搜索/新建 + octokit 走 socks5 代理 + 打包依赖收集修复（files 全量收集根治缺包）",
       "lastCommit": "5e2ac9092|2026-09-27|feat: 交接台搜索/新建 + octokit 走 socks5 代理 + 打包依赖收集修复（files 全量收集根治缺包）",
@@ -217,7 +217,7 @@
       "anchors": [
         "2026-10-14] 版本 1.2.43-xiangwo：取图网格点击目标 page→orig 兜底（真机反馈「点了没图的框没反应」）；另 1.2.41 未设工作区回退、1.2.42 planOutbound(MCP Apps)。⚠️ J"
       ],
-      "hash": "991e5f447f4789e42e8bbd8678d8a99b582fc48f",
+      "hash": "60318b10be022dcc76b207ba39685912cfbefec8",
       "origin": "modified",
       "firstCommit": "1dce8b4ad|2026-10-14|[XG-CUSTOM 2026-10-14] 取图网格：点击目标 page→orig 兜底 + 版本 1.2.43-xiangwo + 台账标记",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -1338,8 +1338,8 @@
       ],
       "hash": "1ccee541ee2894fa4fc5910fd621266856a0baa1",
       "origin": "modified",
-      "firstCommit": "0bf55f442|2026-09-26|Merge remote-tracking branch 'origin/main'",
-      "lastCommit": "d59673916|2026-09-25|refactor(acp): unify versioned transcript synchronization",
+      "firstCommit": "f132cf40b|2026-11-15|[XG] 1.2.82 attach 死线 10s -> 180s + 台账刷新（同步上游前的检查点）",
+      "lastCommit": "f132cf40b|2026-11-15|[XG] 1.2.82 attach 死线 10s -> 180s + 台账刷新（同步上游前的检查点）",
       "note": "会话/ACP 定制（专家交接横条、专家表）"
     },
     "apps/emdash-desktop/src/core/features/conversations/browser/acp/expert-handoff-bar.tsx": {
@@ -4864,14 +4864,14 @@
       "lines": [
         3,
         8,
-        41,
-        97,
-        106,
-        126,
-        127,
-        159,
-        171,
-        188
+        42,
+        98,
+        107,
+        128,
+        129,
+        161,
+        173,
+        190
       ],
       "anchors": [
         "import { t } from '@renderer/lib/i18n';",
@@ -4884,7 +4884,7 @@
         "{t('settings')} ⏎ </span>",
         "<span className=\"truncate\">{t('give_feedback')}</span>"
       ],
-      "hash": "f633cd90319e2208180d4343a2f8cd2ab3f8e797",
+      "hash": "5bb89cf5b0deb498bf7458e42ff1056ae02b27ce",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -5095,9 +5095,9 @@
       "lines": [
         2,
         7,
-        19,
-        24,
-        35
+        20,
+        25,
+        36
       ],
       "anchors": [
         "import { browserBrowserContributions } from '@core/features/browser/contributions/browser';",
@@ -5106,7 +5106,7 @@
         "...xiangwoBrowserContributions.views,",
         "...browserBrowserContributions.modalDefs,"
       ],
-      "hash": "b405e5925246e6e30c21d140bc917d0594ccbae1",
+      "hash": "784e13a0df07056630689fcb22a425c4b47d4150",
       "origin": "modified",
       "firstCommit": "94c6d6134|2026-10-02|feat(expert-roster): 专家总览视图（Pi 树全量身份）+ 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -5731,52 +5731,52 @@
         20,
         34,
         60,
-        62,
-        84,
-        94,
-        100,
-        102,
-        108,
-        128,
-        135,
-        146,
-        148,
-        150,
-        153,
-        156,
-        163,
-        172,
-        175,
-        190,
-        195,
-        204,
-        214,
-        231,
-        239,
-        241,
-        265,
-        267,
-        270,
-        272,
-        286,
-        333,
-        338,
-        340,
-        346,
-        351,
-        353,
-        358,
-        360,
-        365,
-        367,
-        372,
-        374,
-        379,
-        384,
-        387,
-        389,
-        391,
-        393
+        63,
+        85,
+        95,
+        101,
+        103,
+        109,
+        129,
+        136,
+        147,
+        149,
+        151,
+        154,
+        157,
+        164,
+        173,
+        176,
+        191,
+        196,
+        205,
+        215,
+        232,
+        240,
+        242,
+        266,
+        268,
+        271,
+        273,
+        287,
+        334,
+        339,
+        341,
+        347,
+        352,
+        354,
+        359,
+        361,
+        366,
+        368,
+        373,
+        375,
+        380,
+        385,
+        388,
+        390,
+        392,
+        394
       ],
       "anchors": [
         "import { browserEvents } from '@core/features/browser/node';",
@@ -5823,7 +5823,7 @@
         "kaneoAct: (payload) => kaneoActCall(payload as unknown as Record<string, unknown>),",
         "taskSpaceList: () => taskSpaceCall('list'),"
       ],
-      "hash": "81108a276afd64e3764a94ab28365d0e6f06f802",
+      "hash": "7ae004e6872511169357e47634b272af520aaefc",
       "origin": "modified",
       "firstCommit": "67ccd329e|2026-09-22|feat: 专家交接台升级（wire RPC 修复 + bot/专家二级分组 + 并入对话 Sheet + 横条关闭）",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -8343,13 +8343,13 @@
       "lines": [
         28,
         40,
-        54
+        55
       ],
       "anchors": [
         "] as const;",
         "function openXgCardForTypeTest() {"
       ],
-      "hash": "976115de45557d8cf61eed21ffe102f13e1d05e4",
+      "hash": "0f585f3fa3c69eadc3f16472b5339ef784f84212",
       "origin": "modified",
       "firstCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
       "lastCommit": "22e12772d|2026-10-06|feat(browser): [XG-CUSTOM 2026-10-06] 命令面板加「打开网址…」(browser.openUrl)：Ctrl+K 输入/粘贴 URL → 开在当前 task 的浏览器面板",
