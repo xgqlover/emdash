@@ -30,66 +30,6 @@ function relTime(ts: number): string {
   return `${Math.floor(diff / 86400)} 天前`;
 }
 
-// [XG-CUSTOM 2026-11-17] 派工票（/v1/dot/status 单源，不在本进程存副本）
-type XgTicket = { sid?: string; id: string; name?: string; title?: string; stage: string; owner: string; age_s: number };
-
-function DispatchCard() {
-  const [state, setState] = useState<string>('—');
-  const [working, setWorking] = useState<XgTicket[]>([]);
-  const [recent, setRecent] = useState<XgTicket[]>([]);
-  const [err, setErr] = useState<string>('');
-
-  useEffect(() => {
-    let stop = false;
-    const tick = async () => {
-      try {
-        const r = await fetch('http://localhost:8900/v1/dot/status', { cache: 'no-store' });
-        const d = await r.json();
-        if (stop) return;
-        setErr('');
-        setState(String(d.state ?? '—'));
-        setWorking(Array.isArray(d.working) ? d.working : []);
-        const all: XgTicket[] = Array.isArray(d.tickets) ? d.tickets : [];
-        setRecent(all.filter((t) => t.stage !== 'done').slice(0, 5));
-      } catch (e) {
-        if (!stop) setErr(String((e as Error)?.message ?? e).slice(0, 60));
-      }
-    };
-    void tick();
-    const h = setInterval(() => void tick(), 3000);
-    return () => { stop = true; clearInterval(h); };
-  }, []);
-
-  const running = state === 'running';
-  return (
-    <div className="rounded-md border border-border-subtle px-3 py-2">
-      <div className="flex items-center gap-2 text-sm font-medium">
-        <span className={running ? 'text-foreground-success' : 'text-foreground-muted'}>
-          {running ? '● 在派工' : '○ 空闲'}
-        </span>
-        <span className="text-xs text-foreground-muted">
-          {working.length > 0
-            ? working.map((w) => `${w.owner} ${w.age_s}s`).join('、')
-            : '没有正在跑的专家'}
-        </span>
-      </div>
-      {recent.length > 0 && (
-        <div className="mt-2 space-y-1">
-          {recent.map((t) => (
-            <div key={t.id} className="flex items-center gap-2 text-xs text-foreground-muted">
-              <Badge variant="neutral">{t.stage}</Badge>
-              <span>{t.owner}</span>
-              <span className="truncate">{(t.title || t.name || t.id).slice(0, 60)}</span>
-              <span>{t.age_s}s</span>
-            </div>
-          ))}
-        </div>
-      )}
-      {err && <div className="mt-1 text-xs text-foreground-danger">状态接口：{err}</div>}
-    </div>
-  );
-}
-
 // 单行：身份 + 主题数；没主题的置灰
 function RosterRow({ item }: { item: ExpertRosterEntry }) {
   const idle = item.topics === 0;
@@ -153,7 +93,6 @@ function ExpertRosterMainPanel() {
         }
       />
       <PageLayout.Content className="space-y-4 overflow-auto p-4">
-        <DispatchCard />
         {data?.registryError && (
           <div className="rounded-md border border-border-danger bg-background-danger px-3 py-2 text-sm text-foreground-danger">
             suagent_registry 未加载：{data.registryError}

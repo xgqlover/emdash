@@ -19,6 +19,8 @@ import { waitlistBrowserContributions } from '@core/features/waitlist/contributi
 import { workbenchBrowserContributions } from '@core/features/workbench/contributions/browser';
 // [XG-CUSTOM] 项我视图注册（见 emdash/CUSTOMIZATIONS.md）
 import { xiangwoBrowserContributions } from '@core/features/xiangwo/contributions/browser';
+// [XG-CUSTOM 2026-11-17] 中控台视图注册（运行状态页）
+import { xgConsoleBrowserContributions } from '@core/features/xg-console/contributions/browser';
 
 export const featureViewRuntimes = [
   ...workbenchBrowserContributions.views,
@@ -26,6 +28,7 @@ export const featureViewRuntimes = [
   ...xiangwoBrowserContributions.views,
   ...handoffBrowserContributions.views,
   ...expertRosterBrowserContributions.views,
+  ...xgConsoleBrowserContributions.views,
   ...automationsBrowserContributions.views,
   ...projectsBrowserContributions.views,
   ...settingsBrowserContributions.views,

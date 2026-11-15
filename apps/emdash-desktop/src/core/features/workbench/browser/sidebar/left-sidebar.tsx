@@ -1,13 +1,15 @@
 import { getTaskManagerStore } from '@core/features/tasks/api/browser/task-state/task-selectors';
 import { taskViewDef } from '@core/features/tasks/contributions/views';
 import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
-import { Clock, FolderInput, Inbox, MessageSquareShare, Settings, Users } from 'lucide-react';
+import { Activity, Clock, FolderInput, Inbox, MessageSquareShare, Settings, Users } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { automationsViewDef } from '@core/features/automations/contributions/views';
 // [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { handoffViewDef } from '@core/features/handoff/contributions/views';
 import { expertRosterViewDef } from '@core/features/expert-roster/contributions/views';
+// [XG-CUSTOM 2026-11-17] 中控台（运行状态：在跑谁/多久/端口/流）
+import { xgConsoleViewDef } from '@core/features/xg-console/contributions/views';
 import { settingsViewDef } from '@core/features/settings/contributions/views';
 import { WaitlistCard } from '@core/features/waitlist/contributions/browser/waitlist-card';
 import { useOpenModal } from '@core/manifests/browser/modal-api';
@@ -137,6 +139,19 @@ export const LeftSidebar: React.FC = observer(function LeftSidebar() {
               <span className="flex min-w-0 items-center gap-2">
                 <Inbox className="h-5 w-5 shrink-0 sm:h-4 sm:w-4" />
                 <span className="truncate">交接台</span>
+              </span>
+            </SidebarMenuButton>
+            {/* [XG-CUSTOM 2026-11-17] 中控台：交接台下面，运行状态一眼可见 */}
+            <SidebarMenuButton
+              isActive={isCurrentView(currentView, 'xgConsole')}
+              onClick={() => navigate(xgConsoleViewDef())}
+              aria-label="中控台：在跑谁、跑了多久、端口与流"
+              title="中控台：在跑谁 / 多久 / 端口健康 / 中控台流（只读 /v1/dot/status）"
+              className="w-full justify-between"
+            >
+              <span className="flex min-w-0 items-center gap-2">
+                <Activity className="h-5 w-5 shrink-0 sm:h-4 sm:w-4" />
+                <span className="truncate">中控台</span>
               </span>
             </SidebarMenuButton>
             <SidebarMenuButton
