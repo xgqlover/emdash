@@ -1,0 +1,3919 @@
+{
+ "upstream_base": "ccc6cce4a41627deb6888db6763f3de5ff0e4e08",
+ "head": "8635269bfd76066bb6ad8dbacbcb0b510406389c",
+ "customizations": "/persistent/home/xgqlover/天天项上/五层四维记忆系统/emdash/CUSTOMIZATIONS.md",
+ "files": {
+  ".githooks/post-merge": {
+   "sha": "a8b0e2d69a5944f4",
+   "marker": 1
+  },
+  ".githooks/pre-merge-commit": {
+   "sha": "3cb37f5823fe36a7",
+   "marker": 1
+  },
+  ".github/electron-builder-bin/icons/icons-bundle/icon-tool.js": {
+   "sha": "d1b4c1286af6cd61",
+   "marker": 0
+  },
+  ".github/electron-builder-bin/icons/icons-bundle/package.json": {
+   "sha": "30a7147ca1a194a4",
+   "marker": 0
+  },
+  ".github/electron-builder-bin/icons/icons-bundle/resvg.wasm": {
+   "sha": "dd4dd8881e2df4e6",
+   "marker": 0
+  },
+  ".github/electron-builder-bin/icons/icons-bundle/vips-node.js": {
+   "sha": "76f81e709172ddc9",
+   "marker": 0
+  },
+  ".github/electron-builder-bin/icons/icons-bundle/vips.wasm": {
+   "sha": "ad7f821c51bfe8f1",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/icons@1.1.0/icons-bundle-1hpnz/icon-tool.js": {
+   "sha": "d1b4c1286af6cd61",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/icons@1.1.0/icons-bundle-1hpnz/package.json": {
+   "sha": "30a7147ca1a194a4",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/icons@1.1.0/icons-bundle-1hpnz/resvg.wasm": {
+   "sha": "dd4dd8881e2df4e6",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/icons@1.1.0/icons-bundle-1hpnz/vips-node.js": {
+   "sha": "76f81e709172ddc9",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/icons@1.1.0/icons-bundle-1hpnz/vips.wasm": {
+   "sha": "ad7f821c51bfe8f1",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/LICENSE": {
+   "sha": "cbf5f994d17ed9f2",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/README.md": {
+   "sha": "fe8d798965ecc801",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/VERSION.txt": {
+   "sha": "c4d747a97ccaeec5",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/elevate.exe": {
+   "sha": "c07df0bb9d0d8747",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/linux/VERSION.txt": {
+   "sha": "3d0e94d0eb803357",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/linux/arm64/makensis": {
+   "sha": "7aba0f7ce9ce3397",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/linux/x64/makensis": {
+   "sha": "4e4d1c5f6c269760",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/mac/arm64/VERSION.txt": {
+   "sha": "0c5a22f6f61bb7a0",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/mac/arm64/makensis": {
+   "sha": "1307aa56678820f1",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/mac/x64/VERSION.txt": {
+   "sha": "a1d9eace501becd3",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/mac/x64/makensis": {
+   "sha": "c6279f9db18cc289",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/makensis": {
+   "sha": "d8cfda0f247db046",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/makensis.cmd": {
+   "sha": "3439dca0bff8a4d5",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/makensis.ps1": {
+   "sha": "1c2a6eb9803271a4",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Bin/GenPat.exe": {
+   "sha": "b4c517fe3048c6fe",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Bin/MakeLangId.exe": {
+   "sha": "c352875033e1db76",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Bin/RegTool-x86.bin": {
+   "sha": "e5a48f3444d0350b",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Bin/makensis.exe": {
+   "sha": "fcc01069d4e17f2f",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Bin/zip2exe.exe": {
+   "sha": "24aed441e3da516b",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Bin/zlib1.dll": {
+   "sha": "6cf5d9cf95106dc4",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Checks/big.bmp": {
+   "sha": "c7d7089f968bb98e",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Checks/classic-cross.bmp": {
+   "sha": "71ca896b26d9162c",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Checks/classic.bmp": {
+   "sha": "ef6183708f5490bc",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Checks/colorful.bmp": {
+   "sha": "2bc6e8497c9aa093",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Checks/grey-cross.bmp": {
+   "sha": "a191c70deda15502",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Checks/grey.bmp": {
+   "sha": "ee2b79f5769062a6",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Checks/modern.bmp": {
+   "sha": "20d4acba22f5f106",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Checks/red-round.bmp": {
+   "sha": "d347e2edf16b496f",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Checks/red.bmp": {
+   "sha": "5c4a08797a2f5b62",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Checks/simple-round.bmp": {
+   "sha": "b6e9a292a70a5d5f",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Checks/simple-round2.bmp": {
+   "sha": "1bd0e93529b964de",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Checks/simple.bmp": {
+   "sha": "539f6395f6df6737",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Header/nsis-r.bmp": {
+   "sha": "41cc8439778454fa",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Header/nsis.bmp": {
+   "sha": "f2f3b4e7b9c28df6",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Header/nsis3-branding-r.bmp": {
+   "sha": "78ea5619df559d3e",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Header/nsis3-branding.bmp": {
+   "sha": "68da5dcd94b75865",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Header/nsis3-grey-right.bmp": {
+   "sha": "00f3bc94c5e1f3f5",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Header/nsis3-grey.bmp": {
+   "sha": "1a7d63f6ba95eb64",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Header/nsis3-metro-right.bmp": {
+   "sha": "b63e4e4b1ac5de1e",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Header/nsis3-metro.bmp": {
+   "sha": "9fc4c22d29ce4e40",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Header/nsis3-vintage-right.bmp": {
+   "sha": "d2c32145a426b64b",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Header/nsis3-vintage.bmp": {
+   "sha": "81d25e11e4212586",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Header/orange-nsis.bmp": {
+   "sha": "5c24bdd9536f67be",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Header/orange-r-nsis.bmp": {
+   "sha": "5d2eef3eebb9a726",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Header/orange-r.bmp": {
+   "sha": "e81cb08e5358523a",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Header/orange-uninstall-nsis.bmp": {
+   "sha": "8747b63637d92e27",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Header/orange-uninstall-r-nsis.bmp": {
+   "sha": "38f4569ef6ad57b9",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Header/orange-uninstall-r.bmp": {
+   "sha": "6a562e0aa70654f2",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Header/orange-uninstall.bmp": {
+   "sha": "154c34c7ed81a7de",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Header/orange.bmp": {
+   "sha": "84dedf7064bb7406",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Header/win.bmp": {
+   "sha": "523d7118a3755790",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/arrow-install.ico": {
+   "sha": "1e24e98031ec1bc5",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/arrow-uninstall.ico": {
+   "sha": "868df20f996b0202",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/arrow2-install.ico": {
+   "sha": "4a6e8cae838ec700",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/arrow2-uninstall.ico": {
+   "sha": "725e7261ecc39310",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/box-install.ico": {
+   "sha": "4c0470135cb7ffcc",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/box-uninstall.ico": {
+   "sha": "ba4ef6e3c62e7d79",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/classic-install.ico": {
+   "sha": "b273bba03dd12e2f",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/classic-uninstall.ico": {
+   "sha": "56355a144cb48233",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/llama-blue.ico": {
+   "sha": "bb5d9d949ac8a38b",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/llama-grey.ico": {
+   "sha": "37e19e7a1c2cb9b2",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/modern-install-blue-full.ico": {
+   "sha": "c9daabfa3f0628e5",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/modern-install-blue.ico": {
+   "sha": "72768c832c3ba2c8",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/modern-install-colorful.ico": {
+   "sha": "0b72ad719bdfdaa4",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/modern-install-full.ico": {
+   "sha": "3ac82869ea1ac81e",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/modern-install.ico": {
+   "sha": "07829bb35317df34",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/modern-uninstall-blue-full.ico": {
+   "sha": "7fc80820a3595492",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/modern-uninstall-blue.ico": {
+   "sha": "d169063201a71e05",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/modern-uninstall-colorful.ico": {
+   "sha": "e120afe5a50f1bdf",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/modern-uninstall-full.ico": {
+   "sha": "ea1d8309f0c4011a",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/modern-uninstall.ico": {
+   "sha": "09f42a6352867299",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/nsis-menu.ico": {
+   "sha": "59abca109d7d2158",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/nsis1-install.ico": {
+   "sha": "f69900220d7e57b1",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/nsis1-uninstall.ico": {
+   "sha": "04ddd93b0f791d6b",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/nsis3-install-alt.ico": {
+   "sha": "34a0bc7fa11f4f2d",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/nsis3-install.ico": {
+   "sha": "24296323d166fe05",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/nsis3-uninstall.ico": {
+   "sha": "4eba1c2693500620",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/orange-install-nsis.ico": {
+   "sha": "163b185eba5b308b",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/orange-install.ico": {
+   "sha": "508e94e40b8d5f38",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/orange-uninstall-nsis.ico": {
+   "sha": "806b5a8d159d3c0a",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/orange-uninstall.ico": {
+   "sha": "42d7485f97f2f7f1",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/pixel-install.ico": {
+   "sha": "155646a25dee1837",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/pixel-uninstall.ico": {
+   "sha": "8b84822badd4cae7",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/win-install.ico": {
+   "sha": "bde4d76ffc88d14e",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Icons/win-uninstall.ico": {
+   "sha": "4b4ae8c9d5db39bd",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Wizard/arrow.bmp": {
+   "sha": "8fc19c09fae37eed",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Wizard/llama.bmp": {
+   "sha": "e02164766a1e79ae",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Wizard/nsis.bmp": {
+   "sha": "665bdf56ae503ca5",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Wizard/nsis3-branding.bmp": {
+   "sha": "b16b11f83534f546",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Wizard/nsis3-grey.bmp": {
+   "sha": "4d508d6c183bc3ac",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Wizard/nsis3-metro.bmp": {
+   "sha": "8d041966e6fba10a",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Wizard/nsis3-vintage.bmp": {
+   "sha": "d68f5589d65f7c61",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Wizard/nullsoft.bmp": {
+   "sha": "d329ef27057a2b1d",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Wizard/orange-nsis.bmp": {
+   "sha": "3057c9ce90a23d29",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Wizard/orange-uninstall-nsis.bmp": {
+   "sha": "66d69285525117a4",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Wizard/orange-uninstall.bmp": {
+   "sha": "3474d4b9c8af7365",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Wizard/orange.bmp": {
+   "sha": "feedc432df18b13f",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Graphics/Wizard/win.bmp": {
+   "sha": "366c216220aa4329",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Afrikaans.nlf": {
+   "sha": "143b6707f477f26b",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Afrikaans.nsh": {
+   "sha": "09517c6f22939d89",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Albanian.nlf": {
+   "sha": "c3c25cc97c32ea24",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Albanian.nsh": {
+   "sha": "9f01ce92aaff6f4a",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Arabic.nlf": {
+   "sha": "881709692524c8cf",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Arabic.nsh": {
+   "sha": "4dbb672279de90a8",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Armenian.nlf": {
+   "sha": "0afde2bec39c34a2",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Armenian.nsh": {
+   "sha": "5a071ecba9563f06",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Asturian.nlf": {
+   "sha": "02314fb4cb2490a1",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Asturian.nsh": {
+   "sha": "0dd9efb4dadbb63c",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Basque.nlf": {
+   "sha": "99a14fa2257623cc",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Basque.nsh": {
+   "sha": "daed1990e3ccbb3d",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Belarusian.nlf": {
+   "sha": "de59c96fb4ede76e",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Belarusian.nsh": {
+   "sha": "219e108c2c0cb5b4",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Bosnian.nlf": {
+   "sha": "2f2b24039b89c500",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Bosnian.nsh": {
+   "sha": "659eab54fb45dbbd",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Breton.nlf": {
+   "sha": "e5c9e1fd4eb1ff49",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Breton.nsh": {
+   "sha": "0f8a430db4900fff",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Bulgarian.nlf": {
+   "sha": "990adf904b300e5e",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Bulgarian.nsh": {
+   "sha": "6111df072fa9ce30",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Catalan.nlf": {
+   "sha": "ae3599cff25eff1f",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Catalan.nsh": {
+   "sha": "7bf55d11e81ebe6d",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Corsican.nlf": {
+   "sha": "e42e5321900de9aa",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Corsican.nsh": {
+   "sha": "6648195b97cbac98",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Croatian.nlf": {
+   "sha": "0a77be9bae454041",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Croatian.nsh": {
+   "sha": "52f6fb056a1fcc3d",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Czech.nlf": {
+   "sha": "29adfb9617cb8982",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Czech.nsh": {
+   "sha": "7e176bbe77a4cd56",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Danish.nlf": {
+   "sha": "e53621ca6850608d",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Danish.nsh": {
+   "sha": "ca983ff8408b3c4b",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Dutch.nlf": {
+   "sha": "dbb881972c19e7eb",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Dutch.nsh": {
+   "sha": "2e9ad1f0e0f97fd8",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/English.nlf": {
+   "sha": "15efff18f9332c55",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/English.nsh": {
+   "sha": "37a1667ddb691fd2",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Esperanto.nlf": {
+   "sha": "2b2b45784049d9ae",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Esperanto.nsh": {
+   "sha": "260da86d38966f20",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Estonian.nlf": {
+   "sha": "a96780452facc89b",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Estonian.nsh": {
+   "sha": "e13ea45a5231ebf1",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Farsi.nlf": {
+   "sha": "928546e86e0f507a",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Farsi.nsh": {
+   "sha": "25f9ba17d1455f22",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Finnish.nlf": {
+   "sha": "86a6d6a90f37c750",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Finnish.nsh": {
+   "sha": "cab5b758e6c08dcd",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/French.nlf": {
+   "sha": "455c758a7fdf7a5b",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/French.nsh": {
+   "sha": "22fb20f11f8e372f",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Galician.nlf": {
+   "sha": "03f743930eedbff1",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Galician.nsh": {
+   "sha": "ea08d6dc089b3846",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Georgian.nlf": {
+   "sha": "136c9aa082ea313f",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Georgian.nsh": {
+   "sha": "c89e5e453a98be27",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/German.nlf": {
+   "sha": "0de5d59fabade5da",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/German.nsh": {
+   "sha": "01b5d7c404d51e46",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Greek.nlf": {
+   "sha": "8d41def83a4170da",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Greek.nsh": {
+   "sha": "7977887514069fbb",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Hebrew.nlf": {
+   "sha": "7d0d643d7526e340",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Hebrew.nsh": {
+   "sha": "4b1c6057c8500c54",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Hindi.nlf": {
+   "sha": "19c15fe3638d3ee3",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Hindi.nsh": {
+   "sha": "2176d15c0142fe98",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Hungarian.nlf": {
+   "sha": "4d1b4c0d8e10432a",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Hungarian.nsh": {
+   "sha": "3a236489243c2f69",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Icelandic.nlf": {
+   "sha": "77d1e47547925163",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Icelandic.nsh": {
+   "sha": "9c86cb0c1f1f7ea0",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Indonesian.nlf": {
+   "sha": "44e05e7aa6b132e4",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Indonesian.nsh": {
+   "sha": "1993251cb9353b1f",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Irish.nlf": {
+   "sha": "c511e3fab4e3bfa6",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Irish.nsh": {
+   "sha": "1cb5cd032eb4a1cf",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Italian.nlf": {
+   "sha": "9539ed6bf20e38eb",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Italian.nsh": {
+   "sha": "aef0d0485019131a",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Japanese.nlf": {
+   "sha": "210889d767d79c54",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Japanese.nsh": {
+   "sha": "e742cee34d640b8a",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Korean.nlf": {
+   "sha": "e1cd824cb28181ae",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Korean.nsh": {
+   "sha": "3c73bfb2ba6bcea1",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Kurdish.nlf": {
+   "sha": "5380b2d97b9e6efa",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Kurdish.nsh": {
+   "sha": "f93d6fc71938dbed",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Latvian.nlf": {
+   "sha": "daf78eb4384149b9",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Latvian.nsh": {
+   "sha": "f95839ab180df43d",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Lithuanian.nlf": {
+   "sha": "4c507c85627bffe0",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Lithuanian.nsh": {
+   "sha": "e6dd87d35561b840",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Luxembourgish.nlf": {
+   "sha": "a9b2b24427434e1d",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Luxembourgish.nsh": {
+   "sha": "39a27f8894927683",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Macedonian.nlf": {
+   "sha": "f618fa12dd6d795a",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Macedonian.nsh": {
+   "sha": "53c544cc429e9744",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Malay.nlf": {
+   "sha": "ad85c9602e662f0e",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Malay.nsh": {
+   "sha": "11aa9a4a09ccf639",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Mongolian.nlf": {
+   "sha": "ad765cacfd424a1b",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Mongolian.nsh": {
+   "sha": "e47fdfbb9e6789a9",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Norwegian.nlf": {
+   "sha": "be3305dc0a062ba3",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Norwegian.nsh": {
+   "sha": "79ee696457cf1871",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/NorwegianNynorsk.nlf": {
+   "sha": "c0a237bb8396b66a",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/NorwegianNynorsk.nsh": {
+   "sha": "5657b0809edc1d33",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Pashto.nlf": {
+   "sha": "30a7530218c086e4",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Pashto.nsh": {
+   "sha": "133d4438d87188cf",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Polish.nlf": {
+   "sha": "66ad0b84eb36374c",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Polish.nsh": {
+   "sha": "5739c8a58fc71f75",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Portuguese.nlf": {
+   "sha": "b5ed02810236cbd0",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Portuguese.nsh": {
+   "sha": "2047b54d581839bb",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/PortugueseBR.nlf": {
+   "sha": "a2dcb418febb6c07",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/PortugueseBR.nsh": {
+   "sha": "cfcea3ce67008ee7",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Romanian.nlf": {
+   "sha": "294ab73f4083a498",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Romanian.nsh": {
+   "sha": "26d4b3e09e622d78",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Russian.nlf": {
+   "sha": "f0c087f94e6cfd3c",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Russian.nsh": {
+   "sha": "2b5748eba0ef1a5c",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/ScotsGaelic.nlf": {
+   "sha": "32f59fdda8d5f8e1",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/ScotsGaelic.nsh": {
+   "sha": "833d320bd8fb73b8",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Serbian.nlf": {
+   "sha": "54f073e2a34b878f",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Serbian.nsh": {
+   "sha": "19b4d30dfec9e5ac",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/SerbianLatin.nlf": {
+   "sha": "89016273e5645f47",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/SerbianLatin.nsh": {
+   "sha": "aff675732b24c86a",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/SimpChinese.nlf": {
+   "sha": "e5967efca0e5934e",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/SimpChinese.nsh": {
+   "sha": "75137b567209c63b",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Slovak.nlf": {
+   "sha": "7ba8daa2d3caf581",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Slovak.nsh": {
+   "sha": "32b0bf14c2e749fe",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Slovenian.nlf": {
+   "sha": "61c47aad2dc2828a",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Slovenian.nsh": {
+   "sha": "8ad6de0c6bbdfb15",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Spanish.nlf": {
+   "sha": "4f1d2fa2ff5e929e",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Spanish.nsh": {
+   "sha": "d6520c489d7cce1b",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/SpanishInternational.nlf": {
+   "sha": "c1832e91315a137c",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/SpanishInternational.nsh": {
+   "sha": "d92633a65e22fcf3",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Swedish.nlf": {
+   "sha": "3a9511ef9a138263",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Swedish.nsh": {
+   "sha": "f02e30087007742c",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Tatar.nlf": {
+   "sha": "b074efc03ae3b730",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Tatar.nsh": {
+   "sha": "2245079d282dc2e6",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Thai.nlf": {
+   "sha": "f47dd285a2f9a606",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Thai.nsh": {
+   "sha": "fdd421fb1dee4c7e",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/TradChinese.nlf": {
+   "sha": "a8fde6a9c1017182",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/TradChinese.nsh": {
+   "sha": "b2c9e3b529cb65ca",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Turkish.nlf": {
+   "sha": "8abd40c089629bec",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Turkish.nsh": {
+   "sha": "36c5a0ce133455ea",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Ukrainian.nlf": {
+   "sha": "a43b4ab552ad984f",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Ukrainian.nsh": {
+   "sha": "33b7f9f09f8723fe",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Uzbek.nlf": {
+   "sha": "83d4ded174974915",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Uzbek.nsh": {
+   "sha": "c46a22d37118c213",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Vietnamese.nlf": {
+   "sha": "a2672dfef216ee08",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Vietnamese.nsh": {
+   "sha": "26e69e53a43a1f6c",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Welsh.nlf": {
+   "sha": "5a27e83c06f5705a",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Language files/Welsh.nsh": {
+   "sha": "6f7c7a220af07803",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Modern UI 2/Deprecated.nsh": {
+   "sha": "a8f0dbc6408fff8e",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Modern UI 2/Interface.nsh": {
+   "sha": "ff0534e8b71b5b7b",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Modern UI 2/Localization.nsh": {
+   "sha": "cdeb1f65c850d4cd",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Modern UI 2/MUI2.nsh": {
+   "sha": "0643d45db8ddadda",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Modern UI 2/Pages.nsh": {
+   "sha": "d703186337b5528e",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Modern UI 2/Pages/Components.nsh": {
+   "sha": "f0169625e851e79f",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Modern UI 2/Pages/Directory.nsh": {
+   "sha": "e6668e65e0c7cd5a",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Modern UI 2/Pages/Finish.nsh": {
+   "sha": "081a5d0d33974f6e",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Modern UI 2/Pages/InstallFiles.nsh": {
+   "sha": "eda6a26cf84bbc3e",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Modern UI 2/Pages/License.nsh": {
+   "sha": "64637f50ae8058ec",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Modern UI 2/Pages/StartMenu.nsh": {
+   "sha": "f932943d80e9db58",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Modern UI 2/Pages/UninstallConfirm.nsh": {
+   "sha": "37e05f63a9e738c8",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Modern UI 2/Pages/Welcome.nsh": {
+   "sha": "0acfb987a15704cd",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Modern UI/System.nsh": {
+   "sha": "671ac8bb6c4b649c",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/Modern UI/ioSpecial.ini": {
+   "sha": "282e080b4cf84717",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/UIs/default.exe": {
+   "sha": "7f2268b899ab4dc6",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/UIs/modern.exe": {
+   "sha": "3b54dca50df943b5",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/UIs/modern_headerbmp.exe": {
+   "sha": "995bd9dc41a7c9fa",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/UIs/modern_headerbmpr.exe": {
+   "sha": "26ebba9824441f11",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/UIs/modern_nodesc.exe": {
+   "sha": "b60124b9f6f7d62a",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/UIs/modern_smalldesc.exe": {
+   "sha": "75ec2791b88c6056",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/UIs/sdbarker_tiny.exe": {
+   "sha": "6a48dbb19673ca2e",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/zip2exe/Base.nsh": {
+   "sha": "7f2b65e11588f285",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/zip2exe/Classic.nsh": {
+   "sha": "484696a337ce96fe",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Contrib/zip2exe/Modern.nsh": {
+   "sha": "21b0913ec6ae381d",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/Colors.nsh": {
+   "sha": "fa06bde1ac5d93f6",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/FileFunc.nsh": {
+   "sha": "59cca5c341380535",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/InstallOptions.nsh": {
+   "sha": "753fef3acb06e2b2",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/Integration.nsh": {
+   "sha": "11041a507e7fcd00",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/LangFile.nsh": {
+   "sha": "d119349f295c02bc",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/Library.nsh": {
+   "sha": "3b402d9a98c5ec81",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/LogicLib.nsh": {
+   "sha": "80e7f616e872cfbd",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/MUI.nsh": {
+   "sha": "b84708711124dda7",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/MUI2.nsh": {
+   "sha": "f511168ba3d1feca",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/Memento.nsh": {
+   "sha": "a52b2988d38df6a0",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/MultiUser.nsh": {
+   "sha": "f856871ff6f08df8",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/Sections.nsh": {
+   "sha": "be0258a38fdffb96",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/StrFunc.nsh": {
+   "sha": "2c1bdbfac9082619",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/TextFunc.nsh": {
+   "sha": "838fdf464fcc65c0",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/UAC.nsh": {
+   "sha": "50c931d2bbd82b2d",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/UAC_AdminOnly.nsi": {
+   "sha": "cefe5dd99115cee8",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/UAC_Basic.nsi": {
+   "sha": "e6d47e2b5e5f579e",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/UAC_DualMode.nsi": {
+   "sha": "4a116632f9e52953",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/UpgradeDLL.nsh": {
+   "sha": "fbc06d63c95812bc",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/Util.nsh": {
+   "sha": "fb558946d0dce78e",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/VB6RunTime.nsh": {
+   "sha": "edaa0bdfd71c0ba3",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/VPatchLib.nsh": {
+   "sha": "e857f7c3faa5fbec",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/Win/COM.nsh": {
+   "sha": "1dcf0204ea4d08d3",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/Win/Propkey.nsh": {
+   "sha": "f5ecaea158fc6212",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/Win/RestartManager.nsh": {
+   "sha": "17941ba5e0e469c7",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/Win/WinDef.nsh": {
+   "sha": "851fe1a7e2117377",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/Win/WinError.nsh": {
+   "sha": "b1c9307f21ccc408",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/Win/WinNT.nsh": {
+   "sha": "0a320e8d8ed8353b",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/Win/WinUser.nsh": {
+   "sha": "ae489f9db2536de7",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/WinCore.nsh": {
+   "sha": "fab909d5773d7b5a",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/WinMessages.nsh": {
+   "sha": "86a82533525213a0",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/WinVer.nsh": {
+   "sha": "c72ab6a654af29a0",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/WordFunc.nsh": {
+   "sha": "5453d873bad65ee5",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/nsDialogs.nsh": {
+   "sha": "0adb235e34ceb009",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/nsisunz_setup.nsi": {
+   "sha": "3f4d45a56f4d767d",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Include/x64.nsh": {
+   "sha": "c3a6e5fd2c608784",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/NSIS.exe": {
+   "sha": "9811ac3c39939c18",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x64-ansi/EmbedHTML.dll": {
+   "sha": "036ecb7581a94663",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x64-ansi/INetC.dll": {
+   "sha": "42878fd4e552b1fb",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x64-unicode/EmbedHTML.dll": {
+   "sha": "b9ca3b90df73975e",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x64-unicode/INetC.dll": {
+   "sha": "8f2bec767821a492",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x64-unicode/nsis7z.dll": {
+   "sha": "2d375bea07fa0378",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-ansi/AdvSplash.dll": {
+   "sha": "8f1e4c1f255afc03",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-ansi/Banner.dll": {
+   "sha": "4ff7683c480892e5",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-ansi/BgImage.dll": {
+   "sha": "1105f1958f173cac",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-ansi/Dialer.dll": {
+   "sha": "32233f7fee20d570",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-ansi/EmbedHTML.dll": {
+   "sha": "37f26323a43a9261",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-ansi/INetC.dll": {
+   "sha": "5e77c82e9c9b703c",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-ansi/InstallOptions.dll": {
+   "sha": "e2d4e922e2a2510e",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-ansi/LangDLL.dll": {
+   "sha": "b3ca6cc91b435006",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-ansi/Math.dll": {
+   "sha": "dd18a59b6d05db2d",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-ansi/NSISdl.dll": {
+   "sha": "f0d91fc2ef085026",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-ansi/SpiderBanner.dll": {
+   "sha": "d488ea09a1c35f9d",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-ansi/Splash.dll": {
+   "sha": "e07403023b2bcc68",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-ansi/StartMenu.dll": {
+   "sha": "bd82ec829af8a5df",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-ansi/StdUtils.dll": {
+   "sha": "b222c5ca1e4cb8a7",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-ansi/System.dll": {
+   "sha": "28656faf1d3679f8",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-ansi/TypeLib.dll": {
+   "sha": "d7103d062c632a78",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-ansi/UAC.dll": {
+   "sha": "a57a5ecbdfa9a877",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-ansi/UserInfo.dll": {
+   "sha": "3674ff688f90d320",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-ansi/VPatch.dll": {
+   "sha": "27b8ddc984ae8463",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-ansi/WinShell.dll": {
+   "sha": "b7e8af03e3f264fa",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-ansi/nsDialogs.dll": {
+   "sha": "8501bfcb6e65fe2c",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-ansi/nsExec.dll": {
+   "sha": "cfccdb21802d9de5",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-ansi/nsProcess.dll": {
+   "sha": "df8bda55b498976e",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-ansi/nsis7z.dll": {
+   "sha": "080d607b10f93c83",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-ansi/nsisunz.dll": {
+   "sha": "5813c05802f15930",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/AdvSplash.dll": {
+   "sha": "aa96b5c756edd091",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/Banner.dll": {
+   "sha": "725ece3e2feacd76",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/BgImage.dll": {
+   "sha": "2f5d411e6d20143c",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/Dialer.dll": {
+   "sha": "8a0d5812a24a9f4b",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/EmbedHTML.dll": {
+   "sha": "687ef12f3db59433",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/INetC.dll": {
+   "sha": "ecae471eb4e515e1",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/InstallOptions.dll": {
+   "sha": "27c0e4731e395dfe",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/LangDLL.dll": {
+   "sha": "55469bdaea8e9660",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/Math.dll": {
+   "sha": "1064b8f5650e7b9b",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/NSISdl.dll": {
+   "sha": "71ed08169cf00dd0",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/SpiderBanner.dll": {
+   "sha": "7d361836cf53df42",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/Splash.dll": {
+   "sha": "8d15f1612768b1f1",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/StartMenu.dll": {
+   "sha": "305e7ef9bec45556",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/StdUtils.dll": {
+   "sha": "3d49fc2784b94509",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/System.dll": {
+   "sha": "2a79aac2d3b71532",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/TypeLib.dll": {
+   "sha": "ba1f4cb2b61fdf92",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/UAC.dll": {
+   "sha": "160cbdc4cb0ac2c1",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/UserInfo.dll": {
+   "sha": "584e9461cbb901ae",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/VPatch.dll": {
+   "sha": "b2ca2a33f1f1450d",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/WinShell.dll": {
+   "sha": "0b9519763be6625b",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/nsDialogs.dll": {
+   "sha": "c3b1abb890d92a60",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/nsExec.dll": {
+   "sha": "6b7e1ef30b3ce2b3",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/nsProcess.dll": {
+   "sha": "b058e3fcfb7b5500",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/nsProcessW.dll": {
+   "sha": "b058e3fcfb7b5500",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/nsis7z.dll": {
+   "sha": "36bd49ae21c460be",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Plugins/x86-unicode/nsisunz.dll": {
+   "sha": "5813c05802f15930",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Stubs/bzip2-x86-ansi": {
+   "sha": "3c06010af1f2d3a3",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Stubs/bzip2-x86-unicode": {
+   "sha": "532b661ca5083e7c",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Stubs/bzip2_solid-x86-ansi": {
+   "sha": "e8a520acbe4ad85e",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Stubs/bzip2_solid-x86-unicode": {
+   "sha": "18b04d011dded596",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Stubs/lzma-x86-ansi": {
+   "sha": "220eb257e014ba1f",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Stubs/lzma-x86-unicode": {
+   "sha": "edfd7ae922fcf54b",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Stubs/lzma_solid-x86-ansi": {
+   "sha": "653c225e87ff24a1",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Stubs/lzma_solid-x86-unicode": {
+   "sha": "a27a8baae6bcfa12",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Stubs/uninst": {
+   "sha": "305c101062c424e7",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Stubs/zlib-x86-ansi": {
+   "sha": "ef41d00cbd399416",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Stubs/zlib-x86-unicode": {
+   "sha": "d3ccc49afc3e81e3",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Stubs/zlib_solid-x86-ansi": {
+   "sha": "337a0ccefd088f3a",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/Stubs/zlib_solid-x86-unicode": {
+   "sha": "52c4db5ff9c51978",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/VERSION.txt": {
+   "sha": "10d1ded0e28d560e",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/makensis.exe": {
+   "sha": "61911e697e6ca427",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/makensisw.exe": {
+   "sha": "abdad2d3d3bce6fa",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/nsis@1.2.1/nsis-bundle-3.12-wfwns/windows/nsisconf.nsh": {
+   "sha": "9bd2e27d476afef8",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/appxAssets/SampleAppx.150x150.png": {
+   "sha": "b40ac14a299659c3",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/appxAssets/SampleAppx.310x150.png": {
+   "sha": "5f7a11bb5881a3e3",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/appxAssets/SampleAppx.44x44.png": {
+   "sha": "070cc19e4f4f844e",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/appxAssets/SampleAppx.50x50.png": {
+   "sha": "f7644811ef54f3c8",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/darwin/10.12/lib/engines/lib4758cca.dylib": {
+   "sha": "94f7f199b54d4305",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/darwin/10.12/lib/engines/libaep.dylib": {
+   "sha": "6a7899cfef7dc1bd",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/darwin/10.12/lib/engines/libatalla.dylib": {
+   "sha": "783ba8f6df09d422",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/darwin/10.12/lib/engines/libcapi.dylib": {
+   "sha": "16191643f5ea16ff",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/darwin/10.12/lib/engines/libchil.dylib": {
+   "sha": "e00acc01ff13795b",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/darwin/10.12/lib/engines/libcswift.dylib": {
+   "sha": "78d0525e38e18897",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/darwin/10.12/lib/engines/libgmp.dylib": {
+   "sha": "470b6df79b4777fd",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/darwin/10.12/lib/engines/libgost.dylib": {
+   "sha": "09255fe1e15ba71b",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/darwin/10.12/lib/engines/libnuron.dylib": {
+   "sha": "eed4fb24b22f932d",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/darwin/10.12/lib/engines/libpadlock.dylib": {
+   "sha": "16191643f5ea16ff",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/darwin/10.12/lib/engines/libsureware.dylib": {
+   "sha": "e6fe5405cbb80738",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/darwin/10.12/lib/engines/libubsec.dylib": {
+   "sha": "312f081d8a5a7a3d",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/darwin/10.12/lib/libcrypto.1.0.0.dylib": {
+   "sha": "9796f6fde8a5dae3",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/darwin/10.12/lib/libcrypto.a": {
+   "sha": "80b6f1da8865aed3",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/darwin/10.12/lib/libcrypto.dylib": {
+   "sha": "9796f6fde8a5dae3",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/darwin/10.12/lib/libssl.1.0.0.dylib": {
+   "sha": "d3cf81ceeaad6959",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/darwin/10.12/lib/libssl.a": {
+   "sha": "7955896c0153bfe2",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/darwin/10.12/lib/libssl.dylib": {
+   "sha": "d3cf81ceeaad6959",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/darwin/10.12/lib/pkgconfig/libcrypto.pc": {
+   "sha": "7930cffc40b58832",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/darwin/10.12/lib/pkgconfig/libssl.pc": {
+   "sha": "1df5790197be93a7",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/darwin/10.12/lib/pkgconfig/openssl.pc": {
+   "sha": "60f5ee34549ba378",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/darwin/10.12/osslsigncode": {
+   "sha": "ec18c9d77bad00ca",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/darwin/ci/osslsigncode": {
+   "sha": "2c02108d0a1266e3",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/darwin/osslsigncode": {
+   "sha": "0a235fbf5d8c4233",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/darwin/readme.md": {
+   "sha": "f4d85c0620db059d",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/linux/Dockerfile": {
+   "sha": "e2b8cef2bb9a063c",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/linux/build.sh": {
+   "sha": "bf6c08fad0c1b5cd",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/linux/osslsigncode": {
+   "sha": "b1a368b9e2ac249d",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/openssl-ia32/OpenSSL License.txt": {
+   "sha": "126bad7744b03968",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/openssl-ia32/libeay32.dll": {
+   "sha": "3e27b636863fefd9",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/openssl-ia32/openssl.exe": {
+   "sha": "ed6b0793db3ff4d9",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/openssl-ia32/ssleay32.dll": {
+   "sha": "7caa9d45c1a3e2a4",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/rcedit-ia32.exe": {
+   "sha": "0aaadbce371977e2",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/rcedit-x64.exe": {
+   "sha": "ae3e4006f841a1b8",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/ia32/Microsoft.Windows.Build.Appx.AppxPackaging.dll.manifest": {
+   "sha": "0a83a72fa61b7b62",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/ia32/Microsoft.Windows.Build.Appx.AppxSip.dll.manifest": {
+   "sha": "5ab6f91f8c6bd683",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/ia32/Microsoft.Windows.Build.Appx.OpcServices.dll.manifest": {
+   "sha": "fddcbd7dcfacf935",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/ia32/Microsoft.Windows.Build.Signing.mssign32.dll.manifest": {
+   "sha": "64f2189cd45981fd",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/ia32/Microsoft.Windows.Build.Signing.wintrust.dll.manifest": {
+   "sha": "1c6165d3d9b3e26b",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/ia32/appxpackaging.dll": {
+   "sha": "7e5788a99f14a364",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/ia32/appxsip.dll": {
+   "sha": "829edaf6193b77fe",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/ia32/makeappx.exe": {
+   "sha": "0750335fc7c17d75",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/ia32/makecat.exe": {
+   "sha": "a5977592dc95bf61",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/ia32/makecat.exe.manifest": {
+   "sha": "4432616c9922048f",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/ia32/makecert.exe": {
+   "sha": "0c9337a06df4fda2",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/ia32/makepri.exe": {
+   "sha": "0146e731fe54e2db",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/ia32/mssign32.dll": {
+   "sha": "41b1cffaf0880fa1",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/ia32/opcservices.dll": {
+   "sha": "f1bf7460ee2f4e06",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/ia32/pvk2pfx.exe": {
+   "sha": "73c32f45d3ed3880",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/ia32/signtool.exe": {
+   "sha": "047d7f11ff31df69",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/ia32/signtool.exe.manifest": {
+   "sha": "c633b91dff784488",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/ia32/wintrust.dll": {
+   "sha": "75c1abec112924e6",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/x64/Microsoft.Windows.Build.Appx.AppxPackaging.dll.manifest": {
+   "sha": "0a83a72fa61b7b62",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/x64/Microsoft.Windows.Build.Appx.AppxSip.dll.manifest": {
+   "sha": "5ab6f91f8c6bd683",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/x64/Microsoft.Windows.Build.Appx.OpcServices.dll.manifest": {
+   "sha": "fddcbd7dcfacf935",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/x64/Microsoft.Windows.Build.Signing.mssign32.dll.manifest": {
+   "sha": "64f2189cd45981fd",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/x64/Microsoft.Windows.Build.Signing.wintrust.dll.manifest": {
+   "sha": "1c6165d3d9b3e26b",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/x64/appxpackaging.dll": {
+   "sha": "5531ffd35a95f0ab",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/x64/appxsip.dll": {
+   "sha": "1c41b79118e0b434",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/x64/makeappx.exe": {
+   "sha": "ea82cbe9880cf736",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/x64/makecat.exe": {
+   "sha": "e540e9e28ec42365",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/x64/makecat.exe.manifest": {
+   "sha": "4432616c9922048f",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/x64/makecert.exe": {
+   "sha": "e3ca823e3704aae5",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/x64/makepri.exe": {
+   "sha": "ff2042953cc4d8b9",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/x64/mssign32.dll": {
+   "sha": "8b6869af0650ccfe",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/x64/opcservices.dll": {
+   "sha": "8fd2b395a4355961",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/x64/pvk2pfx.exe": {
+   "sha": "838c7488280aa36b",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/x64/signtool.exe": {
+   "sha": "ae31f58eaf9d22ab",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/x64/signtool.exe.manifest": {
+   "sha": "c633b91dff784488",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-10/x64/wintrust.dll": {
+   "sha": "59f62d244d3efb18",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-6/Microsoft.Windows.Build.Signing.mssign32.dll.manifest": {
+   "sha": "64f2189cd45981fd",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-6/Microsoft.Windows.Build.Signing.wintrust.dll.manifest": {
+   "sha": "1c6165d3d9b3e26b",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-6/makecat.exe": {
+   "sha": "48393cbb52f229ac",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-6/makecat.exe.manifest": {
+   "sha": "4432616c9922048f",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-6/mssign32.dll": {
+   "sha": "a75f034bcce198d8",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-6/signtool.exe": {
+   "sha": "2211212181b289ad",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-6/signtool.exe.manifest": {
+   "sha": "93fa46ef4e236ead",
+   "marker": 0
+  },
+  ".github/electron-builder-cache/winCodeSign-2.6.0/winCodeSign-2.6.0-5puky/windows-6/wintrust.dll": {
+   "sha": "87dcbb9a966dff61",
+   "marker": 0
+  },
+  ".github/workflows/release-prod.yml": {
+   "sha": "84075eb347819618",
+   "marker": 4
+  },
+  ".gitignore": {
+   "sha": "004ea0aade0d7eee",
+   "marker": 2
+  },
+  "CUSTOMIZATIONS.md": {
+   "sha": "142dbeabfecf6205",
+   "marker": 54
+  },
+  "apps/emdash-desktop/electron-builder.config.ts": {
+   "sha": "9e52cd2ca7eae2cb",
+   "marker": 119
+  },
+  "apps/emdash-desktop/electron.vite.config.ts": {
+   "sha": "b6d8aa0dd85e9651",
+   "marker": 3
+  },
+  "apps/emdash-desktop/package.json": {
+   "sha": "d02b725a5152ffda",
+   "marker": 1
+  },
+  "apps/emdash-desktop/scripts/release/lib/config.ts": {
+   "sha": "5c1bc943f3479e6a",
+   "marker": 0
+  },
+  "apps/emdash-desktop/scripts/xiangwo-orb-chat-harness.mjs": {
+   "sha": "ec47dad0e306b986",
+   "marker": 3
+  },
+  "apps/emdash-desktop/scripts/xiangwo-orb-history-harness.mjs": {
+   "sha": "39654babf6e36e24",
+   "marker": 1
+  },
+  "apps/emdash-desktop/scripts/xiangwo-orb-images-harness.mjs": {
+   "sha": "1add5283e3b76f2e",
+   "marker": 8
+  },
+  "apps/emdash-desktop/scripts/xiangwo-orb-images-realcheck.py": {
+   "sha": "3214fd835d71178a",
+   "marker": 1
+  },
+  "apps/emdash-desktop/scripts/xiangwo-orb-mcp-harness.mjs": {
+   "sha": "c6e55ef4e8c42cd1",
+   "marker": 1
+  },
+  "apps/emdash-desktop/scripts/xiangwo-orb-question-harness.mjs": {
+   "sha": "a813faeb4e4740a2",
+   "marker": 1
+  },
+  "apps/emdash-desktop/scripts/xiangwo-orb-selection-harness.mjs": {
+   "sha": "7d8729685a338fc6",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/agents/api/browser/components/agent-selector/agent-selector-options.ts": {
+   "sha": "023dd8525ddd8c06",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/agents/api/browser/components/agent-selector/use-agent-availability.ts": {
+   "sha": "dbd181a99fef929f",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/agents/contributions/browser/agent-capability-icons.tsx": {
+   "sha": "4414821dab5a0bc0",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/agents/contributions/browser/agent-selector.tsx": {
+   "sha": "ccbfc841b1679c07",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/automations/browser/automation-run-format.ts": {
+   "sha": "7ee18c8732e77018",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/automations/browser/builtin-catalog.ts": {
+   "sha": "0edd1bb06746748e",
+   "marker": 0
+  },
+  "apps/emdash-desktop/src/core/features/automations/browser/components/AutomationDetailView.tsx": {
+   "sha": "b463bc67c0bdf8d9",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/automations/browser/components/AutomationRow.tsx": {
+   "sha": "24fc37d2beffb08f",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/automations/browser/components/AutomationSettingsFields.tsx": {
+   "sha": "761e25c1d8c6e1d2",
+   "marker": 5
+  },
+  "apps/emdash-desktop/src/core/features/automations/browser/components/AutomationTemplatesEmptyState.tsx": {
+   "sha": "c5d3a5d4eda2b8f5",
+   "marker": 4
+  },
+  "apps/emdash-desktop/src/core/features/automations/browser/components/AutomationsBreadcrumb.tsx": {
+   "sha": "8dfa9505c782c187",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/automations/browser/components/AutomationsView.tsx": {
+   "sha": "05caf5cce50cca13",
+   "marker": 11
+  },
+  "apps/emdash-desktop/src/core/features/automations/browser/components/CreateAutomationView.tsx": {
+   "sha": "5eaa5473ebe6c2db",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/automations/browser/components/KaneoBoardPanel.tsx": {
+   "sha": "d86b4c50707f8662",
+   "marker": 14
+  },
+  "apps/emdash-desktop/src/core/features/automations/browser/components/RunHistory.tsx": {
+   "sha": "ff70ad44cc09182f",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/automations/browser/components/WorkRallyPanel.tsx": {
+   "sha": "a591908957d6c958",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/automations/browser/components/pickers/UseTemplateButton.tsx": {
+   "sha": "4fcc15e8959ccb1f",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/automations/browser/components/xg-tab.test.ts": {
+   "sha": "e49346440bc352c5",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/automations/browser/components/xg-tab.ts": {
+   "sha": "06aafa6dd44c90cc",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/automations/browser/useAutomationFormState.ts": {
+   "sha": "a96af57cc7b1eee7",
+   "marker": 6
+  },
+  "apps/emdash-desktop/src/core/features/automations/contributions/views.ts": {
+   "sha": "1c883ba5491a6a8f",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/automations/node/deployment-builder.test.ts": {
+   "sha": "eb2d902e0e1c7cbc",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/automations/node/deployment-builder.ts": {
+   "sha": "ec3bdf67127be039",
+   "marker": 4
+  },
+  "apps/emdash-desktop/src/core/features/browser/api/browser/browser-controls-registry.ts": {
+   "sha": "09ae21ec767f896a",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/browser/api/browser/open-browser-tab.test.ts": {
+   "sha": "4872cacc95f6ca26",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/browser/api/browser/open-browser-tab.ts": {
+   "sha": "4abaa0258b8a483c",
+   "marker": 4
+  },
+  "apps/emdash-desktop/src/core/features/browser/api/contract.ts": {
+   "sha": "5c3f5fbdf9cc6f48",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/browser/browser/browser-pane.test.ts": {
+   "sha": "68bdc541300d98c5",
+   "marker": 6
+  },
+  "apps/emdash-desktop/src/core/features/browser/browser/browser-pane.tsx": {
+   "sha": "08887ed89376dc7d",
+   "marker": 7
+  },
+  "apps/emdash-desktop/src/core/features/browser/browser/browser-session-store.test.ts": {
+   "sha": "056e726b29de81ea",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/browser/browser/browser-start-page.tsx": {
+   "sha": "032b6be83a49552c",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/browser/browser/browser-tab-provider.tsx": {
+   "sha": "a8067db14aa3f6de",
+   "marker": 9
+  },
+  "apps/emdash-desktop/src/core/features/browser/browser/browser-toolbar-actions.ts": {
+   "sha": "aa1413134dc7a526",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/browser/browser/browser-toolbar.tsx": {
+   "sha": "60a6343f52467a74",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/browser/browser/browser-webview-bind.test.ts": {
+   "sha": "12cd8ebd303abe61",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/browser/browser/browser-webview-bind.ts": {
+   "sha": "91237d26d58e0107",
+   "marker": 6
+  },
+  "apps/emdash-desktop/src/core/features/browser/browser/browser-webview-events.test.ts": {
+   "sha": "9516fbf2a57cf072",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/browser/browser/browser-webview-events.ts": {
+   "sha": "924a968ef8e6cc5a",
+   "marker": 5
+  },
+  "apps/emdash-desktop/src/core/features/browser/browser/browser-webview-types.ts": {
+   "sha": "40586ec00c3ba928",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/browser/browser/ensure-bot-browser-profile.test.ts": {
+   "sha": "a30e55b327712e68",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/browser/browser/ensure-bot-browser-profile.ts": {
+   "sha": "cc4a313a1d1cd36d",
+   "marker": 4
+  },
+  "apps/emdash-desktop/src/core/features/browser/browser/open-url-command.test.ts": {
+   "sha": "a29135277325353d",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/browser/browser/open-url-command.ts": {
+   "sha": "12dab0424e11df30",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/browser/browser/open-url-modal.tsx": {
+   "sha": "6cf523131bcb6bde",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/browser/contributions/browser.ts": {
+   "sha": "d7c8bb52d29e8432",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/browser/contributions/commands.ts": {
+   "sha": "c07f25bf35d1ad76",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/browser/contributions/palette.ts": {
+   "sha": "175472f8727a5f77",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/browser/contributions/settings.ts": {
+   "sha": "b503c42bca5b48d6",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/browser/node/wire-controller.ts": {
+   "sha": "7dd0f66160b91f59",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/conversations/browser/acp/acp-chat-panel.tsx": {
+   "sha": "7c6122572390a94b",
+   "marker": 45
+  },
+  "apps/emdash-desktop/src/core/features/conversations/browser/acp/acp-chat-registry.ts": {
+   "sha": "37bd86dd1a961b6c",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/conversations/browser/acp/acp-chat-resource-manager.ts": {
+   "sha": "a2feb8ead6e3d875",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/conversations/browser/acp/acp-chat-store.ts": {
+   "sha": "eb107b4412e8af5b",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/conversations/browser/acp/acp-live-session.ts": {
+   "sha": "1759ea258130faf5",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/conversations/browser/acp/expert-handoff-bar.tsx": {
+   "sha": "72bd55856006a4ed",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/conversations/browser/acp/resource-link-enrichment.test.ts": {
+   "sha": "b89bf41948173108",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/conversations/browser/acp/resource-link-enrichment.ts": {
+   "sha": "a2ca7e92a166bb64",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/conversations/browser/acp/xg-card-modal.tsx": {
+   "sha": "8a39b208277f107f",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/conversations/browser/acp/xiangwo-experts.ts": {
+   "sha": "09d2b073cd2cf758",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/conversations/browser/conversation-agent-icon.tsx": {
+   "sha": "2bfcdc3731e3ee18",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/conversations/browser/conversations-panel.tsx": {
+   "sha": "6a81110fde200220",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/conversations/browser/create-conversation-modal.tsx": {
+   "sha": "76d0dd9398243d0d",
+   "marker": 4
+  },
+  "apps/emdash-desktop/src/core/features/conversations/browser/expert-handoff-modal.tsx": {
+   "sha": "3d9f646a275b1647",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/conversations/contributions/browser.ts": {
+   "sha": "8cda9dae2b5b61f5",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/conversations/contributions/browser/conversation-transport-toggle.tsx": {
+   "sha": "6e8f9b829efecc4a",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/conversations/contributions/browser/sidebar-conversations-list.tsx": {
+   "sha": "d679cd47b905894a",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/conversations/contributions/settings.ts": {
+   "sha": "b486311f68b94ebf",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/dev-perf/browser/DevProcessPanelModal.tsx": {
+   "sha": "89c4b9d96f270236",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/editor/browser/lsp/language-status.tsx": {
+   "sha": "9797e2dd279b3cef",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/editor/browser/renderers/svg-renderer.tsx": {
+   "sha": "9abbc59cff362c88",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/editor/browser/task-editor/conflict-dialog.tsx": {
+   "sha": "2ed6699ec0c63ca3",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/editor/browser/task-editor/file-content-search.tsx": {
+   "sha": "a587b1bb7483680f",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/editor/browser/task-editor/file-status-placeholder.tsx": {
+   "sha": "080c3faf0b960ee6",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/editor/browser/task-editor/file-tab-item.tsx": {
+   "sha": "2cd27fc309d3a1eb",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/editor/browser/task-editor/file-tab-provider.tsx": {
+   "sha": "0d1fa8042a242c0c",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/editor/contributions/browser/editor-file-tree.tsx": {
+   "sha": "95ddd33d0b9f0315",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/expert-roster/browser/expert-roster-view.tsx": {
+   "sha": "1bba2b483191759f",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/expert-roster/contributions/browser.ts": {
+   "sha": "b9730fca705ee370",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/expert-roster/contributions/views.ts": {
+   "sha": "2ef391d7b9a60856",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/github/browser/github-integration-auth.tsx": {
+   "sha": "bf549c1f1674024a",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/github/node/services/octokit-provider.ts": {
+   "sha": "1285ca694c8d9ff8",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/handoff/browser/handoff-view.tsx": {
+   "sha": "e290f78ff948eb76",
+   "marker": 6
+  },
+  "apps/emdash-desktop/src/core/features/handoff/contributions/browser.ts": {
+   "sha": "77e18e68d36577bd",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/handoff/contributions/views.ts": {
+   "sha": "96815a7ad40ab04a",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/integrations/api/browser/integration-display.ts": {
+   "sha": "8713104fa5c2ec16",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/integrations/browser/SetupFormShell.tsx": {
+   "sha": "79b4cc53abf4fca7",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/integrations/browser/device-sign-in.tsx": {
+   "sha": "8b32743dd5746e52",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/integrations/browser/integration-setup-modal.tsx": {
+   "sha": "d3a9640fc8c4a30f",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/integrations/contributions/browser/provider-identity-strip.tsx": {
+   "sha": "79da7019f05cb47b",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/integrations/contributions/browser/standard-integration-auth.tsx": {
+   "sha": "072d24938bf2dd39",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/library/browser/prompts/prompt-library-view.tsx": {
+   "sha": "0def3b12a745e56c",
+   "marker": 6
+  },
+  "apps/emdash-desktop/src/core/features/library/browser/prompts/prompt-modal.tsx": {
+   "sha": "1c3aa03c74e93e01",
+   "marker": 4
+  },
+  "apps/emdash-desktop/src/core/features/library/contributions/settings-page.ts": {
+   "sha": "e6ca3386c090ad3e",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/machines/api/contract.ts": {
+   "sha": "2e38d3f911dd9483",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/machines/browser/components/host-settings-card.tsx": {
+   "sha": "656a3c6de4a5b8ba",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/machines/browser/components/link-conversation-modal.tsx": {
+   "sha": "928166c08d0c18ef",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/machines/browser/components/machine-conversations-list.tsx": {
+   "sha": "55ea222a33daf0e7",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/machines/browser/components/machine-resources.tsx": {
+   "sha": "812b26cb6e76e522",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/machines/browser/components/machine-system-dependencies.tsx": {
+   "sha": "5a9791fc1c6c3a3b",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/machines/browser/components/workspaces-list-view.tsx": {
+   "sha": "43836ae72324f305",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/machines/browser/machine-authentication-fields.tsx": {
+   "sha": "fb30ac6d09995a11",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/machines/browser/machine-connection-details.tsx": {
+   "sha": "0b5e6025d28abf21",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/machines/browser/machine-form.tsx": {
+   "sha": "38e0947082fe5075",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/machines/browser/machine-host-picker.tsx": {
+   "sha": "95a1678e492b6262",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/machines/browser/machine-manual-fields.tsx": {
+   "sha": "2ffe32ea23b03303",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/machines/browser/pages/local-workspaces-settings-page.tsx": {
+   "sha": "95f3b12e402c4549",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/machines/browser/pages/machine-details-page.tsx": {
+   "sha": "873a32775cd99306",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/machines/browser/pages/machines-settings-page.tsx": {
+   "sha": "ec41fb1d24c45656",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/machines/browser/pages/system-settings-page.tsx": {
+   "sha": "7313798d49dbd412",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/machines/browser/use-machine-metrics.test.ts": {
+   "sha": "e7cd70a1e0a80410",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/machines/browser/use-machine-metrics.ts": {
+   "sha": "03e28000b7df1236",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/machines/browser/use-system-dependencies.ts": {
+   "sha": "8771bbdad558b445",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/machines/contributions/settings-page.ts": {
+   "sha": "cb92226f0478318a",
+   "marker": 5
+  },
+  "apps/emdash-desktop/src/core/features/mcp/browser/components/McpCard.tsx": {
+   "sha": "56e523e9ff1c8dcd",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/mcp/browser/components/McpDrawer.tsx": {
+   "sha": "e6521b9c2a3e05ae",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/mcp/browser/components/McpServersList.tsx": {
+   "sha": "bfb7a1e19d94b7af",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/mcp/browser/components/McpToolbar.tsx": {
+   "sha": "59396cbea45d58e8",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/mcp/browser/components/McpView.tsx": {
+   "sha": "f865ca90f7fa1f7f",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/mcp/browser/components/SyncToAgentsSection.tsx": {
+   "sha": "b4623b02ee3962c7",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/mcp/contributions/settings-page.tsx": {
+   "sha": "b8137bb9c747a5df",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/preview-servers/node/port-forward-tunnel.ts": {
+   "sha": "15d3b843f5e699c3",
+   "marker": 4
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/add-project-modal/add-project-modal.tsx": {
+   "sha": "08c093f2d60bb75c",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/add-project-modal/content.tsx": {
+   "sha": "30f9c87ff4ef4d47",
+   "marker": 4
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/add-project-modal/location-selector.tsx": {
+   "sha": "ded2e0892aba3912",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/add-project-modal/owner-selector.tsx": {
+   "sha": "2709b2acbdcfd8b5",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/add-project-modal/project-directory-picker.tsx": {
+   "sha": "37643162e7bc73e2",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/add-project-modal/untrusted-repository-notice.tsx": {
+   "sha": "463f511dc8cb40a5",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/directory-selector-modal.tsx": {
+   "sha": "978cb8c5992514f2",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/main-panel/active-project.tsx": {
+   "sha": "5a17e0eaa3ec1338",
+   "marker": 4
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/main-panel/project-header.tsx": {
+   "sha": "95c6d5d4f9a277fa",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/pr-view/pr-row.tsx": {
+   "sha": "e53fe045007f7a70",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/pr-view/pr-sync-status-card.tsx": {
+   "sha": "35c3b9078ee09113",
+   "marker": 5
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/pr-view/pr-view.tsx": {
+   "sha": "b32453fc6e546445",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/project-error-details.tsx": {
+   "sha": "62d07c180d0912f1",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/relink-project-modal.tsx": {
+   "sha": "c6a4579dfa7278b4",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/rename-project-modal.tsx": {
+   "sha": "646fcd3c16263212",
+   "marker": 4
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/project-config-import-modal.tsx": {
+   "sha": "0d83c164d66ca086",
+   "marker": 7
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/project-settings-footer.tsx": {
+   "sha": "6e2ecd88e060abe6",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/sections/base-project-settings-section.tsx": {
+   "sha": "7041552d8e3f8df2",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/sections/shareable-project-settings-section.tsx": {
+   "sha": "00a1e51486803c87",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/settings-panel.tsx": {
+   "sha": "127e2dd7c7671b93",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/share-project-config-modal.tsx": {
+   "sha": "01da2cf18a9a1763",
+   "marker": 5
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/shareable-project-settings-fields.ts": {
+   "sha": "23fcafe9bebf1246",
+   "marker": 0
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/shareable-setting-title.tsx": {
+   "sha": "7f64eb3a0f6b5f9e",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/settings-view/use-project-settings-form.ts": {
+   "sha": "8d70b42eea7fc275",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/task-view/task-list-empty-state.tsx": {
+   "sha": "982ea00eb6559e2d",
+   "marker": 6
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/task-view/task-list-model.ts": {
+   "sha": "2dc121336bba3547",
+   "marker": 0
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/task-view/task-list.tsx": {
+   "sha": "d42f405108b766c6",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/components/task-view/task-row.tsx": {
+   "sha": "a2cf4771622794a1",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/projects/browser/project-availability-presentation.ts": {
+   "sha": "67e2f4a5ff4bb16f",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/projects/contributions/browser/use-confirm-delete-project.tsx": {
+   "sha": "f95e4891696ab5a5",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/agents-page/AgentIntegrationSection.tsx": {
+   "sha": "849c6f1fc60d13ba",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/agents-page/AgentMcpSection.tsx": {
+   "sha": "0be38cf9ef3f4d7e",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/agents-page/AgentsSettingsPage.tsx": {
+   "sha": "2f2b5022731d5359",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/agents-page/AgentsToolbar.tsx": {
+   "sha": "f69d2773536e7580",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/agents-page/DefaultAgentSelector.tsx": {
+   "sha": "4aa72799e4048107",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/agents-page/DependencyInstallationStatusCard.tsx": {
+   "sha": "7eb698fb60c4011e",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/agents-page/DependencyInstallationUpdateCard.tsx": {
+   "sha": "897ec63b6688de4e",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/agents-page/InstalledAgentContent.tsx": {
+   "sha": "e15f15690eb53de7",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/agents-page/installation-sources.ts": {
+   "sha": "bd6d120b6646f698",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/components/AccountTab.tsx": {
+   "sha": "d7becc53ebedbfcb",
+   "marker": 10
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/components/BrowserSettingsCard.tsx": {
+   "sha": "6c272522df5bef5c",
+   "marker": 16
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/components/FilesSettingsCard.tsx": {
+   "sha": "c53db63bb286064e",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/components/HiddenToolsSettingsCard.tsx": {
+   "sha": "6a54a1c91d02f857",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/components/IntegrationAccountsSection.tsx": {
+   "sha": "915d294587e6c7f9",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/components/IntegrationGridCard.tsx": {
+   "sha": "c3b5499f651ce922",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/components/IntegrationRow.tsx": {
+   "sha": "757af8f66fe4ec5f",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/components/IntegrationsCard.tsx": {
+   "sha": "d846edcd673af655",
+   "marker": 11
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/components/InterfaceSettingsCard.tsx": {
+   "sha": "544389978219075b",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/components/KeyboardSettingsCard.tsx": {
+   "sha": "b2687d8725d19a32",
+   "marker": 5
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/components/NotificationSettingsCard.tsx": {
+   "sha": "f2e2ab509848a79b",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/components/RepositorySettingsCard.tsx": {
+   "sha": "3eeeef0217dc71ac",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/components/ResetToDefaultButton.tsx": {
+   "sha": "bb4c8360d01ff3a0",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/components/SettingsPage.tsx": {
+   "sha": "f855d0949922e2c6",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/components/SidebarMetadataSettingsCard.tsx": {
+   "sha": "b452225154757902",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/components/TaskSettingsRows.tsx": {
+   "sha": "c8bb1645e9981f3c",
+   "marker": 4
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/components/TelemetryCard.tsx": {
+   "sha": "f588dc19d4155c5f",
+   "marker": 5
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/components/TerminalSettingsCard.tsx": {
+   "sha": "bfbbc18bb6961a54",
+   "marker": 4
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/components/ThemeCard.tsx": {
+   "sha": "7753dbac3cfb7443",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/pages/browser-settings-page.tsx": {
+   "sha": "7a1c319c46fe467b",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/pages/general-settings-page.tsx": {
+   "sha": "6cba60cedc756b5c",
+   "marker": 4
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/pages/integrations-settings-page.tsx": {
+   "sha": "f285af439d15dec2",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/pages/interface-settings-page.tsx": {
+   "sha": "45fb9209115c9c84",
+   "marker": 8
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/pages/repository-settings-page.tsx": {
+   "sha": "0740542b5980f08e",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/search/settings-search.ts": {
+   "sha": "b7bdd801505f875e",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/settings/browser/settings-view.tsx": {
+   "sha": "e759264781ca7c89",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/settings/contributions/browser/open-in-menu.tsx": {
+   "sha": "ebc55fcb0643bf6f",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/settings/contributions/settings-pages.ts": {
+   "sha": "d7026bfbc6971bbf",
+   "marker": 7
+  },
+  "apps/emdash-desktop/src/core/features/skills/browser/components/CreateSkillModal.tsx": {
+   "sha": "a2b99b3abcc29595",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/skills/browser/components/SkillCard.tsx": {
+   "sha": "54471ed243cb1c2b",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/skills/browser/components/SkillDetailModal.tsx": {
+   "sha": "75b8d8bf2672ce35",
+   "marker": 4
+  },
+  "apps/emdash-desktop/src/core/features/skills/browser/components/SkillsList.tsx": {
+   "sha": "019b666535f8652e",
+   "marker": 5
+  },
+  "apps/emdash-desktop/src/core/features/skills/browser/components/SkillsToolbar.tsx": {
+   "sha": "104a8594e8d4a06c",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/skills/browser/components/SkillsView.tsx": {
+   "sha": "d238b4047c759e0f",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/skills/browser/components/skill-categories.ts": {
+   "sha": "6f9c5c864a408a69",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/skills/browser/components/useSkills.ts": {
+   "sha": "72bdac6a287e1156",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/skills/contributions/settings-page.ts": {
+   "sha": "905f3ae30f0758b7",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/source-control/browser/components/branch-selector.tsx": {
+   "sha": "f6272082543bea02",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/action-card.tsx": {
+   "sha": "73939d0e4c30e23e",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/commit-card.tsx": {
+   "sha": "6e467ac7baa4264e",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/checks-list.tsx": {
+   "sha": "62906b2d4f029561",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/comments-list.tsx": {
+   "sha": "e6eb8d664193d040",
+   "marker": 5
+  },
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/commits-list.tsx": {
+   "sha": "23d487a18b0244e0",
+   "marker": 6
+  },
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/create-pr-modal.tsx": {
+   "sha": "c6c32da2419d9a13",
+   "marker": 9
+  },
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/merge-footer.tsx": {
+   "sha": "1223a0673d1ce9e8",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/components/pr-entry/merge-ui-state.ts": {
+   "sha": "d578fe6cd345de36",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/git-status-section.tsx": {
+   "sha": "b984f484b0aa9852",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/pr-section.tsx": {
+   "sha": "27aa2daedbd03b3b",
+   "marker": 4
+  },
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/staged-section.tsx": {
+   "sha": "286c4b73704c2d2b",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/changes-panel/unstaged-section.tsx": {
+   "sha": "cdc1517a53d689f9",
+   "marker": 7
+  },
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/comments/comment-input.tsx": {
+   "sha": "1a8eb9cf9df7a5bf",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/comments/comment-widget.tsx": {
+   "sha": "85159b79da24462e",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/diff-tab-item.tsx": {
+   "sha": "3c4a9e4242f539f2",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/diff-tab-provider.tsx": {
+   "sha": "60a645d2252cb2a9",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/main-panel/diff-file-renderer.tsx": {
+   "sha": "879f8c5c5229c273",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/main-panel/diff-toolbar.tsx": {
+   "sha": "6645a28a702a81db",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/main-panel/image-diff-view.tsx": {
+   "sha": "581338a3ff19ff3c",
+   "marker": 4
+  },
+  "apps/emdash-desktop/src/core/features/source-control/browser/diff-view/main-panel/stacked-diff-view.tsx": {
+   "sha": "92de5eb725d08bd1",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/source-control/contributions/browser/changes-panel.tsx": {
+   "sha": "6da0a5bc0a679399",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/tasks/api/browser/create-task-modal/use-task-name.ts": {
+   "sha": "c7e848e7d8c753e0",
+   "marker": 0
+  },
+  "apps/emdash-desktop/src/core/features/tasks/api/browser/taskNames.ts": {
+   "sha": "eebd4ee93efbdb90",
+   "marker": 0
+  },
+  "apps/emdash-desktop/src/core/features/tasks/browser/add-remote-modal.tsx": {
+   "sha": "aff7862171f5d96d",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/tasks/browser/components/activity-badge.tsx": {
+   "sha": "2c10c95fab9b9447",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/tasks/browser/components/automation-run-pill.tsx": {
+   "sha": "748ec27d48c6aef9",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/tasks/browser/components/issue-selector/issue-selector.tsx": {
+   "sha": "c8caeafd2504b1f3",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/tasks/browser/components/pr-selector/pr-selector.tsx": {
+   "sha": "6199107665b4dc32",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/tasks/browser/components/preview-servers/manual-forward-button.tsx": {
+   "sha": "98fc92c2f5ca085e",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/tasks/browser/components/preview-servers/manual-forward-dialog.tsx": {
+   "sha": "4d28a21a09cdf24e",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/tasks/browser/components/preview-servers/preview-server-pill.tsx": {
+   "sha": "dbcdab9860751851",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/tasks/browser/context-bar/add-context-popover.tsx": {
+   "sha": "169073b3846af64c",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/tasks/browser/context-bar/prompt-actions-menu.tsx": {
+   "sha": "33f8a7dc2d23b184",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/tasks/browser/create-task-modal/create-task-modal.tsx": {
+   "sha": "1c73e76cdd20fa78",
+   "marker": 6
+  },
+  "apps/emdash-desktop/src/core/features/tasks/browser/create-task-modal/linked-entity-section.tsx": {
+   "sha": "61d125a6f4ef8bab",
+   "marker": 4
+  },
+  "apps/emdash-desktop/src/core/features/tasks/browser/create-task-modal/task-name-field.tsx": {
+   "sha": "50a269d8add68dde",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/tasks/browser/main-panel.tsx": {
+   "sha": "e213794c49fa2526",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/tasks/browser/new-conversation-tab-button.tsx": {
+   "sha": "30ed6b731c163420",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/tasks/browser/pane-empty-state.tsx": {
+   "sha": "cb52da295d238032",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/tasks/browser/rename-task-modal.tsx": {
+   "sha": "6ab33351e67357fe",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/tasks/browser/task-config/branch-name-field.tsx": {
+   "sha": "322b6fd00c0edfa3",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/tasks/browser/task-config/branch-picker-field.tsx": {
+   "sha": "dd896f280dfcb2a7",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/tasks/browser/task-config/existing-workspace-picker.tsx": {
+   "sha": "8699eec2d91fff8c",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/tasks/browser/task-config/new-worktree-panel.tsx": {
+   "sha": "1b019001e476765e",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/tasks/browser/task-config/pr-new-branch-panel.tsx": {
+   "sha": "60e5bfc04d85d5d1",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/tasks/browser/task-scope.tsx": {
+   "sha": "cd0f0dc34779bc78",
+   "marker": 6
+  },
+  "apps/emdash-desktop/src/core/features/tasks/browser/task-titlebar.tsx": {
+   "sha": "c785bb0352a7f0d3",
+   "marker": 5
+  },
+  "apps/emdash-desktop/src/core/features/tasks/contributions/browser/project-selector.tsx": {
+   "sha": "cda9952415dcc5b4",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/tasks/contributions/browser/task-config/initial-conversation-section.tsx": {
+   "sha": "29ea864c33c40c84",
+   "marker": 4
+  },
+  "apps/emdash-desktop/src/core/features/tasks/contributions/browser/task-config/workspace-settings-section.tsx": {
+   "sha": "ba7274cf8a67b193",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/tasks/contributions/browser/task-context-menu.tsx": {
+   "sha": "7cb91554dabea941",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/tasks/contributions/scopes.ts": {
+   "sha": "7c8393784e32d3c9",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/terminals/browser/task-terminal/terminal-drawer-tab-bar.tsx": {
+   "sha": "81bc290f30df5680",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/terminals/browser/task-terminal/terminal-tab-provider.tsx": {
+   "sha": "2be54c88ab4f75f7",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/terminals/contributions/browser/pty/terminal-search-overlay.tsx": {
+   "sha": "8a409049debd662d",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/terminals/contributions/browser/task-terminal/terminal-panel.tsx": {
+   "sha": "4bcc1ece3c5c18d8",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/usage/browser/usage-account-section.tsx": {
+   "sha": "ca1a90ad5d7f983d",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/usage/browser/usage-overview-view.tsx": {
+   "sha": "5f6e831c65d0e9c6",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/workbench/api/browser/embedded-browser-open-request.test.ts": {
+   "sha": "7b1340f3f61ac256",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/workbench/api/browser/embedded-browser-open-request.ts": {
+   "sha": "e59b07efd2f71fe8",
+   "marker": 23
+  },
+  "apps/emdash-desktop/src/core/features/workbench/api/browser/open-external-link.ts": {
+   "sha": "3a9fec562e8a366f",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/workbench/api/browser/task-composition.ts": {
+   "sha": "83a82c7cfa91a915",
+   "marker": 4
+  },
+  "apps/emdash-desktop/src/core/features/workbench/browser/command-palette/command-palette-modal.tsx": {
+   "sha": "e886bab934fce2b5",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/workbench/browser/external-link-choice-dialog.test.ts": {
+   "sha": "7b4a82bd5f6e83da",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/workbench/browser/external-link-choice-dialog.tsx": {
+   "sha": "7c0cc11bef54ed86",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/workbench/browser/feedback-modal/feedback-modal.tsx": {
+   "sha": "1a088385634bf073",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/workbench/browser/feedback-modal/use-feedback-submit.ts": {
+   "sha": "d6e4efaefb11c74b",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/workbench/browser/home-view.tsx": {
+   "sha": "747f7ecf1ea86bf5",
+   "marker": 5
+  },
+  "apps/emdash-desktop/src/core/features/workbench/browser/nav-buttons.tsx": {
+   "sha": "8dc226e10c64a8c4",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/workbench/browser/onboarding/components/project-conflicts.tsx": {
+   "sha": "d1f9d1a40992248a",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/workbench/browser/onboarding/onboarding-shell.tsx": {
+   "sha": "cc8ad93aeb6846e3",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/workbench/browser/onboarding/sign-in-step.tsx": {
+   "sha": "092b75b0be46459e",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/workbench/browser/quit-unsaved-changes-dialog.tsx": {
+   "sha": "e57ab75f6ea1806b",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/workbench/browser/sidebar-recovery-controls.tsx": {
+   "sha": "ae83bdcd1d83ea10",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/workbench/browser/sidebar/left-sidebar.tsx": {
+   "sha": "4a85a7db8459691a",
+   "marker": 10
+  },
+  "apps/emdash-desktop/src/core/features/workbench/browser/sidebar/project-item.tsx": {
+   "sha": "1866bd632a5ec1fe",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/workbench/browser/sidebar/projects-group-label.tsx": {
+   "sha": "b116bbc0c8d158ba",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/core/features/workbench/browser/sidebar/sidebar-search-trigger.tsx": {
+   "sha": "c2b4924879ac400f",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/workbench/browser/sidebar/task-sidebar-agent-status.tsx": {
+   "sha": "195eeeea70632cc0",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/workbench/browser/sidebar/use-sidebar-drop.ts": {
+   "sha": "562e79e7881e61ef",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/workbench/browser/unsaved-changes-dialog.tsx": {
+   "sha": "e4f4e25b89b51bcc",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/workspaces/contributions/browser/removal-attention-panel.tsx": {
+   "sha": "e675fd8a52f26b78",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/workspaces/contributions/browser/repository-header.tsx": {
+   "sha": "a9c7e9d40d0ba1a3",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/workspaces/contributions/browser/workspace-detail-page.tsx": {
+   "sha": "10f88efd797d0cfb",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/features/workspaces/contributions/browser/workspace-pills.tsx": {
+   "sha": "11cb8c38c68f5dfb",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/xiangwo/browser/xiangwo-view.tsx": {
+   "sha": "4b1bd46aeeb8a322",
+   "marker": 6
+  },
+  "apps/emdash-desktop/src/core/features/xiangwo/contributions/browser.ts": {
+   "sha": "ebe51640469ac4e2",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/features/xiangwo/contributions/views.ts": {
+   "sha": "847a6a188a94969e",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/manifests/browser/browser-contributions.ts": {
+   "sha": "e3742d0c209673f7",
+   "marker": 5
+  },
+  "apps/emdash-desktop/src/core/manifests/browser/view-catalog.ts": {
+   "sha": "0c90204e6294b69a",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/manifests/shared/command-catalog.ts": {
+   "sha": "d9db6a4b50ddcd32",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/manifests/shared/command-palette-catalog.ts": {
+   "sha": "94ccb4ca715f3b41",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/primitives/agents/browser/SudoRetryPanel.tsx": {
+   "sha": "68ec7b96616a2ab9",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/primitives/agents/browser/install-command-row.tsx": {
+   "sha": "e8ac2ce785fcd14b",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/primitives/app-identity/api/app-identity.ts": {
+   "sha": "5a51a61bbe2ab85c",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/primitives/automations/api/config.test.ts": {
+   "sha": "8a27d18edcb1666c",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/primitives/automations/api/config.ts": {
+   "sha": "fce49c7fe60b2fe0",
+   "marker": 4
+  },
+  "apps/emdash-desktop/src/core/primitives/automations/api/validation.ts": {
+   "sha": "51c5f4c184ed34b8",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/primitives/browser/api/browser.test.ts": {
+   "sha": "81427387ce8540d1",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/primitives/browser/api/browser.ts": {
+   "sha": "af8915a306e5816f",
+   "marker": 8
+  },
+  "apps/emdash-desktop/src/core/primitives/desktop-host/api/host-contract.ts": {
+   "sha": "502a503502a873ac",
+   "marker": 25
+  },
+  "apps/emdash-desktop/src/core/primitives/desktop-host/browser/host-client.ts": {
+   "sha": "ac767c5fe44d71e7",
+   "marker": 13
+  },
+  "apps/emdash-desktop/src/core/primitives/telemetry/api/telemetry.ts": {
+   "sha": "010c0db6ed72729b",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/primitives/workbench-shell/browser/tabs/tab-bar/tab-context-menu.tsx": {
+   "sha": "bb86350429be21c9",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/services/hosts/node/channel-stall-watchdog.test.ts": {
+   "sha": "1e4da43c2ab0415c",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/services/hosts/node/channel-stall-watchdog.ts": {
+   "sha": "47ba4b40cb22f8ff",
+   "marker": 5
+  },
+  "apps/emdash-desktop/src/core/services/hosts/node/connection-supervisor.policy.test.ts": {
+   "sha": "67323a9106282815",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/services/hosts/node/connection-supervisor.stall.test.ts": {
+   "sha": "f18d58f1716b5e8e",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/services/hosts/node/connection-supervisor.ts": {
+   "sha": "c3dae689ee828638",
+   "marker": 12
+  },
+  "apps/emdash-desktop/src/core/services/hosts/node/host-runtime-connection.test.ts": {
+   "sha": "7e563d8bac63afd8",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/core/services/hosts/node/host-runtime-connection.ts": {
+   "sha": "1237e1c02c145f7d",
+   "marker": 7
+  },
+  "apps/emdash-desktop/src/core/services/notifications/node/sqlite-store.ts": {
+   "sha": "8463a1b8c15fe45d",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/core/services/pull-requests/browser/pull-request-list-view.ts": {
+   "sha": "d3adf0c5f824a197",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/entry/main.ts": {
+   "sha": "dbc0dcafa7fc3186",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/entry/preload.ts": {
+   "sha": "46736cde9314b365",
+   "marker": 10
+  },
+  "apps/emdash-desktop/src/main/bootstrap/boot/phases/background.ts": {
+   "sha": "918ab2c3253dd921",
+   "marker": 8
+  },
+  "apps/emdash-desktop/src/main/bootstrap/boot/phases/prepare-electron.ts": {
+   "sha": "c7160fb4757ca6ac",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/main/bootstrap/boot/phases/services.ts": {
+   "sha": "20e333576700535a",
+   "marker": 15
+  },
+  "apps/emdash-desktop/src/main/bootstrap/boot/wiring.ts": {
+   "sha": "0760f8aa4e3c7d15",
+   "marker": 51
+  },
+  "apps/emdash-desktop/src/main/core/app/service.ts": {
+   "sha": "a50cebafe26b2200",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/main/gateway/runtime-broker.ts": {
+   "sha": "f7b75dc73c130003",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/main/host/browser/browser-profile-session.ts": {
+   "sha": "24eb4765c84b2ddc",
+   "marker": 9
+  },
+  "apps/emdash-desktop/src/main/host/browser/browser-webcontents-registry.test.ts": {
+   "sha": "0c6b209634bc4939",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/main/host/browser/browser-webcontents-registry.ts": {
+   "sha": "4224f36d526e13b2",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/main/host/browser/controller.ts": {
+   "sha": "dfc297b66bfddfd9",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/main/host/browser/embedded-browser-open-ack.test.ts": {
+   "sha": "2a7fa9a7c983cf74",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/main/host/browser/embedded-browser-open-ack.ts": {
+   "sha": "d81941b3a3a38227",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/main/host/browser/xiangwo-bot-browser-profile.test.ts": {
+   "sha": "e62db49dd2eb201d",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/main/host/browser/xiangwo-bot-browser-profile.ts": {
+   "sha": "a539f3f7902443fd",
+   "marker": 8
+  },
+  "apps/emdash-desktop/src/main/host/browser/xiangwo-browser-proxy.test.ts": {
+   "sha": "503e20c9ad08877c",
+   "marker": 4
+  },
+  "apps/emdash-desktop/src/main/host/browser/xiangwo-browser-proxy.ts": {
+   "sha": "56cbffe084f26855",
+   "marker": 10
+  },
+  "apps/emdash-desktop/src/main/host/browser/xiangwo-browser-relay-env.test.ts": {
+   "sha": "84021bff260aea76",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/main/host/browser/xiangwo-browser-relay.test.ts": {
+   "sha": "e25241f3231b2833",
+   "marker": 7
+  },
+  "apps/emdash-desktop/src/main/host/browser/xiangwo-browser-relay.ts": {
+   "sha": "2738e1a9f7093aca",
+   "marker": 45
+  },
+  "apps/emdash-desktop/src/main/host/browser/xiangwo-cdp-bridge.test.ts": {
+   "sha": "f10a93f2e8ca92e7",
+   "marker": 22
+  },
+  "apps/emdash-desktop/src/main/host/browser/xiangwo-cdp-bridge.ts": {
+   "sha": "93d53ccebc93d90f",
+   "marker": 69
+  },
+  "apps/emdash-desktop/src/main/host/browser/xiangwo-cdp-peers.test.ts": {
+   "sha": "7d726cc883d7461e",
+   "marker": 9
+  },
+  "apps/emdash-desktop/src/main/host/browser/xiangwo-cdp-peers.ts": {
+   "sha": "972e1933f9f05302",
+   "marker": 7
+  },
+  "apps/emdash-desktop/src/main/host/browser/xiangwo-cdp-ws.ts": {
+   "sha": "ca89a974239a9e82",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/main/host/browser/xiangwo-relay-candidates.test.ts": {
+   "sha": "8506ac2b51453a31",
+   "marker": 5
+  },
+  "apps/emdash-desktop/src/main/host/browser/xiangwo-relay-candidates.ts": {
+   "sha": "d537c24959fab853",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/main/host/chromium-command-line.test.ts": {
+   "sha": "5ff9d09c75320266",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/main/host/chromium-command-line.ts": {
+   "sha": "320fc9682ed75e5b",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/main/host/chromium-doh.test.ts": {
+   "sha": "91d2965ee6179c57",
+   "marker": 18
+  },
+  "apps/emdash-desktop/src/main/host/chromium-doh.ts": {
+   "sha": "b3fc53b7f7c4e602",
+   "marker": 19
+  },
+  "apps/emdash-desktop/src/main/host/externalLinks.ts": {
+   "sha": "1afbd0566a4a1d30",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/main/host/secrets/encrypted-app-secrets-store.ts": {
+   "sha": "c7db5e1bc1b35cef",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/main/host/updates/update-service.test.ts": {
+   "sha": "1ac70be62ecff52f",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/main/host/updates/update-service.ts": {
+   "sha": "08e92328166e7944",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/main/host/window.ts": {
+   "sha": "81b25c8032c11a97",
+   "marker": 30
+  },
+  "apps/emdash-desktop/src/main/host/xiangwo-chat-target.test.ts": {
+   "sha": "8b8892336f252cda",
+   "marker": 5
+  },
+  "apps/emdash-desktop/src/main/host/xiangwo-chat-target.ts": {
+   "sha": "e97a836fc134affc",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/main/host/xiangwo-host-commands.test.ts": {
+   "sha": "0fe92911b37ed8a3",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/main/host/xiangwo-host-commands.ts": {
+   "sha": "b0ff826c696d81b9",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/main/host/xiangwo-orb-api.test.ts": {
+   "sha": "a81dc41380442362",
+   "marker": 4
+  },
+  "apps/emdash-desktop/src/main/host/xiangwo-orb-api.ts": {
+   "sha": "c701d0d0d19b184b",
+   "marker": 52
+  },
+  "apps/emdash-desktop/src/main/host/xiangwo-orb-menu.test.ts": {
+   "sha": "bf6c2459cfa6ff50",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/main/host/xiangwo-orb.test.ts": {
+   "sha": "a9ecaf41a26fa58b",
+   "marker": 8
+  },
+  "apps/emdash-desktop/src/main/host/xiangwo-orb.ts": {
+   "sha": "06cac1b7d365e161",
+   "marker": 83
+  },
+  "apps/emdash-desktop/src/main/host/xiangwo-script-runner.test.ts": {
+   "sha": "2269d819c9bfaf9a",
+   "marker": 4
+  },
+  "apps/emdash-desktop/src/main/host/xiangwo-script-runner.ts": {
+   "sha": "d0a64e2317d01aff",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/main/host/xiangwo-tool-target.test.ts": {
+   "sha": "f12cc2d58af34d59",
+   "marker": 5
+  },
+  "apps/emdash-desktop/src/main/host/xiangwo-tool-target.ts": {
+   "sha": "98aa71003a3c5ca0",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/renderer/App.tsx": {
+   "sha": "4d7060f1dde6937d",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/renderer/XiangwoFloatingPanel.tsx": {
+   "sha": "4aec11da781de090",
+   "marker": 8
+  },
+  "apps/emdash-desktop/src/renderer/app/app-shutdown-lifecycle.tsx": {
+   "sha": "7b9b4039c769fea3",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/renderer/lib/i18n/index.ts": {
+   "sha": "8865457769bf1d8d",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/renderer/lib/i18n/locales.ts": {
+   "sha": "ed3eb4ef96104b26",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/renderer/lib/modal/modal-error-boundary.test.ts": {
+   "sha": "36d9a18010ad77d1",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/renderer/lib/modal/modal-error-boundary.tsx": {
+   "sha": "1b88f6b2d69cc951",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/renderer/lib/modal/modal-renderer.tsx": {
+   "sha": "98c5429f78b97bfb",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/renderer/main.tsx": {
+   "sha": "00f7cfb539b41ed5",
+   "marker": 5
+  },
+  "apps/emdash-desktop/src/renderer/orb/markdown.test.ts": {
+   "sha": "2a6c6be0ff817ecb",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/renderer/orb/markdown.ts": {
+   "sha": "2d543c0e88e46091",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/renderer/orb/orb-attachments.test.ts": {
+   "sha": "e7311a7c4a7006da",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/renderer/orb/orb-attachments.ts": {
+   "sha": "9b695f118925d541",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/renderer/orb/orb-outbound.test.ts": {
+   "sha": "366035f33577ad40",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/renderer/orb/orb-outbound.ts": {
+   "sha": "e87169b6359ba945",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/renderer/orb/orb-to-bottom.test.ts": {
+   "sha": "faef4ea704a9aeff",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/renderer/orb/orb.css": {
+   "sha": "c55c73fd09436ed9",
+   "marker": 63
+  },
+  "apps/emdash-desktop/src/renderer/orb/orb.html": {
+   "sha": "02f540f3bdb1d709",
+   "marker": 15
+  },
+  "apps/emdash-desktop/src/renderer/orb/orb.js": {
+   "sha": "29fca34661a7c6a7",
+   "marker": 202
+  },
+  "apps/emdash-desktop/src/renderer/orb/xiangwo-action.test.ts": {
+   "sha": "af97ca904e9df893",
+   "marker": 7
+  },
+  "apps/emdash-desktop/src/renderer/orb/xiangwo-action.ts": {
+   "sha": "3668577612b16af0",
+   "marker": 14
+  },
+  "apps/emdash-desktop/src/renderer/orb/xiangwo-chat.test.ts": {
+   "sha": "c748b1ab1882cc41",
+   "marker": 12
+  },
+  "apps/emdash-desktop/src/renderer/orb/xiangwo-chat.ts": {
+   "sha": "811cbb1029bf8896",
+   "marker": 26
+  },
+  "apps/emdash-desktop/src/renderer/orb/xiangwo-history.test.ts": {
+   "sha": "d0512fcc660b6e23",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/renderer/orb/xiangwo-history.ts": {
+   "sha": "fb19540e9fcad3cb",
+   "marker": 2
+  },
+  "apps/emdash-desktop/src/renderer/orb/xiangwo-images-legacy.test.ts": {
+   "sha": "7364281793d939ed",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/renderer/orb/xiangwo-images.test.ts": {
+   "sha": "d7cfb1eb73b627c5",
+   "marker": 8
+  },
+  "apps/emdash-desktop/src/renderer/orb/xiangwo-images.ts": {
+   "sha": "f14333565775d5fb",
+   "marker": 14
+  },
+  "apps/emdash-desktop/src/renderer/orb/xiangwo-mcp.test.ts": {
+   "sha": "fa6db610f1501355",
+   "marker": 1
+  },
+  "apps/emdash-desktop/src/renderer/orb/xiangwo-mcp.ts": {
+   "sha": "7bd8d6962d317ec7",
+   "marker": 3
+  },
+  "apps/emdash-desktop/src/renderer/tests/browser/modal-catalog.test.ts": {
+   "sha": "80599c46fbeb0a9d",
+   "marker": 3
+  },
+  "apps/emdash-desktop/tsconfig.node.json": {
+   "sha": "2427afb086a397b2",
+   "marker": 1
+  },
+  "apps/workspace-server/scripts/package.ts": {
+   "sha": "d3b8a7a82a7f7cb9",
+   "marker": 6
+  },
+  "apps/workspace-server/src/api/controller.ts": {
+   "sha": "3e141e015cca4c3e",
+   "marker": 2
+  },
+  "apps/workspace-server/src/index.ts": {
+   "sha": "8d1083f327f45215",
+   "marker": 3
+  },
+  "apps/workspace-server/src/wire/serve-socket.ts": {
+   "sha": "6fa8db95e2685925",
+   "marker": 6
+  },
+  "apps/workspace-server/src/wire/xg-handshake-log.ts": {
+   "sha": "6799d481013c3249",
+   "marker": 2
+  },
+  "docs/xg-custom-baselines/manifest-pre-update-20261026-143911.json": {
+   "sha": "b73b3bc9e28657ff",
+   "marker": 479
+  },
+  "packages/chat-ui/src/components/rows/message/assistant-images.css.ts": {
+   "sha": "859cc9ee56756371",
+   "marker": 1
+  },
+  "packages/chat-ui/src/components/rows/message/assistant-images.test.ts": {
+   "sha": "857d5ce9f94d60bd",
+   "marker": 3
+  },
+  "packages/chat-ui/src/components/rows/message/assistant-images.ts": {
+   "sha": "d4191d5a8202b076",
+   "marker": 11
+  },
+  "packages/chat-ui/src/components/rows/message/message.css.ts": {
+   "sha": "bce94831f0b9167b",
+   "marker": 1
+  },
+  "packages/chat-ui/src/components/rows/message/message.def.tsx": {
+   "sha": "b7a9129d5de191a0",
+   "marker": 14
+  },
+  "packages/chat-ui/src/components/rows/resource-link/ResourceLink.tsx": {
+   "sha": "bbe2bddb417f964d",
+   "marker": 3
+  },
+  "packages/chat-ui/src/model.ts": {
+   "sha": "9dd48b9d372c5b42",
+   "marker": 5
+  },
+  "packages/core/src/primitives/acp-transcript/api/normalized-event.ts": {
+   "sha": "8f679d1a460cca51",
+   "marker": 7
+  },
+  "packages/core/src/primitives/skills/api/merge-installed.ts": {
+   "sha": "a305ccca591699d4",
+   "marker": 1
+  },
+  "packages/core/src/primitives/skills/api/schemas.ts": {
+   "sha": "5407c7ee8e229c27",
+   "marker": 3
+  },
+  "packages/core/src/primitives/skills/api/types.ts": {
+   "sha": "9a26d33632bddc4b",
+   "marker": 2
+  },
+  "packages/core/src/runtimes/acp/api/models/turns/index.ts": {
+   "sha": "6ea4ab447809d6da",
+   "marker": 1
+  },
+  "packages/core/src/runtimes/acp/api/models/turns/messages.test.ts": {
+   "sha": "dbd45d1cb7c81d9e",
+   "marker": 1
+  },
+  "packages/core/src/runtimes/acp/api/models/turns/messages.ts": {
+   "sha": "0583056973e5303c",
+   "marker": 4
+  },
+  "packages/core/src/runtimes/acp/api/models/turns/resource-links.test.ts": {
+   "sha": "40c2b07c811f8276",
+   "marker": 1
+  },
+  "packages/core/src/runtimes/acp/api/models/turns/resource-links.ts": {
+   "sha": "17479cc246155930",
+   "marker": 1
+  },
+  "packages/core/src/runtimes/acp/api/models/turns/turn.ts": {
+   "sha": "0b2b2a9e1e24140d",
+   "marker": 2
+  },
+  "packages/core/src/runtimes/acp/api/reducer/decode.test.ts": {
+   "sha": "999b3cecc4476a52",
+   "marker": 5
+  },
+  "packages/core/src/runtimes/acp/api/reducer/decode.ts": {
+   "sha": "6c55239059e76e62",
+   "marker": 6
+  },
+  "packages/core/src/runtimes/acp/api/reducer/event-routing.ts": {
+   "sha": "099b19a66ff7cb13",
+   "marker": 1
+  },
+  "packages/core/src/runtimes/acp/api/reducer/ids.ts": {
+   "sha": "fbc329d0271cab7a",
+   "marker": 1
+  },
+  "packages/core/src/runtimes/acp/api/reducer/item-fold.ts": {
+   "sha": "a4e0f4959bfd04a1",
+   "marker": 6
+  },
+  "packages/core/src/runtimes/acp/api/transport.ts": {
+   "sha": "705b7f50ea358a7a",
+   "marker": 2
+  },
+  "packages/core/src/runtimes/acp/node/acp-test-support.ts": {
+   "sha": "afa67de4d72a3ab7",
+   "marker": 1
+  },
+  "packages/core/src/runtimes/acp/node/connection/acp-agent-connection.test.ts": {
+   "sha": "f045b25d2fbc2bb0",
+   "marker": 1
+  },
+  "packages/core/src/runtimes/acp/node/connection/acp-agent-connection.ts": {
+   "sha": "a5d535a80b823ba0",
+   "marker": 3
+  },
+  "packages/core/src/runtimes/acp/node/node/child-process-host.ts": {
+   "sha": "77f970ad72c60ce2",
+   "marker": 2
+  },
+  "packages/core/src/runtimes/acp/node/runtime/conversation-handle.ts": {
+   "sha": "a0835bc65cce1159",
+   "marker": 1
+  },
+  "packages/core/src/runtimes/acp/node/runtime/session-manager.test.ts": {
+   "sha": "fc97ecf277e11e67",
+   "marker": 0
+  },
+  "packages/core/src/runtimes/acp/node/runtime/session-manager.ts": {
+   "sha": "806b904ff4d62363",
+   "marker": 3
+  },
+  "packages/core/src/runtimes/acp/node/runtime/types.ts": {
+   "sha": "fe4a9ddb5ffe8c0c",
+   "marker": 0
+  },
+  "packages/core/src/runtimes/acp/node/session/cell.ts": {
+   "sha": "b21965c337e9018c",
+   "marker": 0
+  },
+  "packages/core/src/runtimes/acp/node/session/ocr-bridge.ts": {
+   "sha": "ff2bd64bde04a689",
+   "marker": 1
+  },
+  "packages/core/src/runtimes/agent-config/node/runtime/skills.ts": {
+   "sha": "ce2aba8feb1178f2",
+   "marker": 17
+  },
+  "packages/core/src/runtimes/automations/api/deployment.ts": {
+   "sha": "02cdd1e5a5c26ced",
+   "marker": 5
+  },
+  "packages/core/src/runtimes/automations/api/run.ts": {
+   "sha": "b27e9e53333907a9",
+   "marker": 1
+  },
+  "packages/core/src/runtimes/automations/node/runtime.ts": {
+   "sha": "18aec6032445f3ce",
+   "marker": 9
+  },
+  "packages/core/src/runtimes/automations/node/scheduling/scheduler.ts": {
+   "sha": "7ad86e4ad52bb856",
+   "marker": 3
+  },
+  "packages/core/src/runtimes/automations/node/scheduling/webhook-filter.test.ts": {
+   "sha": "507fcc50e9a9bfaa",
+   "marker": 1
+  },
+  "packages/core/src/runtimes/automations/node/scheduling/webhook-filter.ts": {
+   "sha": "809c178c56b88e79",
+   "marker": 1
+  },
+  "packages/core/src/runtimes/automations/node/scheduling/webhook-prompt.test.ts": {
+   "sha": "e2937eefcf9e6645",
+   "marker": 1
+  },
+  "packages/core/src/runtimes/automations/node/scheduling/webhook-prompt.ts": {
+   "sha": "635e9fb26eafdf12",
+   "marker": 1
+  },
+  "packages/core/src/runtimes/automations/node/webhook-intake.test.ts": {
+   "sha": "c37520ef237b8200",
+   "marker": 1
+  },
+  "packages/core/src/runtimes/automations/node/webhook-server.test.ts": {
+   "sha": "8ed540a3e676d181",
+   "marker": 1
+  },
+  "packages/core/src/runtimes/automations/node/webhook-server.ts": {
+   "sha": "d344a20753442b53",
+   "marker": 1
+  },
+  "packages/core/src/runtimes/files/node/allocation/allocation-graph.ts": {
+   "sha": "f15cb2103ddf02fa",
+   "marker": 3
+  },
+  "packages/core/src/runtimes/workspace-registry/node/persistence/payload-codecs.ts": {
+   "sha": "2afa12c601acafbc",
+   "marker": 2
+  },
+  "packages/core/src/services/runtime-broker/api/runtime-client-binding.ts": {
+   "sha": "e1f0c88700f3de22",
+   "marker": 1
+  },
+  "packages/core/vitest.config.ts": {
+   "sha": "fc44a768457a56d3",
+   "marker": 1
+  },
+  "packages/plugins/src/agents/impl/deepseek/icon.ts": {
+   "sha": "59a31eeaf58c597e",
+   "marker": 1
+  },
+  "packages/plugins/src/agents/impl/deepseek/index.ts": {
+   "sha": "c1642020b2230ead",
+   "marker": 2
+  },
+  "packages/plugins/src/agents/impl/native-acp.test.ts": {
+   "sha": "a060341d3667c465",
+   "marker": 1
+  },
+  "packages/plugins/src/agents/impl/xiangwo-babado/index.ts": {
+   "sha": "0d877edf1e685eae",
+   "marker": 4
+  },
+  "packages/plugins/src/agents/impl/xiangwo-caiwuzongguan/index.ts": {
+   "sha": "fcd1c03c44bad995",
+   "marker": 4
+  },
+  "packages/plugins/src/agents/impl/xiangwo-ceo/index.ts": {
+   "sha": "b05ed4d811c5adf8",
+   "marker": 4
+  },
+  "packages/plugins/src/agents/impl/xiangwo-chief-engineer/index.ts": {
+   "sha": "f42d363af17ecfbc",
+   "marker": 4
+  },
+  "packages/plugins/src/agents/impl/xiangwo-dayi/index.ts": {
+   "sha": "be135d85f4530e98",
+   "marker": 4
+  },
+  "packages/plugins/src/agents/impl/xiangwo-scout/index.ts": {
+   "sha": "c6a40b2049069039",
+   "marker": 2
+  },
+  "packages/plugins/src/agents/impl/xiangwo-shangcha/index.ts": {
+   "sha": "b8f4a3ed219945c1",
+   "marker": 4
+  },
+  "packages/plugins/src/agents/impl/xiangwo-shuobo/index.ts": {
+   "sha": "386cde5bcae28bfd",
+   "marker": 4
+  },
+  "packages/plugins/src/agents/impl/xiangwo-sxsj/index.ts": {
+   "sha": "d008d0c5a506203f",
+   "marker": 4
+  },
+  "packages/plugins/src/agents/impl/xiangwo-yunyou/index.ts": {
+   "sha": "d72a25a53e262c0a",
+   "marker": 4
+  },
+  "packages/plugins/src/agents/impl/xiangwo/acp-transform.ts": {
+   "sha": "dcc9284be3eeb68e",
+   "marker": 1
+  },
+  "packages/plugins/src/agents/impl/xiangwo/icon.ts": {
+   "sha": "5990ce85fc417de0",
+   "marker": 1
+  },
+  "packages/plugins/src/agents/impl/xiangwo/index.ts": {
+   "sha": "18ef44138c2146f9",
+   "marker": 4
+  },
+  "packages/plugins/src/agents/registry.ts": {
+   "sha": "cd8d5f30a00222cc",
+   "marker": 4
+  },
+  "packages/plugins/src/skills/README.md": {
+   "sha": "0017befcd6149c5c",
+   "marker": 1
+  },
+  "packages/plugins/src/skills/impl/pstack/create-verification-skill.ts": {
+   "sha": "1a7db006d1b41416",
+   "marker": 0
+  },
+  "packages/plugins/src/skills/impl/pstack/principle-encode-lessons-in-structure.ts": {
+   "sha": "f3b45cb7533710f8",
+   "marker": 0
+  },
+  "packages/plugins/src/skills/impl/pstack/principle-guard-the-context-window.ts": {
+   "sha": "e8a7db112b04899e",
+   "marker": 0
+  },
+  "packages/plugins/src/skills/index.ts": {
+   "sha": "0102cb23c2d907b3",
+   "marker": 0
+  },
+  "packages/plugins/src/skills/registry.ts": {
+   "sha": "eafef132394110fe",
+   "marker": 0
+  },
+  "packages/plugins/src/skills/types.ts": {
+   "sha": "bf812c8ca32818ba",
+   "marker": 1
+  },
+  "packages/shared/src/index.ts": {
+   "sha": "2f4ce553c93fc80d",
+   "marker": 1
+  },
+  "packages/shared/src/lifecycle.ts": {
+   "sha": "d6f3b5b004d915b4",
+   "marker": 1
+  },
+  "packages/shared/src/xiangwo-images.test.ts": {
+   "sha": "4187239a5c104ea0",
+   "marker": 1
+  },
+  "packages/shared/src/xiangwo-images.ts": {
+   "sha": "51b7d5b7040bff86",
+   "marker": 5
+  },
+  "packages/wire/src/api/client.ts": {
+   "sha": "78457f3b86897c54",
+   "marker": 4
+  },
+  "packages/wire/src/api/connect.ts": {
+   "sha": "da08905c0a7959a7",
+   "marker": 8
+  },
+  "packages/wire/src/api/connection-robustness.test.ts": {
+   "sha": "d9fbd2f0aa5062e1",
+   "marker": 1
+  },
+  "packages/wire/src/api/define.ts": {
+   "sha": "bb1a50937578979d",
+   "marker": 2
+  },
+  "packages/wire/src/api/hold-while-disconnected.test.ts": {
+   "sha": "ed77ea8a306b5261",
+   "marker": 1
+  },
+  "packages/wire/src/api/instrumentation.ts": {
+   "sha": "c54933364255529d",
+   "marker": 1
+  },
+  "packages/wire/src/live/follower.ts": {
+   "sha": "3168992b53a60442",
+   "marker": 2
+  },
+  "packages/wire/src/live/reconnect-sequence.test.ts": {
+   "sha": "33595cb32f0b3a9f",
+   "marker": 1
+  },
+  "packages/wire/src/live/replica/job.ts": {
+   "sha": "ad8ec7137f308a20",
+   "marker": 1
+  },
+  "packages/wire/src/live/replica/log.ts": {
+   "sha": "1697f2608e9f55f1",
+   "marker": 1
+  },
+  "packages/wire/src/live/replica/state.ts": {
+   "sha": "39786a4931ae9593",
+   "marker": 1
+  },
+  "packages/wire/src/worker/link.ts": {
+   "sha": "3d92e5ab20ca9d7c",
+   "marker": 5
+  },
+  "packages/wire/src/worker/node/child-process-spawner.ts": {
+   "sha": "17aaca4d5b0d5ca7",
+   "marker": 1
+  },
+  "packages/wire/src/worker/types.ts": {
+   "sha": "49ce80dabb2874a0",
+   "marker": 1
+  },
+  "packages/wire/src/worker/worker-ipc-failure.test.ts": {
+   "sha": "1c16fa23c55e38f7",
+   "marker": 1
+  },
+  "packages/wire/src/worker/worker-slot.ts": {
+   "sha": "7f47d67349fef60f",
+   "marker": 3
+  },
+  "pnpm-lock.yaml": {
+   "sha": "720802430b398085",
+   "marker": 0
+  },
+  "scripts/xg-custom/README.md": {
+   "sha": "f141bfc6a7f0f311",
+   "marker": 11
+  },
+  "scripts/xg-custom/check.mjs": {
+   "sha": "e78f95ef99fc2389",
+   "marker": 13
+  },
+  "scripts/xg-custom/manifest.json": {
+   "sha": "04a5de2ada8eb0d3",
+   "marker": 503
+  },
+  "scripts/xg-i18n/README.md": {
+   "sha": "1781f47fb05ff903",
+   "marker": 4
+  },
+  "scripts/xg-i18n/apply.mjs": {
+   "sha": "3e247354ed4d0516",
+   "marker": 2
+  },
+  "scripts/xg-i18n/manifest.json": {
+   "sha": "cc1cb1062c7a23b3",
+   "marker": 1
+  },
+  "scripts/xg-package-linux.sh": {
+   "sha": "55928fce01bb29b7",
+   "marker": 7
+  },
+  "scripts/xg-package-win.sh": {
+   "sha": "712dbab94566a635",
+   "marker": 18
+  },
+  "scripts/xg-pre-package.sh": {
+   "sha": "bf4464f8d934325b",
+   "marker": 2
+  },
+  "scripts/xg-verify-win-exe.sh": {
+   "sha": "443122721231e718",
+   "marker": 5
+  }
+ }
+}
