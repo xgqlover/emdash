@@ -54,6 +54,29 @@
 4. 新增 feature（xiangwo）+ plugin（xiangwo）是独立目录，上游更新不冲突，直接保留
 5. 改动的现有文件（left-sidebar/home-view/task 等）：用 git diff 找回 [XG-CUSTOM] 标记处
 
+### 换机器 / 重克隆恢复步骤（2026-11-17）
+
+```bash
+# 1) 拿代码：用我们的 fork，不要直接拿上游
+git clone git@github.com:generalaction/emdash.git && cd emdash
+
+# 2) 装 git 钩子（这是**本地配置**，克隆不会带过来）
+bash ../scripts/xg_git_hooks_install.sh
+
+# 3) 验定制台账：978 个文件的 sha + "仍与上游不同"
+python3 ../scripts/xg_emdash_patch_audit.py --check
+
+# 4) 装依赖（仓库 devEngines 要求 node 24.14.0，pnpm 会按 onFail:download 自取）
+pnpm install
+
+# 5) 打包（改的是 desktop renderer，必须重打）
+./scripts/xg-package-linux.sh      # 或 xg-package-win.sh
+```
+
+钩子干两件事：`pre-merge-commit` 台账红就**拒绝合并**；`post-merge` 合完立刻报警并列出「要重放哪些文件」。
+注意：钩子文件在仓库里，但 `core.hooksPath` 是本地配置——**没装就静默失效**，
+所以总闸 `三类能力-verify.sh` 里有一条「git 钩子已挂」专门抓这个。
+
 ### 7. lifecycle schema v3 兼容（future-version 根治，09-21）
 
 - **文件**：`packages/core/src/runtimes/workspace-registry/node/persistence/payload-codecs.ts`
