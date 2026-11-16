@@ -137,9 +137,15 @@ export class HostConnectionSupervisor {
       scope: this.scope,
       clock: this.clock,
       open: (target, signal) => options.runtime.open(target, signal),
-      openTimeoutMs: options.openTimeoutMs ?? 10_000,
-      initializeTimeoutMs: options.initializeTimeoutMs ?? 10_000,
-      healthTimeoutMs: options.healthTimeoutMs ?? 5_000,
+      // [XG-CUSTOM 2026-11-16] 主机连接的两个死线：10 秒太短，会造出「20 秒一轮」的洪水。
+      //   病：open(10s) 和 initialize(10s) 各自超时 ⇒ 整条连接每 ~20 秒被回收一次 ⇒ 每次回收都让客户端
+      //       重跑一遍全工作区 files.fs.readText（实测每轮 5,000 次调用、写 0.3~2 GB、ms 恒 ≈ 20200）。
+      //   也就是说 20 秒 = 两个 10 秒相加，不是某一处 20 秒常量 —— 只改 ACP attach 的 180 秒治不了它（踩过）。
+      //   判据：服务端 `grep xgwire` 看到 ms≈20200 且 bytesWritten 上亿 ⇒ 就是这里。
+      //   台账：scripts/xg-custom/manifest.json
+      openTimeoutMs: options.openTimeoutMs ?? 60_000,
+      initializeTimeoutMs: options.initializeTimeoutMs ?? 60_000,
+      healthTimeoutMs: options.healthTimeoutMs ?? 10_000,
       client: options.client,
       onRequestTimeout: () => this.revalidate('rpc-timeout'),
       // [XG-CUSTOM 2026-11-05] 通道停滞 ⇒ 走下面 channelStalled 的既有「断开 + 重建」路径。
