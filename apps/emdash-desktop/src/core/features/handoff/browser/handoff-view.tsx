@@ -13,7 +13,8 @@ import {
   createTextMatcher,
   PageLayout,
 } from '@emdash/ui/react/patterns';
-import { AbsoluteTime, Alert, Badge, Button, Sheet, Tabs, ToggleGroup, toast } from '@emdash/ui/react/primitives';
+import { AbsoluteTime, Alert, Badge, Button, MicroLabel, Sheet, Tabs, ToggleGroup, toast } from '@emdash/ui/react/primitives';
+import { CardGrid, CardGridItem, CardGridSection } from '@emdash/ui/react/components';
 import { Bot, CheckCircle2, Clock, FileText, MonitorSmartphone, Plus, Trash2, UserRound, X } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
@@ -526,6 +527,40 @@ export function HandoffMainPanel() {
           description="专家任务交接 + 浏览器页面控制权交接；这里只交接，不自动执行"
         />
         {/* 双 Tab 切换：不放进滚动区，保证切页时头部不跑 */}
+        {/* [XG-CUSTOM 2026-11-17] 顶部统计卡：**先做格式**，数值后续接真实聚合（handoff-stats-cards） */}
+        <div data-xg-custom="handoff-stats-cards" className="shrink-0 pt-4">
+          <CardGridSection title="交接概览">
+            <CardGridItem>
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <MicroLabel>待接</MicroLabel>
+                <div className="text-2xl font-semibold">—</div>
+                <div className="truncate text-xs text-foreground-muted">数据接入中</div>
+              </div>
+            </CardGridItem>
+            <CardGridItem>
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <MicroLabel>进行中</MicroLabel>
+                <div className="text-2xl font-semibold">—</div>
+                <div className="truncate text-xs text-foreground-muted">数据接入中</div>
+              </div>
+            </CardGridItem>
+            <CardGridItem>
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <MicroLabel>今日结清</MicroLabel>
+                <div className="text-2xl font-semibold">—</div>
+                <div className="truncate text-xs text-foreground-muted">数据接入中</div>
+              </div>
+            </CardGridItem>
+            <CardGridItem>
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <MicroLabel>业务线</MicroLabel>
+                <div className="text-2xl font-semibold">—</div>
+                <div className="truncate text-xs text-foreground-muted">数据接入中</div>
+              </div>
+            </CardGridItem>
+          </CardGridSection>
+        </div>
+
         <Tabs.Root value={tab} onValueChange={(value) => setTab(value as 'expert' | 'spaces')}>
           <Tabs.List>
             <Tabs.Tab
