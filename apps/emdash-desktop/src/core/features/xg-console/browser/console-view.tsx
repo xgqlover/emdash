@@ -9,6 +9,7 @@ import { cn } from '@core/primitives/styling/browser/cn';
 import { defineViewRuntime } from '@core/primitives/views/react';
 import { xgConsoleViewDef } from '../contributions/views';
 
+type Route = { ts: number; lane: string; task: string; outcome?: string | null };
 type Ticket = {
   sid?: string;
   id: string;
@@ -60,6 +61,7 @@ function XgConsoleMainPanel() {
   const running = d?.state === 'running';
   const working = d?.working ?? [];
   const tickets = (d?.tickets ?? []).slice(0, 10);
+  const routing = (d?.routing ?? []).slice(0, 10);
   const flows = d?.flows ?? [];
   const health = Object.entries(d?.health ?? {});
   const af = d?.af;
@@ -141,6 +143,28 @@ function XgConsoleMainPanel() {
                     {(t.title || t.name || t.id).slice(0, 90)}
                   </span>
                   <span className="text-xs text-foreground-muted">{ageTxt(t.age_s)}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="space-y-2 lg:col-span-2">
+            <div className="text-sm font-medium">最近决策（{routing.length}）</div>
+            <div className={cn(card, 'space-y-1 p-2')}>
+              {routing.length === 0 && (
+                <div className="px-2 py-1.5 text-xs text-foreground-muted">还没有决策记录</div>
+              )}
+              {routing.map((r, i) => (
+                <div key={`${r.ts}-${i}`}
+                     className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-surface-hover">
+                  <Badge variant={r.lane === 'r0' ? 'success' : 'neutral'}>{r.lane}</Badge>
+                  <span className="min-w-0 flex-1 truncate text-xs text-foreground-muted">
+                    {r.task.slice(0, 90)}
+                  </span>
+                  <span className="text-xs text-foreground-muted">{r.outcome || '—'}</span>
+                  <span className="text-xs text-foreground-muted">
+                    {new Date(r.ts).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
                 </div>
               ))}
             </div>
