@@ -1576,5 +1576,11 @@ apps/emdash-desktop/release/.last-shipped-version   记录上一次产出给用�
   1. `--enable-logging` 启动，读 renderer stderr —— 首行就是那个 `ReferenceError`（比翻主进程日志快一个数量级）；
   2. 对每个视图统计「`import` 次数 / 使用次数」，两者必须相等。全仓 9 个视图只有中控台是 `imp=0 use=1`。
 - **修法**：补 `import { defineViewRuntime } from '@core/primitives/views/react';` → **1.2.97**（提交 `717243cee`）。
+- **同一处还有第二个漏 import**（1.2.97 装上后白屏依旧，`--enable-logging` 报 `xgConsoleViewDef is not defined`）：
+  `xgConsoleViewDef` 定义在 `xg-console/contributions/views.ts`，`console-view.tsx` 却没 import。
+  ⇒ 1.2.98 一并补 `import { xgConsoleViewDef } from '../contributions/views';`。
+- **为什么构建放得过**：vite/esbuild 把未声明的标识符当**全局变量**，打包不报错、运行时才 `ReferenceError`。
+  `tsc` 本可当闸门，但本仓 `tsc -p tsconfig.json --noEmit` 自身崩（`Debug Failure. No error for last overload signature`，TS 内部 bug）。
+  现用**针对性扫描**兜底：对「视图运行时类标识符」（`xg[A-Z]...` / `*ViewDef` / `*ViewRuntime`）逐个数 import/声明，缺失即报。
 - **铁律**：**「构建过了」≠「运行时存在」**。补 `export` 时必须同时核对同一个符号的 `import`；
   白屏/黑屏类故障**先抓渲染层首错**，别从连接层、打包依赖、超时那几条路去查（本轮在这三条假路上花掉一整天）。

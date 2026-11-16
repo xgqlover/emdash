@@ -245,7 +245,7 @@
       "anchors": [
         "2026-10-14] 版本 1.2.43-xiangwo：取图网格点击目标 page→orig 兜底（真机反馈「点了没图的框没反应」）；另 1.2.41 未设工作区回退、1.2.42 planOutbound(MCP Apps)。⚠️ J"
       ],
-      "hash": "5b83f75d2f46391a4420830ef343110bf27bcbf8",
+      "hash": "ad9c57b8fe80efa2fabb4b71e052a11cc4f0cee2",
       "origin": "modified",
       "firstCommit": "1dce8b4ad|2026-10-14|[XG-CUSTOM 2026-10-14] 取图网格：点击目标 page→orig 兜底 + 版本 1.2.43-xiangwo + 台账标记",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -5114,7 +5114,7 @@
       "anchors": [
         "import { useCallback, useEffect, useState } from 'react';"
       ],
-      "hash": "3bbf51f01e97015a0b385fea3fc4d1c37a2957da",
+      "hash": "80f64660fee3f5903a2cf0da41e91e95768eb1ca",
       "origin": "new",
       "firstCommit": "ad4ce43c4|2026-11-15|[XG-CUSTOM] 新增中控台视图（交接台下面）+ 派工卡从专家总览移入",
       "lastCommit": "ad4ce43c4|2026-11-15|[XG-CUSTOM] 新增中控台视图（交接台下面）+ 派工卡从专家总览移入",
