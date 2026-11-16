@@ -244,3 +244,7 @@ export function XgConsoleMainPanel() {
     </PageLayout>
   );
 }
+
+export const xgConsoleViewRuntime = defineViewRuntime(xgConsoleViewDef, {
+  slots: { wrap: ({ children }) => <>{children}</>, main: XgConsoleMainPanel },
+});
