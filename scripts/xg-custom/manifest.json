@@ -7,12 +7,40 @@
     "base": "ccc6cce4a41627deb6888db6763f3de5ff0e4e08"
   },
   "stats": {
-    "files": 496,
-    "markers": 2671,
-    "newFiles": 147,
-    "modifiedFiles": 349
+    "files": 504,
+    "markers": 2687,
+    "newFiles": 153,
+    "modifiedFiles": 351
   },
   "files": {
+    ".githooks/post-merge": {
+      "markers": 1,
+      "lines": [
+        2
+      ],
+      "anchors": [
+        "ROOT=\"$(git rev-parse --show-toplevel)\""
+      ],
+      "hash": "709a197867bb87fca56229cc16d4299cd5da7eb9",
+      "origin": "new",
+      "firstCommit": "5693ff823|2026-11-15|[XG-CUSTOM] 定制台账 + git hooks（post-merge 报警 / pre-merge-commit 拦截）+ 对话页显示真实 working",
+      "lastCommit": "5693ff823|2026-11-15|[XG-CUSTOM] 定制台账 + git hooks（post-merge 报警 / pre-merge-commit 拦截）+ 对话页显示真实 working",
+      "note": "定制台账 + git hooks（post-merge 报警 / pre-merge-commit 拦截）+ 对话页显示真实 working"
+    },
+    ".githooks/pre-merge-commit": {
+      "markers": 1,
+      "lines": [
+        2
+      ],
+      "anchors": [
+        "ROOT=\"$(git rev-parse --show-toplevel)\""
+      ],
+      "hash": "4cabac87286334b4f3657a91b8565fdd7fc4a6a4",
+      "origin": "new",
+      "firstCommit": "5693ff823|2026-11-15|[XG-CUSTOM] 定制台账 + git hooks（post-merge 报警 / pre-merge-commit 拦截）+ 对话页显示真实 working",
+      "lastCommit": "5693ff823|2026-11-15|[XG-CUSTOM] 定制台账 + git hooks（post-merge 报警 / pre-merge-commit 拦截）+ 对话页显示真实 working",
+      "note": "定制台账 + git hooks（post-merge 报警 / pre-merge-commit 拦截）+ 对话页显示真实 working"
+    },
     ".github/workflows/release-prod.yml": {
       "markers": 4,
       "lines": [
@@ -217,7 +245,7 @@
       "anchors": [
         "2026-10-14] 版本 1.2.43-xiangwo：取图网格点击目标 page→orig 兜底（真机反馈「点了没图的框没反应」）；另 1.2.41 未设工作区回退、1.2.42 planOutbound(MCP Apps)。⚠️ J"
       ],
-      "hash": "60318b10be022dcc76b207ba39685912cfbefec8",
+      "hash": "efb081f023ae7833944e6cc6c412c68fea8f5669",
       "origin": "modified",
       "firstCommit": "1dce8b4ad|2026-10-14|[XG-CUSTOM 2026-10-14] 取图网格：点击目标 page→orig 兜底 + 版本 1.2.43-xiangwo + 台账标记",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -410,6 +438,20 @@
       "origin": "modified",
       "firstCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
       "lastCommit": "cf896fecc|2026-10-05|feat(automations): [XG-CUSTOM 2026-10-05] 触发源扩到 cron|webhook（第 3 项第一切片）",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/automations/browser/builtin-catalog.ts": {
+      "markers": 1,
+      "lines": [
+        78
+      ],
+      "anchors": [
+        "id: 'xg-af-backlog',"
+      ],
+      "hash": "ccbdf8ea926ee7c7d6d4108a3e1f0bbc81e966cf",
+      "origin": "modified",
+      "firstCommit": "a6e6cae62|2026-11-15|[XG-CUSTOM] 中控台显示 AF 待接 + 新增『AF 待接日报』自动化模板",
+      "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "note": "core feature 定制"
     },
     "apps/emdash-desktop/src/core/features/automations/browser/components/AutomationDetailView.tsx": {
@@ -4010,14 +4052,16 @@
       "note": "中文化（变更面板 / PR 区块 / diff 工具条）"
     },
     "apps/emdash-desktop/src/core/features/source-control/contributions/browser/changes-panel.tsx": {
-      "markers": 1,
+      "markers": 2,
       "lines": [
-        44
+        45,
+        260
       ],
       "anchors": [
-        "import { t } from '@renderer/lib/i18n';"
+        "import { t } from '@renderer/lib/i18n';",
+        "<XgConsoleSection />"
       ],
-      "hash": "f1cd42ec4053135c54df1d7ed4a6f7c096be5488",
+      "hash": "9b26f79a11b2bdd12d8592d0cc7927970a062871",
       "origin": "modified",
       "firstCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
       "lastCommit": "217a41909|2026-09-29|[XG-CUSTOM] 变更面板/PR 区块/任务标题栏中文化",
@@ -4860,31 +4904,35 @@
       "note": "中文化 + 项我入口（侧边栏/home）"
     },
     "apps/emdash-desktop/src/core/features/workbench/browser/sidebar/left-sidebar.tsx": {
-      "markers": 10,
+      "markers": 12,
       "lines": [
         3,
         8,
-        42,
-        98,
-        107,
-        128,
-        129,
-        161,
-        173,
-        190
+        11,
+        44,
+        100,
+        109,
+        130,
+        131,
+        144,
+        176,
+        188,
+        205
       ],
       "anchors": [
         "import { t } from '@renderer/lib/i18n';",
         "import { handoffViewDef } from '@core/features/handoff/contributions/views';",
+        "import { xgConsoleViewDef } from '@core/features/xg-console/contributions/views';",
         "const openXiangwoMain = async () => {",
         "<span className=\"text-xs font-medium text-foreground\">{t('drop_to_add_project')}</span>",
         "{/* [XG-CUSTOM] 项我：侧边栏入口按钮 */} ⏎ <button",
         "{/* [XG-CUSTOM 2026-11-10] 入口就写明交接台功用；台账见 CUSTOMIZATIONS.md §35 */} ⏎ <SidebarMenuButton",
+        "{/* [XG-CUSTOM 2026-11-17] 中控台：交接台下面，运行状态一眼可见 */} ⏎ <SidebarMenuButton",
         "<span className=\"truncate\">{t('automations')}</span>",
         "{t('settings')} ⏎ </span>",
         "<span className=\"truncate\">{t('give_feedback')}</span>"
       ],
-      "hash": "5bb89cf5b0deb498bf7458e42ff1056ae02b27ce",
+      "hash": "ab2a6d76dafc3329026ed1bbbd598d2cbf783b68",
       "origin": "modified",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -5040,23 +5088,83 @@
       "lastCommit": "926ce0c65|2026-11-01|feat(i18n): 全量中文化（渲染层可见文案全部走 t()）→ 1.2.59",
       "note": "workspace detail 定制（原生化）"
     },
+    "apps/emdash-desktop/src/core/features/xg-console/browser/console-section.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { useEffect, useState } from 'react';"
+      ],
+      "hash": "e81b1539aefd038102596f9d1cc85d745341d6ef",
+      "origin": "new",
+      "firstCommit": "dee83fe00|2026-11-15|[XG-CUSTOM] 右栏加第四个折叠块「中控台」（在跑票 + 端口健康）",
+      "lastCommit": "dee83fe00|2026-11-15|[XG-CUSTOM] 右栏加第四个折叠块「中控台」（在跑票 + 端口健康）",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/xg-console/browser/console-view.tsx": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { PageLayout } from '@emdash/ui/react/patterns';"
+      ],
+      "hash": "6babc5aeb37467b6e60f87d16f150e9b040bf663",
+      "origin": "new",
+      "firstCommit": "ad4ce43c4|2026-11-15|[XG-CUSTOM] 新增中控台视图（交接台下面）+ 派工卡从专家总览移入",
+      "lastCommit": "ad4ce43c4|2026-11-15|[XG-CUSTOM] 新增中控台视图（交接台下面）+ 派工卡从专家总览移入",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/xg-console/contributions/browser.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { xgConsoleViewRuntime } from '../browser/console-view';"
+      ],
+      "hash": "aca2b33a7bcc0a496a7e9dd8980d79f459246a10",
+      "origin": "new",
+      "firstCommit": "ad4ce43c4|2026-11-15|[XG-CUSTOM] 新增中控台视图（交接台下面）+ 派工卡从专家总览移入",
+      "lastCommit": "ad4ce43c4|2026-11-15|[XG-CUSTOM] 新增中控台视图（交接台下面）+ 派工卡从专家总览移入",
+      "note": "core feature 定制"
+    },
+    "apps/emdash-desktop/src/core/features/xg-console/contributions/views.ts": {
+      "markers": 1,
+      "lines": [
+        1
+      ],
+      "anchors": [
+        "import { z } from 'zod';"
+      ],
+      "hash": "2fa3594959075f4b175ac3a977ad82ee76efad1d",
+      "origin": "new",
+      "firstCommit": "ad4ce43c4|2026-11-15|[XG-CUSTOM] 新增中控台视图（交接台下面）+ 派工卡从专家总览移入",
+      "lastCommit": "ad4ce43c4|2026-11-15|[XG-CUSTOM] 新增中控台视图（交接台下面）+ 派工卡从专家总览移入",
+      "note": "core feature 定制"
+    },
     "apps/emdash-desktop/src/core/features/xiangwo/browser/xiangwo-view.tsx": {
-      "markers": 5,
+      "markers": 7,
       "lines": [
         1,
         9,
         14,
         32,
-        188
+        61,
+        179,
+        218
       ],
       "anchors": [
-        "import { Fragment, useRef, useState } from 'react';",
+        "import { Fragment, useEffect, useRef, useState } from 'react';",
         "import { openExternal } from '@core/primitives/desktop-host/browser/host-client';",
         "function splitUrls(text: string): { type: 'text' | 'url'; value: string }[] {",
         "function renderText(text: string) {",
+        "const [working, setWorking] = useState<{ owner: string; age_s: number }[]>([]);",
+        "<div style={{ color: '#4a9', fontSize: 12, marginTop: 2 }}>",
         "<select"
       ],
-      "hash": "79f357a2e0c29e6395eac9665c36433651785f87",
+      "hash": "829de6d35e8fbd64470337e9fa6dd1a90e063221",
       "origin": "new",
       "firstCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -5091,22 +5199,24 @@
       "note": "项我主对话 feature（8900 聊天）"
     },
     "apps/emdash-desktop/src/core/manifests/browser/browser-contributions.ts": {
-      "markers": 5,
+      "markers": 6,
       "lines": [
         2,
         7,
         20,
-        25,
-        36
+        22,
+        27,
+        39
       ],
       "anchors": [
         "import { browserBrowserContributions } from '@core/features/browser/contributions/browser';",
         "import { expertRosterBrowserContributions } from '@core/features/expert-roster/contributions/browser';",
         "import { xiangwoBrowserContributions } from '@core/features/xiangwo/contributions/browser';",
+        "import { xgConsoleBrowserContributions } from '@core/features/xg-console/contributions/browser';",
         "...xiangwoBrowserContributions.views,",
         "...browserBrowserContributions.modalDefs,"
       ],
-      "hash": "784e13a0df07056630689fcb22a425c4b47d4150",
+      "hash": "97b172b44d5a9547ee134929a9e1e6322e69f3c4",
       "origin": "modified",
       "firstCommit": "94c6d6134|2026-10-02|feat(expert-roster): 专家总览视图（Pi 树全量身份）+ 刷新定制台账",
       "lastCommit": "7fbf04b50|2026-09-16|定制：中文化 + 项我集成（R0/R1/R2 模式、专家体系、子代理）+ 浮窗 + WeKnora 入口",
@@ -5488,7 +5598,7 @@
       "note": "renderer/main 侧定制"
     },
     "apps/emdash-desktop/src/core/services/hosts/node/connection-supervisor.ts": {
-      "markers": 12,
+      "markers": 13,
       "lines": [
         7,
         24,
@@ -5496,12 +5606,13 @@
         115,
         122,
         127,
-        145,
-        402,
-        416,
-        604,
-        664,
-        805
+        140,
+        151,
+        408,
+        422,
+        610,
+        670,
+        811
       ],
       "anchors": [
         "import { log as ambientLog } from '@emdash/shared/logger';",
@@ -5510,6 +5621,7 @@
         "private readonly stallMs: number;",
         "this.stallMs = options.stallMs ?? resolveWireStallMs();",
         "delaysMs: [1_000, 2_000, 4_000, 8_000, 16_000, 30_000],",
+        "openTimeoutMs: options.openTimeoutMs ?? 60_000,",
         "onChannelStall: (finding) => this.channelStalled(finding),",
         "private channelStalled(finding: ChannelStallFinding): void {",
         "ambientLog.warn('wire channel stalled; rebuilding host connection', {",
@@ -5517,7 +5629,7 @@
         "ambientLog.warn('host reconnect attempt failed, retrying', {",
         "function resolveWireStallMs(): number {"
       ],
-      "hash": "a3669ea9f864a5cd6171c8331d1932eec6fcdaac",
+      "hash": "2eee42f1e34c9081568048face987f1651022276",
       "origin": "modified",
       "firstCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
       "lastCommit": "75c9d30ec|2026-11-02|fix(emdash): 五件一次交齐 —— 加号崩溃 / 面板 stale / wire 队列有界 / 自动重连退避 / worker 抗崩溃 → 1.2.63-xiangwo",
@@ -9769,6 +9881,20 @@
       "lastCommit": "fd3437a01|2026-09-19|fix(acp): 恢复官方附件管理修复发图预览灰标（draftAttachments + downloadAttachment）",
       "note": "packages 定制"
     },
+    "packages/core/src/runtimes/acp/node/runtime/session-materializer.ts": {
+      "markers": 1,
+      "lines": [
+        93
+      ],
+      "anchors": [
+        "if (input.sessionId && connection.supportsLoadSession && connection.agent.loadSession) {"
+      ],
+      "hash": "0c04653c558365229ccdc83248cc8a0f4a34718e",
+      "origin": "modified",
+      "firstCommit": "fd3437a01|2026-09-19|fix(acp): 恢复官方附件管理修复发图预览灰标（draftAttachments + downloadAttachment）",
+      "lastCommit": "fd3437a01|2026-09-19|fix(acp): 恢复官方附件管理修复发图预览灰标（draftAttachments + downloadAttachment）",
+      "note": "packages 定制"
+    },
     "packages/core/src/runtimes/acp/node/session/ocr-bridge.ts": {
       "markers": 1,
       "lines": [
@@ -10823,15 +10949,17 @@
       "note": "[XG-CUSTOM 2026-10-09] 本机打 Windows exe 的入口 scripts/xg-package-win.sh（…"
     },
     "scripts/xg-pre-package.sh": {
-      "markers": 2,
+      "markers": 3,
       "lines": [
         2,
-        9
+        9,
+        62
       ],
       "anchors": [
-        "FORCE=\"${1:-}\""
+        "FORCE=\"${1:-}\"",
+        "SHIPPED_FILE=\"apps/emdash-desktop/release/.last-shipped-version\""
       ],
-      "hash": "03c8f8f02a883aec7339797270fad29e52258061",
+      "hash": "ede4241157b0377d6e67d6386e96a4ba152aa9df",
       "origin": "new",
       "firstCommit": "ed43cf2f6|2026-10-01|[XG-CUSTOM] 加打包前检查脚本 xg-pre-package.sh（多代理并行时防止打包漏改动）",
       "lastCommit": "ed43cf2f6|2026-10-01|[XG-CUSTOM] 加打包前检查脚本 xg-pre-package.sh（多代理并行时防止打包漏改动）",

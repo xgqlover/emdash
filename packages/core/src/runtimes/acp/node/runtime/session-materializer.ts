@@ -90,11 +90,11 @@ export class SessionMaterializer {
     let unstarted = true;
 
     try {
-      if (input.sessionId && (!connection.supportsLoadSession || !connection.agent.loadSession)) {
-        return acpErr.invalidState(
-          'This provider cannot restore the existing conversation. Its saved session has been preserved.'
-        );
-      }
+      // [XG-CUSTOM 2026-11-16] provider 不支持 loadSession 时**不要硬报错**。
+      //   原行为：return invalidState('This provider cannot restore...') ⇒ 客户端永远显示「无法加载聊天」，
+      //   且没有任何退路（deepseek 这类 provider 每次重启后都会踩到）。聊天记录存在 conversation transcript 里，
+      //   不依赖 agent 会话，所以正确做法是**忽略存量 sessionId、直接新建会话**（下面那条 if 自然为假）。
+      //   OPS：emdash-运行操作OPS.md「2026-11-16」节。台账：scripts/xg-custom/manifest.json
       if (input.sessionId && connection.supportsLoadSession && connection.agent.loadSession) {
         let releaseHandshake: () => void;
         try {
