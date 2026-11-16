@@ -150,6 +150,54 @@ export function XgConsoleMainPanel() {
               ))}
             </Section>
 
+            <Section title="花名册" count={(d?.bots ?? []).length}>
+              {(() => {
+                const bots = d?.bots ?? [];
+                if (bots.length === 0) return <EmptyState title="没有登记 bot" />;
+                const tierOf = (t?: string) => (t === 'light' ? '4B' : t === 'heavy' ? '27B' : 'auto');
+                const cnt = (k: string) => bots.filter((b) => tierOf(b.tier) === k).length;
+                const trHi = bots.filter((b) => b.translate === 'high').length;
+                return (
+                  <CardGrid className="grid-cols-2 lg:grid-cols-4">
+                    <CardGridItem>
+                      <div className="flex min-w-0 flex-1 flex-col gap-1">
+                        <MicroLabel>走 4B</MicroLabel>
+                        <div className="text-xl font-semibold">{cnt('4B')}</div>
+                        <div className="truncate text-xs text-foreground-muted">
+                          {bots.filter((b) => tierOf(b.tier) === '4B').map((b) => b.name).join(' · ')}
+                        </div>
+                      </div>
+                    </CardGridItem>
+                    <CardGridItem>
+                      <div className="flex min-w-0 flex-1 flex-col gap-1">
+                        <MicroLabel>走 27B</MicroLabel>
+                        <div className="text-xl font-semibold">{cnt('27B')}</div>
+                        <div className="truncate text-xs text-foreground-muted">
+                          {bots.filter((b) => tierOf(b.tier) === '27B').map((b) => b.name).join(' · ')}
+                        </div>
+                      </div>
+                    </CardGridItem>
+                    <CardGridItem>
+                      <div className="flex min-w-0 flex-1 flex-col gap-1">
+                        <MicroLabel>翻译先 27B</MicroLabel>
+                        <div className="text-xl font-semibold">{trHi}</div>
+                        <div className="truncate text-xs text-foreground-muted">
+                          {bots.filter((b) => b.translate === 'high').map((b) => b.name).join(' · ') || '—'}
+                        </div>
+                      </div>
+                    </CardGridItem>
+                    <CardGridItem>
+                      <div className="flex min-w-0 flex-1 flex-col gap-1">
+                        <MicroLabel>合计</MicroLabel>
+                        <div className="text-xl font-semibold">{bots.length}</div>
+                        <div className="truncate text-xs text-foreground-muted">tier 来自 bots/registry.json</div>
+                      </div>
+                    </CardGridItem>
+                  </CardGrid>
+                );
+              })()}
+            </Section>
+
             <Section title="最近决策" count={routing.length}>
               {routing.length === 0 ? <EmptyState title="还没有决策记录" /> : routing.slice(0, 10).map((r, i) => (
                 <div key={`r-${i}`} role="button" tabIndex={0} onClick={() => setSel({ kind: 'route', item: r })} className="cursor-pointer hover:bg-surface-hover">
