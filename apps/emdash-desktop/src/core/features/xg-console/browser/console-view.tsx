@@ -6,6 +6,7 @@ import { PageLayout, CollectionView } from '@emdash/ui/react/patterns';
 import { Badge, Button, MicroLabel, Sheet } from '@emdash/ui/react/primitives';
 import { CardGrid, CardGridItem, EmptyState } from '@emdash/ui/react/components';
 import { XgConsoleIcon } from './icon';
+import { defineViewRuntime } from '@core/primitives/views/react';
 
 type Ticket = {
   sid?: string; id?: string; title?: string; stage?: string; owner?: string;
