@@ -17,9 +17,15 @@ type Status = {
   ok?: boolean; state?: string; working?: Ticket[]; tickets?: Ticket[]; routing?: Route[];
   flows?: (Flow | string)[]; health?: Record<string, boolean>;
   af?: { ok?: boolean; unanswered_effective?: number; over_count?: number; auto_confirmable?: number; by_workspace?: Record<string, number> };
+  routing_stats?: { window_h?: number; lanes?: Record<string, number>; busy?: number; handback?: number; total?: number; slots?: number };
 };
 
 const LANE_TONE: Record<string, 'success' | 'info' | 'neutral'> = { r0: 'success', fast: 'info', d1: 'neutral' };
+// [XG 2026-11-17] 前置分流 6 条 lane 的中文名（顺序就是展示顺序）
+const FRONT_LANES: [string, string][] = [
+  ['translate', '翻译'], ['summarize', '摘要'], ['polish', '润色'],
+  ['lookup', '查维基'], ['extract', '抽取'],
+];
 const STAGE_TONE: Record<string, 'success' | 'info' | 'warning' | 'neutral'> = {
   done: 'success', working: 'info', stale: 'warning',
 };
@@ -150,6 +156,32 @@ export function XgConsoleMainPanel() {
                   ))}
                 </CardGrid>
               )}
+            </Section>
+
+            <Section title={`分流档位（${d?.routing_stats?.window_h ?? 24}h）`}
+                     count={(d?.routing_stats?.total ?? 0)}>
+              {(() => {
+                const st = d?.routing_stats || {};
+                const lanes = st.lanes || {};
+                const rows = FRONT_LANES.map(([k, label]) => ({ k, label, n: lanes[k] || 0 }));
+                const has = rows.some((r) => r.n > 0);
+                if (!has) return <EmptyState title="还没有分流记录" />;
+                return (
+                  <CardGrid className="grid-cols-2 lg:grid-cols-3">
+                    {rows.map((r) => (
+                      <CardGridItem key={r.k} onClick={() => setSel({ kind: 'route', item: routing.find((x) => x.lane === r.k) })}>
+                        <div className="flex min-w-0 flex-1 flex-col gap-1">
+                          <MicroLabel>{r.label}</MicroLabel>
+                          <div className="text-xl font-semibold">{r.n}</div>
+                          <div className="truncate text-xs text-foreground-muted">
+                            槽位占满 {st.busy ?? 0} · 回落 {st.handback ?? 0}
+                          </div>
+                        </div>
+                      </CardGridItem>
+                    ))}
+                  </CardGrid>
+                );
+              })()}
             </Section>
 
             <Section title="最近票" count={tickets.length}>
