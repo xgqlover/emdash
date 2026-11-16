@@ -31,27 +31,33 @@ function fmtAge(s?: number) {
   return `${(s / 3600).toFixed(1)}h`;
 }
 
-function Row({ primary, secondary, right }: { primary: React.ReactNode; secondary?: React.ReactNode; right?: React.ReactNode }) {
-  return (
-    <div className="flex min-w-0 items-center gap-3 py-2">
-      <div className="min-w-0 flex-1">
-        <div className="truncate text-sm">{primary}</div>
-        {secondary !== undefined && <div className="truncate text-xs text-foreground-muted">{secondary}</div>}
-      </div>
-      {right !== undefined && <div className="shrink-0 text-xs text-foreground-muted">{right}</div>}
-    </div>
-  );
-}
-
 function Section({ title, count, children }: { title: string; count: number; children: React.ReactNode }) {
   return (
-    <section className="flex h-72 flex-col rounded-xl border border-border-subtle bg-surface">
-      <div className="flex items-center justify-between border-b border-border-subtle px-3 py-2">
+    <section className="flex flex-col">
+      <div className="mb-2 flex items-center gap-2">
         <span className="text-sm font-medium">{title}</span>
         <span className="text-xs text-foreground-muted">{count}</span>
       </div>
-      <div className="min-h-0 flex-1 overflow-auto px-3">{children}</div>
+      {children}
     </section>
+  );
+}
+
+// [XG-CUSTOM 2026-11-17] 一条 = 一张可点的小卡（不再用长条 Row）
+function ItemCard({ onClick, top, title, meta, tone }: {
+  onClick: () => void; top?: React.ReactNode; title: string; meta?: React.ReactNode;
+  tone?: 'success' | 'info' | 'warning' | 'neutral';
+}) {
+  return (
+    <CardGridItem onClick={onClick} className="min-h-24">
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+        <div className="flex items-center gap-2">
+          {tone ? <Badge tone={tone} variant="outline">{top}</Badge> : <MicroLabel>{top}</MicroLabel>}
+        </div>
+        <div className="line-clamp-2 text-sm">{title}</div>
+        <div className="truncate text-xs text-foreground-muted">{meta}</div>
+      </div>
+    </CardGridItem>
   );
 }
 
@@ -64,7 +70,7 @@ export function XgConsoleMainPanel() {
   const load = useCallback(async () => {
     setBusy(true);
     try {
-      const r = await fetch('http://localhost:8900/v1/dot/status', { cache: 'no-store' });
+      const r = await fetch('http://127.0.0.1:8900/v1/dot/status', { cache: 'no-store' });
       setD(await r.json()); setErr(null);
     } catch (e) { setErr(String(e)); }
     finally { setBusy(false); }
@@ -98,7 +104,7 @@ export function XgConsoleMainPanel() {
             }
           />
 
-          {err && <div className="py-2 text-xs text-foreground-danger">状态接口不通：{err}</div>}
+          {err && <div className="py-2 text-xs text-foreground-danger">状态接口不通（8900 没起或被挡）：{err}</div>}
 
           <CardGrid className="mt-4">
             <CardGridItem onClick={() => setSel({ kind: 'ticket' })}>
@@ -131,37 +137,61 @@ export function XgConsoleMainPanel() {
             </CardGridItem>
           </CardGrid>
 
-          <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
             <Section title="在派工" count={working.length}>
-              {working.length === 0 ? <EmptyState title="没有正在跑的票" /> : working.map((t, i) => (
-                <div key={`w-${i}`} role="button" tabIndex={0} onClick={() => setSel({ kind: 'ticket', item: t })} className="cursor-pointer hover:bg-surface-hover">
-                  <Row primary={t.owner || '?'} secondary={t.title || '(无标题)'} right={fmtAge(t.age_s)} />
-                </div>
-              ))}
+              {working.length === 0 ? (
+                <EmptyState title="没有正在跑的票" description="派工后这里会出现卡片，点开看详情" />
+              ) : (
+                <CardGrid className="grid-cols-1">
+                  {working.map((t, i) => (
+                    <ItemCard key={`w-${i}`} tone={STAGE_TONE[t.stage || ''] || 'info'} top={t.stage || 'working'}
+                      title={t.title || '(无标题)'} meta={`${t.owner || '?'} · ${fmtAge(t.age_s)}`}
+                      onClick={() => setSel({ kind: 'ticket', item: t })} />
+                  ))}
+                </CardGrid>
+              )}
             </Section>
 
             <Section title="最近票" count={tickets.length}>
-              {tickets.length === 0 ? <EmptyState title="还没有票" /> : tickets.slice(0, 10).map((t, i) => (
-                <div key={`t-${i}`} role="button" tabIndex={0} onClick={() => setSel({ kind: 'ticket', item: t })} className="cursor-pointer hover:bg-surface-hover">
-                  <Row primary={<span className="flex items-center gap-2"><Badge tone={STAGE_TONE[t.stage || ''] || 'neutral'} variant="outline">{t.stage || '?'}</Badge><span className="truncate">{t.owner || '?'}</span></span>} secondary={t.title || '(无标题)'} right={fmtAge(t.age_s)} />
-                </div>
-              ))}
+              {tickets.length === 0 ? (
+                <EmptyState title="还没有票" description="每派一次活就多一张卡" />
+              ) : (
+                <CardGrid className="grid-cols-1">
+                  {tickets.slice(0, 6).map((t, i) => (
+                    <ItemCard key={`t-${i}`} tone={STAGE_TONE[t.stage || ''] || 'neutral'} top={t.stage || '?'}
+                      title={t.title || '(无标题)'} meta={`${t.owner || '?'} · ${fmtAge(t.age_s)}`}
+                      onClick={() => setSel({ kind: 'ticket', item: t })} />
+                  ))}
+                </CardGrid>
+              )}
             </Section>
 
             <Section title="最近决策" count={routing.length}>
-              {routing.length === 0 ? <EmptyState title="还没有决策记录" /> : routing.slice(0, 10).map((r, i) => (
-                <div key={`r-${i}`} role="button" tabIndex={0} onClick={() => setSel({ kind: 'route', item: r })} className="cursor-pointer hover:bg-surface-hover">
-                  <Row primary={<span className="flex items-center gap-2"><Badge tone={LANE_TONE[r.lane] || 'neutral'} variant="outline">{r.lane}</Badge><span className="truncate">{r.task}</span></span>} secondary={r.why || ''} right={r.outcome || '—'} />
-                </div>
-              ))}
+              {routing.length === 0 ? (
+                <EmptyState title="还没有决策记录" description="走过前置分流就会记一条" />
+              ) : (
+                <CardGrid className="grid-cols-1">
+                  {routing.slice(0, 6).map((r, i) => (
+                    <ItemCard key={`r-${i}`} tone={LANE_TONE[r.lane] || 'neutral'} top={r.lane}
+                      title={r.task || '(无任务)'} meta={r.why || r.outcome || '—'}
+                      onClick={() => setSel({ kind: 'route', item: r })} />
+                  ))}
+                </CardGrid>
+              )}
             </Section>
 
             <Section title="中控台流" count={flowItems.length}>
-              {flowItems.length === 0 ? <EmptyState title="没有登记流" /> : flowItems.map((f, i) => (
-                <div key={`f-${i}`} role="button" tabIndex={0} onClick={() => setSel({ kind: 'flow', item: f })} className="cursor-pointer hover:bg-surface-hover">
-                  <Row primary={f.name} secondary={`${f.estimate || '—'} · ${f.confidence || '—'}`} />
-                </div>
-              ))}
+              {flowItems.length === 0 ? (
+                <EmptyState title="没有登记流" description="有常驻循环时会在这里出现" />
+              ) : (
+                <CardGrid className="grid-cols-1">
+                  {flowItems.map((f, i) => (
+                    <ItemCard key={`f-${i}`} top="flow" title={f.name}
+                      meta={`${f.estimate || '—'} · ${f.confidence || '—'}`}
+                      onClick={() => setSel({ kind: 'flow', item: f })} />
+                  ))}
+                </CardGrid>
+              )}
             </Section>
           </div>
       </PageLayout.Content>
