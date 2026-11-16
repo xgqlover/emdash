@@ -268,6 +268,18 @@ else
   bash scripts/xg-pre-package.sh || { echo "❌ 树不干净；确认要带 WIP 打就加 XG_ALLOW_DIRTY=1"; exit 1; }
 fi
 
+# [XG 2026-11-17] 渲染层「用了但没 import」检查（1.2.94/95/96 白屏真因；tsc 会放过）
+CHK=""
+for c in scripts/xg_check_renderer_imports.py ../scripts/xg_check_renderer_imports.py; do
+  [ -f "$c" ] && CHK="$c" && break
+done
+if [ -n "$CHK" ]; then
+  echo "=== ②b 渲染层 import 检查（$CHK）==="
+  python3 "$CHK" || { echo "❌ 渲染层 import 检查失败（会白屏）"; exit 1; }
+else
+  echo "⚠️ 找不到 xg_check_renderer_imports.py，跳过渲染层 import 检查"
+fi
+
 echo "=== ③ 建构建克隆（mktemp -d + git archive HEAD；共用工作区零改动）==="
 BUILD_ROOT="${XG_WIN_BUILD_ROOT:-${TMPDIR:-/var/tmp/xg-tmp}}"
 mkdir -p "$BUILD_ROOT" || { echo "❌ 建不了 $BUILD_ROOT"; exit 1; }
