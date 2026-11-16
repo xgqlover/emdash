@@ -23,7 +23,7 @@ type Status = {
 
 const LANE_TONE: Record<string, 'success' | 'info' | 'neutral'> = { r0: 'success', fast: 'info', d1: 'neutral' };
 const STAGE_TONE: Record<string, 'success' | 'info' | 'warning' | 'neutral'> = {
-  done: 'success', working: 'info', stale: 'warning',
+  done: 'success', working: 'info', stale: 'warning', uncertain: 'warning',
 };
 
 function fmtAge(s?: number) {
@@ -137,7 +137,17 @@ export function XgConsoleMainPanel() {
             <Section title="在派工" count={working.length}>
               {working.length === 0 ? <EmptyState title="没有正在跑的票" /> : working.map((t, i) => (
                 <div key={`w-${i}`} role="button" tabIndex={0} onClick={() => setSel({ kind: 'ticket', item: t })} className="cursor-pointer hover:bg-surface-hover">
-                  <Row primary={t.owner || '?'} secondary={t.title || '(无标题)'} right={fmtAge(t.age_s)} />
+                  {(() => {
+                    const lv = (d?.live ?? []).find((x) => String(x.sid || '') === String(t.sid || ''));
+                    return (
+                      <Row primary={t.owner || '?'} secondary={
+                        <span className="flex flex-col gap-0.5">
+                          <span className="truncate">{t.title || '(无标题)'}</span>
+                          {lv?.tool ? <span className="text-[11px] text-foreground-muted">正在调用 {lv.tool} · {fmtAge(lv.age_s)}</span> : null}
+                        </span>
+                      } right={fmtAge(t.age_s)} />
+                    );
+                  })()}
                 </div>
               ))}
             </Section>
