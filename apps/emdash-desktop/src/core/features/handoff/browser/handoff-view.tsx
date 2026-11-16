@@ -13,7 +13,7 @@ import {
   createTextMatcher,
   PageLayout,
 } from '@emdash/ui/react/patterns';
-import { AbsoluteTime, Alert, Button, Sheet, Tabs, ToggleGroup, toast } from '@emdash/ui/react/primitives';
+import { AbsoluteTime, Alert, Badge, Button, Sheet, Tabs, ToggleGroup, toast } from '@emdash/ui/react/primitives';
 import { Bot, CheckCircle2, Clock, FileText, MonitorSmartphone, Plus, Trash2, UserRound, X } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
@@ -141,82 +141,15 @@ const OWNERSHIP_LABEL: Record<string, string> = {
 };
 
 function OwnershipBadge({ ownership }: { ownership: string }) {
-  if (ownership === 'agentDelegatedToUser') {
-    return (
-      <span className={cn('flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-xs bg-background-success text-foreground-success')}>
-        <MonitorSmartphone className="size-3" />
-        待接
-      </span>
-    );
-  }
-  if (ownership === 'user') {
-    return (
-      <span className={cn('flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-xs bg-background-1 text-foreground-muted')}>
-        <UserRound className="size-3" />
-        用户拥有
-      </span>
-    );
-  }
+  // [XG-CUSTOM 2026-11-17] 用原生 Badge（tone 语义色 + 主题适配），不再手拼彩色 span
+  const tone = ownership === 'agentDelegatedToUser' ? 'warning'
+    : ownership === 'user' ? 'success' : 'neutral';
   return (
-    <span className={cn('flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-xs bg-background-info text-foreground-info')}>
-      <Bot className="size-3" />
-      agent 在操作
-    </span>
+    <Badge tone={tone as never} variant="soft">
+      {OWNERSHIP_LABEL[ownership] || ownership}
+    </Badge>
   );
 }
-
-const spaceListView = createListView({
-  getItemId: (space: TaskSpace) => String(space.id),
-  source: {
-    kind: 'async',
-    load: async () => {
-      const list = await taskSpaceList();
-      return Array.isArray(list) ? (list as TaskSpace[]) : [];
-    },
-  },
-  search: {
-    kind: 'sync',
-    predicate: createTextMatcher((space: TaskSpace) => [space.name, space.ownership]),
-  },
-  sections: {
-    by: (space: TaskSpace) => OWNERSHIP_LABEL[space.ownership] ?? space.ownership,
-  },
-});
-
-const SpaceCounts = observer(function SpaceCounts() {
-  const list = spaceListView.useListView();
-  if (list.status === 'loading' && list.visibleItems.length === 0) {
-    return <span className="shrink-0 text-xs text-foreground-muted">加载中…</span>;
-  }
-  const waiting = list.visibleItems.filter((s) => s.ownership === 'agentDelegatedToUser').length;
-  return (
-    <span className="shrink-0 text-xs text-foreground-muted">
-      {list.visibleItems.length} 个页面 · {waiting} 待接
-    </span>
-  );
-});
-
-const SpaceToolbar = observer(function SpaceToolbar({ onRefresh }: { onRefresh: () => void }) {
-  const search = spaceListView.useSearch();
-  const searchRef = useSearchFocusHotkeys();
-  return (
-    <CollectionToolbar.Root>
-      <CollectionToolbar.Search
-        ref={searchRef}
-        value={search.query}
-        onValueChange={search.setQuery}
-        placeholder="搜索页面名"
-      />
-      <SpaceCounts />
-      <CollectionToolbar.Spacer />
-      <CollectionToolbar.Group>
-        <Button variant="secondary" size="sm" onClick={onRefresh}>
-          刷新
-        </Button>
-      </CollectionToolbar.Group>
-    </CollectionToolbar.Root>
-  );
-});
 
 function SpaceRow({
   space,
