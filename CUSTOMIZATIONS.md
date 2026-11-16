@@ -1564,3 +1564,17 @@ apps/emdash-desktop/release/.last-shipped-version   记录上一次产出给用�
 ```
 
 规则一句话：**要给用户装的包，version 必须比 .last-shipped-version 大。**
+
+## 8. 视图运行时必须 import 才存在（2026-11-16 · 1.2.94/95/96 三连白屏）
+
+- **病象**：启动后主窗口全白（1.2.95 表现为卡 splash 进不去）。`netstat` 里没有一条到 host 的连接、服务端 `xgwire` 一条握手都没有
+  ⇒ 极易误判成「连不上 Linux」。实测 1.2.96 窗口是 1400x900 可见但内容全白。
+- **真因**：`core/features/xg-console/browser/console-view.tsx` **用了** `defineViewRuntime(...)` **但没有 import**。
+  打包器把它当全局变量 ⇒ 渲染层首行抛 `Uncaught ReferenceError: defineViewRuntime is not defined` ⇒ React 从未挂载 ⇒ 白屏 ⇒ 不会去连 host。
+- **引入**：`632da3849`「修复中控台 view runtime 导出（构建报错）」只补了 `export` 关键字，**漏了 import**；1.2.93 的文件里就已经缺。
+- **判据（下次直接用）**：
+  1. `--enable-logging` 启动，读 renderer stderr —— 首行就是那个 `ReferenceError`（比翻主进程日志快一个数量级）；
+  2. 对每个视图统计「`import` 次数 / 使用次数」，两者必须相等。全仓 9 个视图只有中控台是 `imp=0 use=1`。
+- **修法**：补 `import { defineViewRuntime } from '@core/primitives/views/react';` → **1.2.97**（提交 `717243cee`）。
+- **铁律**：**「构建过了」≠「运行时存在」**。补 `export` 时必须同时核对同一个符号的 `import`；
+  白屏/黑屏类故障**先抓渲染层首错**，别从连接层、打包依赖、超时那几条路去查（本轮在这三条假路上花掉一整天）。
