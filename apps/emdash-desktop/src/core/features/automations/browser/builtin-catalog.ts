@@ -84,14 +84,16 @@ export const builtinAutomationCatalog: BuiltinAutomationTemplate[] = [
     defaultTrigger: { expr: '30 9 * * *', tz: 'Asia/Shanghai' },
     defaultConversationConfig: {
       initialPrompt:
-        '用 search_tool 查 "af" 找到 xg-kb 的 af_forum，再用 use_tool 调 af_forum（mode=unanswered, limit=50）。' +
-        '\n\n拿到结果后按 workspace 分组，每行写：域 / 评论 id / 年龄(天) / 类型 / 建议动作。' +
-        '\n类型判据：带 <!--mu-hive:…--> 的是「自家交付」（建议：标 resolved，不需要回）；' +
-        '有人 @ 我们或提问的是「要答」；空内容或 >30 天是「噪音」（建议：归档）。' +
-        '\n\n产物写到当前工作区 outbox/af-backlog-<YYYYMMDD>.md，并在末尾给三行汇总：' +
-        '待接 N / 超 7 天 M / 可自动确认 K。' +
-        '\n\n铁律：本任务只读 —— 不 af_reply、不 af_clean、不改任何 AF 数据；' +
-        '不要用 bash（你没有），只用 search_tool/use_tool 和写文件工具。',
+        `用 bash 跑：python3 /home/xgqlover/天天项上/五层四维记忆系统/scripts/xg_af_daily.py
+（它内部先做 L1 自动确认，再出日报。）
+
+拿到输出后，把「已确认 N 条」和「按域待接」两段原样贴出来，不要自己编数。
+若 bash 不可用，读 工作台/af-backlog-<今天>.md 并只做摘要。
+
+补充口径：带 <!--mu-hive:…--> 的是「自家交付」，已由脚本自动确认；有人 @ 我们或提问的是「要答」；
+空内容或 >30 天是「噪音」。
+
+铁律：不要 af_reply、不要 af_clean、不改任何 AF 数据。`,
     },
   },
   {
