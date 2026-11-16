@@ -77,6 +77,31 @@ pnpm install
 注意：钩子文件在仓库里，但 `core.hooksPath` 是本地配置——**没装就静默失效**，
 所以总闸 `三类能力-verify.sh` 里有一条「git 钩子已挂」专门抓这个。
 
+#### 模型权重恢复（2026-11-17，瘦身后）
+
+**现役模型只留 4 个，其余全归档到 NAS**（本地盘清出 ~70G）：
+
+| 端口 | 模型 | 本地路径 | 大小 |
+|---|---|---|---|
+| 8085 | Qwen3.5-4B-int4-ov（摘要） | `/mnt/xgdata/models/Qwen3.5-4B-int4-ov` | 3.4G |
+| 8186 | WeVisOne-VL-4B-int4-ov（视觉 OVMS） | `xiangwo-agent/models/WeVisOne-VL-4B-int4-ov` | 2.9G |
+| 8090 | swift-qwen38-q4km.ninfer（27B） | `~/models/swift-qwen38-q4km.ninfer` | 20G |
+
+**归档位置**：`/mnt/nas/临时文件/xg-archive-20261116/`
+- `models-orig/`：原格式权重 + fp16 + 转换中间件 + `MiniCPM5-2B-OV-INT4`
+- `b8/ extra_int8/ b8run/ lm8_min/`：Ovis b8/int8 量化实验产物（重建 `_ov_cache_b8` 靠它）
+
+**8085 回滚到 MiniCPM5-2B**（先拉回权重，否则 `30-qwen35.conf` 的回滚路径失效）：
+```bash
+sudo rsync -a /mnt/nas/临时文件/xg-archive-20261116/models-orig/MiniCPM5-2B-OV-INT4 \
+  /persistent/home/xgqlover/天天项上/五层四维记忆系统/xiangwo-agent/models/
+sudo rm /etc/systemd/system/ov-8085.service.d/30-qwen35.conf   # 删掉换模型的 drop-in
+sudo systemctl daemon-reload && sudo systemctl restart ov-8085
+```
+
+**NAS 只读挂载**：`/mnt/nas/临时文件` 是 `uid=0` 挂的 CIFS，普通用户写不进去，
+搬/取都要 `sudo`；校验用「文件数一致再删本地」，别 `mv` 直删。
+
 ### 7. lifecycle schema v3 兼容（future-version 根治，09-21）
 
 - **文件**：`packages/core/src/runtimes/workspace-registry/node/persistence/payload-codecs.ts`
