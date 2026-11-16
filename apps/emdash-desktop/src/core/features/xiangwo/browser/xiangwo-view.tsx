@@ -15,7 +15,9 @@ type HistoryMsg = { role: 'user' | 'assistant'; content: unknown };
 // 拆成「文本段 / URL 段」，URL 段渲染成可点击链接 → 本机默认浏览器打开（Windows/本机都能用）。
 function splitUrls(text: string): { type: 'text' | 'url'; value: string }[] {
   const parts: { type: 'text' | 'url'; value: string }[] = [];
-  const regex = /(\[XG-PREVIEW\](.*?)\[\/XG-PREVIEW\]|https?:\/\/[^\s)】]+)/g;
+  // [XG 2026-11-17] 裸域名也认（www.xxx/yyy），但**遇到中文/标点就停**——
+  //   否则 markdown/浏览器把「…产品图区」整段吞进链接，点开是相对地址 ⇒ 空白页。
+  const regex = /(\[XG-PREVIEW\](.*?)\[\/XG-PREVIEW\]|(?:https?:\/\/|www\.)[A-Za-z0-9\-._~:/?#\[\]@!$&'()*+,;=%]+)/g;
   let last = 0;
   let m: RegExpExecArray | null;
   while ((m = regex.exec(text)) !== null) {
@@ -39,7 +41,8 @@ function renderText(text: string) {
         href={p.value}
         onClick={(e) => {
           e.preventDefault();
-          void openExternal(p.value);
+          const href = /^https?:\/\//i.test(p.value) ? p.value : 'https://' + p.value;
+          void openExternal(href);
         }}
         style={{ color: '#60a5fa', textDecoration: 'underline', cursor: 'pointer', wordBreak: 'break-all' }}
       >
