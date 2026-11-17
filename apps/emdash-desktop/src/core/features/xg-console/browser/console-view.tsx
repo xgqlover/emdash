@@ -3,7 +3,7 @@
 //   - 第一层：4 张概览卡 + 2×2 四张卡片；第二层：点一行 → 右侧 Sheet 看全量
 import { useCallback, useEffect, useState } from 'react';
 import { PageLayout, CollectionView } from '@emdash/ui/react/patterns';
-import { Badge, Button, MicroLabel, Sheet } from '@emdash/ui/react/primitives';
+import { Badge, Button, Input, MicroLabel, Sheet } from '@emdash/ui/react/primitives';
 import { CardGrid, CardGridItem, EmptyState } from '@emdash/ui/react/components';
 import { XgConsoleIcon } from './icon';
 import { defineViewRuntime } from '@core/primitives/views/react';
@@ -363,7 +363,82 @@ export function XgConsoleMainPanel() {
           </Sheet.Body>
         </Sheet.Content>
       </Sheet.Root>
+      <CardsPanel />
     </PageLayout>
+  );
+}
+
+
+type DecOpt = { key: string; label: string; route?: unknown };
+type DecField = { name: string; label?: string; type?: string; options?: string[]; placeholder?: string };
+type DecCard = { id: string; kind?: string; touchpoint?: string; question?: string; options?: DecOpt[]; fields?: DecField[] };
+
+/** [XG-CUSTOM 2026-11-18] 待决卡面板：卡是数据，控件按 kind/field.type 分派（原生 Button/Input）。 */
+function CardsPanel() {
+  const [cards, setCards] = useState<DecCard[]>([]);
+  const [vals, setVals] = useState<Record<string, Record<string, string>>>({});
+  const load = useCallback(async () => {
+    try {
+      const r = await fetch('http://localhost:8900/v1/dot/cards?status=pending', { cache: 'no-store' });
+      const d = await r.json();
+      setCards(Array.isArray(d?.cards) ? d.cards : []);
+    } catch { /* 网络抖动：保留上一次的卡 */ }
+  }, []);
+  useEffect(() => {
+    void load();
+    const h = window.setInterval(() => void load(), 5000);
+    return () => window.clearInterval(h);
+  }, [load]);
+  const decide = async (id: string, key: string, data?: Record<string, string>) => {
+    const tail = data ? `data=${encodeURIComponent(JSON.stringify(data))}` : `key=${encodeURIComponent(key)}`;
+    try { await fetch(`http://localhost:8900/v1/dot/cards/decide?id=${encodeURIComponent(id)}&${tail}`); } catch { /* 失败就留在面板上 */ }
+    void load();
+  };
+  const setField = (id: string, name: string, v: string) =>
+    setVals((prev) => ({ ...prev, [id]: { ...(prev[id] || {}), [name]: v } }));
+  if (!cards.length) return null;
+  return (
+    <div className="space-y-3">
+      <MicroLabel>待决卡 {cards.length}</MicroLabel>
+      {cards.map((c) => (
+        <div key={c.id} className="space-y-2 rounded-md border border-border p-3">
+          <div className="text-xs text-foreground-muted">{c.touchpoint || '—'} · {c.kind || 'clarify'}</div>
+          <div className="text-sm">{c.question}</div>
+          {c.fields && c.fields.length > 0 ? (
+            <div className="space-y-2">
+              {c.fields.map((f) => (
+                <div key={f.name} className="flex items-center gap-2">
+                  <span className="w-24 shrink-0 text-xs text-foreground-muted">{f.label || f.name}</span>
+                  {f.type === 'select' ? (
+                    <select
+                      className="rounded-md border border-border bg-background px-2 py-1 text-sm"
+                      value={vals[c.id]?.[f.name] || ''}
+                      onChange={(e) => setField(c.id, f.name, e.target.value)}
+                    >
+                      <option value="">请选择</option>
+                      {(f.options || []).map((o) => <option key={o} value={o}>{o}</option>)}
+                    </select>
+                  ) : (
+                    <Input
+                      value={vals[c.id]?.[f.name] || ''}
+                      placeholder={f.placeholder || ''}
+                      onChange={(e) => setField(c.id, f.name, e.target.value)}
+                    />
+                  )}
+                </div>
+              ))}
+              <Button onClick={() => void decide(c.id, '', vals[c.id] || {})}>提交</Button>
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {(c.options || []).map((o) => (
+                <Button key={o.key} onClick={() => void decide(c.id, o.key)}>{o.label}</Button>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
   );
 }
 
