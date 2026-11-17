@@ -15,9 +15,18 @@ type Ticket = {
 };
 type Route = { ts: number; lane: string; task: string; why?: string; outcome?: string | null };
 type Flow = { name: string; estimate?: string; confidence?: string; stage?: string };
+/** [XG-CUSTOM 2026-11-17] Kaneo 后台链 —— 服务端 `_xg_kaneo_chain_status()` 给的**进程内**状态。
+ *  `enabled` = 开关（env）；`thread` = **线程真的在**（Python 线程名）。
+ *  🔴 **两者必须分开看**："关着"不是故障；**`enabled && !thread` 才是真警报**。 */
+type Chain = {
+  loaded?: boolean; thread?: boolean; enabled?: boolean; mode?: string;
+  interval?: number; scans?: number; last_scan?: string | null;
+};
+type Kaneo = { in_window?: boolean | null; chains?: Record<string, Chain> };
 type Status = {
   ok?: boolean; state?: string; working?: Ticket[]; tickets?: Ticket[]; routing?: Route[];
   flows?: (Flow | string)[]; health?: Record<string, boolean>;
+  kaneo?: Kaneo;
   af?: { ok?: boolean; unanswered_effective?: number; over_count?: number; auto_confirmable?: number; by_workspace?: Record<string, number> };
 };
 
@@ -81,6 +90,22 @@ export function XgConsoleMainPanel() {
   const flows = (d?.flows ?? []) as (Flow | string)[];
   const health = d?.health ?? {};
   const healthOk = Object.values(health).filter(Boolean).length;
+  // [XG-CUSTOM 2026-11-17] Kaneo 三条后台链：enabled 是开关、thread 是**线程真的在**
+  //  —— 分开放，"关着"不是故障；**enabled && !thread 才是真警报**（开关开着、线程没了）。
+  const kc = d?.kaneo?.chains ?? {};
+  const KANEO_CHAINS: { key: string; label: string }[] = [
+    { key: 'dispatch', label: '派活' },
+    { key: 'autoconsume', label: '交接消费' },
+    { key: 'image_worker', label: '图片线' },
+  ];
+  const kaneoOn = KANEO_CHAINS.filter((c) => kc[c.key]?.enabled);
+  const kaneoAlive = kaneoOn.filter((c) => kc[c.key]?.thread).length;
+  const kaneoWindowOff = d?.kaneo?.in_window === false;
+  /** 一条链的标记：✓ 线程在 / ✗ **开关开着但线程不在**（真警报）/ · 关着（不是故障） */
+  const kaneoMark = (key: string): string => {
+    const ch = kc[key];
+    return ch?.thread ? '✓' : ch?.enabled ? '✗' : '·';
+  };
   const flowItems = flows.map((f, i) => typeof f === 'string'
     ? { name: f, estimate: '', confidence: '', stage: '' }
     : { name: f.name, estimate: f.estimate ?? '', confidence: f.confidence ?? '', stage: f.stage ?? '' });
@@ -129,6 +154,16 @@ export function XgConsoleMainPanel() {
                 <MicroLabel>端口</MicroLabel>
                 <div className="text-2xl font-semibold">{healthOk}/{Object.keys(health).length}</div>
                 <div className="truncate text-xs text-foreground-muted">{Object.entries(health).map(([k, v]) => `${k}${v ? '✓' : '✗'}`).join(' · ')}</div>
+              </div>
+            </CardGridItem>
+            <CardGridItem>
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <MicroLabel>Kaneo 链</MicroLabel>
+                <div className="text-2xl font-semibold">{kaneoAlive}/{kaneoOn.length}</div>
+                <div className="truncate text-xs text-foreground-muted">
+                  {kaneoWindowOff ? '窗口外(不派活) · ' : ''}
+                  {KANEO_CHAINS.map((c) => `${c.label}${kaneoMark(c.key)}`).join(' · ')}
+                </div>
               </div>
             </CardGridItem>
           </CardGrid>
@@ -222,6 +257,33 @@ export function XgConsoleMainPanel() {
                   <Row primary={f.name} secondary={`${f.estimate || '—'} · ${f.confidence || '—'}`} />
                 </div>
               ))}
+            </Section>
+            <Section title="Kaneo 后台链" count={kaneoOn.length}>
+              {KANEO_CHAINS.map((c) => {
+                const ch = kc[c.key];
+                const tone = ch?.thread ? 'success' : ch?.enabled ? 'warning' : 'neutral';
+                const txt = ch?.thread ? '线程在跑' : ch?.enabled ? '⚠️ 开着但线程不在' : '已关闭';
+                return (
+                  <div key={c.key} className="flex min-w-0 items-center gap-3 py-2">
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm">{c.label}</div>
+                      <div className="truncate text-xs text-foreground-muted">
+                        {txt} · mode={ch?.mode || '?'} · 间隔 {ch?.interval ?? '?'}s
+                        {typeof ch?.scans === 'number' ? ` · 已扫 ${ch.scans} 轮` : ''}
+                        {ch?.last_scan ? ` · 最近 ${String(ch.last_scan).slice(11, 19)}` : ''}
+                      </div>
+                    </div>
+                    <Badge tone={tone} variant="outline">
+                      {ch?.thread ? 'live' : ch?.enabled ? 'missing' : 'off'}
+                    </Badge>
+                  </div>
+                );
+              })}
+              {kaneoWindowOff ? (
+                <div className="py-2 text-xs text-foreground-muted">
+                  当前不在派活窗口（XG_ALWAYS_ON_WINDOW=00:00-08:00）—— 白天跳过是设计，不是故障
+                </div>
+              ) : null}
             </Section>
           </div>
       </PageLayout.Content>
