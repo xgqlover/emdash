@@ -1584,3 +1584,22 @@ apps/emdash-desktop/release/.last-shipped-version   记录上一次产出给用�
   现用**针对性扫描**兜底：对「视图运行时类标识符」（`xg[A-Z]...` / `*ViewDef` / `*ViewRuntime`）逐个数 import/声明，缺失即报。
 - **铁律**：**「构建过了」≠「运行时存在」**。补 `export` 时必须同时核对同一个符号的 `import`；
   白屏/黑屏类故障**先抓渲染层首错**，别从连接层、打包依赖、超时那几条路去查（本轮在这三条假路上花掉一整天）。
+
+## 9. 中控台加「Kaneo 后台链」（2026-11-17）
+
+- **背景**：用户追问「Meta Harness 不就是大中控吗」—— 是。而它**亲手跑着三条 Kaneo 链**
+  （`agent.py` 在单实例锁后起的 daemon 线程：`_kdp.start` / `_kac.start` / `_kiw.start`），
+  这三条**不在 `self.loops` 里** ⇒ 没有 `agent_state.json` 的 cycles 戳、也不在 `/v1/dot/status` 里
+  ⇒ **死了没人知道，中控台也看不见**。
+- **改了什么**：
+  - 服务端（`xiangwo-agent/agent.py`）`/v1/dot/status` 加 `kaneo` 段（`_xg_kaneo_chain_status()`），
+    health 端口清单加 **5180**（Kaneo web）——**只读进程内、零 I/O**（这个接口每 3s 被轮询）。
+  - 本视图（`xg-console/browser/console-view.tsx`）：第 5 张概览卡「Kaneo 链 N/M」+ Section「Kaneo 后台链」。
+- **判据设计**：`enabled`（开关）与 `thread`（**线程真的在**，`threading.enumerate()` 按 Python 线程名）
+  **分开显示** —— 「关着」不是故障；**`✗` = 开关开着但线程不在，那才是真警报**。
+- ⚠️ **本文件在 HEAD 就有存量债，我一处没碰**（逐项 A/B）：类型错 18 个（`./icon` 模块缺失、
+  `EmptyStateProps` 缺 `label`、`Status` 缺 `bots`/`live`、隐式 any）→ 我这边**也是 18 个、同一批**；
+  oxlint 3 errors（HEAD 同）；我新增的行 0 行超 100 字符；diff **62 增 0 删**。
+  📌 教训：`npx oxfmt <file>`（不带 `--check`）会把**整个文件重排**（实测 494 增 199 删，动了别人的行）
+  ⇒ 要么只跑 `--check`，要么**从 HEAD 重建 + 只插入自己的块**。
+
