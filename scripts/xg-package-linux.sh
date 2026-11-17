@@ -73,9 +73,13 @@ UA="pnpm/10.28.2 npm/? node/$(node -v) $(uname -s | tr '[:upper:]' '[:lower:]') 
 #   ⇒ 产物名会变成 `undefined-x86_64.AppImage`（真机踩过两次）。这里把版本显式喂进去。
 VER_APP="$(node -p "require('$APP_ABS/package.json').version")"
 echo "  版本 = $VER_APP"
+  # [XG-CUSTOM 2026-11-17] **离线支路**：`XG_ELECTRON_DIST` 指向本机已装好的 Electron 运行时
+  #   （如 `node_modules/electron/dist`，版本须与 electron 依赖一致）⇒ electron-builder 不再去下载
+  #   `electron-v<ver>-linux-x64.zip`。不设该变量 ⇒ 行为与原来完全一致（走缓存/下载）。
 (cd "$APP" && rm -rf release-new && npm_config_user_agent="$UA" npm_package_version="$VER_APP" \
   ../../node_modules/.bin/electron-builder --linux AppImage --publish never \
-  --config electron-builder.config.ts -c.directories.output=release-new) || { echo "❌ 打包失败"; exit 1; }
+  --config electron-builder.config.ts -c.directories.output=release-new \
+    ${XG_ELECTRON_DIST:+-c.electronDist="$XG_ELECTRON_DIST"} ) || { echo "❌ 打包失败"; exit 1; }
 # [XG-CUSTOM 2026-10-11] 🔴 产物名**带版本**（`electron-builder.config.ts` 的 artifactName =
 #   `${ARTIFACT_PREFIX}-${arch}.${ext}`），而下面的 ④ ⑤ 步都按**固定路径** `emdash-x86_64.AppImage`
 #   去找 ⇒ 之前会在这一行假失败（真机：`❌ 没找到产物 …/release-new/emdash-x86_64.AppImage`，
