@@ -127,6 +127,23 @@ export function XgConsoleMainPanel() {
 
           {err && <div className="py-2 text-xs text-foreground-danger">状态接口不通：{err}</div>}
 
+          {/* [XG 2026-11-18] 配方区：/v1/dot/status 的 recipes（automation-everything 等） */}
+          <div className="mt-4 rounded-lg border border-border-subtle p-3">
+            <MicroLabel>配方（可跑，不进端口）</MicroLabel>
+            {((d as any)?.recipes ?? []).length === 0 ? (
+              <div className="pt-1 text-xs text-foreground-muted">暂无配方</div>
+            ) : (
+              <div className="flex flex-col gap-1 pt-1">
+                {((d as any)?.recipes ?? []).map((r: any) => (
+                  <div key={r.name} className="flex items-center gap-2 text-xs">
+                    <Badge tone="neutral" variant="outline">{r.name}</Badge>
+                    <span className="truncate text-foreground-muted">{(r.flows ?? []).join(' · ')}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           <CardGrid className="mt-4">
             <CardGridItem onClick={() => setSel({ kind: 'ticket' })}>
               <div className="flex min-w-0 flex-1 flex-col gap-1">
