@@ -364,6 +364,7 @@ export function XgConsoleMainPanel() {
         </Sheet.Content>
       </Sheet.Root>
       <CardsPanel />
+      <GraphPanel />
     </PageLayout>
   );
 }
@@ -445,3 +446,44 @@ function CardsPanel() {
 export const xgConsoleViewRuntime = defineViewRuntime(xgConsoleViewDef, {
   slots: { wrap: ({ children }) => <>{children}</>, main: XgConsoleMainPanel },
 });
+
+
+/** [XG 2026-11-18] 系统图面板：读标准产物 scene.json（唯一真源）。
+ *  只展示四带与节点/边数；点「打开 3D」用系统默认浏览器看 docs/系统图 的 html。 */
+function GraphPanel() {
+  const [g, setG] = useState<{ nodes?: number; links?: number; layers?: { z: number; name: string }[] } | null>(null);
+  useEffect(() => {
+    let alive = true;
+    const load = async () => {
+      try {
+        const r = await fetch('http://localhost:8900/v1/dot/graph', { cache: 'no-store' });
+        const d = await r.json();
+        if (alive) setG({ nodes: (d.nodes || []).length, links: (d.links || []).length, layers: d.layers || [] });
+      } catch {
+        if (alive) setG(null);
+      }
+    };
+    void load();
+    const h = window.setInterval(() => void load(), 15000);
+    return () => { alive = false; window.clearInterval(h); };
+  }, []);
+  return (
+    <div className="space-y-2 text-sm">
+      <MicroLabel>系统图（scene.json · 唯一产物）</MicroLabel>
+      {!g ? (
+        <div className="text-xs opacity-60">读不到 /v1/dot/graph</div>
+      ) : (
+        <div className="space-y-1">
+          <div className="flex gap-2">
+            <Badge>{g.nodes ?? 0} 节点</Badge>
+            <Badge>{g.links ?? 0} 边</Badge>
+            <Badge>{(g.layers || []).length} 带</Badge>
+          </div>
+          {(g.layers || []).map((l) => (
+            <div key={l.z} className="text-xs opacity-70">z{l.z} · {l.name}</div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
