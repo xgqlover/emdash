@@ -5,7 +5,7 @@ const XG_DOT_BASE = (() => {
     const o = localStorage.getItem('xg.dotBase');
     if (o) return o.replace(/\/$/, '');
   } catch {}
-  return 'http://192.168.1.5:8900';
+  return 'http://192.168.15.195:8900';
 })();
 
 // [XG-CUSTOM 2026-11-17] 右栏第四个折叠块「中控台」：嵌在 变更/已暂存/拉取请求 上面。

@@ -5,7 +5,7 @@ const XG_DOT_BASE = (() => {
     const o = localStorage.getItem('xg.dotBase');
     if (o) return o.replace(/\/$/, '');
   } catch {}
-  return 'http://192.168.1.5:8900';
+  return 'http://192.168.15.195:8900';
 })();
 
 // [XG-CUSTOM 2026-11-17] 中控台：照 emdash 原生骨架（PageLayout + CardGrid + CollectionView + Sheet）
