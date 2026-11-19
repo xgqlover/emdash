@@ -87,8 +87,14 @@ export function XgConsoleMainPanel() {
   const load = useCallback(async () => {
     setBusy(true);
     try {
+      let _l06: any = null;
+      try {
+        const r6 = await fetch(`${XG_DOT_BASE}/v1/dot/l06`, { cache: 'no-store' });
+        if (r6.ok) _l06 = await r6.json();
+      } catch { /* 拿不到就不显示 */ }
       const r = await fetch(`${XG_DOT_BASE}/v1/dot/status`, { cache: 'no-store' });
-      setD(await r.json()); setErr(null);
+      const _sd: any = await r.json();
+      setD({ ...(_sd || {}), l06: _l06 }); setErr(null);
     } catch (e) { setErr(String(e)); }
     finally { setBusy(false); }
   }, []);
@@ -138,6 +144,18 @@ export function XgConsoleMainPanel() {
           />
 
           {err && <div className="py-2 text-xs text-foreground-danger">状态接口不通：{err}</div>}
+
+          {/* [XG 2026-11-19] L0.6 触口 → M 层覆盖率（防退化看得见） */}
+          <div className="mt-3 flex items-center gap-2 text-xs">
+            <MicroLabel>M 层覆盖</MicroLabel>
+            <Badge tone={((d as any)?.l06?.pct ?? 0) >= 55 ? 'success' : 'warning'} variant="outline">
+              {((d as any)?.l06?.covered ?? '—')}/{(d as any)?.l06?.total ?? '—'}
+              （{((d as any)?.l06?.pct ?? '—')}%）
+            </Badge>
+            <span className="text-foreground-muted">
+              缺口 {((d as any)?.l06?.gap ?? '—')} 个触口未落 M 层
+            </span>
+          </div>
 
           {/* [XG 2026-11-18] 配方区：/v1/dot/status 的 recipes（automation-everything 等） */}
           <div className="mt-4 rounded-lg border border-border-subtle p-3">
