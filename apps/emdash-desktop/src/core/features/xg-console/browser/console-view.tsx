@@ -87,7 +87,7 @@ export function XgConsoleMainPanel() {
   const load = useCallback(async () => {
     setBusy(true);
     try {
-      const r = await fetch(`${XG_DOT_BASE}/v1/dot/status', { cache: 'no-store' });
+      const r = await fetch(`${XG_DOT_BASE}/v1/dot/status`, { cache: 'no-store' });
       setD(await r.json()); setErr(null);
     } catch (e) { setErr(String(e)); }
     finally { setBusy(false); }
@@ -414,7 +414,7 @@ function CardsPanel() {
   const [vals, setVals] = useState<Record<string, Record<string, string>>>({});
   const load = useCallback(async () => {
     try {
-      const r = await fetch(`${XG_DOT_BASE}/v1/dot/cards?status=pending', { cache: 'no-store' });
+      const r = await fetch(`${XG_DOT_BASE}/v1/dot/cards?status=pending`, { cache: 'no-store' });
       const d = await r.json();
       setCards(Array.isArray(d?.cards) ? d.cards : []);
     } catch { /* 网络抖动：保留上一次的卡 */ }
@@ -490,7 +490,7 @@ function GraphPanel() {
     let alive = true;
     const load = async () => {
       try {
-        const r = await fetch(`${XG_DOT_BASE}/v1/dot/graph', { cache: 'no-store' });
+        const r = await fetch(`${XG_DOT_BASE}/v1/dot/graph`, { cache: 'no-store' });
         const d = await r.json();
         if (alive) setG({ nodes: (d.nodes || []).length, links: (d.links || []).length, layers: d.layers || [] });
       } catch {
