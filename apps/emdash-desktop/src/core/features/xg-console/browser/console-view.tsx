@@ -1,3 +1,13 @@
+// [XG 2026-11-19] 中控台在 Windows 客户端上用，localhost 指客户端自己 ⇒ 默认走服务端 LAN IP，
+// 可用 localStorage['xg.dotBase'] 覆盖（例如 http://192.168.1.5:8900）。
+const XG_DOT_BASE = (() => {
+  try {
+    const o = localStorage.getItem('xg.dotBase');
+    if (o) return o.replace(/\/$/, '');
+  } catch {}
+  return 'http://192.168.1.5:8900';
+})();
+
 // [XG-CUSTOM 2026-11-17] 中控台：照 emdash 原生骨架（PageLayout + CardGrid + CollectionView + Sheet）
 //   - 数据只读 /v1/dot/status（票 / 决策 / 流 / 端口 / AF），不在渲染进程存副本
 //   - 第一层：4 张概览卡 + 2×2 四张卡片；第二层：点一行 → 右侧 Sheet 看全量
@@ -77,7 +87,7 @@ export function XgConsoleMainPanel() {
   const load = useCallback(async () => {
     setBusy(true);
     try {
-      const r = await fetch('http://localhost:8900/v1/dot/status', { cache: 'no-store' });
+      const r = await fetch(`${XG_DOT_BASE}/v1/dot/status', { cache: 'no-store' });
       setD(await r.json()); setErr(null);
     } catch (e) { setErr(String(e)); }
     finally { setBusy(false); }
@@ -404,7 +414,7 @@ function CardsPanel() {
   const [vals, setVals] = useState<Record<string, Record<string, string>>>({});
   const load = useCallback(async () => {
     try {
-      const r = await fetch('http://localhost:8900/v1/dot/cards?status=pending', { cache: 'no-store' });
+      const r = await fetch(`${XG_DOT_BASE}/v1/dot/cards?status=pending', { cache: 'no-store' });
       const d = await r.json();
       setCards(Array.isArray(d?.cards) ? d.cards : []);
     } catch { /* 网络抖动：保留上一次的卡 */ }
@@ -416,7 +426,7 @@ function CardsPanel() {
   }, [load]);
   const decide = async (id: string, key: string, data?: Record<string, string>) => {
     const tail = data ? `data=${encodeURIComponent(JSON.stringify(data))}` : `key=${encodeURIComponent(key)}`;
-    try { await fetch(`http://localhost:8900/v1/dot/cards/decide?id=${encodeURIComponent(id)}&${tail}`); } catch { /* 失败就留在面板上 */ }
+    try { await fetch(`${XG_DOT_BASE}/v1/dot/cards/decide?id=${encodeURIComponent(id)}&${tail}`); } catch { /* 失败就留在面板上 */ }
     void load();
   };
   const setField = (id: string, name: string, v: string) =>
@@ -480,7 +490,7 @@ function GraphPanel() {
     let alive = true;
     const load = async () => {
       try {
-        const r = await fetch('http://localhost:8900/v1/dot/graph', { cache: 'no-store' });
+        const r = await fetch(`${XG_DOT_BASE}/v1/dot/graph', { cache: 'no-store' });
         const d = await r.json();
         if (alive) setG({ nodes: (d.nodes || []).length, links: (d.links || []).length, layers: d.layers || [] });
       } catch {

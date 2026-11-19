@@ -1,3 +1,13 @@
+// [XG 2026-11-19] 中控台在 Windows 客户端上用，localhost 指客户端自己 ⇒ 默认走服务端 LAN IP，
+// 可用 localStorage['xg.dotBase'] 覆盖（例如 http://192.168.1.5:8900）。
+const XG_DOT_BASE = (() => {
+  try {
+    const o = localStorage.getItem('xg.dotBase');
+    if (o) return o.replace(/\/$/, '');
+  } catch {}
+  return 'http://192.168.1.5:8900';
+})();
+
 // [XG-CUSTOM 2026-11-17] 右栏第四个折叠块「中控台」：嵌在 变更/已暂存/拉取请求 上面。
 // 数据只读 /v1/dot/status（单源，不存副本）；折叠时不轮询。
 import { useEffect, useState } from 'react';
@@ -11,7 +21,7 @@ type Status = {
   af?: { unanswered_effective?: number; over_count?: number; auto_confirmable?: number };
 };
 
-const DOT = 'http://localhost:8900/v1/dot/status';
+const DOT = `${XG_DOT_BASE}/v1/dot/status`;
 
 export function XgConsoleSection() {
   const [open, setOpen] = useState(true);
