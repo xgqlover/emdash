@@ -12,6 +12,8 @@ import { xgConsoleViewDef } from '../contributions/views';
 type Ticket = {
   sid?: string; id?: string; title?: string; stage?: string; owner?: string;
   age_s?: number; closed?: number;
+  pm?: string;
+  kw?: string;
 };
 type Route = { ts: number; lane: string; task: string; why?: string; outcome?: string | null };
 type Flow = { name: string; estimate?: string; confidence?: string; stage?: string };
@@ -195,6 +197,11 @@ export function XgConsoleMainPanel() {
                       <Row primary={t.owner || '?'} secondary={
                         <span className="flex flex-col gap-0.5">
                           <span className="truncate">{t.title || '(无标题)'}</span>
+                          {(t as any).pm ? (
+                            <span className="text-[11px] text-foreground-muted">
+                              组合 {(t as any).pm}{(t as any).kw ? ` · ${(t as any).kw}` : ''}
+                            </span>
+                          ) : null}
                           {lv?.tool ? <span className="text-[11px] text-foreground-muted">正在调用 {lv.tool} · {fmtAge(lv.age_s)}</span> : null}
                         </span>
                       } right={fmtAge(t.age_s)} />
