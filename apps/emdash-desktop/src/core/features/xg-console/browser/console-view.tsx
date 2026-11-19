@@ -156,6 +156,9 @@ export function XgConsoleMainPanel() {
               缺口 {((d as any)?.l06?.gap ?? '—')} 个触口未落 M 层
             </span>
           </div>
+          <div className="mt-1 text-[11px] text-foreground-muted">
+            方法论来自 @人月聊IT v9 / Apache-2.0（sharptoolbox/ontology_modeling_framework @eed15dc）
+          </div>
 
           {/* [XG 2026-11-18] 配方区：/v1/dot/status 的 recipes（automation-everything 等） */}
           <div className="mt-4 rounded-lg border border-border-subtle p-3">
