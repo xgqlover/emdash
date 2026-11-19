@@ -42,6 +42,7 @@ import type {
 } from '#runtimes/files/node/root/root-resource';
 import { enumerateFiles } from './enumerate';
 import { mimeTypeForPath, normalizeMaxBytes, readStrongSnapshot } from './metadata';
+import { acquireReadTextSlot, releaseReadTextSlot, TEXT_READ_HARD_LIMIT } from './read-budget';
 import {
   copyBetweenRoots,
   createDirectoryInRoot,
@@ -119,7 +120,12 @@ export class FileSystemRuntime {
     return this.runAt(input, async (root, relative) => {
       const resolved = await root.paths.resolveFollowed(relative);
       if (!resolved.success) return resolved;
-      for (let attempt = 0; attempt < 2; attempt += 1) {
+      // [XG-CUSTOM 2026-11-17] 并发/字节预算闸：打满就拒，绝不排队（排队正是放大的来源）
+      const slot = acquireReadTextSlot();
+      if (!slot.ok) return err(toFsError(new Error(slot.reason), relative));
+      let charged = 0;
+      try {
+        for (let attempt = 0; attempt < 2; attempt += 1) {
         try {
           const handle = await open(
             resolved.data.realPath,
@@ -129,8 +135,20 @@ export class FileSystemRuntime {
             const before = await handle.stat();
             if (before.isDirectory()) return err({ type: 'is-a-directory', path: relative });
             if (!before.isFile()) return err(notRegularFile(relative));
-            const readSize = Math.min(before.size, normalizeMaxBytes(input.options?.maxBytes));
+            // [XG-CUSTOM 2026-11-17] 单次硬上限：超大文件不再整读（truncated 会如实标出）
+            const readSize = Math.min(
+              before.size,
+              normalizeMaxBytes(input.options?.maxBytes),
+              TEXT_READ_HARD_LIMIT
+            );
             const snapshot = await readStrongSnapshot(handle, before.size, readSize);
+            // [XG-CUSTOM 2026-11-17] 二进制跳过：前 8 KiB 含 NUL 即判非文本 ⇒ 回空 content + truncated
+            //   原来是先整读、再当 utf8 送出去（历史病：.ttf/.png 被当文本搬）
+            if (snapshot.bytes.subarray(0, 8192).includes(0)) {
+              const afterBin = await handle.stat();
+              return ok({ content: '', truncated: true, totalSize: afterBin.size, etag: snapshot.etag });
+            }
+            charged = snapshot.bytes.length;
             const after = await handle.stat();
             if (!sameFileVersion(before, after)) {
               if (attempt === 0) continue;
@@ -148,6 +166,9 @@ export class FileSystemRuntime {
         } catch (error) {
           return err(toFsError(error, relative));
         }
+      }
+      } finally {
+        releaseReadTextSlot(charged);
       }
       throw new Error('readText exhausted its read attempts');
     });
