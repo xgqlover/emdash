@@ -15,7 +15,7 @@ import { assignInlineVars } from '@vanilla-extract/dynamic';
 // [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import { Show, For, createMemo } from 'solid-js';
 import type { ChatMessage, ChatMessageImage } from '@/model';
-import { hostOf, parseXiangwoImagesBlock, parseXiangwoAskBlock,
+import { hostOf, parseXiangwoImagesBlock, parseXiangwoAskBlock, parseXiangwoRunBlock,
 } from '@emdash/shared';
 import {
   assistantImageDataUrl,
@@ -27,6 +27,7 @@ import {
 import { attachStripHeight, type MessageVars, userInnerWidth } from './metrics';
 import { UserMessageCard } from './UserMessageCard';
 import { AssistantAsk } from './assistant-ask';
+import { AssistantRun } from './assistant-run';
 // [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import {
   imageBadge,
@@ -58,7 +59,8 @@ export function messageFromItem(item: ChatMessage, ctx: SegmentCtx): ChatMessage
     : { text: item.text, meta: [] as ReturnType<typeof splitAssistantImageMeta>['meta'] };
   // [XG-CUSTOM 2026-11-10] 纯文本里也能出图：解析 ```xiangwo-images``` 块，
   // 用 url 直链合成 image 卡（不走 base64），点击仍打开 page。
-  const askParsed = isAssistant ? parseXiangwoAskBlock(parsed.text) : { text: parsed.text }
+  const runParsed = isAssistant ? parseXiangwoRunBlock(parsed.text) : { text: parsed.text }
+  const askParsed = isAssistant ? parseXiangwoAskBlock(runParsed.text) : { text: runParsed.text }
   const block = isAssistant ? parseXiangwoImagesBlock(askParsed.text) : undefined;
   const blockPayload = block?.images;
   const blockImages: ChatMessageImage[] | undefined =
@@ -88,6 +90,7 @@ export function messageFromItem(item: ChatMessage, ctx: SegmentCtx): ChatMessage
     })),
     images,
     ...(askParsed.ask ? { ask: askParsed.ask } : {}),
+    ...((runParsed as any).run ? { run: (runParsed as any).run } : {}),
   } as ChatMessage;
 }
 
@@ -210,6 +213,9 @@ function AssistantImageCard(props: { image: ChatMessageImage }) {
 }
 
 function AssistantRender(props: { data: ChatMessage; ctx: RenderCtx; vars: MessageVars }) {
+  if ((props.data as any).run) {
+    return <AssistantRun run={(props.data as any).run} />;
+  }
   if ((props.data as any).ask) {
     return <AssistantAsk ask={(props.data as any).ask} />;
   }

@@ -75,3 +75,4 @@ export {
   type XiangwoImagesPayload,
 } from './xiangwo-images';
 export * from './xiangwo-ask';
+export * from './xiangwo-run';
