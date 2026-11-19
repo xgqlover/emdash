@@ -74,3 +74,4 @@ export {
   type XiangwoImageMeta,
   type XiangwoImagesPayload,
 } from './xiangwo-images';
+export * from './xiangwo-ask';
