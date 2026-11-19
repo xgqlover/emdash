@@ -26,6 +26,7 @@ import {
 } from './assistant-images';
 import { attachStripHeight, type MessageVars, userInnerWidth } from './metrics';
 import { UserMessageCard } from './UserMessageCard';
+import { AssistantAsk } from './assistant-ask';
 // [XG-CUSTOM 2026-10-16] fork 定制（中文化/界面适配）；台账见 scripts/xg-custom/manifest.json
 import {
   imageBadge,
@@ -209,6 +210,9 @@ function AssistantImageCard(props: { image: ChatMessageImage }) {
 }
 
 function AssistantRender(props: { data: ChatMessage; ctx: RenderCtx; vars: MessageVars }) {
+  if ((props.data as any).ask) {
+    return <AssistantAsk ask={(props.data as any).ask} />;
+  }
   const mCtx = () => props.ctx.measureCtx?.();
 
   // One frontier Map per mounted instance — persists across streaming chunks
