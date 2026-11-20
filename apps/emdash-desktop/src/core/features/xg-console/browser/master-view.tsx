@@ -40,7 +40,7 @@ type Board = {
   ontology?: {
     ok?: boolean; total?: number; grounded?: number; ungrounded?: number; reportable?: boolean;
     models?: Record<string, number>; coverage?: Record<string, Coverage>;
-    durable?: { ok?: number; total?: number; duplicate_request_ids?: string[]; coverage?: Record<string, Coverage>; real_runs?: number };
+    durable?: { ok?: number; total?: number; duplicate_request_ids?: string[]; coverage?: Record<string, Coverage>; real_runs?: number; real_coverage?: number };
   };
   schedule?: { pending?: number; next_in_s?: number; result?: string };
 };
@@ -188,7 +188,7 @@ export function XgMasterMainPanel() {
           </div>
           <div className="mt-1 flex flex-wrap gap-1 text-[11px] text-foreground-muted">
             <Badge tone={(o.durable?.ok ?? 0) === (o.durable?.total ?? 0) && (o.durable?.total ?? 0) > 0 ? 'success' : 'warning'} variant="outline">
-              Pi Durable {o.durable?.ok ?? 0}/{o.durable?.total ?? 0} · 真实 {o.durable?.real_runs ?? 0}
+              Pi Durable 字段 {o.durable?.ok ?? 0}/{o.durable?.total ?? 0} · 真实 {o.durable?.real_runs ?? 0}/{o.durable?.total ?? 0}（{Math.round((o.durable?.real_coverage ?? 0) * 100)}%）
             </Badge>
             {Object.entries(o.durable?.coverage ?? {}).map(([k, v]) => (
               <Badge key={k} tone={(v.missing ?? 0) + (v.mismatch ?? 0) > 0 ? 'warning' : 'success'} variant="outline">
