@@ -46,6 +46,7 @@ type SharedWiki = {
     models?: Record<string, number>;
     tree?: { n?: number; root?: string; coverage?: number; wikiRoot?: string };
     fourdim?: { n?: number };
+    dream?: { m1?: string; m2?: string; m3?: string; m5?: string; m6?: string; m7?: string };
     m4?: string;
   };
   gold?: { labels?: number; need?: number; accept?: number; reject?: number; verdict?: string };
@@ -474,6 +475,12 @@ export function XgConsoleMainPanel() {
                   <div><span className="text-foreground-muted">本体：</span>M1 {w.ontology?.models?.m1 ?? '—'} · M2 {w.ontology?.models?.m2 ?? '—'} · M3 {w.ontology?.models?.m3 ?? '—'} · M5 {w.ontology?.models?.m5 ?? '—'} · M6 {w.ontology?.models?.m6 ?? '—'} · M7 {w.ontology?.models?.m7 ?? '—'}</div>
                   <div><span className="text-foreground-muted">树：</span>{wikiTree?.n ?? '—'} 节点 · 根 {wikiTree?.root?.slice(0, 8) ?? '—'} · 覆盖 {((wikiTree?.coverage ?? 0) * 100).toFixed(1)}%</div>
                   <div><span className="text-foreground-muted">四维：</span>{w.ontology?.fourdim?.n ?? '—'} 条</div>
+                  {w.ontology?.dream && (
+                    <div className="text-xs text-foreground-muted">
+                      梦中进化：{[['M1', w.ontology.dream.m1], ['M2', w.ontology.dream.m2], ['M3', w.ontology.dream.m3], ['M5', w.ontology.dream.m5], ['M6', w.ontology.dream.m6], ['M7', w.ontology.dream.m7]]
+                        .filter(([, v]) => v).map(([k, v]) => `${k} ${v}`).join(' → ')}
+                    </div>
+                  )}
                   <div><span className="text-foreground-muted">金标：</span>{wikiGold?.labels ?? 0}/{wikiGold?.need ?? 60} · {wikiGold?.verdict ?? '—'}</div>
                   <div><span className="text-foreground-muted">最近风格流：</span>{w.style_flow?.items ?? '—'} 条 · {w.style_flow?.at ?? '—'}</div>
                   <div><span className="text-foreground-muted">最近入树：</span>+{w.ingest?.added ?? 0} / 改 {w.ingest?.updated ?? 0} / 跳 {w.ingest?.skipped ?? 0} · {w.ingest?.at ?? '—'}</div>
