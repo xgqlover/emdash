@@ -1606,3 +1606,14 @@ apps/emdash-desktop/release/.last-shipped-version   记录上一次产出给用�
   📌 教训：`npx oxfmt <file>`（不带 `--check`）会把**整个文件重排**（实测 494 增 199 删，动了别人的行）
   ⇒ 要么只跑 `--check`，要么**从 HEAD 重建 + 只插入自己的块**。
 
+
+## 上游更新后：三步保住定制（[XG 2026-11-20]）
+
+```bash
+python3 scripts/xg-fork-ledger.py --check      # 1) 谁被冲掉了（退出码 1 = 有）
+python3 scripts/xg-fork-snapshot.py --restore  # 2) 解出 <file>.xg-restore 供人看
+python3 scripts/xg-fork-snapshot.py --restore --apply   # 3) 确认后覆盖原文件
+```
+
+- 快照：`_meta/emdash-fork-snapshots/<ts>/snapshot.tar.gz`（500 个定制文件，1.2 MB，已 gitignore）
+- 默认**不覆盖**，先落到 `.xg-restore`，避免把上游新代码一脚踩掉

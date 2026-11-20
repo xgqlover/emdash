@@ -117,3 +117,4 @@ CUSTOMIZATIONS.md.bak-*
 # [XG-CUSTOM 2026-10-24] 打包/改动的备份文件不进仓（含 100MB+ AppImage 备份）
 *.bak-*
 *.bak
+_meta/emdash-fork-snapshots/
