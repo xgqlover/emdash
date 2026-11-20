@@ -163,6 +163,7 @@ export function XgConsoleMainPanel() {
           {/* [XG 2026-11-20] 总管看板入口：票 / 任务书 / 闸门 / 巡检，一屏摘要；详情点开独立看板 */}
           <MasterBoardStrip />
           <AttentionAndSkills />
+          <CodeOntologyCard />
 
           {/* [XG 2026-11-18] 配方区：/v1/dot/status 的 recipes（automation-everything 等） */}
           <div className="mt-4 rounded-lg border border-border-subtle p-3">
@@ -500,6 +501,49 @@ function AttentionAndSkills() {
           {!k?.count && <div className="text-foreground-muted">L0 空（跑 xg_skills_l0.py --index）</div>}
         </div>
         <div className="mt-1 text-[11px] text-foreground-muted">只给名字+一句话，正文按需 load</div>
+      </div>
+    </div>
+  );
+}
+
+
+/** [XG 2026-11-20] 代码↔本体覆盖：未归属清单（每次提交后由钩子刷新）。 */
+function CodeOntologyCard() {
+  const [d, setD] = useState<any>(null);
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const r = await fetch(`${XG_DOT_BASE}/v1/dot/codeindex`, { cache: 'no-store' });
+        if (r.ok) setD(await r.json());
+      } catch { /* 不通就不显示 */ }
+    };
+    void load();
+    const h = window.setInterval(() => void load(), 30000);
+    return () => window.clearInterval(h);
+  }, []);
+  if (!d?.ok) return null;
+  const cov = Number(d.coverage ?? 0);
+  return (
+    <div className="mt-4 rounded-lg border border-border-subtle p-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <MicroLabel>代码↔本体</MicroLabel>
+        <Badge tone={cov >= 50 ? 'success' : cov >= 10 ? 'warning' : 'danger'} variant="outline">
+          已归属 {cov}%
+        </Badge>
+        <span className="text-xs text-foreground-muted">
+          {d.total} 个后端文件 · 未归属 {d.orphan}
+        </span>
+      </div>
+      <div className="mt-2 space-y-1 text-xs">
+        {(d.top ?? []).slice(0, 5).map((f: any) => (
+          <div key={f.file} className="flex justify-between gap-2">
+            <span className="truncate">{f.file}</span>
+            <span className="shrink-0 text-foreground-muted">{f.lines} 行</span>
+          </div>
+        ))}
+      </div>
+      <div className="mt-1 text-[11px] text-foreground-muted">
+        post-commit 钩子每提交刷新；补 `impl:` 到本体即减少未归属
       </div>
     </div>
   );
