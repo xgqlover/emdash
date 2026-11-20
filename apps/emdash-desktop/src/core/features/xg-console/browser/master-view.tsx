@@ -15,7 +15,7 @@ import { CardGrid, CardGridItem, EmptyState } from '@emdash/ui/react/components'
 import { defineViewRuntime } from '@core/primitives/views/react';
 import { xgMasterViewDef } from '../contributions/views';
 
-type MObj = { id?: string; name?: string; state?: string; source?: string; label?: string };
+type MObj = { id?: string; name?: string; state?: string; source?: string; label?: string; why?: string };
 type Gate = { id?: string; title?: string; state?: string; note?: string; produces?: string };
 type Task = {
   id?: string; title?: string; owner?: string; stage?: string; bucket?: string;
@@ -23,6 +23,7 @@ type Task = {
   goal?: string; deliverables?: string[]; acceptance?: string[]; redlines?: string[];
   gates?: Gate[]; gate_progress?: string; gate_failed?: string | null;
   m?: Record<string, MObj>; grounded?: boolean; m_issues?: string[];
+  durable?: { ok?: boolean; fields?: Record<string, MObj & { value?: unknown }> };
 };
 type Group = {
   project?: string; working?: number; blocked?: number; stale?: number; done?: number;
@@ -39,6 +40,7 @@ type Board = {
   ontology?: {
     ok?: boolean; total?: number; grounded?: number; ungrounded?: number; reportable?: boolean;
     models?: Record<string, number>; coverage?: Record<string, Coverage>;
+    durable?: { ok?: number; total?: number; duplicate_request_ids?: string[]; coverage?: Record<string, Coverage> };
   };
   schedule?: { pending?: number; next_in_s?: number; result?: string };
 };
@@ -158,7 +160,7 @@ export function XgMasterMainPanel() {
           <CardGridItem><div className="flex flex-col gap-1"><MicroLabel>停滞</MicroLabel><div className="text-2xl font-semibold">{c.stale ?? 0}</div><div className="truncate text-xs text-foreground-muted">超过 6h 没动静</div></div></CardGridItem>
           <CardGridItem><div className="flex flex-col gap-1"><MicroLabel>受阻</MicroLabel><div className="text-2xl font-semibold">{c.blocked ?? 0}</div><div className="truncate text-xs text-foreground-muted">失败 / 打回</div></div></CardGridItem>
           <CardGridItem><div className="flex flex-col gap-1"><MicroLabel>已结束</MicroLabel><div className="text-2xl font-semibold">{c.done ?? 0}</div><div className="truncate text-xs text-foreground-muted">挂本体 {c.done_grounded ?? 0} · 未挂 {c.done_ungrounded ?? 0}</div></div></CardGridItem>
-          <CardGridItem><div className="flex flex-col gap-1"><MicroLabel>本体挂上</MicroLabel><div className="text-2xl font-semibold">{o.grounded ?? 0}/{o.total ?? 0}</div><div className="truncate text-xs text-foreground-muted">{pct}% · 悬空 {c.dangling ?? 0}</div></div></CardGridItem>
+          <CardGridItem><div className="flex flex-col gap-1"><MicroLabel>本体挂上</MicroLabel><div className="text-2xl font-semibold">{o.grounded ?? 0}/{o.total ?? 0}</div><div className="truncate text-xs text-foreground-muted">{pct}% · Durable {o.durable?.ok ?? 0}/{o.durable?.total ?? 0}</div></div></CardGridItem>
         </CardGrid>
 
         <div className="mt-4 rounded-lg border border-border-subtle p-3">
@@ -182,7 +184,20 @@ export function XgMasterMainPanel() {
             })}
           </div>
           <div className="mt-1 text-[11px] text-foreground-muted">
-            M2 由 M6 step 推导；M1 缺的是老票的 objId。报得准 = 五个字段都能落到模型，看板只把 grounded 当准数。
+            M2 由 M6 step 推导；M1 缺的是老票的 objId。报得准 = M1–M6 + Pi Durable 都能落到模型，看板只把 grounded 当准数。
+          </div>
+          <div className="mt-1 flex flex-wrap gap-1 text-[11px] text-foreground-muted">
+            <Badge tone={(o.durable?.ok ?? 0) === (o.durable?.total ?? 0) && (o.durable?.total ?? 0) > 0 ? 'success' : 'warning'} variant="outline">
+              Pi Durable {o.durable?.ok ?? 0}/{o.durable?.total ?? 0}
+            </Badge>
+            {Object.entries(o.durable?.coverage ?? {}).map(([k, v]) => (
+              <Badge key={k} tone={(v.missing ?? 0) + (v.mismatch ?? 0) > 0 ? 'warning' : 'success'} variant="outline">
+                {v.label ?? k} {v.valid ?? 0}/{v.total ?? 0}
+              </Badge>
+            ))}
+            {(o.durable?.duplicate_request_ids ?? []).length > 0 && (
+              <Badge tone="warning" variant="outline">重复请求号 {o.durable?.duplicate_request_ids?.length}</Badge>
+            )}
           </div>
         </div>
 
@@ -228,7 +243,7 @@ export function XgMasterMainPanel() {
                         <button type="button" className="w-full text-left" onClick={() => toggle(t.id)}>
                           <Row
                             primary={<span className="flex items-center gap-2"><Badge tone={STAGE_TONE[t.stage ?? ''] ?? 'neutral'} variant="outline">{t.stage ?? '?'}</Badge><span className="truncate">{t.title ?? '(无标题)'}</span></span>}
-                            secondary={<span className="flex flex-wrap items-center gap-1"><span>{t.owner ?? '—'}</span>{t.gate_progress && <Badge tone={t.gate_failed ? 'warning' : 'success'} variant="outline">闸门 {t.gate_progress}</Badge>}<Badge tone={t.grounded ? 'success' : 'warning'} variant="outline">本体 {mOk(t)}/5</Badge>{t.reason && <span className="text-foreground-warning">{t.reason}</span>}</span>}
+                            secondary={<span className="flex flex-wrap items-center gap-1"><span>{t.owner ?? '—'}</span>{t.gate_progress && <Badge tone={t.gate_failed ? 'warning' : 'success'} variant="outline">闸门 {t.gate_progress}</Badge>}<Badge tone={t.grounded ? 'success' : 'warning'} variant="outline">本体 {mOk(t)}/5</Badge>{t.durable && !t.durable.ok && <Badge tone="warning" variant="outline">D {Object.values(t.durable.fields ?? {}).filter(v => v.state === 'ok').length}/5</Badge>}{t.reason && <span className="text-foreground-warning">{t.reason}</span>}</span>}
                             right={fmtAge(t.age_s)}
                           />
                         </button>
@@ -279,6 +294,19 @@ function TaskDetail({ t }: { t: Task }) {
           </div>
         ))}
       </div>
+      {t.durable?.fields && (
+        <div>
+          <div className="text-foreground-muted">Pi Durable 提交面</div>
+          {Object.entries(t.durable.fields).map(([f, v]) => (
+            <div key={f} className="flex items-center gap-2">
+              <span>{v.state === 'ok' ? '✅' : v.state === 'missing' ? '⚠️' : '❌'}</span>
+              <span className="w-16 shrink-0">{v.label ?? f}</span>
+              <span className="truncate">{String(v.value ?? '—')}</span>
+              {v.why && <span className="text-foreground-muted">{v.why}</span>}
+            </div>
+          ))}
+        </div>
+      )}
       {(t.m_issues ?? []).length > 0 && (
         <div className="text-foreground-warning">缺口：{(t.m_issues ?? []).join('；')}</div>
       )}
