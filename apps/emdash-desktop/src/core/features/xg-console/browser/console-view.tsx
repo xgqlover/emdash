@@ -48,6 +48,7 @@ type SharedWiki = {
     tree?: { n?: number; root?: string; coverage?: number; wikiRoot?: string };
     fourdim?: { n?: number };
     dream?: { m1?: string; m2?: string; m3?: string; m5?: string; m6?: string; m7?: string };
+    dream_auto?: { m1?: string; m2?: string; m3?: string; m5?: string; m6?: string; m7?: string };
     m4?: string;
   };
   gold?: { labels?: number; need?: number; accept?: number; reject?: number; verdict?: string };
@@ -479,6 +480,12 @@ export function XgConsoleMainPanel() {
                   {w.ontology?.dream && (
                     <div className="text-xs text-foreground-muted">
                       梦中进化：{[['M1', w.ontology.dream.m1], ['M2', w.ontology.dream.m2], ['M3', w.ontology.dream.m3], ['M5', w.ontology.dream.m5], ['M6', w.ontology.dream.m6], ['M7', w.ontology.dream.m7]]
+                        .filter(([, v]) => v).map(([k, v]) => `${k} ${v}`).join(' → ')}
+                    </div>
+                  )}
+                  {w.ontology?.dream_auto && (
+                    <div className="text-xs text-foreground-muted">
+                      KAIROS：{[['M1', w.ontology.dream_auto.m1], ['M2', w.ontology.dream_auto.m2], ['M3', w.ontology.dream_auto.m3], ['M5', w.ontology.dream_auto.m5], ['M6', w.ontology.dream_auto.m6], ['M7', w.ontology.dream_auto.m7]]
                         .filter(([, v]) => v).map(([k, v]) => `${k} ${v}`).join(' → ')}
                     </div>
                   )}
