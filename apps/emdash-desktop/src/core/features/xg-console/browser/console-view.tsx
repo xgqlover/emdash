@@ -57,7 +57,8 @@ type Status = {
   attention?: { ok?: boolean; total?: number; bots?: Record<string, number>; last?: string };
   context?: {
     ok?: boolean; cuts?: number; saved?: number; rewrite?: number; raw?: string;
-    acp?: { ok?: boolean; files?: number; blocks?: number; tiers?: Record<string, number>; latest?: string };
+    acp?: { ok?: boolean; files?: number; blocks?: number; tiers?: Record<string, number>;
+      bots?: Record<string, number>; empty_bots?: string[]; latest?: string };
     dsh?: { ok?: boolean; cuts?: number; saved?: number; rewrite?: number };
   };
   skills?: { ok?: boolean; visible?: number; total?: number; homes?: string[] };
@@ -492,7 +493,8 @@ export function XgConsoleMainPanel() {
                   </div>
                   <div className="rounded-lg border border-border-subtle p-3">
                     <div className="font-medium">上下文</div>
-                    <div className="text-foreground-muted">context-acp（块）：{c.acp?.files ?? '—'} 文件 · {c.acp?.blocks ?? '—'} 块 · {c.acp?.latest ?? '—'}</div>
+                    <div className="text-foreground-muted">context-acp（块）：{c.acp?.files ?? '—'} 文件 · {c.acp?.blocks ?? '—'} 块 · T1 {c.acp?.tiers?.T1 ?? 0} / T2 {c.acp?.tiers?.T2 ?? 0} / T3 {c.acp?.tiers?.T3 ?? 0} · {c.acp?.latest ?? '—'}</div>
+                    <div className="text-xs text-foreground-muted">空 bot：{(c.acp?.empty_bots || []).slice(0, 8).join('、') || '—'}</div>
                     <div className="text-foreground-muted">dsh-live-compact（切）：{c.dsh?.cuts ?? c.cuts ?? '—'} 刀 · saved {c.dsh?.saved ?? c.saved ?? '—'} · rewrite {c.dsh?.rewrite ?? c.rewrite ?? '—'}</div>
                   </div>
                   <div className="rounded-lg border border-border-subtle p-3">
