@@ -54,6 +54,9 @@ type Status = {
   flows?: (Flow | string)[]; health?: Record<string, boolean>;
   kaneo?: Kaneo;
   shared_wiki?: SharedWiki;
+  attention?: { ok?: boolean; total?: number; bots?: Record<string, number>; last?: string };
+  context?: { ok?: boolean; cuts?: number; saved?: number; rewrite?: number; raw?: string };
+  skills?: { ok?: boolean; visible?: number; total?: number; homes?: string[] };
   af?: { ok?: boolean; unanswered_effective?: number; over_count?: number; auto_confirmable?: number; by_workspace?: Record<string, number> };
 };
 
@@ -97,7 +100,7 @@ export function XgConsoleMainPanel() {
   const [d, setD] = useState<Status | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [sel, setSel] = useState<{ kind: 'ticket' | 'route' | 'af' | 'port' | 'flow' | 'wiki'; item?: unknown } | null>(null);
+  const [sel, setSel] = useState<{ kind: 'ticket' | 'route' | 'af' | 'port' | 'flow' | 'wiki' | 'layers'; item?: unknown } | null>(null);
 
   const load = useCallback(async () => {
     setBusy(true);
@@ -126,6 +129,9 @@ export function XgConsoleMainPanel() {
   const wiki = d?.shared_wiki;
   const wikiGold = wiki?.gold;
   const wikiTree = wiki?.ontology?.tree;
+  const att = d?.attention;
+  const ctx = d?.context;
+  const sk = d?.skills;
   // [XG-CUSTOM 2026-11-17] Kaneo 三条后台链：enabled 是开关、thread 是**线程真的在**
   //  —— 分开放，"关着"不是故障；**enabled && !thread 才是真警报**（开关开着、线程没了）。
   const kc = d?.kaneo?.chains ?? {};
@@ -236,6 +242,15 @@ export function XgConsoleMainPanel() {
                 <div className="text-2xl font-semibold">{wiki?.docs?.n ?? '—'}</div>
                 <div className="truncate text-xs text-foreground-muted">
                   {wiki?.tools?.n ?? '—'} 工具 · 树 {wikiTree?.n ?? '—'} · 四维 {wiki?.ontology?.fourdim?.n ?? '—'} · 金标 {wikiGold?.labels ?? 0}/{wikiGold?.need ?? 60}
+                </div>
+              </div>
+            </CardGridItem>
+            <CardGridItem onClick={() => setSel({ kind: 'layers', item: { att, ctx, sk } })}>
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <MicroLabel>注意力 / 上下文 / 技能</MicroLabel>
+                <div className="text-2xl font-semibold">{att?.total ?? '—'}</div>
+                <div className="truncate text-xs text-foreground-muted">
+                  压缩 {ctx?.cuts ?? '—'} 刀 · 技能 {sk?.visible ?? '—'}/{sk?.total ?? '—'}
                 </div>
               </div>
             </CardGridItem>
@@ -380,7 +395,7 @@ export function XgConsoleMainPanel() {
         <Sheet.Content>
           <Sheet.Header>
             <Sheet.Title>
-              {sel?.kind === 'ticket' ? '派工票' : sel?.kind === 'route' ? '路由决策' : sel?.kind === 'af' ? 'AF 待接' : sel?.kind === 'wiki' ? '共享维基' : sel?.kind === 'port' ? '端口健康' : '中控台流'}
+              {sel?.kind === 'ticket' ? '派工票' : sel?.kind === 'route' ? '路由决策' : sel?.kind === 'af' ? 'AF 待接' : sel?.kind === 'wiki' ? '共享维基' : sel?.kind === 'layers' ? '注意力 / 上下文 / 技能' : sel?.kind === 'port' ? '端口健康' : '中控台流'}
             </Sheet.Title>
           </Sheet.Header>
           <Sheet.Body>
@@ -456,6 +471,31 @@ export function XgConsoleMainPanel() {
                   <div><span className="text-foreground-muted">金标：</span>{wikiGold?.labels ?? 0}/{wikiGold?.need ?? 60} · {wikiGold?.verdict ?? '—'}</div>
                   <div><span className="text-foreground-muted">最近风格流：</span>{w.style_flow?.items ?? '—'} 条 · {w.style_flow?.at ?? '—'}</div>
                   {w.ontology?.m4 && <div className="text-xs text-foreground-muted">{w.ontology.m4}</div>}
+                </div>
+              );
+            })()}
+            {sel?.kind === 'layers' && (() => {
+              const x = (sel.item as { att?: Status['attention']; ctx?: Status['context']; sk?: Status['skills'] }) || {};
+              const a = x.att || att || {};
+              const c = x.ctx || ctx || {};
+              const k = x.sk || sk || {};
+              return (
+                <div className="space-y-4 text-sm">
+                  <div className="rounded-lg border border-border-subtle p-3">
+                    <div className="font-medium">注意力</div>
+                    <div className="text-foreground-muted">推送账，不是知识：{a.total ?? '—'} 条</div>
+                    <div className="mt-1 text-xs">{Object.entries(a.bots || {}).map(([b, n]) => `${b}:${n}`).join(' · ') || '暂无'}</div>
+                  </div>
+                  <div className="rounded-lg border border-border-subtle p-3">
+                    <div className="font-medium">上下文</div>
+                    <div className="text-foreground-muted">压缩账，不是记忆：{c.cuts ?? '—'} 刀 · saved {c.saved ?? '—'} · rewrite {c.rewrite ?? '—'}</div>
+                  </div>
+                  <div className="rounded-lg border border-border-subtle p-3">
+                    <div className="font-medium">技能</div>
+                    <div className="text-foreground-muted">能力账：可见 {k.visible ?? '—'} / 总 {k.total ?? '—'}</div>
+                    <div className="mt-1 text-xs">{(k.homes || []).join(' · ')}</div>
+                  </div>
+                  <div className="text-xs text-foreground-muted">三本账分开；共享维基只报知识账。</div>
                 </div>
               );
             })()}
