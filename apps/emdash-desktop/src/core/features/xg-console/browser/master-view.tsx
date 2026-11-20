@@ -40,7 +40,7 @@ type Board = {
   ontology?: {
     ok?: boolean; total?: number; grounded?: number; ungrounded?: number; reportable?: boolean;
     models?: Record<string, number>; coverage?: Record<string, Coverage>;
-    durable?: { ok?: number; total?: number; duplicate_request_ids?: string[]; coverage?: Record<string, Coverage>; real_runs?: number; real_coverage?: number };
+    durable?: { ok?: number; total?: number; duplicate_request_ids?: string[]; coverage?: Record<string, Coverage>; real_runs?: number; real_coverage?: number; runtime_reportable?: boolean };
   };
   schedule?: { pending?: number; next_in_s?: number; result?: string };
 };
@@ -160,14 +160,15 @@ export function XgMasterMainPanel() {
           <CardGridItem><div className="flex flex-col gap-1"><MicroLabel>停滞</MicroLabel><div className="text-2xl font-semibold">{c.stale ?? 0}</div><div className="truncate text-xs text-foreground-muted">超过 6h 没动静</div></div></CardGridItem>
           <CardGridItem><div className="flex flex-col gap-1"><MicroLabel>受阻</MicroLabel><div className="text-2xl font-semibold">{c.blocked ?? 0}</div><div className="truncate text-xs text-foreground-muted">失败 / 打回</div></div></CardGridItem>
           <CardGridItem><div className="flex flex-col gap-1"><MicroLabel>已结束</MicroLabel><div className="text-2xl font-semibold">{c.done ?? 0}</div><div className="truncate text-xs text-foreground-muted">挂本体 {c.done_grounded ?? 0} · 未挂 {c.done_ungrounded ?? 0}</div></div></CardGridItem>
-          <CardGridItem><div className="flex flex-col gap-1"><MicroLabel>本体挂上</MicroLabel><div className="text-2xl font-semibold">{o.grounded ?? 0}/{o.total ?? 0}</div><div className="truncate text-xs text-foreground-muted">{pct}% · Durable {o.durable?.ok ?? 0}/{o.durable?.total ?? 0}</div></div></CardGridItem>
+          <CardGridItem><div className="flex flex-col gap-1"><MicroLabel>本体挂上</MicroLabel><div className="text-2xl font-semibold">{o.grounded ?? 0}/{o.total ?? 0}</div><div className="truncate text-xs text-foreground-muted">{pct}% · Durable 字段 {o.durable?.ok ?? 0}/{o.durable?.total ?? 0} · 真跑 {o.durable?.real_runs ?? 0}/{o.durable?.total ?? 0}</div></div></CardGridItem>
         </CardGrid>
 
         <div className="mt-4 rounded-lg border border-border-subtle p-3">
           <div className="flex flex-wrap items-center gap-2">
             <MicroLabel>本体 M1–M7</MicroLabel>
             <Badge tone={o.ok ? 'success' : 'warning'} variant="outline">{o.ok ? '已连' : '未连'}</Badge>
-            <Badge tone={o.reportable ? 'success' : 'warning'} variant="outline">{o.reportable ? '报得准' : '有缺口'}</Badge>
+            <Badge tone={o.reportable ? 'success' : 'warning'} variant="outline">{o.reportable ? '报得准（字段）' : '字段有缺口'}</Badge>
+            <Badge tone={o.durable?.runtime_reportable ? 'success' : 'warning'} variant="outline">真实运行 {o.durable?.real_runs ?? 0}/{o.durable?.total ?? 0}</Badge>
             <span className="text-xs text-foreground-muted">
               M1 {o.models?.m1 ?? '—'} · M2 {o.models?.m2 ?? '—'} · M3 {o.models?.m3 ?? '—'} · M5 {o.models?.m5 ?? '—'} · M6 {o.models?.m6 ?? '—'} · M7 {o.models?.m7 ?? '—'} · MU {o.models?.mu ?? '—'}
             </span>
