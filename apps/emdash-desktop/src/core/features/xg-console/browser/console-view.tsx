@@ -55,7 +55,11 @@ type Status = {
   kaneo?: Kaneo;
   shared_wiki?: SharedWiki;
   attention?: { ok?: boolean; total?: number; bots?: Record<string, number>; last?: string };
-  context?: { ok?: boolean; cuts?: number; saved?: number; rewrite?: number; raw?: string };
+  context?: {
+    ok?: boolean; cuts?: number; saved?: number; rewrite?: number; raw?: string;
+    acp?: { ok?: boolean; files?: number; blocks?: number; tiers?: Record<string, number>; latest?: string };
+    dsh?: { ok?: boolean; cuts?: number; saved?: number; rewrite?: number };
+  };
   skills?: { ok?: boolean; visible?: number; total?: number; homes?: string[] };
   af?: { ok?: boolean; unanswered_effective?: number; over_count?: number; auto_confirmable?: number; by_workspace?: Record<string, number> };
 };
@@ -250,7 +254,7 @@ export function XgConsoleMainPanel() {
                 <MicroLabel>注意力 / 上下文 / 技能</MicroLabel>
                 <div className="text-2xl font-semibold">{att?.total ?? '—'}</div>
                 <div className="truncate text-xs text-foreground-muted">
-                  压缩 {ctx?.cuts ?? '—'} 刀 · 技能 {sk?.visible ?? '—'}/{sk?.total ?? '—'}
+                  ACP {ctx?.acp?.blocks ?? '—'} 块 · DSH {ctx?.dsh?.cuts ?? ctx?.cuts ?? '—'} 刀 · 技能 {sk?.visible ?? '—'}/{sk?.total ?? '—'}
                 </div>
               </div>
             </CardGridItem>
@@ -488,7 +492,8 @@ export function XgConsoleMainPanel() {
                   </div>
                   <div className="rounded-lg border border-border-subtle p-3">
                     <div className="font-medium">上下文</div>
-                    <div className="text-foreground-muted">压缩账，不是记忆：{c.cuts ?? '—'} 刀 · saved {c.saved ?? '—'} · rewrite {c.rewrite ?? '—'}</div>
+                    <div className="text-foreground-muted">context-acp（块）：{c.acp?.files ?? '—'} 文件 · {c.acp?.blocks ?? '—'} 块 · {c.acp?.latest ?? '—'}</div>
+                    <div className="text-foreground-muted">dsh-live-compact（切）：{c.dsh?.cuts ?? c.cuts ?? '—'} 刀 · saved {c.dsh?.saved ?? c.saved ?? '—'} · rewrite {c.dsh?.rewrite ?? c.rewrite ?? '—'}</div>
                   </div>
                   <div className="rounded-lg border border-border-subtle p-3">
                     <div className="font-medium">技能</div>
