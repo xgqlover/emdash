@@ -162,6 +162,7 @@ export function XgConsoleMainPanel() {
 
           {/* [XG 2026-11-20] 总管看板入口：票 / 任务书 / 闸门 / 巡检，一屏摘要；详情点开独立看板 */}
           <MasterBoardStrip />
+          <AttentionAndSkills />
 
           {/* [XG 2026-11-18] 配方区：/v1/dot/status 的 recipes（automation-everything 等） */}
           <div className="mt-4 rounded-lg border border-border-subtle p-3">
@@ -446,6 +447,63 @@ const PATROL_LABEL: Record<string, string> = {
   quiet: '没变化 · 不叫醒', changed: '有变化 · 已叫醒', paused: '已暂停',
   stale: '巡检超时', unknown: '还没跑过',
 };
+
+
+/** [XG 2026-11-20] 注意力（只指针）+ 技能 L0：中控台看"谁让我干了什么 / 有哪些技能"。 */
+function AttentionAndSkills() {
+  const [a, setA] = useState<any>(null);
+  const [k, setK] = useState<any>(null);
+  const load = useCallback(async () => {
+    try {
+      const [r1, r2] = await Promise.all([
+        fetch(`${XG_DOT_BASE}/v1/dot/attention`, { cache: 'no-store' }),
+        fetch(`${XG_DOT_BASE}/v1/dot/skills`, { cache: 'no-store' }),
+      ]);
+      if (r1.ok) setA(await r1.json());
+      if (r2.ok) setK(await r2.json());
+    } catch { /* 不通就不显示 */ }
+  }, []);
+  useEffect(() => {
+    void load();
+    const h = window.setInterval(() => void load(), 15000);
+    return () => window.clearInterval(h);
+  }, [load]);
+  if (!a?.ok && !k?.ok) return null;
+  const bots = Object.entries(a?.bots ?? {}) as [string, any[]][];
+  return (
+    <div className="mt-4 grid gap-3 md:grid-cols-2">
+      <div className="rounded-lg border border-border-subtle p-3">
+        <div className="flex items-center gap-2">
+          <MicroLabel>注意力（指针）</MicroLabel>
+          <Badge tone="success" variant="outline">{a?.total ?? 0} 条</Badge>
+        </div>
+        <div className="mt-2 space-y-1 text-xs">
+          {bots.slice(0, 4).map(([bot, rows]) => (
+            <div key={bot}>
+              <span className="text-foreground-muted">{bot}</span>
+              <span className="ml-2">{rows[0]?.worker ?? '—'} · {rows[0]?.summary ?? ''}</span>
+            </div>
+          ))}
+          {!bots.length && <div className="text-foreground-muted">还没有注意力记录</div>}
+        </div>
+        <div className="mt-1 text-[11px] text-foreground-muted">正文留在请求方 bot，这里只留指针</div>
+      </div>
+      <div className="rounded-lg border border-border-subtle p-3">
+        <div className="flex items-center gap-2">
+          <MicroLabel>技能 L0</MicroLabel>
+          <Badge tone="success" variant="outline">{k?.count ?? 0} 个</Badge>
+        </div>
+        <div className="mt-2 space-y-1 text-xs">
+          {(k?.items ?? []).slice(0, 4).map((it: any) => (
+            <div key={it.ref} className="truncate">{it.ref.replace('skill:', '')}</div>
+          ))}
+          {!k?.count && <div className="text-foreground-muted">L0 空（跑 xg_skills_l0.py --index）</div>}
+        </div>
+        <div className="mt-1 text-[11px] text-foreground-muted">只给名字+一句话，正文按需 load</div>
+      </div>
+    </div>
+  );
+}
 
 /** [XG 2026-11-20] 中控台里的总管摘要：只读 /v1/dot/board；完整看板在 /v1/dot/board.html。 */
 function MasterBoardStrip() {
