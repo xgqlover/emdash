@@ -39,7 +39,8 @@ type SharedWiki = {
   ok?: boolean; age_s?: number; stale?: boolean;
   services?: Record<string, { up?: boolean }>;
   docs?: { n?: number; by_source?: Record<string, number> };
-  tools?: { n?: number; names?: string[] };
+  tools?: { n?: number; names?: string[]; calls?: Record<string, number>; no_calls?: string[] };
+  style_flow?: { last?: string; items?: number; at?: string };
   ontology?: {
     models?: Record<string, number>;
     tree?: { n?: number; root?: string; coverage?: number; wikiRoot?: string };
@@ -448,11 +449,12 @@ export function XgConsoleMainPanel() {
                     {w.stale && <Badge tone="warning" variant="outline">快照 {w.age_s}s 旧</Badge>}
                   </div>
                   <div><span className="text-foreground-muted">文档：</span>{w.docs?.n ?? '—'}（wiki {w.docs?.by_source?.wiki ?? '—'}）</div>
-                  <div><span className="text-foreground-muted">工具：</span>{w.tools?.n ?? '—'} 个</div>
+                  <div><span className="text-foreground-muted">工具：</span>{w.tools?.n ?? '—'} 个 · 有调用 {Object.values(w.tools?.calls || {}).filter((n) => n > 0).length} 个 · 未调用 {w.tools?.no_calls?.length ?? '—'} 个</div>
                   <div><span className="text-foreground-muted">本体：</span>M1 {w.ontology?.models?.m1 ?? '—'} · M2 {w.ontology?.models?.m2 ?? '—'} · M3 {w.ontology?.models?.m3 ?? '—'} · M5 {w.ontology?.models?.m5 ?? '—'} · M6 {w.ontology?.models?.m6 ?? '—'} · M7 {w.ontology?.models?.m7 ?? '—'}</div>
                   <div><span className="text-foreground-muted">树：</span>{wikiTree?.n ?? '—'} 节点 · 根 {wikiTree?.root?.slice(0, 8) ?? '—'} · 覆盖 {((wikiTree?.coverage ?? 0) * 100).toFixed(1)}%</div>
                   <div><span className="text-foreground-muted">四维：</span>{w.ontology?.fourdim?.n ?? '—'} 条</div>
                   <div><span className="text-foreground-muted">金标：</span>{wikiGold?.labels ?? 0}/{wikiGold?.need ?? 60} · {wikiGold?.verdict ?? '—'}</div>
+                  <div><span className="text-foreground-muted">最近风格流：</span>{w.style_flow?.items ?? '—'} 条 · {w.style_flow?.at ?? '—'}</div>
                   {w.ontology?.m4 && <div className="text-xs text-foreground-muted">{w.ontology.m4}</div>}
                 </div>
               );
