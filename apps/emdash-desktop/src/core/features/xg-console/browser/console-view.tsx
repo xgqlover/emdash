@@ -160,6 +160,9 @@ export function XgConsoleMainPanel() {
             方法论来自 @人月聊IT v9 / Apache-2.0（sharptoolbox/ontology_modeling_framework @eed15dc）
           </div>
 
+          {/* [XG 2026-11-20] 总管看板入口：票 / 任务书 / 闸门 / 巡检，一屏摘要；详情点开独立看板 */}
+          <MasterBoardStrip />
+
           {/* [XG 2026-11-18] 配方区：/v1/dot/status 的 recipes（automation-everything 等） */}
           <div className="mt-4 rounded-lg border border-border-subtle p-3">
             <MicroLabel>配方（可跑，不进端口）</MicroLabel>
@@ -428,6 +431,63 @@ export function XgConsoleMainPanel() {
 type DecOpt = { key: string; label: string; route?: unknown };
 type DecField = { name: string; label?: string; type?: string; options?: string[]; placeholder?: string };
 type DecCard = { id: string; kind?: string; touchpoint?: string; question?: string; options?: DecOpt[]; fields?: DecField[] };
+
+
+type MasterBrief = {
+  ok?: boolean;
+  counts?: { ask?: number; working?: number; stale?: number; blocked?: number; done?: number; needs_spec?: number };
+  paused?: { paused?: boolean; reason?: string };
+  patrol?: { state?: string; age_s?: number | null; woke?: boolean; changes?: string[] };
+  schedule?: { next_in_s?: number; result?: string };
+};
+
+const PATROL_LABEL: Record<string, string> = {
+  quiet: '没变化 · 不叫醒', changed: '有变化 · 已叫醒', paused: '已暂停',
+  stale: '巡检超时', unknown: '还没跑过',
+};
+
+/** [XG 2026-11-20] 中控台里的总管摘要：只读 /v1/dot/board；完整看板在 /v1/dot/board.html。 */
+function MasterBoardStrip() {
+  const [b, setB] = useState<MasterBrief | null>(null);
+  const load = useCallback(async () => {
+    try {
+      const r = await fetch(`${XG_DOT_BASE}/v1/dot/board`, { cache: 'no-store' });
+      if (r.ok) setB(await r.json());
+    } catch { /* 看板不通不影响主面板 */ }
+  }, []);
+  useEffect(() => {
+    void load();
+    const h = window.setInterval(() => void load(), 5000);
+    return () => window.clearInterval(h);
+  }, [load]);
+  if (!b?.ok) return null;
+  const c = b.counts ?? {};
+  const p = b.patrol ?? {};
+  const paused = Boolean(b.paused?.paused);
+  const tone = paused || p.state === 'stale' ? 'warning' : 'success';
+  return (
+    <div className="mt-4 rounded-lg border border-border-subtle p-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <MicroLabel>总管看板</MicroLabel>
+        <Badge tone={tone} variant="outline">{paused ? '已暂停' : '在岗'}</Badge>
+        <span className="text-xs text-foreground-muted">
+          等你定 {c.ask ?? 0} · 进行 {c.working ?? 0} · 停滞 {c.stale ?? 0} · 受阻 {c.blocked ?? 0} · 结束 {c.done ?? 0}
+        </span>
+        <Button size="sm" variant="ghost" onClick={() => window.open(`${XG_DOT_BASE}/v1/dot/board.html`, '_blank')}>
+          打开完整看板
+        </Button>
+      </div>
+      <div className="mt-1 text-[11px] text-foreground-muted">
+        巡检 {PATROL_LABEL[p.state ?? 'unknown'] ?? p.state} · {p.age_s == null ? '—' : `${p.age_s}s`} 前
+        {paused && b.paused?.reason ? ` · 暂停原因：${b.paused.reason}` : ''}
+        {b.schedule?.next_in_s ? ` · 6h 保底 ${Math.round(b.schedule.next_in_s / 60)} 分钟后` : ''}
+      </div>
+      {p.woke && (p.changes ?? []).length > 0 ? (
+        <div className="mt-1 text-[11px] text-foreground-muted">这次发现：{(p.changes ?? []).slice(0, 3).join(' / ')}</div>
+      ) : null}
+    </div>
+  );
+}
 
 /** [XG-CUSTOM 2026-11-18] 待决卡面板：卡是数据，控件按 kind/field.type 分派（原生 Button/Input）。 */
 function CardsPanel() {
