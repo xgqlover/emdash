@@ -37,7 +37,7 @@ type Board = {
   patrol?: { state?: string; age_s?: number | null; woke?: boolean; changes?: string[]; paused?: boolean; reason?: string; interval_s?: number };
   paused?: { paused?: boolean; reason?: string };
   ontology?: {
-    ok?: boolean; total?: number; grounded?: number; ungrounded?: number;
+    ok?: boolean; total?: number; grounded?: number; ungrounded?: number; reportable?: boolean;
     models?: Record<string, number>; coverage?: Record<string, Coverage>;
   };
   schedule?: { pending?: number; next_in_s?: number; result?: string };
@@ -165,6 +165,7 @@ export function XgMasterMainPanel() {
           <div className="flex flex-wrap items-center gap-2">
             <MicroLabel>本体 M1–M7</MicroLabel>
             <Badge tone={o.ok ? 'success' : 'warning'} variant="outline">{o.ok ? '已连' : '未连'}</Badge>
+            <Badge tone={o.reportable ? 'success' : 'warning'} variant="outline">{o.reportable ? '报得准' : '有缺口'}</Badge>
             <span className="text-xs text-foreground-muted">
               M1 {o.models?.m1 ?? '—'} · M2 {o.models?.m2 ?? '—'} · M3 {o.models?.m3 ?? '—'} · M5 {o.models?.m5 ?? '—'} · M6 {o.models?.m6 ?? '—'} · M7 {o.models?.m7 ?? '—'} · MU {o.models?.mu ?? '—'}
             </span>
