@@ -42,6 +42,7 @@ type SharedWiki = {
   tools?: { n?: number; names?: string[]; calls?: Record<string, number>; no_calls?: string[] };
   style_flow?: { last?: string; items?: number; at?: string };
   ingest?: { at?: string; added?: number; updated?: number; skipped?: number; tree?: number };
+  wiki_dream?: { seeded?: number; queued?: number; exported?: number };
   ontology?: {
     models?: Record<string, number>;
     tree?: { n?: number; root?: string; coverage?: number; wikiRoot?: string };
@@ -484,6 +485,7 @@ export function XgConsoleMainPanel() {
                   <div><span className="text-foreground-muted">金标：</span>{wikiGold?.labels ?? 0}/{wikiGold?.need ?? 60} · {wikiGold?.verdict ?? '—'}</div>
                   <div><span className="text-foreground-muted">最近风格流：</span>{w.style_flow?.items ?? '—'} 条 · {w.style_flow?.at ?? '—'}</div>
                   <div><span className="text-foreground-muted">最近入树：</span>+{w.ingest?.added ?? 0} / 改 {w.ingest?.updated ?? 0} / 跳 {w.ingest?.skipped ?? 0} · {w.ingest?.at ?? '—'}</div>
+                  <div><span className="text-foreground-muted">入梦：</span>种子 {w.wiki_dream?.seeded ?? 0} · 队列 {w.wiki_dream?.queued ?? 0} · 回写 {w.wiki_dream?.exported ?? 0}</div>
                   {w.ontology?.m4 && <div className="text-xs text-foreground-muted">{w.ontology.m4}</div>}
                 </div>
               );
