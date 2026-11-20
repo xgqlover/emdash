@@ -35,10 +35,24 @@ type Chain = {
   interval?: number; scans?: number; last_scan?: string | null;
 };
 type Kaneo = { in_window?: boolean | null; chains?: Record<string, Chain> };
+type SharedWiki = {
+  ok?: boolean; age_s?: number; stale?: boolean;
+  services?: Record<string, { up?: boolean }>;
+  docs?: { n?: number; by_source?: Record<string, number> };
+  tools?: { n?: number; names?: string[] };
+  ontology?: {
+    models?: Record<string, number>;
+    tree?: { n?: number; root?: string; coverage?: number; wikiRoot?: string };
+    fourdim?: { n?: number };
+    m4?: string;
+  };
+  gold?: { labels?: number; need?: number; accept?: number; reject?: number; verdict?: string };
+};
 type Status = {
   ok?: boolean; state?: string; working?: Ticket[]; tickets?: Ticket[]; routing?: Route[];
   flows?: (Flow | string)[]; health?: Record<string, boolean>;
   kaneo?: Kaneo;
+  shared_wiki?: SharedWiki;
   af?: { ok?: boolean; unanswered_effective?: number; over_count?: number; auto_confirmable?: number; by_workspace?: Record<string, number> };
 };
 
@@ -82,7 +96,7 @@ export function XgConsoleMainPanel() {
   const [d, setD] = useState<Status | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [sel, setSel] = useState<{ kind: 'ticket' | 'route' | 'af' | 'port' | 'flow'; item?: unknown } | null>(null);
+  const [sel, setSel] = useState<{ kind: 'ticket' | 'route' | 'af' | 'port' | 'flow' | 'wiki'; item?: unknown } | null>(null);
 
   const load = useCallback(async () => {
     setBusy(true);
@@ -108,6 +122,9 @@ export function XgConsoleMainPanel() {
   const flows = (d?.flows ?? []) as (Flow | string)[];
   const health = d?.health ?? {};
   const healthOk = Object.values(health).filter(Boolean).length;
+  const wiki = d?.shared_wiki;
+  const wikiGold = wiki?.gold;
+  const wikiTree = wiki?.ontology?.tree;
   // [XG-CUSTOM 2026-11-17] Kaneo 三条后台链：enabled 是开关、thread 是**线程真的在**
   //  —— 分开放，"关着"不是故障；**enabled && !thread 才是真警报**（开关开着、线程没了）。
   const kc = d?.kaneo?.chains ?? {};
@@ -210,6 +227,15 @@ export function XgConsoleMainPanel() {
                 <MicroLabel>端口</MicroLabel>
                 <div className="text-2xl font-semibold">{healthOk}/{Object.keys(health).length}</div>
                 <div className="truncate text-xs text-foreground-muted">{Object.entries(health).map(([k, v]) => `${k}${v ? '✓' : '✗'}`).join(' · ')}</div>
+              </div>
+            </CardGridItem>
+            <CardGridItem onClick={() => setSel({ kind: 'wiki', item: wiki })}>
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <MicroLabel>共享维基</MicroLabel>
+                <div className="text-2xl font-semibold">{wiki?.docs?.n ?? '—'}</div>
+                <div className="truncate text-xs text-foreground-muted">
+                  {wiki?.tools?.n ?? '—'} 工具 · 树 {wikiTree?.n ?? '—'} · 四维 {wiki?.ontology?.fourdim?.n ?? '—'} · 金标 {wikiGold?.labels ?? 0}/{wikiGold?.need ?? 60}
+                </div>
               </div>
             </CardGridItem>
             <CardGridItem>
@@ -353,7 +379,7 @@ export function XgConsoleMainPanel() {
         <Sheet.Content>
           <Sheet.Header>
             <Sheet.Title>
-              {sel?.kind === 'ticket' ? '派工票' : sel?.kind === 'route' ? '路由决策' : sel?.kind === 'af' ? 'AF 待接' : sel?.kind === 'port' ? '端口健康' : '中控台流'}
+              {sel?.kind === 'ticket' ? '派工票' : sel?.kind === 'route' ? '路由决策' : sel?.kind === 'af' ? 'AF 待接' : sel?.kind === 'wiki' ? '共享维基' : sel?.kind === 'port' ? '端口健康' : '中控台流'}
             </Sheet.Title>
           </Sheet.Header>
           <Sheet.Body>
@@ -407,6 +433,27 @@ export function XgConsoleMainPanel() {
                       <Badge tone={v ? 'success' : 'warning'} variant="outline">{v ? '通' : '不通'}</Badge>
                     </div>
                   ))}
+                </div>
+              );
+            })()}
+            {sel?.kind === 'wiki' && (() => {
+              const w = ((sel.item as SharedWiki) || wiki || {}) as SharedWiki;
+              const svc = w.services || {};
+              return (
+                <div className="space-y-3 text-sm">
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(svc).map(([p, v]) => (
+                      <Badge key={p} tone={v?.up ? 'success' : 'warning'} variant="outline">{p}{v?.up ? ' ✓' : ' ✗'}</Badge>
+                    ))}
+                    {w.stale && <Badge tone="warning" variant="outline">快照 {w.age_s}s 旧</Badge>}
+                  </div>
+                  <div><span className="text-foreground-muted">文档：</span>{w.docs?.n ?? '—'}（wiki {w.docs?.by_source?.wiki ?? '—'}）</div>
+                  <div><span className="text-foreground-muted">工具：</span>{w.tools?.n ?? '—'} 个</div>
+                  <div><span className="text-foreground-muted">本体：</span>M1 {w.ontology?.models?.m1 ?? '—'} · M2 {w.ontology?.models?.m2 ?? '—'} · M3 {w.ontology?.models?.m3 ?? '—'} · M5 {w.ontology?.models?.m5 ?? '—'} · M6 {w.ontology?.models?.m6 ?? '—'} · M7 {w.ontology?.models?.m7 ?? '—'}</div>
+                  <div><span className="text-foreground-muted">树：</span>{wikiTree?.n ?? '—'} 节点 · 根 {wikiTree?.root?.slice(0, 8) ?? '—'} · 覆盖 {((wikiTree?.coverage ?? 0) * 100).toFixed(1)}%</div>
+                  <div><span className="text-foreground-muted">四维：</span>{w.ontology?.fourdim?.n ?? '—'} 条</div>
+                  <div><span className="text-foreground-muted">金标：</span>{wikiGold?.labels ?? 0}/{wikiGold?.need ?? 60} · {wikiGold?.verdict ?? '—'}</div>
+                  {w.ontology?.m4 && <div className="text-xs text-foreground-muted">{w.ontology.m4}</div>}
                 </div>
               );
             })()}
