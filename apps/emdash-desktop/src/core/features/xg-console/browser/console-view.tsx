@@ -164,6 +164,7 @@ export function XgConsoleMainPanel() {
           <MasterBoardStrip />
           <AttentionAndSkills />
           <CodeOntologyCard />
+          <OpsTodayCard />
 
           {/* [XG 2026-11-18] 配方区：/v1/dot/status 的 recipes（automation-everything 等） */}
           <div className="mt-4 rounded-lg border border-border-subtle p-3">
@@ -544,6 +545,49 @@ function CodeOntologyCard() {
       </div>
       <div className="mt-1 text-[11px] text-foreground-muted">
         post-commit 钩子每提交刷新；补 `impl:` 到本体即减少未归属
+      </div>
+    </div>
+  );
+}
+
+
+/** [XG 2026-11-20] 今日 OPS 变更：只报告"改没改过"，要不要重画由你点。 */
+function OpsTodayCard() {
+  const [d, setD] = useState<any>(null);
+  const [busy, setBusy] = useState(false);
+  const load = async () => {
+    try {
+      const r = await fetch(`${XG_DOT_BASE}/v1/dot/opsstatus`, { cache: 'no-store' });
+      if (r.ok) setD(await r.json());
+    } catch { /* 不通就不显示 */ }
+  };
+  useEffect(() => { void load(); const h = window.setInterval(() => void load(), 60000); return () => window.clearInterval(h); }, []);
+  if (!d?.ok) return null;
+  const today = d.today ?? [];
+  const redraw = async () => {
+    setBusy(true);
+    try { await fetch(`${XG_DOT_BASE}/v1/dot/opsredraw`, { cache: 'no-store' }); } catch { /* 忽略 */ }
+    window.setTimeout(() => { setBusy(false); void load(); }, 4000);
+  };
+  return (
+    <div className="mt-4 rounded-lg border border-border-subtle p-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <MicroLabel>今日 OPS</MicroLabel>
+        <Badge tone={today.length ? 'warning' : 'success'} variant="outline">
+          {today.length ? `改过 ${today.length} 份` : '没改过'}
+        </Badge>
+        {today.length > 0 && (
+          <Button size="sm" variant="ghost" disabled={busy} onClick={() => void redraw()}>
+            {busy ? '重画中…' : '重画 OPS 图'}
+          </Button>
+        )}
+        <span className="text-xs text-foreground-muted">
+          {d.last_scan ? `上次扫描 ${new Date(d.last_scan * 1000).toLocaleTimeString()}` : '还没扫过'}
+        </span>
+      </div>
+      <div className="mt-1 text-[11px] text-foreground-muted">
+        {today.slice(0, 4).join(' · ') || '今天没动过 OPS'}
+        {d.need_draw ? ' · 建议重画' : ''}
       </div>
     </div>
   );
