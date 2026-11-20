@@ -2,6 +2,9 @@
 
 > 所有定制代码带 `[XG-CUSTOM]` 标记，emdash 上游更新后用 `grep -rn "XG-CUSTOM"` 一键找回。
 > emdash 上游：`github.com/generalaction/emdash`（Apache-2.0）
+>
+> **[XG 2026-11-20] 完整台账见 `CUSTOMIZATIONS-LEDGER.md`（500 个定制文件，由 `[XG` 标记自动生成）。**
+> 上游更新后第一件事：`python3 scripts/xg-fork-ledger.py --check` —— 退出码 1 就是有人被冲掉了。
 
 ## 定制列表
 
