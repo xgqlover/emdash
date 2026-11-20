@@ -439,6 +439,7 @@ type MasterBrief = {
   paused?: { paused?: boolean; reason?: string };
   patrol?: { state?: string; age_s?: number | null; woke?: boolean; changes?: string[] };
   schedule?: { next_in_s?: number; result?: string };
+  ontology?: { ok?: boolean; grounded?: number; total?: number };
 };
 
 const PATROL_LABEL: Record<string, string> = {
@@ -471,7 +472,7 @@ function MasterBoardStrip() {
         <MicroLabel>总管看板</MicroLabel>
         <Badge tone={tone} variant="outline">{paused ? '已暂停' : '在岗'}</Badge>
         <span className="text-xs text-foreground-muted">
-          等你定 {c.ask ?? 0} · 进行 {c.working ?? 0} · 停滞 {c.stale ?? 0} · 受阻 {c.blocked ?? 0} · 结束 {c.done ?? 0}
+          等你定 {c.ask ?? 0} · 进行 {c.working ?? 0} · 停滞 {c.stale ?? 0} · 受阻 {c.blocked ?? 0} · 结束 {c.done ?? 0} · 本体 {b.ontology?.grounded ?? 0}/{b.ontology?.total ?? 0}
         </span>
         <Button size="sm" variant="ghost" onClick={() => window.open(`${XG_DOT_BASE}/v1/dot/board.html`, '_blank')}>
           打开完整看板

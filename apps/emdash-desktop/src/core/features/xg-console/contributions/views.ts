@@ -11,3 +11,11 @@ export const xgConsoleViewDef = defineView({
   layout: workbenchLayout,
   telemetryEvent: 'xg_console_viewed',
 });
+
+// [XG 2026-11-20] 总管视图：票 / 任务书 / 闸门 / 巡检 + 本体 M1–M7
+export const xgMasterViewDef = defineView({
+  id: 'xgMaster',
+  params: z.object({}),
+  layout: workbenchLayout,
+  telemetryEvent: 'xg_master_viewed',
+});

@@ -1,7 +1,7 @@
 import { getTaskManagerStore } from '@core/features/tasks/api/browser/task-state/task-selectors';
 import { taskViewDef } from '@core/features/tasks/contributions/views';
 import { t } from '@renderer/lib/i18n'; // [XG-CUSTOM]
-import { Activity, Clock, FolderInput, Inbox, MessageSquareShare, Settings, Users } from 'lucide-react';
+import { Activity, Clock, Crown, FolderInput, Inbox, MessageSquareShare, Settings, Users } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { automationsViewDef } from '@core/features/automations/contributions/views';
@@ -9,7 +9,7 @@ import { automationsViewDef } from '@core/features/automations/contributions/vie
 import { handoffViewDef } from '@core/features/handoff/contributions/views';
 import { expertRosterViewDef } from '@core/features/expert-roster/contributions/views';
 // [XG-CUSTOM 2026-11-17] 中控台（运行状态：在跑谁/多久/端口/流）
-import { xgConsoleViewDef } from '@core/features/xg-console/contributions/views';
+import { xgConsoleViewDef, xgMasterViewDef } from '@core/features/xg-console/contributions/views';
 import { settingsViewDef } from '@core/features/settings/contributions/views';
 import { WaitlistCard } from '@core/features/waitlist/contributions/browser/waitlist-card';
 import { useOpenModal } from '@core/manifests/browser/modal-api';
@@ -152,6 +152,19 @@ export const LeftSidebar: React.FC = observer(function LeftSidebar() {
               <span className="flex min-w-0 items-center gap-2">
                 <Activity className="h-5 w-5 shrink-0 sm:h-4 sm:w-4" />
                 <span className="truncate">中控台</span>
+              </span>
+            </SidebarMenuButton>
+            {/* [XG 2026-11-20] 总管：中控台下面，票/任务书/闸门/巡检 + 本体 M1–M7 */}
+            <SidebarMenuButton
+              isActive={isCurrentView(currentView, 'xgMaster')}
+              onClick={() => navigate(xgMasterViewDef())}
+              aria-label="总管：票、任务书、闸门、巡检与本体覆盖"
+              title="总管：票 / 任务书 / 闸门 / 巡检 · 本体 M1–M7（只读 /v1/dot/board）"
+              className="w-full justify-between"
+            >
+              <span className="flex min-w-0 items-center gap-2">
+                <Crown className="h-5 w-5 shrink-0 sm:h-4 sm:w-4" />
+                <span className="truncate">总管</span>
               </span>
             </SidebarMenuButton>
             <SidebarMenuButton
