@@ -197,6 +197,7 @@ export function XgConsoleMainPanel() {
           {/* [XG 2026-11-20] 总管看板入口：票 / 任务书 / 闸门 / 巡检，一屏摘要；详情点开独立看板 */}
           <MasterBoardStrip />
           <AttentionAndSkills />
+          <TreeHealthCard />
           <CodeOntologyCard />
           <OpsTodayCard />
 
@@ -630,6 +631,57 @@ function AttentionAndSkills() {
 
 
 /** [XG 2026-11-20] 代码↔本体覆盖：未归属清单（每次提交后由钩子刷新）。 */
+/** [XG 2026-11-20] 树健康：叶分布 + 哪条升维链停了（对应 M1 AGG-TREE / M7 QY-TREE-HEALTH）。 */
+function TreeHealthCard() {
+  const [d, setD] = useState<any>(null);
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const r = await fetch(`${XG_DOT_BASE}/v1/dot/treehealth`, { cache: 'no-store' });
+        if (r.ok) setD(await r.json());
+      } catch { /* 不通就不显示 */ }
+    };
+    void load();
+    const h = window.setInterval(() => void load(), 60000);
+    return () => window.clearInterval(h);
+  }, []);
+  if (!d?.ok) return null;
+  const leaves: [string, number][] = d.leaves_by_kind ?? [];
+  const stalled: any[] = d.stalled ?? [];
+  const max = Math.max(1, ...leaves.map((x) => Number(x[1])));
+  return (
+    <div className="mt-4 rounded-lg border border-border-subtle p-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <MicroLabel>树健康</MicroLabel>
+        <Badge tone={stalled.length ? 'warning' : 'success'} variant="outline">
+          {stalled.length ? `${stalled.length} 条链停了` : '全部在长'}
+        </Badge>
+        <span className="text-xs text-foreground-muted">
+          {d.total} 节点 · 叶 {d.leaves} 条
+        </span>
+      </div>
+      <div className="mt-2 space-y-1 text-xs">
+        {leaves.slice(0, 6).map(([k, n]) => (
+          <div key={k} className="flex items-center gap-2">
+            <span className="w-20 shrink-0 truncate">{k}</span>
+            <div className="h-1.5 flex-1 rounded bg-surface-raised">
+              <div className="h-1.5 rounded bg-foreground/40" style={{ width: `${Math.round((Number(n) / max) * 100)}%` }} />
+            </div>
+            <span className="w-14 shrink-0 text-right text-foreground-muted">{n}</span>
+          </div>
+        ))}
+      </div>
+      {stalled.length > 0 && (
+        <div className="mt-2 space-y-0.5 text-[11px] text-foreground-muted">
+          {stalled.slice(0, 3).map((x) => (
+            <div key={x.kind}>· {x.kind}：{x.age_h != null ? `${Math.round(x.age_h)}h 没长` : x.reason}（{x.chain}）</div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function CodeOntologyCard() {
   const [d, setD] = useState<any>(null);
   useEffect(() => {
