@@ -202,6 +202,7 @@ export function XgConsoleMainPanel() {
           <TreeHealthCard />
           <CodeOntologyCard />
           <OpsTodayCard />
+          <M7QueriesCard />
 
           {/* [XG 2026-11-18] 配方区：/v1/dot/status 的 recipes（automation-everything 等） */}
           <div className="mt-4 rounded-lg border border-border-subtle p-3">
@@ -726,6 +727,38 @@ function CodeOntologyCard() {
   );
 }
 
+
+/** [XG 2026-11-21] M7 查询层：19 条查询里哪几条真能跑、各被调了多少次。 */
+function M7QueriesCard() {
+  const [data, setData] = useState<any>(null);
+  useEffect(() => {
+    fetch("http://127.0.0.1:8900/v1/dot/m7")
+      .then((r) => r.json())
+      .then(setData)
+      .catch(() => setData({ ok: false }));
+  }, []);
+  const qs = data?.queries ?? [];
+  const used = qs.filter((q: any) => (q.calls ?? 0) > 0).length;
+  return (
+    <div className="rounded-lg border border-white/10 p-3">
+      <div className="flex items-center justify-between">
+        <div className="text-sm font-medium">M7 查询层</div>
+        <span className="rounded bg-white/10 px-2 py-0.5 text-[11px]">
+          {data?.implemented ?? 0}/{data?.total ?? 0} 可执行 · {used} 被调用
+        </span>
+      </div>
+      <div className="mt-2 space-y-1 text-xs">
+        {qs.slice(0, 6).map((q: any) => (
+          <div key={q.id} className="flex items-center justify-between gap-2">
+            <span className={q.implemented ? "" : "opacity-40"}>{q.name}</span>
+            <span className="opacity-60">{q.calls ?? 0} 次</span>
+          </div>
+        ))}
+        {!qs.length && <div className="opacity-50">没有读到 M7（8900 未启动或接口报错）</div>}
+      </div>
+    </div>
+  );
+}
 
 /** [XG 2026-11-20] 今日 OPS 变更：只报告"改没改过"，要不要重画由你点。 */
 function OpsTodayCard() {
