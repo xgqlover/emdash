@@ -44,7 +44,12 @@ export class ConversationSyncService {
     if (this.disposed) return;
     this.detachHost(host);
     const client = await this.options.runtimes.client(host);
-    if (!client.success) return;
+    if (!client.success) {
+      // [XG-CUSTOM 2026-11-21] 早退会让 conversations/registry 两侧永久为空，
+      // 而 UI 只报 missing-workspace（真因被吞）。这里必须出声，便于判「谁不 ready」。
+      this.options.onError?.('conversation-sync attach: runtime client unavailable', client.error ?? 'unknown');
+      return;
+    }
     const key = hostRefKey(host);
     if (this.disposed || this.attachments.has(key)) return;
 

@@ -894,7 +894,14 @@ export async function bootServices(
     label: 'workspace-registry-sync',
     async attach(host) {
       const backfill = await workspaceRegistryBackfill.backfillHost(host);
-      if (backfill.status !== 'complete') return;
+      if (backfill.status !== 'complete') {
+        // [XG-CUSTOM 2026-11-21] 这里静默 return ⇒ workspace_records 永久为空 ⇒
+        // 会话解析报 missing-workspace。至少要让「回填没完成」在日志里可见。
+        log.warn('workspace-registry backfill incomplete; live sync skipped', {
+          status: backfill.status,
+        });
+        return;
+      }
       await workspaceRegistrySync.attachHost(host);
       reconcileSweep.attachHost(host);
     },
