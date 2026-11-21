@@ -56,11 +56,21 @@ type SharedWiki = {
   };
   gold?: { labels?: number; need?: number; accept?: number; reject?: number; verdict?: string };
 };
+/** [XG-CUSTOM 2026-11-21] emdash workspace 账：大仓/小仓/孤儿/绑定；只读 /v1/dot/workspace。 */
+type WorkspaceStatus = {
+  ok?: boolean; at?: string; registry?: string;
+  counts?: Record<string, number>; orphan?: number;
+  refs?: { tasks_total?: number; tasks_bad?: number; projects_total?: number; projects_bad?: number };
+  pilotdeck?: { registered?: boolean; id?: string; path?: string };
+  assignments?: { total?: number; bound?: number };
+  recent?: { id?: string; path?: string; parent?: string }[];
+};
 type Status = {
   ok?: boolean; state?: string; working?: Ticket[]; tickets?: Ticket[]; routing?: Route[];
   flows?: (Flow | string)[]; health?: Record<string, boolean>;
   kaneo?: Kaneo;
   shared_wiki?: SharedWiki;
+  workspace?: WorkspaceStatus;
   attention?: { ok?: boolean; total?: number; bots?: Record<string, number>; last?: string };
   context?: {
     ok?: boolean; cuts?: number; saved?: number; rewrite?: number; raw?: string;
@@ -202,6 +212,7 @@ export function XgConsoleMainPanel() {
           <TreeHealthCard />
           <CodeOntologyCard />
           <OpsTodayCard />
+          <WorkspaceCard />
           <M7QueriesCard />
           <DotAlwaysOnCard />
           <SystemModelCard />
@@ -771,6 +782,45 @@ function DotAlwaysOnCard() {
       <div className="mt-2 space-y-1 text-xs text-white/70">
         <div>定时器 {timers?.n ?? 0} 条，到期 {timers?.due ?? 0} 条</div>
         <div>体检 FAIL {attn?.health_fail ?? 0} 条{health?.last ? " · " + health.last : ""}</div>
+      </div>
+    </div>
+  );
+}
+
+/** [XG-CUSTOM 2026-11-21] emdash workspace 账：大仓/小仓/孤儿/绑定/根仓；只读，不写 registry。 */
+function WorkspaceCard() {
+  const [d, setD] = useState<WorkspaceStatus | null>(null);
+  useEffect(() => {
+    const load = () =>
+      fetch(`${XG_DOT_BASE}/v1/dot/workspace`, { cache: "no-store" })
+        .then((r) => r.json())
+        .then(setD)
+        .catch(() => setD({ ok: false }));
+    void load();
+    const h = window.setInterval(load, 30000);
+    return () => window.clearInterval(h);
+  }, []);
+  if (!d) return null;
+  const c = d.counts || {};
+  const r = d.refs || {};
+  const bad = Number(d.orphan || 0) + Number(r.tasks_bad || 0) + Number(r.projects_bad || 0);
+  const base = (p?: string) => String(p || "").split("/").filter(Boolean).pop() || "—";
+  return (
+    <div className="rounded-lg border border-white/10 p-3">
+      <div className="flex items-center justify-between gap-2">
+        <div className="text-sm font-medium">Workspace 账</div>
+        <span className="rounded bg-white/10 px-2 py-0.5 text-[11px]">
+          {c.repository ?? 0} 大仓 · {c.worktree ?? 0} 小仓 · {bad === 0 ? "无孤儿" : bad + " 处异常"}
+        </span>
+      </div>
+      <div className="mt-2 space-y-1 text-xs text-white/70">
+        <div>引用：tasks {r.tasks_total ?? 0} / bad {r.tasks_bad ?? 0} · projects {r.projects_total ?? 0} / bad {r.projects_bad ?? 0}</div>
+        <div>PilotDeck 根仓：{d.pilotdeck?.registered ? "已注册" : "未注册"} · {d.pilotdeck?.id?.slice(0, 8) ?? "—"}</div>
+        <div>派工绑定：{d.assignments?.bound ?? 0} / {d.assignments?.total ?? 0}</div>
+        {(d.recent || []).slice(0, 3).map((x) => (
+          <div key={x.id} className="truncate">{base(x.path)}</div>
+        ))}
+        {!d.ok && <div className="text-foreground-danger">读不到 workspace 账：{String((d as any).error || "接口不通")}</div>}
       </div>
     </div>
   );
