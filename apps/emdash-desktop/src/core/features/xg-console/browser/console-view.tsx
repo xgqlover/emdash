@@ -203,6 +203,7 @@ export function XgConsoleMainPanel() {
           <CodeOntologyCard />
           <OpsTodayCard />
           <M7QueriesCard />
+          <DotAlwaysOnCard />
           <SystemModelCard />
 
           {/* [XG 2026-11-18] 配方区：/v1/dot/status 的 recipes（automation-everything 等） */}
@@ -747,6 +748,34 @@ function SystemModelCard() {
 }
 
 /** [XG 2026-11-21] M7 查询层：19 条查询里哪几条真能跑、各被调了多少次。 */
+function DotAlwaysOnCard() {
+  const [health, setHealth] = useState<any>(null);
+  const [attn, setAttn] = useState<any>(null);
+  const [timers, setTimers] = useState<any>(null);
+  useEffect(() => {
+    const get = (u: string, set: (v: any) => void) =>
+      fetch(u).then((r) => r.json()).then(set).catch(() => set({ ok: false }));
+    get("http://127.0.0.1:8900/v1/dot/health", setHealth);
+    get("http://127.0.0.1:8900/v1/dot/outbox-attention", setAttn);
+    get("http://127.0.0.1:8900/v1/dot/timers", setTimers);
+  }, []);
+  const bad = Number(health?.fail ?? 0);
+  return (
+    <div className="rounded-lg border border-white/10 p-3">
+      <div className="flex items-center justify-between">
+        <div className="text-sm font-medium">Dot 常驻</div>
+        <span className="rounded bg-white/10 px-2 py-0.5 text-[11px]">
+          体检 {bad === 0 ? "全通" : bad + " FAIL"} · 等 {attn?.waiting ?? 0} · 超期 {attn?.overdue ?? 0}
+        </span>
+      </div>
+      <div className="mt-2 space-y-1 text-xs text-white/70">
+        <div>定时器 {timers?.n ?? 0} 条，到期 {timers?.due ?? 0} 条</div>
+        <div>体检 FAIL {attn?.health_fail ?? 0} 条{health?.last ? " · " + health.last : ""}</div>
+      </div>
+    </div>
+  );
+}
+
 function M7QueriesCard() {
   const [data, setData] = useState<any>(null);
   useEffect(() => {
