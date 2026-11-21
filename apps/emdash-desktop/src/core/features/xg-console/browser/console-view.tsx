@@ -49,7 +49,9 @@ type SharedWiki = {
     fourdim?: { n?: number };
     dream?: { m1?: string; m2?: string; m3?: string; m5?: string; m6?: string; m7?: string };
     dream_auto?: { m1?: string; m2?: string; m3?: string; m5?: string; m6?: string; m7?: string };
+    queries?: { id?: string; name?: string; intent?: string; entry?: string; fallback?: string }[];
     dream_auto?: { m1?: string; m2?: string; m3?: string; m5?: string; m6?: string; m7?: string };
+    queries?: { id?: string; name?: string; intent?: string; entry?: string; fallback?: string }[];
     m4?: string;
   };
   gold?: { labels?: number; need?: number; accept?: number; reject?: number; verdict?: string };
@@ -479,6 +481,7 @@ export function XgConsoleMainPanel() {
                   <div><span className="text-foreground-muted">本体：</span>M1 {w.ontology?.models?.m1 ?? '—'} · M2 {w.ontology?.models?.m2 ?? '—'} · M3 {w.ontology?.models?.m3 ?? '—'} · M5 {w.ontology?.models?.m5 ?? '—'} · M6 {w.ontology?.models?.m6 ?? '—'} · M7 {w.ontology?.models?.m7 ?? '—'}</div>
                   <div><span className="text-foreground-muted">树：</span>{wikiTree?.n ?? '—'} 节点 · 根 {wikiTree?.root?.slice(0, 8) ?? '—'} · 覆盖 {((wikiTree?.coverage ?? 0) * 100).toFixed(1)}%</div>
                   <div><span className="text-foreground-muted">四维：</span>{w.ontology?.fourdim?.n ?? '—'} 条</div>
+                  <div><span className="text-foreground-muted">M7 查询：</span>{w.ontology?.queries?.length ?? '—'} 条{w.ontology?.queries?.length ? ` · ${w.ontology.queries.slice(0, 6).map((q) => q.id).join(' / ')}` : ''}</div>
                   {w.ontology?.dream && (
                     <div className="text-xs text-foreground-muted">
                       梦中进化：{[['M1', w.ontology.dream.m1], ['M2', w.ontology.dream.m2], ['M3', w.ontology.dream.m3], ['M5', w.ontology.dream.m5], ['M6', w.ontology.dream.m6], ['M7', w.ontology.dream.m7]]
