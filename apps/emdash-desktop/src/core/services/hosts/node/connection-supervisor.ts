@@ -626,6 +626,23 @@ export class HostConnectionSupervisor {
       } catch (error) {
         if (!this.isCurrent(attemptScope, epoch)) return;
         const issue = translateHostPreparationError(this.options.host, phase, error);
+        // [XG-CUSTOM 2026-11-21] 真因取证：原来只剩 `reason: runtime-unavailable` 一个字，
+        // 无从判断是"哪个准备步骤失败/超时"。这里把原始异常类型与消息完整落盘（warn 级，仅失败时打）。
+        {
+          const e = error as { name?: string; message?: string; code?: string; stack?: string };
+          const detail = {
+            phase,
+            attempt,
+            host: formatHostRef(this.options.host),
+            issueType: (issue as { type?: string }).type,
+            issueReason: (issue as { reason?: string }).reason,
+            errorName: e?.name,
+            errorCode: e?.code,
+            errorMessage: (e?.message ?? String(error)).slice(0, 600),
+            stackHead: (e?.stack ?? '').split('\n').slice(0, 4).join(' | ').slice(0, 600),
+          };
+          ambientLog.warn('host preparation failed (detail)', detail);
+        }
         if (isBlocked(error, issue)) {
           if (phase !== 'connecting') this.runtimePolicy = { kind: 'blocked', issue };
           this.publish({
