@@ -735,8 +735,8 @@ function SystemModelCard() {
     <div className="rounded-lg border border-white/10 p-3">
       <div className="flex items-center justify-between">
         <div className="text-sm font-medium">系统模型（LikeC4）</div>
-        <a className="text-[11px] underline opacity-70" href="http://127.0.0.1:8101" target="_blank" rel="noreferrer">
-          打开 8101
+        <a className="text-[11px] underline opacity-70" href="http://127.0.0.1:8096/diagrams/likec4/" target="_blank" rel="noreferrer">
+          打开 8096
         </a>
       </div>
       <div className="mt-2 text-xs opacity-70">
