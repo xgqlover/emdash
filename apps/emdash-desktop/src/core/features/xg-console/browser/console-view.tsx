@@ -203,6 +203,7 @@ export function XgConsoleMainPanel() {
           <CodeOntologyCard />
           <OpsTodayCard />
           <M7QueriesCard />
+          <SystemModelCard />
 
           {/* [XG 2026-11-18] 配方区：/v1/dot/status 的 recipes（automation-everything 等） */}
           <div className="mt-4 rounded-lg border border-border-subtle p-3">
@@ -727,6 +728,23 @@ function CodeOntologyCard() {
   );
 }
 
+
+/** [XG 2026-11-21] 系统模型（LikeC4）：一个 model.c4 出多个 view，点开直接看。 */
+function SystemModelCard() {
+  return (
+    <div className="rounded-lg border border-white/10 p-3">
+      <div className="flex items-center justify-between">
+        <div className="text-sm font-medium">系统模型（LikeC4）</div>
+        <a className="text-[11px] underline opacity-70" href="http://127.0.0.1:8101" target="_blank" rel="noreferrer">
+          打开 8101
+        </a>
+      </div>
+      <div className="mt-2 text-xs opacity-70">
+        项我 MetaHarness / 共享中心 / 代码管理 · 模型驱动（model.c4），模型变才重建
+      </div>
+    </div>
+  );
+}
 
 /** [XG 2026-11-21] M7 查询层：19 条查询里哪几条真能跑、各被调了多少次。 */
 function M7QueriesCard() {
