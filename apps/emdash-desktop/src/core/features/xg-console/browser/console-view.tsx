@@ -763,12 +763,14 @@ function DotAlwaysOnCard() {
   const [health, setHealth] = useState<any>(null);
   const [attn, setAttn] = useState<any>(null);
   const [timers, setTimers] = useState<any>(null);
+  const [ov, setOv] = useState<any>(null);
   useEffect(() => {
     const get = (u: string, set: (v: any) => void) =>
       fetch(u).then((r) => r.json()).then(set).catch(() => set({ ok: false }));
     get("http://127.0.0.1:8900/v1/dot/health", setHealth);
     get("http://127.0.0.1:8900/v1/dot/outbox-attention", setAttn);
     get("http://127.0.0.1:8900/v1/dot/timers", setTimers);
+    get("http://127.0.0.1:8900/v1/dot/overview", setOv);
   }, []);
   const bad = Number(health?.fail ?? 0);
   return (
@@ -780,7 +782,9 @@ function DotAlwaysOnCard() {
         </span>
       </div>
       <div className="mt-2 space-y-1 text-xs text-white/70">
-        <div>定时器 {timers?.n ?? 0} 条，到期 {timers?.due ?? 0} 条</div>
+        <div>端口 {ov?.ports?.up ?? 0}/{ov?.ports?.total ?? 6} · 版本 {ov?.version || "—"} · 定时器 {timers?.n ?? 0}/{timers?.due ?? 0}</div>
+        <div>本体 M1 {ov?.ontology?.M1?.declared ?? "—"} · M2 {ov?.ontology?.M2?.declared ?? "—"} · M3 {ov?.ontology?.M3?.declared ?? "—"} · M5 {ov?.ontology?.M5?.declared ?? "—"} · M6 {ov?.ontology?.M6?.declared ?? "—"} · M7 {ov?.ontology?.M7?.wired ?? "—"}/{ov?.ontology?.M7?.declared ?? "—"}（接线/声明）</div>
+        <div>车道 直答 {ov?.lanes?.["直答"] ?? 0} · 执行 {ov?.lanes?.["执行"] ?? 0} · 分流 {ov?.lanes?.["前置分流"] ?? 0} · D1 {ov?.lanes?.D1 ?? 0} · 错误 {ov?.errors ?? 0}</div>
         <div>体检 FAIL {attn?.health_fail ?? 0} 条{health?.last ? " · " + health.last : ""}</div>
       </div>
     </div>

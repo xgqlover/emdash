@@ -10,6 +10,27 @@ import {
 } from '@emdash/core/runtimes/acp/api/client';
 import type { AttachmentMimeType, AttachmentRef } from '@emdash/core/services/attachments/api';
 import { createScope, type Scope } from '@emdash/shared/concurrency';
+
+// [XG-CUSTOM 2026-11-22] ACP chat bootstrap 全局并发闸。
+// 为什么：库里 97 条会话时，UI 一挂载就几十个 bootstrap() 同时打出去
+// ⇒ 60 次 `ACP chat bootstrap failed` + 46 次 worker 退出（2026-11-22 实测），
+// 而这股风暴会顺手把刚做完的 conversation backfill 打断。
+// 做法：模块级信号量（默认 3 并发）+ FIFO 排队，失败不占坑；不改任何调用方语义。
+const ACP_BOOTSTRAP_MAX_CONCURRENT = 3;
+let acpBootstrapActive = 0;
+const acpBootstrapWaiters: Array<() => void> = [];
+function acquireAcpBootstrapSlot(): Promise<void> {
+  if (acpBootstrapActive < ACP_BOOTSTRAP_MAX_CONCURRENT) {
+    acpBootstrapActive += 1;
+    return Promise.resolve();
+  }
+  return new Promise<void>((resolve) => acpBootstrapWaiters.push(resolve));
+}
+function releaseAcpBootstrapSlot(): void {
+  const next = acpBootstrapWaiters.shift();
+  if (next) next();          // 令牌直接转交，活跃数不变
+  else acpBootstrapActive = Math.max(0, acpBootstrapActive - 1);
+}
 import { systemClock } from '@emdash/shared/scheduling';
 import {
   PromptEditorModel,
@@ -326,7 +347,18 @@ export class AcpChatStore {
   bootstrap(): void {
     if (this._bootstrapped) return;
     this._bootstrapped = true;
-    void this._runBootstrap();
+    void this._runBootstrapGated();
+  }
+
+  // [XG-CUSTOM 2026-11-22] 走全局并发闸；排队期间被 dispose 也能正确放令牌。
+  private async _runBootstrapGated(mode?: 'resume' | 'fresh'): Promise<void> {
+    await acquireAcpBootstrapSlot();
+    try {
+      if (this._disposed) return;
+      await this._runBootstrap(mode);
+    } finally {
+      releaseAcpBootstrapSlot();
+    }
   }
 
   retry(options: { mode?: AcpSessionStartMode } = {}): void {
@@ -354,7 +386,7 @@ export class AcpChatStore {
     this._attachmentRecovery = null;
     this.historyLoading = true;
     this.loadError = null;
-    void this._runBootstrap(options.mode);
+    void this._runBootstrapGated(options.mode);
   }
 
   bindView(view: ChatView | null): void {
