@@ -766,7 +766,7 @@ function SystemModelCard() {
 function OntologyMatrixCard() {
   const [ov, setOv] = useState<any>(null);
   useEffect(() => {
-    fetch("http://127.0.0.1:8900/v1/dot/overview")
+    fetch(`${XG_DOT_BASE}/v1/dot/overview`)
       .then((r) => r.json()).then(setOv).catch(() => setOv({ ok: false }));
   }, []);
   const o = ov?.ontology ?? {};
@@ -793,13 +793,13 @@ function SimLedgerCard() {
   const [ov, setOv] = useState<any>(null);
   const [list, setList] = useState<any[]>([]);
   const load = () => {
-    fetch("http://127.0.0.1:8900/v1/dot/overview").then((r) => r.json()).then(setOv).catch(() => setOv({ ok: false }));
-    fetch("http://127.0.0.1:8900/v1/dot/change-list").then((r) => r.json())
+    fetch(`${XG_DOT_BASE}/v1/dot/overview`).then((r) => r.json()).then(setOv).catch(() => setOv({ ok: false }));
+    fetch(`${XG_DOT_BASE}/v1/dot/change-list`).then((r) => r.json())
       .then((d) => setList(d?.items ?? [])).catch(() => setList([]));
   };
   useEffect(load, []);
   const act = (id: string, action: string) => {
-    fetch("http://127.0.0.1:8900/v1/dot/change-action", {
+    fetch(`${XG_DOT_BASE}/v1/dot/change-action`, {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, action }),
     }).then(load).catch(() => {});
@@ -871,7 +871,7 @@ function HumanQueueCard() {
 function AttentionIndexCard() {
   const [d, setD] = useState<any>(null);
   useEffect(() => {
-    fetch("http://127.0.0.1:8900/v1/dot/attention-index")
+    fetch(`${XG_DOT_BASE}/v1/dot/attention-index`)
       .then((r) => r.json()).then(setD).catch(() => setD({ ok: false }));
   }, []);
   const items = d?.items ?? [];
@@ -897,10 +897,10 @@ function DotAlwaysOnCard() {
   useEffect(() => {
     const get = (u: string, set: (v: any) => void) =>
       fetch(u).then((r) => r.json()).then(set).catch(() => set({ ok: false }));
-    get("http://127.0.0.1:8900/v1/dot/health", setHealth);
-    get("http://127.0.0.1:8900/v1/dot/outbox-attention", setAttn);
-    get("http://127.0.0.1:8900/v1/dot/timers", setTimers);
-    get("http://127.0.0.1:8900/v1/dot/overview", setOv);
+    get(`${XG_DOT_BASE}/v1/dot/health`, setHealth);
+    get(`${XG_DOT_BASE}/v1/dot/outbox-attention`, setAttn);
+    get(`${XG_DOT_BASE}/v1/dot/timers`, setTimers);
+    get(`${XG_DOT_BASE}/v1/dot/overview`, setOv);
   }, []);
   const bad = Number(health?.fail ?? 0);
   return (
@@ -964,7 +964,7 @@ function WorkspaceCard() {
 function M7QueriesCard() {
   const [data, setData] = useState<any>(null);
   useEffect(() => {
-    fetch("http://127.0.0.1:8900/v1/dot/m7")
+    fetch(`${XG_DOT_BASE}/v1/dot/m7`)
       .then((r) => r.json())
       .then(setData)
       .catch(() => setData({ ok: false }));
