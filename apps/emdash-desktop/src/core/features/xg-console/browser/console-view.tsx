@@ -776,7 +776,7 @@ function OntologyMatrixCard() {
         <div className="text-sm font-medium">本体 M1–M7（接线 / 声明）</div>
         <span className="rounded bg-white/10 px-2 py-0.5 text-[11px]">wired = 运行证据命中</span>
       </div>
-      <div className="mt-2 grid grid-cols-2 gap-1 text-xs text-white/70">
+      <div className="mt-2 grid grid-cols-2 gap-1 text-xs opacity-70">
         {rows.map((k) => (
           <div key={k} className="flex justify-between rounded bg-white/5 px-2 py-1">
             <span>{k}</span>
@@ -790,10 +790,19 @@ function OntologyMatrixCard() {
 
 function SimLedgerCard() {
   const [ov, setOv] = useState<any>(null);
-  useEffect(() => {
-    fetch("http://127.0.0.1:8900/v1/dot/overview")
-      .then((r) => r.json()).then(setOv).catch(() => setOv({ ok: false }));
-  }, []);
+  const [list, setList] = useState<any[]>([]);
+  const load = () => {
+    fetch("http://127.0.0.1:8900/v1/dot/overview").then((r) => r.json()).then(setOv).catch(() => setOv({ ok: false }));
+    fetch("http://127.0.0.1:8900/v1/dot/change-list").then((r) => r.json())
+      .then((d) => setList(d?.items ?? [])).catch(() => setList([]));
+  };
+  useEffect(load, []);
+  const act = (id: string, action: string) => {
+    fetch("http://127.0.0.1:8900/v1/dot/change-action", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, action }),
+    }).then(load).catch(() => {});
+  };
   const s = ov?.sim ?? {};
   const v = s.verdicts ?? {};
   return (
@@ -804,9 +813,18 @@ function SimLedgerCard() {
           共 {s.total ?? 0} · 待回填 {s.pending_backfill ?? 0}
         </span>
       </div>
-      <div className="mt-2 space-y-1 text-xs text-white/70">
+      <div className="mt-2 space-y-1 text-xs opacity-70">
         <div>win {v.win ?? 0} · lose {v.lose ?? 0} · inconclusive {v.inconclusive ?? 0}</div>
         <div>事件 {Object.keys(s.events ?? {}).length} 类 · 车道 {Object.keys(s.lanes ?? {}).join(" / ") || "—"}</div>
+        {list.slice(0, 4).map((c: any) => (
+          <div key={c.id} className="flex items-center justify-between gap-2 rounded bg-white/5 px-2 py-1">
+            <span className="truncate" title={c.title}>{c.title || c.id}</span>
+            <span className="flex shrink-0 gap-1">
+              <button className="rounded bg-emerald-500/20 px-1.5" onClick={() => act(c.id, "approve")}>批准</button>
+              <button className="rounded bg-red-500/20 px-1.5" onClick={() => act(c.id, "rollback")}>回滚</button>
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -825,7 +843,7 @@ function AttentionIndexCard() {
         <div className="text-sm font-medium">注意力（谁在等我）</div>
         <span className="rounded bg-white/10 px-2 py-0.5 text-[11px]">{d?.n ?? 0} 条</span>
       </div>
-      <div className="mt-2 space-y-1 text-xs text-white/70">
+      <div className="mt-2 space-y-1 text-xs opacity-70">
         {items.slice(0, 6).map((x: string, i: number) => (<div key={i}>{x}</div>))}
         {items.length === 0 && <div>暂无（无 blocked / 无告警 / 无待回填）</div>}
       </div>
@@ -855,7 +873,7 @@ function DotAlwaysOnCard() {
           体检 {bad === 0 ? "全通" : bad + " FAIL"} · 等 {attn?.waiting ?? 0} · 超期 {attn?.overdue ?? 0}
         </span>
       </div>
-      <div className="mt-2 space-y-1 text-xs text-white/70">
+      <div className="mt-2 space-y-1 text-xs opacity-70">
         <div>端口 {ov?.ports?.up ?? 0}/{ov?.ports?.total ?? 6} · 版本 {ov?.version || "—"} · 定时器 {timers?.n ?? 0}/{timers?.due ?? 0}</div>
         <div>本体 M1 {ov?.ontology?.M1?.declared ?? "—"} · M2 {ov?.ontology?.M2?.declared ?? "—"} · M3 {ov?.ontology?.M3?.declared ?? "—"} · M5 {ov?.ontology?.M5?.declared ?? "—"} · M6 {ov?.ontology?.M6?.declared ?? "—"} · M7 {ov?.ontology?.M7?.wired ?? "—"}/{ov?.ontology?.M7?.declared ?? "—"}（接线/声明）</div>
         <div>L0.6 触点 {ov?.l06?.hit_7d ?? 0}/{ov?.l06?.total ?? "—"} 有命中 · 7天调用 {ov?.l06?.calls_7d ?? 0} 次</div>
@@ -892,7 +910,7 @@ function WorkspaceCard() {
           {c.repository ?? 0} 大仓 · {c.worktree ?? 0} 小仓 · {bad === 0 ? "无孤儿" : bad + " 处异常"}
         </span>
       </div>
-      <div className="mt-2 space-y-1 text-xs text-white/70">
+      <div className="mt-2 space-y-1 text-xs opacity-70">
         <div>引用：tasks {r.tasks_total ?? 0} / bad {r.tasks_bad ?? 0} · projects {r.projects_total ?? 0} / bad {r.projects_bad ?? 0}</div>
         <div>PilotDeck 根仓：{d.pilotdeck?.registered ? "已注册" : "未注册"} · {d.pilotdeck?.id?.slice(0, 8) ?? "—"}</div>
         <div>派工绑定：{d.assignments?.bound ?? 0} / {d.assignments?.total ?? 0}</div>
