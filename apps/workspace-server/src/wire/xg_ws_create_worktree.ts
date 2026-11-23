@@ -84,6 +84,16 @@ async function create(): Promise<number> {
       path: dest,
     });
     if (!ws.success) throw new Error('createWorktree failed: ' + JSON.stringify(ws.error));
+    // [XG 2026-11-23] M6 打点：工作区小仓真建成才记（不阻塞主流程）
+    try {
+      const { appendFileSync, mkdirSync } = await import("node:fs");
+      const { join, dirname } = await import("node:path");
+      const p = join(process.env.XG_REPO_ROOT || process.cwd(), "_meta", ".state", "ontology-hits.jsonl");
+      mkdirSync(dirname(p), { recursive: true });
+      appendFileSync(p, JSON.stringify({ ts: Math.floor(Date.now() / 1000), kind: "M6",
+                                         id: "PRC-WORKSPACE-PROVISION" }) + "\n");
+    } catch {}
+
     console.log(
       JSON.stringify({
         ok: true,
