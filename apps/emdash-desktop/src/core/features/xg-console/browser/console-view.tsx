@@ -216,6 +216,7 @@ export function XgConsoleMainPanel() {
           <M7QueriesCard />
           <DotAlwaysOnCard />
           <AttentionIndexCard />
+          <HumanQueueCard />
           <SimLedgerCard />
           <OntologyMatrixCard />
           <SystemModelCard />
@@ -825,6 +826,43 @@ function SimLedgerCard() {
             </span>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function HumanQueueCard() {
+  const [d, setD] = useState<any>(null);
+  useEffect(() => {
+    fetch(`${XG_DOT_BASE}/v1/dot/human-queue`, { cache: 'no-store' })
+      .then((r) => r.json()).then(setD).catch(() => setD({ ok: false, n: 0, items: [] }));
+  }, []);
+  const items = d?.items ?? [];
+  const counts = d?.counts ?? {};
+  const label: Record<string, string> = {
+    gate_ignore: 'GATE',
+    ticket: '票',
+    waiting_answer: '待答',
+    assignment_recovered: '恢复',
+  };
+  return (
+    <div className="rounded-lg border border-white/10 p-3">
+      <div className="flex items-center justify-between">
+        <div className="text-sm font-medium">待人处理</div>
+        <span className="rounded bg-white/10 px-2 py-0.5 text-[11px]">{d?.n ?? 0} 条</span>
+      </div>
+      <div className="mt-1 text-[11px] text-foreground-muted">
+        gate {counts.gate_ignore ?? 0} · 票 {counts.ticket ?? 0} · 待答 {counts.waiting_answer ?? 0} · 恢复 {counts.assignment_recovered ?? 0}
+      </div>
+      <div className="mt-2 space-y-1 text-xs opacity-80">
+        {items.slice(0, 8).map((x: any, i: number) => (
+          <div key={i} className="flex gap-2">
+            <span className="shrink-0 rounded bg-white/10 px-1.5 py-0.5 text-[10px]">{label[x.type] ?? x.type}</span>
+            <span className="min-w-0 flex-1 truncate" title={`${x.title || ''} · ${x.reason || ''}`}>{x.title || x.id}</span>
+            <span className="shrink-0 text-[10px] text-foreground-muted">{x.state || ''}</span>
+          </div>
+        ))}
+        {items.length === 0 && <div>暂无（无 gate-ignore / 无 pending / 无待答 / 无恢复）</div>}
       </div>
     </div>
   );
