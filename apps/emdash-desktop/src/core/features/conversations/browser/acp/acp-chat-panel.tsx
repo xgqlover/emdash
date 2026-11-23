@@ -876,8 +876,9 @@ const ComposerForStore = observer(function ComposerForStore({
 //   ② 说「退出 / 结束」把 Dot 交回去时 ⇒ **自动**弹最近那张卡的同一个原生 modal（用户口径）
 //   弹窗外壳走 emdash 原生弹窗机制（modalCatalog + ModalRenderer），「看全文」走原生 openFileInTaskEditor。
 // [XG-CUSTOM 2026-11-03] 卡落点从 `知识交换中心/` 扩到 `bots/<bot>/cards/`（卡跟窗口走后的新落点）。
-const XG_CARD_PATH_RE = /(?:知识交换中心|bots)\/[^\s"'`)\]>]+\.md/;
-const XG_CARD_PATH_TAIL_RE = /(?:知识交换中心|bots)\/.*\.md$/i;
+// [XG 2026-11-23] 知识交换中心已删除，卡统一落在 `共享维基中心/📡 inbox/<bot>/`；旧串保留兼容历史文本。
+const XG_CARD_PATH_RE = /(?:共享维基中心|知识交换中心|bots)\/[^\s"'`)\]>]+\.md/;
+const XG_CARD_PATH_TAIL_RE = /(?:共享维基中心|知识交换中心|bots)\/.*\.md$/i;
 const XG_DOT_EXIT_ACK_RE = /Dot 先退开/;
 
 export const AcpChatPanel = observer(function AcpChatPanel() {

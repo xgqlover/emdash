@@ -55,7 +55,7 @@ function openRemoteCreateSkillForTypeTest(host: HostRef) {
 // [XG-CUSTOM 2026-10-27] 类型钉子：props 漂了 typecheck 就红
 function openXgCardForTypeTest() {
   return openModal('xgCardModal', {
-    path: '知识交换中心/📡 inbox/xiangwo/dot-x.md',
+    path: '共享维基中心/📡 inbox/xiangwo/dot-x.md',
     onOpenFile: () => {},
     onMerge: () => {},
   });
