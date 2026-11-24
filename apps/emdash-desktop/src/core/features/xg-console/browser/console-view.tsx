@@ -59,116 +59,6 @@ type SharedWiki = {
   };
   gold?: { labels?: number; need?: number; accept?: number; reject?: number; verdict?: string };
 };
-/** [XG 2026-11-24] Autoloop 任务中台：status 摘要 + 点 run 看 why 时间线。只读，不代替 Agent 执行。 */
-type AutoLoopRun = {
-  id?: number; rule?: string; agent?: string; state?: string; attempts?: number;
-  summary?: string; createdAt?: string; claimedAt?: string; finishedAt?: string;
-};
-type AutoLoopStatus = {
-  ok?: boolean; installed?: boolean; configured?: boolean; running?: boolean;
-  error?: string; at?: string; home?: string;
-  totals?: { running?: number; queued?: number; retrying?: number; doneToday?: number; attention?: number; done?: number };
-  spending?: { today?: { rounds?: number; tokens?: number; cost?: number }; week?: { rounds?: number; tokens?: number; cost?: number } };
-  cards?: { id?: number; title?: string; text?: string; rule?: string; lane?: string }[];
-  runs?: AutoLoopRun[];
-  agents?: { id?: string; name?: string; worker?: string; online?: boolean }[];
-  lines?: { id?: string; name?: string; every?: string | null; next?: string | null; paused?: unknown }[];
-};
-
-function AutoLoopCard({ onPick }: { onPick: (run: AutoLoopRun, why: string) => void }) {
-  const [d, setD] = useState<AutoLoopStatus | null>(null);
-  const [busy, setBusy] = useState<number | null>(null);
-  useEffect(() => {
-    let alive = true;
-    const load = () => {
-      fetch(`${XG_DOT_BASE}/v1/dot/autoloop`, { cache: 'no-store' })
-        .then((r) => r.json())
-        .then((j) => { if (alive) setD(j); })
-        .catch((e) => { if (alive) setD({ ok: false, installed: false, configured: false, error: String(e) }); });
-    };
-    load();
-    const t = setInterval(load, 10_000);
-    return () => { alive = false; clearInterval(t); };
-  }, []);
-  const totals = d?.totals ?? {};
-  const runs = d?.runs ?? [];
-  const why = async (run: AutoLoopRun) => {
-    if (!run.id) return;
-    setBusy(run.id);
-    try {
-      const r = await fetch(`${XG_DOT_BASE}/v1/dot/autoloop?run=${run.id}`, { cache: 'no-store' });
-      const j = await r.json();
-      onPick(run, j?.text || j?.error || '没有 why 输出');
-    } catch (e) {
-      onPick(run, String(e));
-    } finally {
-      setBusy(null);
-    }
-  };
-  return (
-    <div className="mt-3 rounded-xl border border-border-subtle bg-surface p-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <MicroLabel>任务中台（Autoloop）</MicroLabel>
-        <Badge tone={d?.ok ? 'success' : d?.configured ? 'warning' : 'neutral'} variant="outline">
-          {d?.ok ? '已连接' : d?.configured ? '未运行' : d?.installed ? '未配置' : '未安装'}
-        </Badge>
-        <span className="text-[11px] text-foreground-muted">
-          任务 status/why · 与模型泳道并排
-        </span>
-        <span className="ml-auto text-[11px] text-foreground-muted">
-          {d?.at ? d.at.slice(11, 19) : '—'} · 只读
-        </span>
-      </div>
-      {!d?.ok ? (
-        <div className="pt-2 text-xs text-foreground-muted">
-          {d?.error || '读取中…'}
-          <span className="ml-2 text-[11px]">（未安装/未配置时中控台不伪造任务）</span>
-        </div>
-      ) : (
-        <>
-          <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {[
-              ['在跑', totals.running ?? 0],
-              ['排队', totals.queued ?? 0],
-              ['等你', totals.attention ?? 0],
-              ['今天完成', totals.doneToday ?? 0],
-            ].map(([k, v]) => (
-              <div key={String(k)} className="rounded-lg border border-border-subtle px-3 py-2">
-                <div className="text-[11px] text-foreground-muted">{k}</div>
-                <div className="text-sm font-semibold">{v}</div>
-              </div>
-            ))}
-          </div>
-          {runs.length > 0 && (
-            <div className="mt-2 flex flex-col">
-              {runs.slice(0, 5).map((r) => (
-                <button
-                  key={r.id}
-                  type="button"
-                  disabled={busy === r.id}
-                  onClick={() => void why(r)}
-                  className="flex min-w-0 items-center gap-2 border-t border-border-subtle py-1.5 text-left first:border-t-0 hover:bg-surface-hover disabled:opacity-50"
-                >
-                  <span className="shrink-0 text-[11px] text-foreground-muted">#{r.id}</span>
-                  <span className="min-w-0 flex-1 truncate text-xs">{r.rule || '—'}</span>
-                  <Badge tone={r.state === 'done' ? 'success' : r.state === 'queued' ? 'warning' : 'info'} variant="outline">
-                    {r.state || '?'}
-                  </Badge>
-                  <span className="max-w-[45%] truncate text-[11px] text-foreground-muted">{r.summary || ''}</span>
-                </button>
-              ))}
-            </div>
-          )}
-          <div className="mt-1 text-[11px] text-foreground-muted">
-            {d?.cards?.length ? `待你拍板 ${d.cards.length} 张 · ` : ''}
-            {d?.agents?.filter((a) => a.online).length ?? 0} 个 worker 在线 · 点任一 run 看 why
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
 /** [XG 2026-11-24] 中控台全局：4B 判意图 → 8084 排序 → w1x/PM 执行 → 27B 生成。
  *  只调 M7 QY-MODEL-LANES（/v1/dot/model-lanes）；不进回答正文，不塞侧边提示。 */
 function ModelLanesCard({ onPick }: { onPick: (lane: ModelLane) => void }) {
@@ -350,7 +240,7 @@ export function XgConsoleMainPanel() {
   const [d, setD] = useState<Status | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [sel, setSel] = useState<{ kind: 'ticket' | 'route' | 'af' | 'port' | 'flow' | 'wiki' | 'layers' | 'lane' | 'autoloop'; item?: unknown } | null>(null);
+  const [sel, setSel] = useState<{ kind: 'ticket' | 'route' | 'af' | 'port' | 'flow' | 'wiki' | 'layers' | 'lane'; item?: unknown } | null>(null);
 
   const load = useCallback(async () => {
     setBusy(true);
@@ -436,7 +326,6 @@ export function XgConsoleMainPanel() {
 
           {/* [XG 2026-11-20] 总管看板入口：票 / 任务书 / 闸门 / 巡检，一屏摘要；详情点开独立看板 */}
           <ModelLanesCard onPick={(l) => setSel({ kind: 'lane', item: l })} />
-          <AutoLoopCard onPick={(r, why) => setSel({ kind: 'autoloop', item: { run: r, why } })} />
           <MasterBoardStrip />
           <AttentionAndSkills />
           <TreeHealthCard />
@@ -659,23 +548,10 @@ export function XgConsoleMainPanel() {
         <Sheet.Content>
           <Sheet.Header>
             <Sheet.Title>
-              {sel?.kind === 'ticket' ? '派工票' : sel?.kind === 'route' ? '路由决策' : sel?.kind === 'af' ? 'AF 待接' : sel?.kind === 'wiki' ? '共享维基' : sel?.kind === 'layers' ? '注意力 / 上下文 / 技能' : sel?.kind === 'lane' ? '模型泳道' : sel?.kind === 'autoloop' ? 'Autoloop 任务' : sel?.kind === 'port' ? '端口健康' : '中控台流'}
+              {sel?.kind === 'ticket' ? '派工票' : sel?.kind === 'route' ? '路由决策' : sel?.kind === 'af' ? 'AF 待接' : sel?.kind === 'wiki' ? '共享维基' : sel?.kind === 'layers' ? '注意力 / 上下文 / 技能' : sel?.kind === 'lane' ? '模型泳道' : sel?.kind === 'port' ? '端口健康' : '中控台流'}
             </Sheet.Title>
           </Sheet.Header>
           <Sheet.Body>
-            {sel?.kind === 'autoloop' && (() => {
-              const it = (sel.item as { run?: AutoLoopRun; why?: string }) || {};
-              return (
-                <div className="space-y-3 text-sm">
-                  <div><span className="text-foreground-muted">轮次：</span>#{it.run?.id ?? '—'} · {it.run?.rule || '—'}</div>
-                  <div><span className="text-foreground-muted">Agent：</span>{it.run?.agent || '—'} · {it.run?.state || '—'}</div>
-                  <div><span className="text-foreground-muted">结论：</span>{it.run?.summary || '—'}</div>
-                  <div className="whitespace-pre-wrap break-words rounded-lg border border-border-subtle bg-surface p-2 text-xs">
-                    {it.why || '没有 why 输出'}
-                  </div>
-                </div>
-              );
-            })()}
             {sel?.kind === 'lane' && (() => {
               const l = (sel.item as ModelLane) || {};
               return (
