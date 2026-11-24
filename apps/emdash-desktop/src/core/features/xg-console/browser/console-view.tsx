@@ -132,6 +132,78 @@ function ModelLanesCard({ onPick }: { onPick: (lane: ModelLane) => void }) {
   );
 }
 
+/** [XG 2026-11-24] M7 QY-SEMANTIC-ROUTES：SR 真实选了 4B 还是 27B，以及为什么。
+ *  只读 /v1/dot/semantic-routes；策略在 SR 配置里，中控台不写死快车道。 */
+type SemanticRoute = {
+  ts?: number; at?: string; model?: string; decision?: string; ms?: number;
+  ok?: boolean; purpose?: string; text?: string; detail?: string;
+};
+function SemanticRouteCard({ onPick }: { onPick: (r: SemanticRoute) => void }) {
+  const [d, setD] = useState<{
+    ok?: boolean; error?: string; total?: number; counts?: Record<string, number>;
+    health?: { admin?: { ok?: boolean; ms?: number }; data?: { ok?: boolean; ms?: number } };
+    recent?: SemanticRoute[]; policy?: { signals?: string; note?: string; decision?: string };
+  } | null>(null);
+  useEffect(() => {
+    let alive = true;
+    const load = () => {
+      fetch(`${XG_DOT_BASE}/v1/dot/semantic-routes?limit=8`, { cache: 'no-store' })
+        .then((r) => r.json())
+        .then((j) => { if (alive) setD(j); })
+        .catch((e) => { if (alive) setD({ ok: false, error: String(e) }); });
+    };
+    load();
+    const t = setInterval(load, 5000);
+    return () => { alive = false; clearInterval(t); };
+  }, []);
+  const recent = d?.recent ?? [];
+  const up = Boolean(d?.health?.admin?.ok && d?.health?.data?.ok);
+  return (
+    <div className="mt-3 rounded-xl border border-border-subtle bg-surface p-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <MicroLabel>语义路由 SR</MicroLabel>
+        <Badge tone={up ? 'success' : 'warning'} variant="outline">
+          {up ? '管理面/数据面都通' : '有面不通'}
+        </Badge>
+        <span className="text-[11px] text-foreground-muted">
+          4B {d?.counts?.['4b'] ?? 0} · 27B {d?.counts?.['27b'] ?? 0} · 共 {d?.total ?? 0} 次
+        </span>
+        <span className="ml-auto text-[11px] text-foreground-muted">
+          只读 M7 runtime.semantic-routes
+        </span>
+      </div>
+      {recent.length === 0 ? (
+        <div className="pt-2 text-xs text-foreground-muted">
+          {d?.error ? `路由接口不通：${d.error}` : '暂无路由决策记录'}
+        </div>
+      ) : (
+        <div className="mt-2 grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+          {recent.map((r, i) => (
+            <button
+              key={`${r.at ?? ''}-${i}`}
+              type="button"
+              onClick={() => onPick(r)}
+              className="min-w-0 rounded-lg border border-border-subtle px-3 py-1.5 text-left hover:bg-surface-hover"
+            >
+              <div className="flex items-center gap-2">
+                <Badge tone={String(r.model || '').includes('4b') ? 'info' : 'neutral'} variant="outline">
+                  {String(r.model || '').includes('4b') ? '4B' : '27B'}
+                </Badge>
+                <span className="truncate text-xs font-medium">{r.decision || 'default'}</span>
+                <span className="ml-auto text-[11px] text-foreground-muted">{r.ms ? `${r.ms}ms` : '—'}</span>
+              </div>
+              <div className="truncate text-[11px] text-foreground-muted">{r.text || '—'}</div>
+            </button>
+          ))}
+        </div>
+      )}
+      <div className="mt-2 truncate text-[11px] text-foreground-muted">
+        {d?.policy?.decision || 'heavy-task → 27B；fast-default → 4B'} · {d?.policy?.signals || 'SR signals'}
+      </div>
+    </div>
+  );
+}
+
 /** [XG 2026-11-23] 分层卡：Pi 1 / bot 10 / 代理 72 + 各自上下文根与卡数。只读 :8916/layers。 */
 function LayersCard() {
   const [d, setD] = useState<{
@@ -240,7 +312,7 @@ export function XgConsoleMainPanel() {
   const [d, setD] = useState<Status | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [sel, setSel] = useState<{ kind: 'ticket' | 'route' | 'af' | 'port' | 'flow' | 'wiki' | 'layers' | 'lane'; item?: unknown } | null>(null);
+  const [sel, setSel] = useState<{ kind: 'ticket' | 'route' | 'af' | 'port' | 'flow' | 'wiki' | 'layers' | 'lane' | 'sroute'; item?: unknown } | null>(null);
 
   const load = useCallback(async () => {
     setBusy(true);
@@ -326,6 +398,7 @@ export function XgConsoleMainPanel() {
 
           {/* [XG 2026-11-20] 总管看板入口：票 / 任务书 / 闸门 / 巡检，一屏摘要；详情点开独立看板 */}
           <ModelLanesCard onPick={(l) => setSel({ kind: 'lane', item: l })} />
+          <SemanticRouteCard onPick={(r) => setSel({ kind: 'sroute', item: r })} />
           <MasterBoardStrip />
           <AttentionAndSkills />
           <TreeHealthCard />
@@ -548,7 +621,7 @@ export function XgConsoleMainPanel() {
         <Sheet.Content>
           <Sheet.Header>
             <Sheet.Title>
-              {sel?.kind === 'ticket' ? '派工票' : sel?.kind === 'route' ? '路由决策' : sel?.kind === 'af' ? 'AF 待接' : sel?.kind === 'wiki' ? '共享维基' : sel?.kind === 'layers' ? '注意力 / 上下文 / 技能' : sel?.kind === 'lane' ? '模型泳道' : sel?.kind === 'port' ? '端口健康' : '中控台流'}
+              {sel?.kind === 'ticket' ? '派工票' : sel?.kind === 'route' ? '路由决策' : sel?.kind === 'af' ? 'AF 待接' : sel?.kind === 'wiki' ? '共享维基' : sel?.kind === 'layers' ? '注意力 / 上下文 / 技能' : sel?.kind === 'lane' ? '模型泳道' : sel?.kind === 'sroute' ? '语义路由' : sel?.kind === 'port' ? '端口健康' : '中控台流'}
             </Sheet.Title>
           </Sheet.Header>
           <Sheet.Body>
@@ -565,6 +638,20 @@ export function XgConsoleMainPanel() {
                   {typeof l.candidates === 'number' && l.candidates > 0 ? <div><span className="text-foreground-muted">候选数：</span>{l.candidates}</div> : null}
                   {typeof l.requests === 'number' ? <div><span className="text-foreground-muted">累计请求：</span>{l.requests} · 最近 {l.last_ms ?? '—'}ms</div> : null}
                   {l.error ? <div className="text-foreground-danger"><span className="text-foreground-muted">错误：</span>{l.error}</div> : null}
+                </div>
+              );
+            })()}
+            {sel?.kind === 'sroute' && (() => {
+              const r = (sel.item as SemanticRoute) || {};
+              return (
+                <div className="space-y-3 text-sm">
+                  <div><span className="text-foreground-muted">模型：</span>{r.model || '—'}</div>
+                  <div><span className="text-foreground-muted">决策：</span>{r.decision || '—'}</div>
+                  <div><span className="text-foreground-muted">用途：</span>{r.purpose || '—'}</div>
+                  <div><span className="text-foreground-muted">耗时：</span>{r.ms ? `${r.ms}ms` : '—'} · {r.ok ? '成功' : '失败/回落'}</div>
+                  <div className="whitespace-pre-wrap break-words"><span className="text-foreground-muted">原话：</span>{r.text || '—'}</div>
+                  <div><span className="text-foreground-muted">依据：</span>{r.detail || '—'}</div>
+                  <div><span className="text-foreground-muted">时间：</span>{r.at || '—'}</div>
                 </div>
               );
             })()}
