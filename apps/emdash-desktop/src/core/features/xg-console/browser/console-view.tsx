@@ -66,6 +66,7 @@ function ModelLanesCard({ onPick }: { onPick: (lane: ModelLane) => void }) {
     ok?: boolean; at?: string; error?: string; constraints?: string[];
     lanes?: ModelLane[];
   } | null>(null);
+  const [ci, setCi] = useState<any>(null);
   useEffect(() => {
     let alive = true;
     const load = () => {
@@ -74,9 +75,14 @@ function ModelLanesCard({ onPick }: { onPick: (lane: ModelLane) => void }) {
         .then((j) => { if (alive) setD(j); })
         .catch((e) => { if (alive) setD({ ok: false, error: String(e) }); });
     };
-    load();
+    const loadCi = () => {
+      fetch(`${XG_DOT_BASE}/v1/dot/context-ir`, { cache: 'no-store' })
+        .then((r) => r.json()).then((j) => { if (alive) setCi(j); }).catch(() => {});
+    };
+    load(); loadCi();
     const t = setInterval(load, 5000);
-    return () => { alive = false; clearInterval(t); };
+    const t2 = setInterval(loadCi, 10000);
+    return () => { alive = false; clearInterval(t); clearInterval(t2); };
   }, []);
   const lanes = d?.lanes ?? [];
   return (
@@ -84,10 +90,10 @@ function ModelLanesCard({ onPick }: { onPick: (lane: ModelLane) => void }) {
       <div className="flex flex-wrap items-center gap-2">
         <MicroLabel>模型泳道</MicroLabel>
         <Badge tone={d?.ok ? 'success' : 'warning'} variant="outline">
-          {d?.ok ? '四段都通' : '有段不通'}
+          {d?.ok ? '五段都通' : '有段不通'}
         </Badge>
         <span className="text-[11px] text-foreground-muted">
-          4B 直答/前置分流 → 8084 选专家 → w1x 执行 → 27B handback/D1
+          SR 选路 → 4B 直答/前置分流 → 8084 选专家 → w1x 执行 → 27B handback/D1
         </span>
         <span className="ml-auto text-[11px] text-foreground-muted">
           {d?.at ? d.at.slice(11, 19) : '—'} · 只读 M7 runtime.model-lanes
@@ -98,7 +104,7 @@ function ModelLanesCard({ onPick }: { onPick: (lane: ModelLane) => void }) {
           {d?.error ? `泳道接口不通：${d.error}` : '读取中…'}
         </div>
       ) : (
-        <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
           {lanes.map((l, i) => (
             <button
               key={l.id || i}
@@ -125,8 +131,16 @@ function ModelLanesCard({ onPick }: { onPick: (lane: ModelLane) => void }) {
           ))}
         </div>
       )}
+      {ci?.ok ? (
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-foreground-muted">
+          <Badge tone="info" variant="outline">context-ir</Badge>
+          <span>技能注入 {ci?.skill?.n ?? 0}{ci?.skill?.last ? `（${ci.skill.last} · 语料 ${ci.skill.corpus ?? '—'}）` : ''}</span>
+          <span>折叠 {ci?.fold?.n ?? 0}</span>
+          <span>选块 {(ci?.chunk?.n ?? 0) + (ci?.lex?.n ?? 0)}</span>
+        </div>
+      ) : null}
       <div className="mt-2 text-[11px] text-foreground-muted">
-        {(d?.constraints ?? ['4B 能答就答，答不了才出意图', '8084 选专家', '27B handback/D1']).join(' · ')}
+        {(d?.constraints ?? ['SR 只选路', '4B 能答就答，答不了才出意图', '8084 选专家', '27B handback/D1']).join(' · ')}
       </div>
     </div>
   );
