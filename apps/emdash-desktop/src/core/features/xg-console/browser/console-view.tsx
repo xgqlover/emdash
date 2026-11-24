@@ -8,6 +8,9 @@ const XG_DOT_BASE = (() => {
   return 'http://192.168.15.195:8900';
 })();
 
+// [XG 2026-11-23] 三层清单（Pi / bot / 代理）走只读服务 :8916，不重启 8900 也能加。
+const XG_LAYERS_BASE = XG_DOT_BASE.replace(/:\d+$/, ':8916');
+
 // [XG-CUSTOM 2026-11-17] 中控台：照 emdash 原生骨架（PageLayout + CardGrid + CollectionView + Sheet）
 //   - 数据只读 /v1/dot/status（票 / 决策 / 流 / 端口 / AF），不在渲染进程存副本
 //   - 第一层：4 张概览卡 + 2×2 四张卡片；第二层：点一行 → 右侧 Sheet 看全量
@@ -56,6 +59,113 @@ type SharedWiki = {
   };
   gold?: { labels?: number; need?: number; accept?: number; reject?: number; verdict?: string };
 };
+/** [XG 2026-11-24] 中控台全局：4B 判意图 → 8084 排序 → w1x/PM 执行 → 27B 生成。
+ *  只调 M7 QY-MODEL-LANES（/v1/dot/model-lanes）；不进回答正文，不塞侧边提示。 */
+function ModelLanesCard({ onPick }: { onPick: (lane: ModelLane) => void }) {
+  const [d, setD] = useState<{
+    ok?: boolean; at?: string; error?: string; constraints?: string[];
+    lanes?: ModelLane[];
+  } | null>(null);
+  useEffect(() => {
+    let alive = true;
+    const load = () => {
+      fetch(`${XG_DOT_BASE}/v1/dot/model-lanes`, { cache: 'no-store' })
+        .then((r) => r.json())
+        .then((j) => { if (alive) setD(j); })
+        .catch((e) => { if (alive) setD({ ok: false, error: String(e) }); });
+    };
+    load();
+    const t = setInterval(load, 5000);
+    return () => { alive = false; clearInterval(t); };
+  }, []);
+  const lanes = d?.lanes ?? [];
+  return (
+    <div className="mt-3 rounded-xl border border-border-subtle bg-surface p-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <MicroLabel>模型泳道</MicroLabel>
+        <Badge tone={d?.ok ? 'success' : 'warning'} variant="outline">
+          {d?.ok ? '四段都通' : '有段不通'}
+        </Badge>
+        <span className="text-[11px] text-foreground-muted">
+          4B 判意图 → 8084 排序 → w1x/PM 执行 → 27B 生成
+        </span>
+        <span className="ml-auto text-[11px] text-foreground-muted">
+          {d?.at ? d.at.slice(11, 19) : '—'} · 只读 M7
+        </span>
+      </div>
+      {lanes.length === 0 ? (
+        <div className="pt-2 text-xs text-foreground-muted">
+          {d?.error ? `泳道接口不通：${d.error}` : '读取中…'}
+        </div>
+      ) : (
+        <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {lanes.map((l, i) => (
+            <button
+              key={l.id || i}
+              type="button"
+              onClick={() => onPick(l)}
+              className="min-w-0 rounded-lg border border-border-subtle px-3 py-2 text-left hover:bg-surface-hover"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-foreground-muted">{i + 1}</span>
+                <span className="text-sm font-medium">{l.name}</span>
+                <span className="ml-auto">
+                  <Badge tone={l.ok ? 'success' : 'warning'} variant="outline">{l.ok ? '通' : '断'}</Badge>
+                </span>
+              </div>
+              <div className="mt-1 truncate text-sm">
+                {l.port ? `:${l.port}` : '执行层'} <span className="text-foreground-muted">{l.model}</span>
+              </div>
+              <div className="truncate text-[11px] text-foreground-muted">
+                {l.role} · {l.ms ? `${l.ms}ms` : '—'}
+                {l.picked ? ` · 选中 ${l.picked}` : ''}
+              </div>
+              <div className="truncate text-[11px] text-foreground-muted">{l.detail}</div>
+            </button>
+          ))}
+        </div>
+      )}
+      <div className="mt-2 text-[11px] text-foreground-muted">
+        {(d?.constraints ?? ['4B 只判意图', '8084 只排序', '27B 生成']).join(' · ')}
+      </div>
+    </div>
+  );
+}
+
+/** [XG 2026-11-23] 分层卡：Pi 1 / bot 10 / 代理 72 + 各自上下文根与卡数。只读 :8916/layers。 */
+function LayersCard() {
+  const [d, setD] = useState<{
+    layers?: { pi?: number; bots?: number; agents?: number };
+    pi?: { cards?: number };
+    bots?: { id: string; agents?: number; cards?: number }[];
+    attention?: { counts?: { rows?: number; unattributed?: number } };
+  } | null>(null);
+  useEffect(() => {
+    let alive = true;
+    const load = () => {
+      fetch(`${XG_LAYERS_BASE}/layers`, { cache: 'no-store' })
+        .then((r) => r.json())
+        .then((j) => { if (alive) setD(j); })
+        .catch(() => { if (alive) setD(null); });
+    };
+    load();
+    const t = setInterval(load, 30_000);
+    return () => { alive = false; clearInterval(t); };
+  }, []);
+  const cards = (d?.bots ?? []).reduce((n, b) => n + (b.cards ?? 0), 0);
+  const sxsj = (d?.bots ?? []).find((b) => b.id === 'sxsj');
+  return (
+    <div className="flex min-w-0 flex-1 flex-col gap-1">
+      <MicroLabel>分层（Pi / bot / 代理）</MicroLabel>
+      <div className="text-2xl font-semibold">{d?.layers?.bots ?? '—'}</div>
+      <div className="truncate text-xs text-foreground-muted">
+        Pi {d?.layers?.pi ?? '—'} · 代理 {d?.layers?.agents ?? '—'} · 上下文 {d?.pi?.cards ?? 0}+{cards} 张
+        {sxsj ? ` · sxsj ${sxsj.agents ?? 0}代理/${sxsj.cards ?? 0}卡` : ''}
+      </div>
+    </div>
+  );
+}
+
 /** [XG-CUSTOM 2026-11-21] emdash workspace 账：大仓/小仓/孤儿/绑定；只读 /v1/dot/workspace。 */
 type WorkspaceStatus = {
   ok?: boolean; at?: string; registry?: string;
@@ -80,6 +190,14 @@ type Status = {
   };
   skills?: { ok?: boolean; visible?: number; total?: number; homes?: string[] };
   af?: { ok?: boolean; unanswered_effective?: number; over_count?: number; auto_confirmable?: number; by_workspace?: Record<string, number> };
+};
+
+/** [XG 2026-11-24] M7 QY-MODEL-LANES：一条回答真实经过的四段。只读，不触发模型。 */
+type ModelLane = {
+  id?: string; name?: string; port?: number | null; model?: string;
+  ok?: boolean; ms?: number; role?: string; detail?: string;
+  picked?: string; score?: string; candidates?: number; last_ms?: number;
+  requests?: number; agent?: string; error?: string;
 };
 
 const LANE_TONE: Record<string, 'success' | 'info' | 'neutral'> = { r0: 'success', fast: 'info', d1: 'neutral' };
@@ -122,7 +240,7 @@ export function XgConsoleMainPanel() {
   const [d, setD] = useState<Status | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [sel, setSel] = useState<{ kind: 'ticket' | 'route' | 'af' | 'port' | 'flow' | 'wiki' | 'layers'; item?: unknown } | null>(null);
+  const [sel, setSel] = useState<{ kind: 'ticket' | 'route' | 'af' | 'port' | 'flow' | 'wiki' | 'layers' | 'lane'; item?: unknown } | null>(null);
 
   const load = useCallback(async () => {
     setBusy(true);
@@ -207,6 +325,7 @@ export function XgConsoleMainPanel() {
           </div>
 
           {/* [XG 2026-11-20] 总管看板入口：票 / 任务书 / 闸门 / 巡检，一屏摘要；详情点开独立看板 */}
+          <ModelLanesCard onPick={(l) => setSel({ kind: 'lane', item: l })} />
           <MasterBoardStrip />
           <AttentionAndSkills />
           <TreeHealthCard />
@@ -284,6 +403,9 @@ export function XgConsoleMainPanel() {
                   ACP {ctx?.acp?.blocks ?? '—'} 块 · DSH {ctx?.dsh?.cuts ?? ctx?.cuts ?? '—'} 刀 · 技能 {sk?.visible ?? '—'}/{sk?.total ?? '—'}
                 </div>
               </div>
+            </CardGridItem>
+            <CardGridItem>
+              <LayersCard />
             </CardGridItem>
             <CardGridItem>
               <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -378,7 +500,7 @@ export function XgConsoleMainPanel() {
             </Section>
 
             <Section title="最近决策" count={routing.length}>
-              {routing.length === 0 ? <EmptyState title="还没有决策记录" /> : routing.slice(0, 10).map((r, i) => (
+              {routing.length === 0 ? <EmptyState label="还没有决策记录" /> : routing.slice(0, 10).map((r, i) => (
                 <div key={`r-${i}`} role="button" tabIndex={0} onClick={() => setSel({ kind: 'route', item: r })} className="cursor-pointer hover:bg-surface-hover">
                   <Row primary={<span className="flex items-center gap-2"><Badge tone={LANE_TONE[r.lane] || 'neutral'} variant="outline">{r.lane}</Badge><span className="truncate">{r.task}</span></span>} secondary={r.why || ''} right={r.outcome || '—'} />
                 </div>
@@ -386,7 +508,7 @@ export function XgConsoleMainPanel() {
             </Section>
 
             <Section title="中控台流" count={flowItems.length}>
-              {flowItems.length === 0 ? <EmptyState title="没有登记流" /> : flowItems.map((f, i) => (
+              {flowItems.length === 0 ? <EmptyState label="没有登记流" /> : flowItems.map((f, i) => (
                 <div key={`f-${i}`} role="button" tabIndex={0} onClick={() => setSel({ kind: 'flow', item: f })} className="cursor-pointer hover:bg-surface-hover">
                   <Row primary={f.name} secondary={`${f.estimate || '—'} · ${f.confidence || '—'}`} />
                 </div>
@@ -426,10 +548,26 @@ export function XgConsoleMainPanel() {
         <Sheet.Content>
           <Sheet.Header>
             <Sheet.Title>
-              {sel?.kind === 'ticket' ? '派工票' : sel?.kind === 'route' ? '路由决策' : sel?.kind === 'af' ? 'AF 待接' : sel?.kind === 'wiki' ? '共享维基' : sel?.kind === 'layers' ? '注意力 / 上下文 / 技能' : sel?.kind === 'port' ? '端口健康' : '中控台流'}
+              {sel?.kind === 'ticket' ? '派工票' : sel?.kind === 'route' ? '路由决策' : sel?.kind === 'af' ? 'AF 待接' : sel?.kind === 'wiki' ? '共享维基' : sel?.kind === 'layers' ? '注意力 / 上下文 / 技能' : sel?.kind === 'lane' ? '模型泳道' : sel?.kind === 'port' ? '端口健康' : '中控台流'}
             </Sheet.Title>
           </Sheet.Header>
           <Sheet.Body>
+            {sel?.kind === 'lane' && (() => {
+              const l = (sel.item as ModelLane) || {};
+              return (
+                <div className="space-y-3 text-sm">
+                  <div><span className="text-foreground-muted">段：</span>{l.name || '—'}</div>
+                  <div><span className="text-foreground-muted">端口：</span>{l.port ?? '执行层'}</div>
+                  <div className="break-all"><span className="text-foreground-muted">模型：</span>{l.model || '—'}</div>
+                  <div><span className="text-foreground-muted">职责：</span>{l.role || '—'} · {l.detail || '—'}</div>
+                  <div><span className="text-foreground-muted">状态：</span>{l.ok ? '通' : '不通'} · {l.ms ? `${l.ms}ms` : '—'}</div>
+                  {l.picked ? <div><span className="text-foreground-muted">最近选中：</span>{l.picked}{l.score ? ` · score ${l.score}` : ''}</div> : null}
+                  {typeof l.candidates === 'number' && l.candidates > 0 ? <div><span className="text-foreground-muted">候选数：</span>{l.candidates}</div> : null}
+                  {typeof l.requests === 'number' ? <div><span className="text-foreground-muted">累计请求：</span>{l.requests} · 最近 {l.last_ms ?? '—'}ms</div> : null}
+                  {l.error ? <div className="text-foreground-danger"><span className="text-foreground-muted">错误：</span>{l.error}</div> : null}
+                </div>
+              );
+            })()}
             {sel?.kind === 'ticket' && (() => {
               const t = (sel.item as Ticket) || (working[0] ?? tickets[0] ?? {});
               return (
@@ -722,7 +860,7 @@ function CodeOntologyCard() {
     <div className="mt-4 rounded-lg border border-border-subtle p-3">
       <div className="flex flex-wrap items-center gap-2">
         <MicroLabel>代码↔本体</MicroLabel>
-        <Badge tone={cov >= 50 ? 'success' : cov >= 10 ? 'warning' : 'danger'} variant="outline">
+        <Badge tone={cov >= 50 ? 'success' : cov >= 10 ? 'warning' : 'error'} variant="outline">
           已归属 {cov}%
         </Badge>
         <span className="text-xs text-foreground-muted">
