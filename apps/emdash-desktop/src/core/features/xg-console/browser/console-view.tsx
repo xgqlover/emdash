@@ -87,7 +87,7 @@ function ModelLanesCard({ onPick }: { onPick: (lane: ModelLane) => void }) {
           {d?.ok ? '四段都通' : '有段不通'}
         </Badge>
         <span className="text-[11px] text-foreground-muted">
-          4B 判意图 → 8084 排序 → w1x/PM 执行 → 27B 生成
+          4B 直答/前置分流 → 8084 选专家 → w1x 执行 → 27B handback/D1
         </span>
         <span className="ml-auto text-[11px] text-foreground-muted">
           {d?.at ? d.at.slice(11, 19) : '—'} · 只读 M7
@@ -126,7 +126,7 @@ function ModelLanesCard({ onPick }: { onPick: (lane: ModelLane) => void }) {
         </div>
       )}
       <div className="mt-2 text-[11px] text-foreground-muted">
-        {(d?.constraints ?? ['4B 只判意图', '8084 只排序', '27B 生成']).join(' · ')}
+        {(d?.constraints ?? ['4B 能答就答，答不了才出意图', '8084 选专家', '27B handback/D1']).join(' · ')}
       </div>
     </div>
   );
