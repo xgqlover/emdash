@@ -90,7 +90,7 @@ function ModelLanesCard({ onPick }: { onPick: (lane: ModelLane) => void }) {
           4B 直答/前置分流 → 8084 选专家 → w1x 执行 → 27B handback/D1
         </span>
         <span className="ml-auto text-[11px] text-foreground-muted">
-          {d?.at ? d.at.slice(11, 19) : '—'} · 只读 M7
+          {d?.at ? d.at.slice(11, 19) : '—'} · 只读 M7 runtime.model-lanes
         </span>
       </div>
       {lanes.length === 0 ? (
